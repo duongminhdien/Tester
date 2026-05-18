@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>软件测试完整学习体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --accent:#2563eb;--accent2:#1d4ed8;--acbg:rgba(37,99,235,.08);
+  --green:#16a34a;--gbg:rgba(22,163,74,.09);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.08);
+  --orange:#ea580c;--obg:rgba(234,88,12,.08);
+  --cyan:#0891b2;--cbg:rgba(8,145,178,.08);
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --sidebar:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#eef0f5}
+::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* ═══ LAYOUT ═══ */
+.layout{display:flex;min-height:100vh}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{
+  width:var(--sidebar);background:var(--white);
+  border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;bottom:0;
+  display:flex;flex-direction:column;
+  z-index:100;overflow-y:auto;
+  box-shadow:2px 0 16px rgba(0,0,0,.06);
+}
+
+.sb-header{
+  padding:20px 18px 16px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 100%);
+  flex-shrink:0;
+}
+.sb-logo{
+  font-family:'Space Mono',monospace;font-size:9.5px;
+  letter-spacing:.15em;color:rgba(255,255,255,.55);
+  text-transform:uppercase;margin-bottom:8px;
+}
+.sb-title{font-size:15px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:4px}
+.sb-sub{font-size:11px;color:rgba(255,255,255,.5)}
+
+/* Progress bar */
+.sb-progress{padding:14px 18px;border-bottom:1px solid var(--border);background:#fafbfd;flex-shrink:0}
+.sb-prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+.sb-prog-bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.sb-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:99px;width:0%;transition:width .5s ease}
+
+.sb-nav{flex:1;padding:10px 10px 20px;overflow-y:auto}
+
+/* Stage group */
+.stage-group{margin-bottom:4px}
+.stage-hdr{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:8px;
+  cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.stage-hdr:hover{background:var(--bg)}
+.stage-hdr.open{background:var(--bg)}
+.stage-icon{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.stage-info{flex:1;min-width:0}
+.stage-name{font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage-meta{font-size:10.5px;color:var(--muted);margin-top:1px}
+.stage-arrow{font-size:10px;color:var(--dim);transition:transform .2s;flex-shrink:0}
+.stage-hdr.open .stage-arrow{transform:rotate(90deg)}
+
+/* Day items */
+.day-list{display:none;padding:2px 0 4px 14px}
+.stage-hdr.open+.day-list{display:block}
+.day-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;border-radius:7px;
+  cursor:pointer;transition:all .15s;
+  margin-bottom:1px;text-decoration:none;
+  border:1px solid transparent;
+}
+.day-item:hover{background:#f0f4ff;border-color:rgba(37,99,235,.12)}
+.day-item.active{background:var(--acbg);border-color:rgba(37,99,235,.2)}
+.day-item.done .day-num{background:var(--green)!important;color:#fff}
+.day-num{
+  width:22px;height:22px;border-radius:5px;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;font-size:9px;font-weight:700;
+  color:var(--muted);flex-shrink:0;transition:all .15s;
+}
+.day-item.active .day-num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.day-info{flex:1;min-width:0}
+.day-title{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-item.active .day-title{color:var(--accent);font-weight:600}
+.day-tag{font-size:9.5px;color:var(--dim);margin-top:1px}
+.day-status{font-size:10px;flex-shrink:0;width:14px;text-align:center}
+
+/* Sidebar footer */
+.sb-footer{padding:12px 18px;border-top:1px solid var(--border);background:#fafbfd;flex-shrink:0}
+.sb-footer-text{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* ═══ MAIN ═══ */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+
+/* Top bar */
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:14px 32px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:50;
+  box-shadow:0 1px 6px rgba(0,0,0,.05);
+}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-crumb{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+.topbar-title{font-size:15px;font-weight:700;color:var(--text)}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.tb-btn{
+  padding:6px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--white);font-size:12.5px;color:var(--muted);
+  cursor:pointer;transition:all .15s;font-family:'Noto Sans SC',sans-serif;
+}
+.tb-btn:hover{background:var(--bg);color:var(--text);border-color:var(--border)}
+.tb-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent2)}
+.tb-btn.primary:hover{background:var(--accent2)}
+
+/* Content area */
+.content{flex:1;padding:0}
+.content-inner{max-width:100%;height:calc(100vh - 57px);border:none;width:100%}
+
+/* Welcome screen */
+.welcome{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 57px);padding:40px;text-align:center;
+}
+.welcome-emoji{font-size:60px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.welcome-title{font-size:28px;font-weight:700;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome-sub{font-size:14px;color:var(--muted);max-width:480px;line-height:1.8;margin-bottom:32px}
+
+.overview-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;max-width:760px;width:100%;margin-bottom:32px;
+}
+.ov-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:14px;padding:18px 16px;text-align:center;
+  transition:all .2s;cursor:default;
+}
+.ov-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08);border-color:#b8c4dc}
+.ov-icon{font-size:26px;margin-bottom:8px}
+.ov-num{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;margin-bottom:4px}
+.ov-label{font-size:12px;color:var(--muted)}
+
+.stage-overview{max-width:760px;width:100%;text-align:left}
+.stage-overview-title{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.stage-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.stage-card{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;padding:16px 18px;cursor:pointer;
+  transition:all .2s;text-align:left;
+}
+.stage-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.sc-icon{font-size:20px;margin-bottom:8px}
+.sc-stage{font-size:10px;font-weight:700;font-family:'Space Mono',monospace;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.sc-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.sc-days{font-size:11.5px;color:var(--muted)}
+.sc-bar{height:3px;border-radius:99px;background:var(--border);margin-top:10px;overflow:hidden}
+.sc-bar-fill{height:100%;border-radius:99px;width:0%;transition:width .5s}
+
+/* Mobile toggle */
+.mob-toggle{display:none;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-size:18px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .mob-toggle{display:block}
+  .topbar{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">▣ QA Academy</div>
+      <div class="sb-title">软件测试完整学习体系</div>
+      <div class="sb-sub">从零到职场 · 全程实战</div>
+    </div>
+
+    <div class="sb-progress">
+      <div class="sb-prog-label">
+        <span>总体进度</span>
+        <span id="progText">0 / 0 天</span>
+      </div>
+      <div class="sb-prog-bar">
+        <div class="sb-prog-fill" id="progFill"></div>
+      </div>
+    </div>
+
+    <nav class="sb-nav" id="sbNav">
+      <!-- Generated by JS -->
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-footer-text">
+        📌 每天学习 1 个 Day<br>
+        完成练习后再进入下一天
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ MAIN ═══════════════ -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mob-toggle" onclick="toggleSidebar()">☰</button>
+        <div>
+          <div class="topbar-crumb" id="topCrumb">软件测试完整学习体系</div>
+          <div class="topbar-title" id="topTitle">选择左侧章节开始学习</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="tb-btn" onclick="markDone()" id="btnDone" style="display:none">✓ 标记完成</button>
+        <button class="tb-btn primary" onclick="nextDay()" id="btnNext" style="display:none">下一天 →</button>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-emoji">🎯</div>
+        <div class="welcome-title">软件测试完整学习体系</div>
+        <div class="welcome-sub">
+          系统化课程，从测试基础到自动化实战。<br>
+          点击左侧菜单选择阶段和章节开始学习。
+        </div>
+
+        <div class="overview-grid">
+          <div class="ov-card">
+            <div class="ov-icon">📚</div>
+            <div class="ov-num" style="color:var(--accent)" id="totalStages">0</div>
+            <div class="ov-label">学习阶段</div>
+          </div>
+          <div class="ov-card">
+            <div class="ov-icon">📅</div>
+            <div class="ov-num" style="color:var(--purple)" id="totalDays">0</div>
+            <div class="ov-label">学习天数</div>
+          </div>
+          <div class="ov-card">
+            <div class="ov-icon">🧪</div>
+            <div class="ov-num" style="color:var(--green)" id="totalPractice">0</div>
+            <div class="ov-label">实战练习</div>
+          </div>
+          <div class="ov-card">
+            <div class="ov-icon">💬</div>
+            <div class="ov-num" style="color:var(--amber)" id="totalQA">0</div>
+            <div class="ov-label">面试题</div>
+          </div>
+        </div>
+
+        <div class="stage-overview">
+          <div class="stage-overview-title">📋 课程大纲</div>
+          <div class="stage-cards" id="stageCards">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- iframe for day content -->
+      <iframe class="content-inner" id="dayFrame" style="display:none" src=""></iframe>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CURRICULUM DATA
+   添加新阶段/新Day只需在这里编辑
+═══════════════════════════════════════════ */
+const CURRICULUM = [
+  {
+    id:'stage1',
+    name:'测试基础',
+    icon:'📘',
+    color:'#2563eb',
+    colorBg:'rgba(37,99,235,.08)',
+    days:[
+      {id:'s1d1',day:'Day 01',title:'软件测试概念与分类',file:'stage1/day01.html',tags:'测试定义·SDLC·黑白盒',practice:3,qa:8,status:'available'},
+      {id:'s1d2',day:'Day 02',title:'测试用例设计方法',file:'stage1/day02.html',tags:'等价类·边界值·决策表',practice:4,qa:8,status:'locked'},
+      {id:'s1d3',day:'Day 03',title:'缺陷管理与报告',file:'stage1/day03.html',tags:'Bug生命周期·Severity·Priority',practice:3,qa:7,status:'locked'},
+      {id:'s1d4',day:'Day 04',title:'测试计划与用例文档',file:'stage1/day04.html',tags:'Test Plan·Test Case·Entry/Exit',practice:3,qa:7,status:'locked'},
+    ]
+  },
+  {
+    id:'stage2',
+    name:'接口测试',
+    icon:'🔌',
+    color:'#16a34a',
+    colorBg:'rgba(22,163,74,.08)',
+    days:[
+      {id:'s2d1',day:'Day 05',title:'HTTP协议与接口基础',file:'stage2/day05.html',tags:'HTTP·RESTful·状态码',practice:3,qa:8,status:'locked'},
+      {id:'s2d2',day:'Day 06',title:'Postman实战入门',file:'stage2/day06.html',tags:'Collection·变量·断言',practice:5,qa:8,status:'locked'},
+      {id:'s2d3',day:'Day 07',title:'Token鉴权与接口关联',file:'stage2/day07.html',tags:'JWT·Bearer·pm脚本',practice:4,qa:7,status:'locked'},
+      {id:'s2d4',day:'Day 08',title:'数据驱动与Newman CI',file:'stage2/day08.html',tags:'DDT·CSV·Jenkins',practice:4,qa:7,status:'locked'},
+    ]
+  },
+  {
+    id:'stage3',
+    name:'JMeter测试',
+    icon:'⚡',
+    color:'#d97706',
+    colorBg:'rgba(217,119,6,.08)',
+    days:[
+      {id:'s3d1',day:'Day 09',title:'JMeter核心组件',file:'stage3/day09.html',tags:'线程组·取样器·断言',practice:3,qa:8,status:'locked'},
+      {id:'s3d2',day:'Day 10',title:'接口关联与参数化',file:'stage3/day10.html',tags:'正则·JSONPath·CSV',practice:4,qa:7,status:'locked'},
+      {id:'s3d3',day:'Day 11',title:'BeanShell与数据库',file:'stage3/day11.html',tags:'BeanShell·JDBC·加密',practice:3,qa:6,status:'locked'},
+      {id:'s3d4',day:'Day 12',title:'持续集成与报告',file:'stage3/day12.html',tags:'Ant·Jenkins·HTML报告',practice:3,qa:7,status:'locked'},
+    ]
+  },
+  {
+    id:'stage4',
+    name:'Web自动化',
+    icon:'🌐',
+    color:'#7c3aed',
+    colorBg:'rgba(124,58,237,.08)',
+    days:[
+      {id:'s4d1',day:'Day 13',title:'Selenium基础',file:'stage4/day13.html',tags:'WebDriver·元素定位·等待',practice:4,qa:8,status:'locked'},
+      {id:'s4d2',day:'Day 14',title:'POM设计模式',file:'stage4/day14.html',tags:'PageObject·封装·复用',practice:4,qa:7,status:'locked'},
+      {id:'s4d3',day:'Day 15',title:'Pytest框架集成',file:'stage4/day15.html',tags:'Fixture·参数化·Allure',practice:4,qa:8,status:'locked'},
+      {id:'s4d4',day:'Day 16',title:'自动化框架搭建',file:'stage4/day16.html',tags:'框架设计·CI集成·邮件',practice:5,qa:8,status:'locked'},
+    ]
+  },
+  {
+    id:'stage5',
+    name:'性能测试',
+    icon:'📈',
+    color:'#ea580c',
+    colorBg:'rgba(234,88,12,.08)',
+    days:[
+      {id:'s5d1',day:'Day 17',title:'性能测试概念',file:'stage5/day17.html',tags:'负载·压力·并发',practice:2,qa:7,status:'locked'},
+      {id:'s5d2',day:'Day 18',title:'JMeter性能场景设计',file:'stage5/day18.html',tags:'线程组·Ramp-up·TPS',practice:3,qa:7,status:'locked'},
+      {id:'s5d3',day:'Day 19',title:'性能结果分析',file:'stage5/day19.html',tags:'聚合报告·响应时间·瓶颈',practice:3,qa:6,status:'locked'},
+    ]
+  },
+  {
+    id:'stage6',
+    name:'面试冲刺',
+    icon:'🎯',
+    color:'#0891b2',
+    colorBg:'rgba(8,145,178,.08)',
+    days:[
+      {id:'s6d1',day:'Day 20',title:'面试题精讲·基础篇',file:'stage6/day20.html',tags:'高频题·答题框架·简历',practice:2,qa:20,status:'locked'},
+      {id:'s6d2',day:'Day 21',title:'面试题精讲·进阶篇',file:'stage6/day21.html',tags:'场景题·项目经验·薪资',practice:2,qa:20,status:'locked'},
+      {id:'s6d3',day:'Day 22',title:'模拟面试+综合测验',file:'stage6/day22.html',tags:'全场景模拟·综合题库',practice:0,qa:30,status:'locked'},
+    ]
+  }
+];
+
+/* ═══ STATE ═══ */
+let currentDay = null;
+let completedDays = JSON.parse(localStorage.getItem('qa_completed') || '[]');
+
+/* ═══ INIT ═══ */
+function init() {
+  buildSidebar();
+  buildWelcome();
+  updateProgress();
+}
+
+/* ═══ BUILD SIDEBAR ═══ */
+function buildSidebar() {
+  const nav = document.getElementById('sbNav');
+  nav.innerHTML = CURRICULUM.map((stage, si) => {
+    const daysHtml = stage.days.map((day, di) => {
+      const isDone = completedDays.includes(day.id);
+      const isAvailable = day.status === 'available' || isDone || (si === 0 && di === 0);
+      const isLocked = !isAvailable && !isDone;
+      return `
+        <div class="day-item ${isDone ? 'done' : ''}"
+             id="nav_${day.id}"
+             onclick="openDay('${day.id}')"
+             style="opacity:${isLocked ? '.5' : '1'}">
+          <div class="day-num" style="background:${isDone ? stage.color : ''};border-color:${isDone ? stage.color : ''}">
+            ${isDone ? '✓' : (di + 1 + si * 10).toString().padStart(2, '0').slice(-2)}
+          </div>
+          <div class="day-info">
+            <div class="day-title">${day.title}</div>
+            <div class="day-tag">${day.day}</div>
+          </div>
+          <div class="day-status">${isLocked ? '🔒' : isDone ? '' : ''}</div>
+        </div>`;
+    }).join('');
+
+    const doneCount = stage.days.filter(d => completedDays.includes(d.id)).length;
+    const isOpen = si === 0;
+    return `
+      <div class="stage-group" id="sg_${stage.id}">
+        <div class="stage-hdr ${isOpen ? 'open' : ''}" onclick="toggleStage('sg_${stage.id}')">
+          <div class="stage-icon" style="background:${stage.colorBg}">${stage.icon}</div>
+          <div class="stage-info">
+            <div class="stage-name">第${si + 1}阶段 · ${stage.name}</div>
+            <div class="stage-meta">${doneCount}/${stage.days.length} 天完成</div>
+          </div>
+          <div class="stage-arrow">▶</div>
+        </div>
+        <div class="day-list">${daysHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ═══ BUILD WELCOME ═══ */
+function buildWelcome() {
+  const allDays = CURRICULUM.flatMap(s => s.days);
+  const totalPractice = allDays.reduce((a, d) => a + d.practice, 0);
+  const totalQA = allDays.reduce((a, d) => a + d.qa, 0);
+
+  document.getElementById('totalStages').textContent = CURRICULUM.length;
+  document.getElementById('totalDays').textContent = allDays.length;
+  document.getElementById('totalPractice').textContent = totalPractice;
+  document.getElementById('totalQA').textContent = totalQA;
+
+  document.getElementById('stageCards').innerHTML = CURRICULUM.map((stage, si) => {
+    const doneCount = stage.days.filter(d => completedDays.includes(d.id)).length;
+    const pct = Math.round(doneCount / stage.days.length * 100);
+    return `
+      <div class="stage-card" onclick="expandStage('sg_${stage.id}')"
+           style="border-color:${stage.color}30">
+        <div class="sc-icon">${stage.icon}</div>
+        <div class="sc-stage">第${si + 1}阶段</div>
+        <div class="sc-name" style="color:${stage.color}">${stage.name}</div>
+        <div class="sc-days">${stage.days.length} 天 · ${stage.days.reduce((a,d)=>a+d.practice,0)} 个练习</div>
+        <div class="sc-bar">
+          <div class="sc-bar-fill" style="width:${pct}%;background:${stage.color}"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ═══ UPDATE PROGRESS ═══ */
+function updateProgress() {
+  const allDays = CURRICULUM.flatMap(s => s.days);
+  const done = completedDays.length;
+  const total = allDays.length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('progText').textContent = `${done} / ${total} 天`;
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+/* ═══ TOGGLE STAGE ═══ */
+function toggleStage(id) {
+  const group = document.getElementById(id);
+  const hdr = group.querySelector('.stage-hdr');
+  hdr.classList.toggle('open');
+}
+
+function expandStage(id) {
+  const group = document.getElementById(id);
+  const hdr = group.querySelector('.stage-hdr');
+  hdr.classList.add('open');
+  group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('sidebar').scrollTo({ top: group.offsetTop - 50, behavior: 'smooth' });
+}
+
+/* ═══ OPEN DAY ═══ */
+function openDay(dayId) {
+  // Find day data
+  let dayData = null;
+  let stageData = null;
+  let dayIdx = -1;
+  CURRICULUM.forEach(stage => {
+    stage.days.forEach((day, idx) => {
+      if (day.id === dayId) { dayData = day; stageData = stage; dayIdx = idx; }
+    });
+  });
+  if (!dayData) return;
+
+  currentDay = { dayData, stageData, dayIdx };
+
+  // Update active nav
+  document.querySelectorAll('.day-item').forEach(el => el.classList.remove('active'));
+  const navItem = document.getElementById('nav_' + dayId);
+  if (navItem) navItem.classList.add('active');
+
+  // Update topbar
+  document.getElementById('topCrumb').textContent = `第${CURRICULUM.indexOf(stageData)+1}阶段 · ${stageData.name}`;
+  document.getElementById('topTitle').textContent = `${dayData.day} — ${dayData.title}`;
+
+  // Show action buttons
+  document.getElementById('btnDone').style.display = completedDays.includes(dayId) ? 'none' : 'block';
+  document.getElementById('btnNext').style.display = 'block';
+
+  // Show iframe
+  document.getElementById('welcome').style.display = 'none';
+  const frame = document.getElementById('dayFrame');
+  frame.style.display = 'block';
+  frame.src = dayData.file;
+
+  // Handle missing file
+  frame.onerror = () => {
+    frame.style.display = 'none';
+    showComingSoon(dayData, stageData);
+  };
+  frame.onload = () => {
+    if (!frame.src || frame.src === window.location.href) {
+      frame.style.display = 'none';
+      showComingSoon(dayData, stageData);
+    }
+  };
+}
+
+function showComingSoon(day, stage) {
+  document.getElementById('welcome').style.display = 'none';
+  const frame = document.getElementById('dayFrame');
+  frame.style.display = 'none';
+  
+  let cs = document.getElementById('comingSoon');
+  if (!cs) {
+    cs = document.createElement('div');
+    cs.id = 'comingSoon';
+    cs.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 57px);padding:40px;text-align:center;';
+    document.getElementById('content').appendChild(cs);
+  }
+  cs.style.display = 'flex';
+  cs.innerHTML = `
+    <div style="font-size:56px;margin-bottom:20px">🚧</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:10px;color:var(--text)">${day.day} — ${day.title}</div>
+    <div style="font-size:14px;color:var(--muted);max-width:420px;line-height:1.8;margin-bottom:24px">
+      此章节内容正在制作中。<br>请将 <code style="background:#f0f2f7;padding:2px 6px;border-radius:4px">${day.file}</code> 文件放入同目录即可访问。
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 28px;text-align:left;max-width:420px;width:100%">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;font-family:'Space Mono',monospace">本章节内容预览</div>
+      <div style="font-size:13px;color:var(--text);line-height:2">
+        🏷️ 主题标签：${day.tags}<br>
+        🛠️ 实战练习：${day.practice} 个<br>
+        💬 面试题目：${day.qa} 道
+      </div>
+    </div>`;
+}
+
+/* ═══ MARK DONE ═══ */
+function markDone() {
+  if (!currentDay) return;
+  const id = currentDay.dayData.id;
+  if (!completedDays.includes(id)) {
+    completedDays.push(id);
+    localStorage.setItem('qa_completed', JSON.stringify(completedDays));
+  }
+  document.getElementById('btnDone').style.display = 'none';
+  buildSidebar();
+  buildWelcome();
+  updateProgress();
+  
+  // Unlock next day
+  unlockNext();
+}
+
+function unlockNext() {
+  if (!currentDay) return;
+  const { stageData, dayIdx } = currentDay;
+  const stageIdx = CURRICULUM.indexOf(stageData);
+
+  let nextDay = null;
+  if (dayIdx + 1 < stageData.days.length) {
+    nextDay = stageData.days[dayIdx + 1];
+  } else if (stageIdx + 1 < CURRICULUM.length) {
+    nextDay = CURRICULUM[stageIdx + 1].days[0];
+  }
+  if (nextDay) nextDay.status = 'available';
+}
+
+/* ═══ NEXT DAY ═══ */
+function nextDay() {
+  if (!currentDay) return;
+  const { stageData, dayIdx } = currentDay;
+  const stageIdx = CURRICULUM.indexOf(stageData);
+
+  if (dayIdx + 1 < stageData.days.length) {
+    openDay(stageData.days[dayIdx + 1].id);
+  } else if (stageIdx + 1 < CURRICULUM.length) {
+    openDay(CURRICULUM[stageIdx + 1].days[0].id);
+  }
+}
+
+/* ═══ MOBILE ═══ */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+/* ═══ START ═══ */
+init();
+</script>
+</body>
+</html>

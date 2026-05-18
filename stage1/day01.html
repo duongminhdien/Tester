@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 01 · 软件测试概念与分类</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --day:#dc2626;--daybg:rgba(220,38,38,.08);--daybg2:rgba(220,38,38,.14);
+  --accent:#2563eb;--acbg:rgba(37,99,235,.08);
+  --green:#16a34a;--gbg:rgba(22,163,74,.09);--gbg2:rgba(22,163,74,.16);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.09);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --r:10px;--rlg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* ── NAV ── */
+.dn{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06);gap:0}
+.db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--day);padding:5px 11px;border-radius:6px;margin-right:14px;white-space:nowrap;flex-shrink:0}
+.ts{display:flex;gap:0;flex:1;overflow-x:auto}
+.t{padding:13px 15px;font-size:12.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;user-select:none}
+.t:hover{color:var(--text);background:#f8f9fc}
+.t.a{color:var(--day);border-bottom-color:var(--day);font-weight:600}
+.td{display:flex;gap:5px;align-items:center;padding-left:12px;border-left:1px solid var(--border);margin-left:6px;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;cursor:pointer}
+.dot.dn2{background:var(--green)}.dot.da{background:var(--day);transform:scale(1.3)}
+
+/* ── PAGES ── */
+.page{display:none;max-width:900px;margin:0 auto;padding:28px 22px 70px}
+.page.vis{display:block}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#fef2f2 0%,#fff1f2 40%,#fdf4ff 100%);border:1px solid #fecaca;border-radius:var(--rlg);padding:26px 30px;margin-bottom:24px}
+.hero-badge{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:10px;font-weight:700;background:rgba(220,38,38,.12);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero-sub{font-size:13.5px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.htag{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+.hero-obj{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.obj{background:rgba(255,255,255,.75);border-radius:8px;padding:9px 12px;font-size:12.5px;display:flex;align-items:flex-start;gap:6px}
+.obj-ck{color:var(--green);font-weight:700;flex-shrink:0}
+
+/* ── SEC ── */
+.sec{margin-bottom:24px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';display:block;width:3px;height:17px;background:var(--day);border-radius:2px;flex-shrink:0}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.ct{font-size:12.5px;font-weight:700;color:var(--day);margin-bottom:11px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin:1px}
+.tbl{background:var(--acbg);color:var(--accent)}.tgr{background:var(--gbg);color:var(--green)}.tam{background:var(--abg);color:var(--amber)}.trd{background:var(--rbg);color:var(--red)}.tpu{background:var(--pbg);color:var(--purple)}
+
+/* ── BOXES ── */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#78350f;line-height:1.75}
+.info{background:#eff6ff;border:1px solid #bfdbfe;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#1e40af;line-height:1.75}
+.ok{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#14532d;line-height:1.75}
+.danger{background:#fff1f2;border:1px solid #fecdd3;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#7f1d1d;line-height:1.75}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;margin:10px 0}
+.tbl2{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl2 th{background:#f0f3fa;padding:8px 11px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:11.5px}
+.tbl2 td{padding:7px 11px;border:1px solid var(--border);color:#3a4158;vertical-align:top;line-height:1.6}
+.tbl2 tr:nth-child(even) td{background:#fafbfd}
+
+/* ── DIAGRAMS ── */
+.three-box{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.box-card{border-radius:var(--rlg);padding:18px 16px;text-align:center;border:2px solid transparent;transition:all .2s;cursor:default}
+.box-card:hover{transform:translateY(-2px)}
+.box-circle{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:'Space Mono',monospace}
+.box-name{font-size:14px;font-weight:700;margin-bottom:8px}
+.box-desc{font-size:12px;color:var(--muted);line-height:1.65}
+.box-black{background:#1a1a1a;color:#fff}.box-gray{background:#6b7280;color:#fff}.box-white2{background:#e5e7eb;color:#1a1a1a;border:2px solid #9ca3af}
+.bc-black{background:#1c1c1c;border-color:#111}.bc-gray{background:#f3f4f6;border-color:#9ca3af}.bc-white2{background:#f9fafb;border-color:#d1d5db}
+
+.flow-hex{display:flex;justify-content:center;gap:0;margin:14px 0;flex-wrap:wrap}
+.hex-item{text-align:center;padding:10px 8px;min-width:110px}
+.hex-num{width:40px;height:40px;border-radius:50%;background:var(--day);color:#fff;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.hex-name{font-size:12.5px;font-weight:700;margin-bottom:4px}
+.hex-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.hex-arrow{display:flex;align-items:center;color:var(--dim);font-size:18px;padding-top:10px}
+
+/* ── QUALITY MODEL ── */
+.qm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.qm-card{border-radius:var(--r);padding:14px 12px;text-align:center;border:1px solid}
+.qm-icon{font-size:22px;margin-bottom:6px}
+.qm-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.qm-desc{font-size:11.5px;line-height:1.5}
+.qm-1{background:#fef2f2;border-color:#fca5a5}.qm-1 .qm-name{color:#b91c1c}
+.qm-2{background:#fff7ed;border-color:#fed7aa}.qm-2 .qm-name{color:#c2410c}
+.qm-3{background:#fefce8;border-color:#fde047}.qm-3 .qm-name{color:#854d0e}
+.qm-4{background:#f0fdf4;border-color:#86efac}.qm-4 .qm-name{color:#15803d}
+.qm-5{background:#eff6ff;border-color:#bfdbfe}.qm-5 .qm-name{color:#1d4ed8}
+.qm-6{background:#faf5ff;border-color:#d8b4fe}.qm-6 .qm-name{color:#7e22ce}
+.qm-7{background:#fff1f2;border-color:#fecdd3}.qm-7 .qm-name{color:#9f1239}
+.qm-8{background:#f0fdfa;border-color:#99f6e4}.qm-8 .qm-name{color:#0f766e}
+
+/* ── 8 ELEMENTS TABLE ── */
+.eight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.e-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;transition:all .2s}
+.e-card:hover{border-color:var(--day);box-shadow:0 4px 12px rgba(220,38,38,.1)}
+.e-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--day);margin-bottom:6px;font-weight:700}
+.e-title{font-size:13.5px;font-weight:700;margin-bottom:5px;color:var(--text)}
+.e-content{font-size:12.5px;color:var(--muted);line-height:1.65}
+.e-example{margin-top:8px;background:var(--daybg);border-radius:5px;padding:6px 10px;font-size:12px;color:#7f1d1d;font-style:italic}
+
+/* ── EQUIVALENCE CLASS ── */
+.eq-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.eq-step{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:center}
+.eq-step-num{width:30px;height:30px;border-radius:50%;background:var(--day);color:#fff;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.eq-step-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.eq-step-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+.eq-class-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.eq-valid{background:var(--gbg);border:1.5px solid rgba(22,163,74,.3);border-radius:var(--r);padding:14px 16px}
+.eq-invalid{background:var(--rbg);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);padding:14px 16px}
+.eq-valid-title{font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px}
+.eq-invalid-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px}
+.eq-item{font-size:12.5px;padding:3px 0;color:#3a4158;display:flex;gap:5px;align-items:flex-start}
+
+/* ── INTERVIEW ── */
+.iq{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:8px;overflow:hidden}
+.iq.open{border-color:var(--day)}
+.iq-hdr{padding:13px 17px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;user-select:none}
+.iq-lv{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.lv-b{background:var(--gbg);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.lv-m{background:var(--abg);color:var(--amber);border:1px solid rgba(217,119,6,.3)}
+.lv-h{background:var(--rbg);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.lv-t{background:var(--pbg);color:var(--purple);border:1px solid rgba(124,58,237,.25)}
+.iq-q{font-size:13.5px;font-weight:600;flex:1;line-height:1.5}
+.iq-arr{color:var(--dim);font-size:11px;flex-shrink:0;transition:transform .2s;margin-top:3px}
+.iq.open .iq-arr{transform:rotate(90deg)}
+.iq-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.iq.open .iq-body{max-height:1200px}
+.iq-inner{padding:0 17px 16px}
+.iq-ans{background:#f5f8ff;border-left:3px solid var(--day);border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;line-height:1.85;color:#3a4158;margin-bottom:8px}
+.iq-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#78350f;margin-bottom:6px}
+.iq-trap{background:#faf5ff;border:1px solid #e9d5ff;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#6b21a8;margin-bottom:6px}
+.iq-code{background:#1e2030;border-radius:7px;padding:11px 14px;font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.8;color:#a6accd;margin-bottom:8px;overflow-x:auto}
+
+/* ── PRACTICE ── */
+.prac{border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:12px;overflow:hidden}
+.prac-hdr{display:flex;align-items:center;gap:11px;padding:13px 17px;cursor:pointer;user-select:none;background:var(--white);transition:background .15s}
+.prac-hdr:hover{background:#f8f9fc}
+.prac-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:#fff;flex-shrink:0}
+.prac-t{font-size:13.5px;font-weight:600;flex:1}
+.ps{font-size:10px;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace;flex-shrink:0}
+.ps-todo{background:#f0f2f7;color:var(--dim)}.ps-do{background:var(--acbg);color:var(--accent)}.ps-done{background:var(--gbg2);color:var(--green)}
+.prac-body{display:none;padding:0 17px 17px;background:var(--white);border-top:1px solid var(--border)}
+.prac-body.open{display:block}
+.task-box{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:11px 0}
+.task-lbl{font-size:10.5px;font-weight:700;color:var(--day);font-family:'Space Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.ci{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ci:last-child{border-bottom:none}
+.ci input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.ci span{font-size:13px;color:#3a4158;transition:all .2s}
+.ci input:checked+span{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(22,163,74,.4)}
+.step-row{display:flex;gap:0;position:relative}
+.step-row::before{content:'';position:absolute;left:16px;top:34px;bottom:0;width:1px;background:var(--border);z-index:0}
+.step-row:last-child::before{display:none}
+.step-n{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;margin-right:12px;position:relative;z-index:1;background:var(--day)}
+.step-c{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;flex:1;margin-bottom:9px}
+.step-t{font-size:13px;font-weight:700;margin-bottom:4px}
+.step-b{font-size:12.5px;color:var(--muted);line-height:1.7}
+
+/* ── QUIZ ── */
+.quiz-q{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:17px 20px;margin-bottom:10px}
+.qn{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--day);background:var(--daybg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.qt{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;width:100%}
+.opt:hover:not(:disabled){border-color:rgba(220,38,38,.35);background:var(--daybg)}
+.ol{width:20px;height:20px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(220,38,38,.35);background:var(--daybg)}.opt.sel .ol{background:var(--red);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .ol{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .ol{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.exp.ok-e{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
+.exp.no-e{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
+.q-acts{display:flex;gap:8px;margin-top:18px}
+.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.bs:hover{opacity:.88}
+.br{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Noto Sans SC',sans-serif;cursor:pointer}
+.br:hover{background:#f0f2f7;color:var(--text)}
+.sa{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
+
+/* ── PAGE NAV ── */
+.pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
+.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pb:hover{background:var(--daybg);border-color:rgba(220,38,38,.3);color:var(--day)}
+.pb.nx{background:var(--day);color:#fff;border-color:var(--red)}
+.pb.nx:hover{opacity:.9}
+
+/* ── MOCK SCREENS ── */
+.mock{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin:12px 0}
+.mock-bar{background:#e8ecf4;padding:7px 13px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.md{width:9px;height:9px;border-radius:50%}
+.mr{background:#ff5f57}.my{background:#febc2e}.mg{background:#28c840}
+.mock-url{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:5px;padding:3px 11px;margin-left:6px;flex:1}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ TOP NAV ═══════════ -->
+<nav class="dn">
+  <div class="db">Day 01 · 阶段一</div>
+  <div class="ts">
+    <div class="t a" onclick="gp(0,this)">📖 知识讲解</div>
+    <div class="t" onclick="gp(1,this)">🖼️ 图解演示</div>
+    <div class="t" onclick="gp(2,this)">🛠️ 实战练习</div>
+    <div class="t" onclick="gp(3,this)">💬 面试精讲</div>
+    <div class="t" onclick="gp(4,this)">✅ 测验(12题)</div>
+  </div>
+  <div class="td" id="dots"></div>
+</nav>
+
+<!-- ════════════════════════════════════════
+     PAGE 0 ── 知识讲解
+════════════════════════════════════════ -->
+<div class="page vis" id="p0">
+  <div class="hero">
+    <div class="hero-badge">Day 01 · 第一阶段 — 测试基础</div>
+    <div class="hero-title">软件测试概念 · 分类 · 用例</div>
+    <div class="hero-sub">从零理解什么是软件测试、测试的分类体系、质量模型和完整测试流程，并掌握测试用例八大要素与等价类划分方法。</div>
+    <div class="hero-tags">
+      <span class="htag">🎯 阶段目标：能独立针对Web项目实施功能测试</span>
+      <span class="htag">⏱ 预计 60 分钟</span>
+      <span class="htag">📝 含实战练习 + 12道测验</span>
+    </div>
+    <div class="hero-obj">
+      <div class="obj"><span class="obj-ck">✓</span><span>理解软件测试的定义和主流技能方向</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握按阶段和代码可见度两种分类</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>了解ISO 25010质量模型的8个维度</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握测试流程6大步骤</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能编写符合八大要素的测试用例</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握等价类划分法设计测试点</span></div>
+    </div>
+  </div>
+
+  <!-- ── 一、什么是软件测试 ── -->
+  <div class="sec">
+    <div class="sec-title">一、什么是软件测试</div>
+    <div class="card">
+      <div class="ct">01 — 软件测试定义</div>
+      <div class="body">
+        <b>使用技术手段验证软件是否满足需求。</b><br><br>
+        软件测试就是通过一系列方法和工具，对软件产品进行检验，发现其中的缺陷（Bug），从而保障软件质量，确保软件能正常满足用户需求。
+      </div>
+      <div class="info">📌 <b>核心关键词：</b>技术手段 × 验证 × 是否满足需求</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">02 — 测试主流技能方向</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:4px">
+        <div style="background:var(--gbg);border:1.5px solid rgba(22,163,74,.3);border-radius:var(--r);padding:14px 16px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">🥇 方向一（推荐）</div>
+          <div style="font-size:13px;color:#14532d">功能测试 + 接口测试</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:4px">最常见的岗位要求组合，适合入门到中级</div>
+        </div>
+        <div style="background:var(--acbg);border:1.5px solid rgba(37,99,235,.25);border-radius:var(--r);padding:14px 16px">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">🥈 方向二</div>
+          <div style="font-size:13px;color:#1e40af">自动化测试 + 接口测试</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:4px">薪资较高，需要有编程基础</div>
+        </div>
+        <div style="background:var(--pbg);border:1.5px solid rgba(124,58,237,.25);border-radius:var(--r);padding:14px 16px">
+          <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px">🥉 方向三</div>
+          <div style="font-size:13px;color:#5b21b6">功能测试 + 性能测试</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:4px">JMeter性能测试专项方向</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 二、测试分类 ── -->
+  <div class="sec">
+    <div class="sec-title">二、测试常用分类</div>
+
+    <div class="card">
+      <div class="ct">2.1 — 按阶段划分（软件产出顺序）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>测试类型</th><th>测试对象</th><th>说明</th><th>执行人</th><th>特点</th></tr>
+        <tr>
+          <td><span class="tag tbl">单元测试</span></td>
+          <td>程序源代码（最小独立功能代码段）</td>
+          <td>验证单个函数/模块是否正确</td>
+          <td>开发自测为主</td>
+          <td>快速定位缺陷、提高效率</td>
+        </tr>
+        <tr>
+          <td><span class="tag tam">集成测试</span></td>
+          <td>单元与单元之间的接口</td>
+          <td>又称<b>接口测试</b>，验证模块间通信</td>
+          <td>测试/开发</td>
+          <td>发现接口数据传递问题</td>
+        </tr>
+        <tr>
+          <td><span class="tag tgr">系统测试</span></td>
+          <td>系统整体：功能+兼容+文档</td>
+          <td>对完整系统进行全面验证</td>
+          <td>测试团队</td>
+          <td>最接近用户真实使用场景</td>
+        </tr>
+        <tr>
+          <td><span class="tag tpu">验收测试</span></td>
+          <td>整个系统</td>
+          <td>内测（公司内部）/ 公测（用户参与）</td>
+          <td>用户/客户</td>
+          <td>根据项目类型决定是否执行</td>
+        </tr>
+      </table></div>
+      <div class="tip">💡 <b>重要提示：</b>单元测试国内一般由开发自测；测试工程师主要负责集成测试（接口测试）和系统测试（功能测试）。</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">2.2 — 按代码可见度划分（黑/灰/白盒）</div>
+      <div class="three-box">
+        <div class="box-card bc-black">
+          <div class="box-circle box-black">A</div>
+          <div class="box-name" style="color:#b91c1c">黑盒测试</div>
+          <div class="box-desc"><b>看不见</b>源代码<br>主要对<b>程序功能</b>进行测试<br><br>↔ 对应：系统测试<br>👉 功能测试工程师日常工作</div>
+        </div>
+        <div class="box-card bc-gray">
+          <div class="box-circle box-gray">B</div>
+          <div class="box-name" style="color:#d97706">灰盒测试</div>
+          <div class="box-desc"><b>看见部分</b>代码<br>主要对<b>程序接口</b>进行测试<br><br>↔ 对应：集成测试<br>👉 接口测试工程师日常工作</div>
+        </div>
+        <div class="box-card bc-white2">
+          <div class="box-circle box-white2">C</div>
+          <div class="box-name" style="color:#16a34a">白盒测试</div>
+          <div class="box-desc"><b>看见全部</b>代码<br>主要对<b>程序源代码</b>进行测试<br><br>↔ 对应：单元测试<br>👉 通常由开发人员执行</div>
+        </div>
+      </div>
+      <div style="background:#1e2030;border-radius:var(--r);padding:14px 18px;margin-top:6px">
+        <div style="font-family:'Space Mono',monospace;font-size:12px;line-height:2;color:#a6accd">
+          <span style="color:#86efac">总结：</span><br>
+          <span style="color:#fbbf24">系统测试</span> ←→ <span style="color:#fbbf24">黑盒测试</span>：重点核心是<span style="color:#86efac">功能测试</span><br>
+          <span style="color:#93c5fd">集成测试</span> ←→ <span style="color:#93c5fd">灰盒测试</span>：又称<span style="color:#86efac">接口测试</span><br>
+          <span style="color:#c4b5fd">单元测试</span> ←→ <span style="color:#c4b5fd">白盒测试</span>：对<span style="color:#86efac">代码</span>进行测试<br>
+          <span style="color:#fcd34d">自动化测试</span>：归属<span style="color:#86efac">功能测试</span><br>
+          <span style="color:#f87171">性能/安全测试</span>：归属<span style="color:#86efac">专项测试</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 三、质量模型 ── -->
+  <div class="sec">
+    <div class="sec-title">三、软件质量模型（ISO/IEC 25010）</div>
+    <div class="card">
+      <div class="ct">03 — 质量模型告诉我们测试时应该考虑的方面</div>
+      <div class="body" style="margin-bottom:14px">无论测试硬件还是软件，都应该从以下 8 个质量特性维度来分类验证：</div>
+      <div class="qm-grid">
+        <div class="qm-card qm-1">
+          <div class="qm-icon">⚙️</div>
+          <div class="qm-name">功能性</div>
+          <div class="qm-desc">功能是否实现<br>结果是否正确</div>
+        </div>
+        <div class="qm-card qm-2">
+          <div class="qm-icon">⚡</div>
+          <div class="qm-name">性能效率</div>
+          <div class="qm-desc">响应时间<br>吞吐量/并发</div>
+        </div>
+        <div class="qm-card qm-3">
+          <div class="qm-icon">🖥️</div>
+          <div class="qm-name">兼容性</div>
+          <div class="qm-desc">不同浏览器<br>操作系统/设备</div>
+        </div>
+        <div class="qm-card qm-4">
+          <div class="qm-icon">😊</div>
+          <div class="qm-name">易用性</div>
+          <div class="qm-desc">操作流程<br>界面友好度</div>
+        </div>
+        <div class="qm-card qm-5">
+          <div class="qm-icon">🛡️</div>
+          <div class="qm-name">信息安全</div>
+          <div class="qm-desc">数据加密<br>权限控制/注入</div>
+        </div>
+        <div class="qm-card qm-6">
+          <div class="qm-icon">💪</div>
+          <div class="qm-name">可靠性</div>
+          <div class="qm-desc">稳定运行<br>故障恢复能力</div>
+        </div>
+        <div class="qm-card qm-7">
+          <div class="qm-icon">🔧</div>
+          <div class="qm-name">可维护性</div>
+          <div class="qm-desc">代码可读性<br>修改/扩展难度</div>
+        </div>
+        <div class="qm-card qm-8">
+          <div class="qm-icon">📦</div>
+          <div class="qm-name">可移植性</div>
+          <div class="qm-desc">不同环境部署<br>迁移难度</div>
+        </div>
+      </div>
+      <div class="danger"><b>🔴 面试重点：</b>质量模型的 5 个重点维度 → <b>功能、性能、兼容、易用性、安全</b>。面试必问，必须背下来！</div>
+    </div>
+  </div>
+
+  <!-- ── 四、测试流程 ── -->
+  <div class="sec">
+    <div class="sec-title">四、测试流程（6大步骤）</div>
+    <div class="card">
+      <div class="flow-hex">
+        <div class="hex-item">
+          <div class="hex-num">01</div>
+          <div class="hex-name">需求分析</div>
+          <div class="hex-desc">评审需求文档<br>各部门理解一致</div>
+        </div>
+        <div class="hex-arrow">→</div>
+        <div class="hex-item">
+          <div class="hex-num">02</div>
+          <div class="hex-name">测试计划</div>
+          <div class="hex-desc">测什么·谁来测<br>怎么测</div>
+        </div>
+        <div class="hex-arrow">→</div>
+        <div class="hex-item">
+          <div class="hex-num">03</div>
+          <div class="hex-name">用例设计</div>
+          <div class="hex-desc">分析需求→提取测试点<br>→设计用例</div>
+        </div>
+        <div class="hex-arrow">→</div>
+        <div class="hex-item">
+          <div class="hex-num">04</div>
+          <div class="hex-name">用例执行</div>
+          <div class="hex-desc">实施测试<br>记录结果</div>
+        </div>
+        <div class="hex-arrow">→</div>
+        <div class="hex-item">
+          <div class="hex-num">05</div>
+          <div class="hex-name">缺陷管理</div>
+          <div class="hex-desc">提交→验证<br>→关闭Bug</div>
+        </div>
+        <div class="hex-arrow">→</div>
+        <div class="hex-item">
+          <div class="hex-num">06</div>
+          <div class="hex-name">测试报告</div>
+          <div class="hex-desc">Bug统计·问题总结<br>·测试结论</div>
+        </div>
+      </div>
+
+      <div class="tw" style="margin-top:14px"><table class="tbl2">
+        <tr><th>步骤</th><th>核心内容</th><th>产出物</th><th>关键点</th></tr>
+        <tr><td><b>需求分析（评审）</b></td><td>前端、后端、测试、产品共同参与，确保需求理解一致，查漏补缺</td><td>需求评审意见</td><td>软件刚立项，还未实现</td></tr>
+        <tr><td><b>测试计划</b></td><td>测什么（目标范围）、谁来测（人员安排）、怎么测（工具策略）</td><td>测试计划文档</td><td>指导测试执行的重要文档</td></tr>
+        <tr><td><b>用例设计</b></td><td>分析需求 → 提取测试点 → 设计用例覆盖测试点</td><td>测试用例文档</td><td>保证准确验证测试点</td></tr>
+        <tr><td><b>用例执行</b></td><td>模块开发完成后开始执行，逐条执行用例</td><td>执行记录/Bug单</td><td>实施测试阶段</td></tr>
+        <tr><td><b>缺陷管理</b></td><td>提交Bug → 开发修复 → 验证 → 关闭</td><td>缺陷报告</td><td>完整的Bug生命周期管理</td></tr>
+        <tr><td><b>测试报告</b></td><td>Bug统计分析、遇到的问题、测试总结（优点不足）</td><td>测试报告文档</td><td>体现测试价值的最终产出</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ── 五、测试用例 ── -->
+  <div class="sec">
+    <div class="sec-title">五、测试用例 — 八大要素</div>
+    <div class="card">
+      <div class="ct">04 — 用例定义 & 作用</div>
+      <div class="body">
+        <b>用例（Test Case）= 用户使用的案例</b>，是保证能准确验证软件测试点执行的文档。<br><br>
+        <b>用例的两大作用：</b><br>
+        ① 防止漏测（覆盖所有测试场景）<br>
+        ② 衡量软件是否通过测试的标准
+      </div>
+      <div class="info">🌟 <b>生活类比：</b>手机验收用例 — ①能否开机：按电源键3秒看是否开机 ②验证内存：设置查看是否为64G ③验证屏幕：白屏下检查是否有黑色点 ④运行速度：下载游戏是否流畅</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">05 — 测试用例八大要素</div>
+      <div class="eight-grid">
+        <div class="e-card">
+          <div class="e-num">ELEMENT 01</div>
+          <div class="e-title">📋 用例编号</div>
+          <div class="e-content">格式：项目_模块_序号</div>
+          <div class="e-example">示例：QQ_login_001</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 02</div>
+          <div class="e-title">📝 用例标题</div>
+          <div class="e-content">写预期结果（测试点），简洁描述该用例验证什么</div>
+          <div class="e-example">示例：登录失败（账号为空）</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 03</div>
+          <div class="e-title">📁 项目/模块</div>
+          <div class="e-content">所属的项目名称或功能模块</div>
+          <div class="e-example">示例：登录模块 / 朋友圈</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 04</div>
+          <div class="e-title">🔑 前置条件</div>
+          <div class="e-content">执行此用例之前，必须满足的前提条件</div>
+          <div class="e-example">示例：打开登录界面、网络正常</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 05</div>
+          <div class="e-title">⭐ 优先级</div>
+          <div class="e-content">P0（最高）~ P4（最低），表示用例重要程度/影响力</div>
+          <div class="e-example">核心功能 P0，边缘功能 P1-P2</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 06</div>
+          <div class="e-title">🚶 测试步骤</div>
+          <div class="e-content">描述操作步骤，需要可重复执行，步骤清晰</div>
+          <div class="e-example">1.输入账号 2.输入密码 3.点击登录</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 07</div>
+          <div class="e-title">💾 测试数据</div>
+          <div class="e-content">操作的具体数据，无数据时可为空</div>
+          <div class="e-example">账号：空，密码：123456</div>
+        </div>
+        <div class="e-card">
+          <div class="e-num">ELEMENT 08</div>
+          <div class="e-title">✅ 预期结果</div>
+          <div class="e-content">期望达到的结果，用于判断测试是否通过</div>
+          <div class="e-example">登录失败，提示"账号不可为空"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">06 — 用例模板示例（QQ登录）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>用例编号</th><th>用例标题</th><th>模块</th><th>优先级</th><th>前置条件</th><th>测试步骤</th><th>测试数据</th><th>预期结果</th></tr>
+        <tr><td>QQ_login_001</td><td>登录失败（账号为空）</td><td>登录</td><td><span class="tag trd">P1</span></td><td>打开登录界面、网络正常</td><td>1.输入账号 2.输入密码 3.点击登录</td><td>账号：空，密码：123455</td><td>登录失败，提示：账号不可为空</td></tr>
+        <tr><td>QQ_login_002</td><td>登录失败（账号未注册）</td><td>登录</td><td><span class="tag trd">P1</span></td><td>打开登录界面、网络正常、账号未注册</td><td>1.输入账号 2.输入密码 3.点击登录</td><td>账号：未注册，密码：123455</td><td>登录失败，提示：账号不存在</td></tr>
+        <tr><td>QQ_login_003</td><td>登录失败（密码为空）</td><td>登录</td><td><span class="tag trd">P1</span></td><td>打开登录界面、网络正常、账号已注册</td><td>1.输入账号 2.输入密码 3.点击登录</td><td>账号：已注册，密码：空</td><td>登录失败，提示：密码不可为空</td></tr>
+        <tr><td>QQ_login_004</td><td>登录失败（密码错误）</td><td>登录</td><td><span class="tag trd">P1</span></td><td>打开登录界面、网络正常、账号已注册</td><td>1.输入账号 2.输入密码 3.点击登录</td><td>账号：已注册，密码：错误密码</td><td>登录失败，提示：密码不正确</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ── 六、等价类划分 ── -->
+  <div class="sec">
+    <div class="sec-title">六、用例设计方法 — 等价类划分法</div>
+    <div class="card">
+      <div class="ct">07 — 为什么需要等价类划分？</div>
+      <div class="body">
+        <b>问题：穷举（Exhaustive Testing）= 无穷无尽</b><br><br>
+        以 QQ 账号"6~10位自然数"为例，可能的输入有几千万种，不可能逐一测试。<br>
+        解决方案：<b>等价类划分法</b> — 在所有测试数据中，将具有某种共同特征的数据集合进行划分，每类中取一个代表值测试即可。
+      </div>
+      <div class="eq-flow">
+        <div class="eq-step">
+          <div class="eq-step-num">1</div>
+          <div class="eq-step-title">明确需求</div>
+          <div class="eq-step-body">仔细阅读需求规格，理解输入数据的约束条件（长度、类型、规则）</div>
+        </div>
+        <div class="eq-step">
+          <div class="eq-step-num">2</div>
+          <div class="eq-step-title">划分等价类</div>
+          <div class="eq-step-body"><b>有效等价类</b>：满足需求的数据集合<br><b>无效等价类</b>：不满足需求的数据集合</div>
+        </div>
+        <div class="eq-step">
+          <div class="eq-step-num">3</div>
+          <div class="eq-step-title">提取数据写用例</div>
+          <div class="eq-step-body">从每个等价类中取一个代表值，编写测试用例</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">08 — 案例1：QQ账号（6~10位自然数）</div>
+      <div class="body" style="margin-bottom:12px">需求：QQ账号为 6~10 位自然数</div>
+      <div class="eq-class-grid">
+        <div class="eq-valid">
+          <div class="eq-valid-title">✅ 有效等价类</div>
+          <div class="eq-item"><span style="color:var(--green)">→</span><span><b>长度：</b>6~10 位（如：8位自然数 12345678）</span></div>
+          <div class="eq-item"><span style="color:var(--green)">→</span><span><b>类型：</b>自然数（正整数）</span></div>
+          <div class="eq-item"><span style="color:var(--green)">→</span><span>测试数据：<b>12345678</b></span></div>
+        </div>
+        <div class="eq-invalid">
+          <div class="eq-invalid-title">❌ 无效等价类</div>
+          <div class="eq-item"><span style="color:var(--red)">→</span><span><b>长度不足：</b>3位自然数（如：123）</span></div>
+          <div class="eq-item"><span style="color:var(--red)">→</span><span><b>长度超出：</b>12位自然数（如：123456789012）</span></div>
+          <div class="eq-item"><span style="color:var(--red)">→</span><span><b>非数字：</b>8位非自然数（如：1234567A）</span></div>
+          <div class="eq-item"><span style="color:var(--red)">→</span><span><b>为空：</b>不输入任何内容</span></div>
+        </div>
+      </div>
+      <div class="tw" style="margin-top:14px"><table class="tbl2">
+        <tr><th>用例编号</th><th>用例标题</th><th>测试数据</th><th>预期结果</th><th>等价类类型</th></tr>
+        <tr style="background:#f0fdf4"><td>QQ_001</td><td>QQ合法（8位自然数）</td><td>账号：12345678</td><td>qq合法</td><td><span class="tag tgr">有效</span></td></tr>
+        <tr><td>QQ_002</td><td>QQ不合法（3位自然数）</td><td>账号：123</td><td>qq不合法</td><td><span class="tag trd">无效-长度</span></td></tr>
+        <tr><td>QQ_003</td><td>QQ不合法（12位自然数）</td><td>账号：123456789012</td><td>qq不合法</td><td><span class="tag trd">无效-长度</span></td></tr>
+        <tr><td>QQ_004</td><td>QQ不合法（8位非自然数）</td><td>账号：1234567A</td><td>qq不合法</td><td><span class="tag trd">无效-类型</span></td></tr>
+        <tr><td>QQ_005</td><td>QQ不合法（为空）</td><td>账号：空</td><td>qq不合法</td><td><span class="tag trd">无效-空值</span></td></tr>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">09 — 案例2：电话号码（多条件复合）</div>
+      <div class="body" style="margin-bottom:10px">
+        <b>需求：</b><br>
+        1. 区号：空 或者 3位数字<br>
+        2. 前缀码：非"0"且非"1"开头的3位数字<br>
+        3. 后缀码：4位数字
+      </div>
+      <div class="eq-class-grid">
+        <div class="eq-valid">
+          <div class="eq-valid-title">✅ 有效等价类</div>
+          <div class="eq-item"><span>区号：</span><span>空 / 3位数字（如：123）</span></div>
+          <div class="eq-item"><span>前缀码：</span><span>非0非1开头的3位数字（如：234）</span></div>
+          <div class="eq-item"><span>后缀码：</span><span>4位数字（如：1234）</span></div>
+        </div>
+        <div class="eq-invalid">
+          <div class="eq-invalid-title">❌ 无效等价类</div>
+          <div class="eq-item"><span>区号：</span><span>非3位数字（如：12）</span></div>
+          <div class="eq-item"><span>前缀码：</span><span>非数字（如：23A）、0开头（012）、1开头（123）、非3位（23）</span></div>
+          <div class="eq-item"><span>后缀码：</span><span>非4位（123）、非数字（123A）</span></div>
+        </div>
+      </div>
+      <div class="tip">💡 <b>多条件场景：</b>每次只改变一个参数为无效值，其他参数保持有效，逐一验证每个无效等价类。</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <div></div>
+    <button class="pb nx" onclick="gp(1,null)">图解演示 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE 1 ── 图解演示
+════════════════════════════════════════ -->
+<div class="page" id="p1">
+  <div class="sec">
+    <div class="sec-title">测试分类关系总览图</div>
+    <div class="card">
+      <div class="ct">测试类型对应关系（全景图）</div>
+      <div style="background:#1e2030;border-radius:var(--r);padding:20px;margin:12px 0;overflow-x:auto">
+        <div style="min-width:560px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden">
+            <div style="background:#1e2030;padding:12px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase">阶段划分</div>
+            <div style="background:#1e2030;padding:12px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase">代码可见度</div>
+            <div style="background:#1e2030;padding:12px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase">特点</div>
+            <div style="background:#2d1a1a;padding:14px;text-align:center"><div style="font-size:14px;font-weight:700;color:#fca5a5;margin-bottom:4px">单元测试</div><div style="font-size:11px;color:rgba(255,255,255,.4)">最小独立单元</div></div>
+            <div style="background:#2d1a1a;padding:14px;text-align:center"><div style="font-size:14px;font-weight:700;color:#c4b5fd;margin-bottom:4px">白盒测试</div><div style="font-size:11px;color:rgba(255,255,255,.4)">看见全部代码</div></div>
+            <div style="background:#2d1a1a;padding:14px;text-align:center;font-size:12px;color:rgba(255,255,255,.6)">开发人员执行<br>快速定位缺陷</div>
+            <div style="background:#1a2430;padding:14px;text-align:center"><div style="font-size:14px;font-weight:700;color:#93c5fd;margin-bottom:4px">集成测试</div><div style="font-size:11px;color:rgba(255,255,255,.4)">模块间接口</div></div>
+            <div style="background:#1a2430;padding:14px;text-align:center"><div style="font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:4px">灰盒测试</div><div style="font-size:11px;color:rgba(255,255,255,.4)">看见部分代码</div></div>
+            <div style="background:#1a2430;padding:14px;text-align:center;font-size:12px;color:rgba(255,255,255,.6)">又称接口测试<br>Postman/JMeter</div>
+            <div style="background:#1a2d1a;padding:14px;text-align:center"><div style="font-size:14px;font-weight:700;color:#86efac;margin-bottom:4px">系统测试</div><div style="font-size:11px;color:rgba(255,255,255,.4)">整体功能+兼容</div></div>
+            <div style="background:#1a2d1a;padding:14px;text-align:center"><div style="font-size:14px;font-weight:700;color:#86efac;margin-bottom:4px">黑盒测试</div><div style="font-size:11px;color:rgba(255,255,255,.4)">看不见代码</div></div>
+            <div style="background:#1a2d1a;padding:14px;text-align:center;font-size:12px;color:rgba(255,255,255,.6)"><span style="color:#4ade80">重点核心</span><br>功能测试工程师</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">等价类划分方法 — 思维图</div>
+    <div class="card">
+      <div class="ct">等价类划分三步法可视化</div>
+      <div style="display:flex;gap:0;align-items:center;margin:14px 0;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:140px;background:var(--acbg);border:1.5px solid rgba(37,99,235,.25);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">📋</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px">Step 1：明确需求</div>
+          <div style="font-size:12px;color:var(--muted)">仔细分析输入约束<br>长度 / 类型 / 规则</div>
+        </div>
+        <div style="font-size:20px;color:var(--dim);flex-shrink:0">→</div>
+        <div style="flex:1;min-width:160px;background:#f8f9fc;border:1.5px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">✂️</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 2：划分等价类</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+            <div style="background:var(--gbg);border-radius:6px;padding:6px;font-size:11px;color:var(--green);font-weight:600">✅ 有效等价类<br><span style="font-weight:400;color:#3a4158">满足需求的<br>数据集合</span></div>
+            <div style="background:var(--rbg);border-radius:6px;padding:6px;font-size:11px;color:var(--red);font-weight:600">❌ 无效等价类<br><span style="font-weight:400;color:#3a4158">不满足需求<br>的数据集合</span></div>
+          </div>
+        </div>
+        <div style="font-size:20px;color:var(--dim);flex-shrink:0">→</div>
+        <div style="flex:1;min-width:140px;background:var(--gbg);border:1.5px solid rgba(22,163,74,.3);border-radius:var(--r);padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">📝</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px">Step 3：提取数据写用例</div>
+          <div style="font-size:12px;color:var(--muted)">每类取1个代表值<br>大幅减少用例数量</div>
+        </div>
+      </div>
+      <div class="ok"><b>核心价值：</b>等价类划分法将无限的测试数据压缩为有限的代表性用例，在保证测试覆盖率的同时，大幅提升测试效率。</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">ISO 25010 质量模型 — 鱼骨图</div>
+    <div class="card">
+      <div class="ct">从质量模型出发设计测试方向</div>
+      <div style="background:linear-gradient(135deg,#1e2030,#2d2440);border-radius:var(--r);padding:20px;margin:12px 0">
+        <div style="text-align:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;margin-bottom:16px">ISO/IEC 25010 软件质量模型</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <div style="background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">⚙️</div>
+            <div style="font-size:12px;font-weight:700;color:#fca5a5">功能性</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★★★★</div>
+          </div>
+          <div style="background:rgba(234,88,12,.2);border:1px solid rgba(234,88,12,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">⚡</div>
+            <div style="font-size:12px;font-weight:700;color:#fdba74">性能效率</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★★★★</div>
+          </div>
+          <div style="background:rgba(234,179,8,.2);border:1px solid rgba(234,179,8,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">🖥️</div>
+            <div style="font-size:12px;font-weight:700;color:#fde047">兼容性</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★★★☆</div>
+          </div>
+          <div style="background:rgba(22,163,74,.2);border:1px solid rgba(22,163,74,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">😊</div>
+            <div style="font-size:12px;font-weight:700;color:#86efac">易用性</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★★★☆</div>
+          </div>
+          <div style="background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">🛡️</div>
+            <div style="font-size:12px;font-weight:700;color:#93c5fd">信息安全</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★★★★</div>
+          </div>
+          <div style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">💪</div>
+            <div style="font-size:12px;font-weight:700;color:#c4b5fd">可靠性</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★★☆☆</div>
+          </div>
+          <div style="background:rgba(20,184,166,.2);border:1px solid rgba(20,184,166,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">🔧</div>
+            <div style="font-size:12px;font-weight:700;color:#5eead4">可维护性</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★☆☆☆</div>
+          </div>
+          <div style="background:rgba(236,72,153,.2);border:1px solid rgba(236,72,153,.4);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">📦</div>
+            <div style="font-size:12px;font-weight:700;color:#f9a8d4">可移植性</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">★★☆☆☆</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:12px;font-size:11px;color:rgba(255,255,255,.4);font-family:'Space Mono',monospace">★ 表示测试工程师关注优先级</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(0,null)">← 知识讲解</button>
+    <button class="pb nx" onclick="gp(2,null)">实战练习 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE 2 ── 实战练习
+════════════════════════════════════════ -->
+<div class="page" id="p2">
+  <div class="sec">
+    <div class="sec-title">实战练习 — 3个任务</div>
+
+    <!-- P1 -->
+    <div class="prac" id="pr0">
+      <div class="prac-hdr" onclick="tp(0)">
+        <div class="prac-n" style="background:var(--day)">P1</div>
+        <div class="prac-t">📋 分析测试用例八大要素（QQ登录场景）</div>
+        <div class="ps ps-todo" id="ps0">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb0">
+        <div class="task-box">
+          <div class="task-lbl">任务说明</div>
+          <div class="body">根据以下需求，完整编写 QQ 登录的测试用例（至少4条），要求包含八大要素，覆盖正向和反向场景。</div>
+          <div style="background:#1e2030;border-radius:8px;padding:14px;margin-top:10px;font-family:'Space Mono',monospace;font-size:12.5px;color:#a6accd;line-height:1.9">
+            <span style="color:#fbbf24">需求：QQ登录（4条场景）</span><br>
+            1. 账号为空<br>
+            2. 账号未注册<br>
+            3. 密码为空<br>
+            4. 密码错误
+          </div>
+        </div>
+        <div class="task-box" style="margin-top:12px">
+          <div class="task-lbl">🔑 关键提示</div>
+          <div class="body">
+            • 用例编号格式：<b>QQ_login_001</b>（项目_模块_序号）<br>
+            • 用例标题 = 预期结果，如：<b>登录失败（账号为空）</b><br>
+            • 前置条件要包含：打开界面、网络状态、账号状态<br>
+            • 优先级：错误提示类通常是 <b>P1</b>
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我已理解八大要素的含义和格式</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我已编写了 ≥4 条用例，包含正向和反向场景</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>每条用例都包含全部8个要素</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>预期结果清晰具体，可用于判断通过/失败</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2 -->
+    <div class="prac" id="pr1">
+      <div class="prac-hdr" onclick="tp(1)">
+        <div class="prac-n" style="background:var(--green)">P2</div>
+        <div class="prac-t">✂️ 等价类划分练习 — 微信朋友圈发布</div>
+        <div class="ps ps-todo" id="ps1">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb1">
+        <div class="task-box">
+          <div class="task-lbl">场景需求</div>
+          <div class="body">
+            <b>需求：微信发朋友圈（3个场景）</b><br>
+            1. 成功（1张图片）<br>
+            2. 成功（1段文字）<br>
+            3. 失败（内容为空）
+          </div>
+        </div>
+
+        <div class="task-box" style="margin-top:12px">
+          <div class="task-lbl">按步骤操作</div>
+          <div style="display:flex;flex-direction:column;gap:0;margin-top:8px">
+            <div class="step-row">
+              <div class="step-n">1</div>
+              <div class="step-c">
+                <div class="step-t">分析需求维度</div>
+                <div class="step-b">内容类型（图片/文字/空）、字数限制（如有）、网络状态</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-n">2</div>
+              <div class="step-c">
+                <div class="step-t">划分有效 & 无效等价类</div>
+                <div class="step-b">有效：1张图片、1段文字（内容非空）<br>无效：内容完全为空</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-n">3</div>
+              <div class="step-c">
+                <div class="step-t">编写完整用例（含八大要素）</div>
+                <div class="step-b">参考下方标准答案格式</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-box" style="margin-top:12px;background:#f0fdf4;border-color:#bbf7d0">
+          <div class="task-lbl" style="color:var(--green)">📋 标准答案参考</div>
+          <div class="tw"><table class="tbl2">
+            <tr><th>用例编号</th><th>用例标题</th><th>模块</th><th>优先级</th><th>前置条件</th><th>测试步骤</th><th>测试数据</th><th>预期结果</th></tr>
+            <tr><td>wx_CoF_001</td><td>发布成功（1张图片）</td><td>朋友圈</td><td>P0</td><td>微信登录、网络正常、点击发现→朋友圈→相机</td><td>1.拍摄 2.点击完成 3.点击发送</td><td>照片：随便拍一张</td><td>发送朋友圈成功，自动跳转到朋友圈列表，第一条信息位置显示图片</td></tr>
+            <tr><td>wx_CoF_002</td><td>发布成功（1段文字）</td><td>朋友圈</td><td>P0</td><td>微信登录、网络正常、点击发现→朋友圈→相机</td><td>1.输入文字 2.点击发送</td><td>文字：你好黑马！</td><td>发送朋友圈成功，显示文字内容</td></tr>
+            <tr><td>wx_CoF_003</td><td>发布失败（内容为空）</td><td>朋友圈</td><td>P1</td><td>微信登录、网络正常、长按相机3秒</td><td>1.内容为空 2.点击发送</td><td>文字：空</td><td>发送失败，发送按钮置灰不可点</td></tr>
+          </table></div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>我已编写3条朋友圈用例</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>前置条件包含了登录、网络等必要条件</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>预期结果描述了具体的界面变化/提示信息</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- P3 -->
+    <div class="prac" id="pr2">
+      <div class="prac-hdr" onclick="tp(2)">
+        <div class="prac-n" style="background:var(--purple)">P3</div>
+        <div class="prac-t">🌸 挑战作业 — 花瓶测试用例设计（参考质量模型）</div>
+        <div class="ps ps-todo" id="ps2">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb2">
+        <div class="task-box">
+          <div class="task-lbl">今日作业</div>
+          <div class="body">
+            <b>目标：</b>为花瓶设计测试用例<br>
+            <b>要求：</b>10条用例以上<br>
+            <b>提示：</b>参考质量模型（功能、性能、兼容、易用性、安全）
+          </div>
+        </div>
+        <div class="task-box" style="margin-top:12px">
+          <div class="task-lbl">思路引导</div>
+          <div class="body">从质量模型8个维度思考花瓶的测试点：</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px">
+            <div style="background:var(--rbg);border-radius:6px;padding:10px;font-size:12.5px"><b style="color:var(--red)">⚙️ 功能性</b><br>能否盛水不泄漏、能否固定花茎</div>
+            <div style="background:var(--abg);border-radius:6px;padding:10px;font-size:12.5px"><b style="color:var(--amber)">⚡ 性能</b><br>承重能力、材质耐久性</div>
+            <div style="background:var(--gbg);border-radius:6px;padding:10px;font-size:12.5px"><b style="color:var(--green)">😊 易用性</b><br>口径大小、清洗是否方便</div>
+            <div style="background:var(--acbg);border-radius:6px;padding:10px;font-size:12.5px"><b style="color:var(--accent)">🛡️ 安全性</b><br>边缘是否锋利、材料是否有毒</div>
+            <div style="background:var(--pbg);border-radius:6px;padding:10px;font-size:12.5px"><b style="color:var(--purple)">💪 可靠性</b><br>摔落后是否完好、长期使用稳定性</div>
+            <div style="background:#f0f2f7;border-radius:6px;padding:10px;font-size:12.5px"><b style="color:var(--muted)">📐 外观</b><br>颜色/高度/形状是否符合描述</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>我已编写 ≥10 条花瓶测试用例</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>用例覆盖了 ≥4 个质量模型维度</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>每条用例包含全部八大要素</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>用例编号规范（如 vase_func_001）</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(1,null)">← 图解演示</button>
+    <button class="pb nx" onclick="gp(3,null)">面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE 3 ── 面试精讲
+════════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="sec">
+    <div class="sec-title">Day 01 高频面试题（14题）</div>
+
+    <div id="iqList"></div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(2,null)">← 实战练习</button>
+    <button class="pb nx" onclick="gp(4,null)">✅ 测验 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE 4 ── 测验 (12题)
+════════════════════════════════════════ -->
+<div class="page" id="p4">
+  <div class="sec">
+    <div class="sec-title" style="margin-bottom:8px">Day 01 随堂测验 — 12道题</div>
+    <div class="body" style="color:var(--muted);margin-bottom:16px;font-size:13px">覆盖测试定义、分类、质量模型、流程、用例要素、等价类划分，正确率≥75%通过。</div>
+    <div class="sa" id="sa"></div>
+    <div id="qList"></div>
+    <div class="q-acts">
+      <button class="bs" onclick="sub()">提交答案</button>
+      <button class="br" onclick="rst()">↺ 重新作答</button>
+    </div>
+  </div>
+
+  <div class="pnav" style="margin-top:20px">
+    <button class="pb" onclick="gp(3,null)">← 面试精讲</button>
+    <button class="pb nx" onclick="gp(0,null)">🔄 重新学习</button>
+  </div>
+</div>
+
+<script>
+/* ── INTERVIEW DATA ── */
+const IQS = [
+  {lv:'lv-b',lvt:'🟢 基础',q:'什么是软件测试？给出一个简洁的定义。',
+   ans:'软件测试是<b>使用技术手段验证软件是否满足需求</b>的过程。目的是发现缺陷（Bug），保障软件质量，确保软件能正确满足用户需求。',
+   tip:'面试时先说定义，再补充目的和价值，回答更完整。',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'软件测试的分类方式有哪几种？各自怎么分？',
+   ans:'<b>两种主要分类方式：</b><br>① <b>按阶段划分：</b>单元测试 → 集成测试 → 系统测试 → 验收测试<br>② <b>按代码可见度划分：</b>黑盒测试（看不见代码）/ 灰盒测试（看见部分）/ 白盒测试（看见全部）',
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'黑盒测试、灰盒测试、白盒测试分别测试什么？',
+   ans:'<b>黑盒测试：</b>看不见源代码，主要对程序<b>功能</b>进行测试 → 对应系统测试<br><b>灰盒测试：</b>看见部分代码，主要对程序<b>接口</b>进行测试 → 对应集成测试<br><b>白盒测试：</b>看见全部代码，主要对程序<b>源代码</b>进行测试 → 对应单元测试',
+   tip:'用「看不见/部分/全部」和「功能/接口/源代码」两组关键词组合记忆。',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'ISO 25010 软件质量模型有哪几个维度？测试重点关注哪些？',
+   ans:'ISO 25010 质量模型共 8 个维度：功能性、性能效率、兼容性、易用性、信息安全、可靠性、可维护性、可移植性。<br><br><b>测试重点关注（必背）：功能、性能、兼容、易用性、安全</b>，这5个是日常测试最常覆盖的维度。',
+   tip:'',trap:'⚠️ 常见错误：只说"功能和性能"，忘记兼容性、易用性、安全性。'},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'测试用例有哪八大要素？',
+   ans:'① 用例编号（项目_模块_序号）<br>② 用例标题（写预期结果/测试点）<br>③ 项目/模块（所属功能模块）<br>④ 前置条件（执行前需满足的条件）<br>⑤ 优先级（P0最高~P4最低）<br>⑥ 测试步骤（详细操作步骤）<br>⑦ 测试数据（操作所用的具体数据）<br>⑧ 预期结果（期望的系统响应）',
+   tip:'可以用首字母记忆：编标模前优步数预',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'测试流程有哪几个步骤？',
+   ans:'标准测试流程共6个步骤：<br>① 需求分析（评审）→ ② 测试计划 → ③ 用例设计 → ④ 用例执行 → ⑤ 缺陷管理 → ⑥ 测试报告',
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'什么是等价类划分法？使用步骤是什么？',
+   ans:'等价类划分法是将所有测试数据中具有某种共同特征的数据集合进行划分，从每类中取一个代表值测试，以减少测试用例数量。<br><br><b>步骤：</b><br>① 明确需求（分析输入约束）<br>② 划分有效等价类（满足需求）和无效等价类（不满足需求）<br>③ 从每个等价类中提取代表数据，编写测试用例',
+   tip:'重点说出有效等价类和无效等价类的区别，并举一个简单的例子（如QQ账号6~10位）',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'请用等价类划分法，为"QQ账号6~10位自然数"设计测试用例（至少说出分类思路）',
+   ans:`<b>步骤：</b><br>
+① 需求分析：长度6~10位，类型为自然数<br>
+② 划分等价类：<br>
+&nbsp;&nbsp;有效等价类：8位自然数（如12345678）<br>
+&nbsp;&nbsp;无效等价类：3位（太短）、12位（太长）、8位非自然数（如1234567A）、为空<br>
+③ 用例：共5条（1有效+4无效）`,
+   tip:'面试被问到等价类，直接说出分析过程+用例数量，体现方法论掌握程度。',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'测试计划包含哪三个核心内容？',
+   ans:`测试计划是指导测试执行的重要文档，核心三要素：<br>
+① <b>测什么</b>：测试目标和范围（哪些功能需要测试）<br>
+② <b>谁来测</b>：人员进度安排（测试资源分配）<br>
+③ <b>怎么测</b>：测试工具和测试策略`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'需求评审阶段，测试人员应该做什么？为什么要参与？',
+   ans:`需求评审阶段，测试人员应：<br>
+① 提前阅读一遍需求文档，记录不明确之处<br>
+② 参与评审会议（前端、后端、测试、产品共同参与）<br>
+③ 从测试角度对需求进行查漏补缺<br><br>
+<b>原因：</b><br>
+• 确保各部门对需求的理解完全一致<br>
+• 在软件实现前发现需求缺陷（成本最低的阶段）<br>
+• 了解软件有哪些功能，为后续测试做准备`,
+   tip:'强调"需求分析阶段软件还未实现"，越早发现问题修复成本越低。',trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】自动化测试属于哪种测试类型？',
+   ans:`<b>自动化测试归属于功能测试（黑盒测试/系统测试）。</b><br><br>
+很多人误以为自动化测试是一种独立的测试类型，但实际上：<br>
+• 自动化测试 = 用工具/脚本执行功能测试<br>
+• 本质还是验证功能是否正确<br>
+• 属于功能测试的一种实现方式`,
+   tip:'回答这题时体现你理解测试本质，而不是被"自动化"的形式迷惑。',
+   trap:'⚠️ 常见错误：将自动化测试单独列为一种测试分类，或认为它属于白盒测试。'},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】测试用例的标题应该写什么？很多人写错！',
+   ans:`<b>用例标题 = 预期结果（测试点）</b>，而不是操作描述！<br><br>
+<b>❌ 错误写法：</b>"点击登录按钮"（这是步骤，不是标题）<br>
+<b>✅ 正确写法：</b>"登录失败（账号为空）"（描述期望结果）<br><br>
+标题应该让人一眼看出这条用例验证的是什么场景和预期结果。`,
+   tip:'',
+   trap:'⚠️ 这是初级测试工程师最常犯的错误，面试官会专门检查。'},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】你在测试"用户注册"功能，如何从质量模型角度设计全面的测试方向？',
+   ans:`从 ISO 25010 质量模型出发：<br>
+① <b>功能性：</b>注册成功/失败场景，字段验证（必填项、格式校验）<br>
+② <b>性能：</b>高并发注册时系统响应时间，数据库写入性能<br>
+③ <b>兼容性：</b>在不同浏览器（Chrome/Firefox/Safari）、不同设备（PC/手机）上注册<br>
+④ <b>易用性：</b>错误提示是否清晰，表单填写是否流畅，必填项是否有标记<br>
+⑤ <b>安全性：</b>密码是否加密存储，是否有防刷机制，SQL注入测试<br>
+⑥ <b>可靠性：</b>网络中断后是否能保留填写内容`,
+   tip:'回答场景题时，用质量模型框架组织思路，体现系统性测试思维。',
+   trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】单元测试、集成测试、系统测试各发现什么类型的缺陷？',
+   ans:`<b>单元测试（白盒）：</b>发现<b>代码逻辑错误</b>，如算法错误、边界条件处理错误、变量未初始化等。<br><br>
+<b>集成测试（灰盒）：</b>发现<b>接口交互问题</b>，如模块间数据传递格式不一致、接口参数错误、依赖关系问题等。<br><br>
+<b>系统测试（黑盒）：</b>发现<b>功能和业务逻辑缺陷</b>，如功能与需求不符、用户体验问题、兼容性问题等。`,
+   tip:'',trap:''}
+];
+
+function buildIQ(){
+  document.getElementById('iqList').innerHTML=IQS.map((q,i)=>`
+    <div class="iq" id="iq${i}">
+      <div class="iq-hdr" onclick="tiq(${i})">
+        <span class="iq-lv ${q.lv}">${q.lvt}</span>
+        <span class="iq-q">Q${i+1}. ${q.q}</span>
+        <span class="iq-arr">▶</span>
+      </div>
+      <div class="iq-body">
+        <div class="iq-inner">
+          <div class="iq-ans">${q.ans}</div>
+          ${q.tip?`<div class="iq-tip">💡 <b>面试 Tip：</b>${q.tip}</div>`:''}
+          ${q.trap?`<div class="iq-trap">⚠️ <b>常见错误：</b>${q.trap}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function tiq(i){document.getElementById('iq'+i).classList.toggle('open');}
+buildIQ();
+
+/* ── QUIZ DATA ── */
+const QS=[
+  {q:'软件测试的核心定义是什么？',
+   opts:['找到软件中所有的Bug','使用技术手段验证软件是否满足需求','让软件变得完美无缺','编写测试文档'],
+   ans:1,exp:'软件测试的定义：使用技术手段验证软件是否满足需求。注意：测试的目的是发现缺陷，而不是证明软件完美。'},
+
+  {q:'以下哪种测试类型"看不见源代码，主要对程序功能进行测试"？',
+   opts:['白盒测试','灰盒测试','黑盒测试','单元测试'],
+   ans:2,exp:'黑盒测试（Black Box Testing）：看不见源代码，主要对程序功能进行测试。对应阶段：系统测试。'},
+
+  {q:'集成测试又称为什么？',
+   opts:['系统测试','功能测试','接口测试','验收测试'],
+   ans:2,exp:'集成测试（Integration Testing）主要针对单元与单元之间的接口进行测试，又称接口测试。对应灰盒测试。'},
+
+  {q:'ISO 25010质量模型中，测试重点关注的5个维度是？',
+   opts:['功能、性能、代码、文档、安全','功能、性能、兼容、易用性、安全','功能、接口、数据库、UI、安全','功能、性能、兼容、维护、移植'],
+   ans:1,exp:'质量模型测试重点5个维度：功能、性能、兼容、易用性、安全。这是必背内容，面试高频考点！'},
+
+  {q:'测试用例的"优先级"中，哪个级别最高？',
+   opts:['P4','P3','P1','P0'],
+   ans:3,exp:'优先级范围P0~P4，P0最高（最重要/影响最大），P4最低。核心功能用P0，边缘功能用P1-P2。'},
+
+  {q:'测试用例的"标题"应该写什么内容？',
+   opts:['操作步骤的描述','测试数据内容','预期结果/测试点','测试人员姓名'],
+   ans:2,exp:'用例标题 = 预期结果（测试点）。例如：「登录失败（账号为空）」而不是「点击登录按钮」。'},
+
+  {q:'等价类划分法中，"有效等价类"指的是？',
+   opts:['不满足需求的数据集合','满足需求的数据集合','等于边界值的数据集合','开发人员认为有效的数据'],
+   ans:1,exp:'有效等价类：满足需求条件的数据集合（即合法输入）。无效等价类：不满足需求条件的数据集合（即非法输入）。'},
+
+  {q:'QQ账号要求"6~10位自然数"，以下哪个数据属于无效等价类？',
+   opts:['12345678（8位自然数）','123456（6位自然数）','123（3位自然数）','1234567890（10位自然数）'],
+   ans:2,exp:'123只有3位，不满足"6~10位"的长度要求，属于无效等价类。其余三个都满足6~10位自然数的条件，属于有效等价类。'},
+
+  {q:'测试流程中，哪个阶段需要前端、后端、测试、产品共同参与？',
+   opts:['测试计划','用例设计','需求分析（评审）','缺陷管理'],
+   ans:2,exp:'需求分析（评审）阶段由各角色共同参与，目的是：确保需求理解一致、查漏补缺、了解系统功能。此时软件还未实现。'},
+
+  {q:'测试计划的三个核心内容是？',
+   opts:['谁写的、何时写的、写了多少','测什么、谁来测、怎么测','需求是什么、结果是什么、Bug有多少','功能测试、性能测试、安全测试'],
+   ans:1,exp:'测试计划三要素：① 测什么（目标/范围）② 谁来测（人员安排）③ 怎么测（工具/策略）。是指导测试执行的重要文档。'},
+
+  {q:'自动化测试归属于哪种测试类型？',
+   opts:['白盒测试','接口测试','功能测试','性能测试'],
+   ans:2,exp:'自动化测试归属于功能测试。它是用工具/脚本来执行功能测试，本质还是验证功能是否正确，属于黑盒测试/系统测试范畴。'},
+
+  {q:'等价类划分法的核心价值是什么？',
+   opts:['找到所有可能的Bug','保证100%的代码覆盖率','在减少用例数量的同时保持测试覆盖率','只测试边界值'],
+   ans:2,exp:'等价类划分法的核心价值：从每个等价类中取一个代表值测试，大幅减少测试用例数量，同时保持对各类场景的覆盖。解决了穷举测试不可能完成的问题。'}
+];
+
+/* ── TAB NAVIGATION ── */
+const pages=document.querySelectorAll('.page');
+const tabs=document.querySelectorAll('.t');
+const vis=new Set([0]);
+function initDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  pages.forEach((_,i)=>{const dot=document.createElement('div');dot.className='dot'+(i===0?' da':'');dot.onclick=()=>gp(i,null);d.appendChild(dot);});
+}
+function gp(idx,tabEl){
+  pages.forEach(p=>p.classList.remove('vis'));pages[idx].classList.add('vis');
+  tabs.forEach(t=>t.classList.remove('a'));(tabEl||tabs[idx]).classList.add('a');
+  vis.add(idx);
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>{d.className='dot'+(vis.has(i)?i===idx?'dot da':'dot dn2':'dot');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initDots();
+
+/* ── PRACTICE ── */
+function tp(i){
+  const b=document.getElementById('pb'+i);b.classList.toggle('open');
+  if(b.classList.contains('open')){const p=document.getElementById('ps'+i);if(p.classList.contains('ps-todo')){p.className='ps ps-do';p.textContent='进行中';}}
+}
+function cp(i){
+  const checks=document.querySelectorAll('#pb'+i+' input[type=checkbox]');
+  const done=[...checks].filter(c=>c.checked).length;
+  const ps=document.getElementById('ps'+i);
+  if(done===checks.length){ps.className='ps ps-done';ps.textContent='✅ 完成';}
+  else{ps.className='ps ps-do';ps.textContent=done+'/'+checks.length;}
+}
+
+/* ── QUIZ ── */
+let sel={},checked=false;
+function buildQ(){
+  sel={};checked=false;
+  document.getElementById('sa').style.display='none';
+  document.getElementById('qList').innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="qt"><span class="qn">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pq(${i},${j})">
+          <span class="ol">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp" id="e${i}">${q.exp}</div>
+    </div>`).join('');
+}
+function pq(qi,oi){
+  if(checked)return;
+  const p=sel[qi];if(p!==undefined)document.getElementById('o'+qi+'_'+p).classList.remove('sel');
+  sel[qi]=oi;document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+function sub(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const e=document.getElementById('e'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');e.className='exp ok-e';}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');e.className='exp no-e';}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('sa');
+  sa.style.cssText='display:flex;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px;'+(pct>=75?'background:#f0fdf4;border:1.5px solid #86efac;':'background:#fff1f2;border:1.5px solid #fca5a5;');
+  sa.innerHTML=`<div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+    <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 优秀！Day01掌握良好！':pct>=50?'⚠️ 良好，建议复习错题':'❌ 需要重新学习本章'}</div>
+    <div style="font-size:12px;color:var(--muted)">正确率 ${pct}% · 建议≥75%进入Day02</div></div>`;
+  sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rst(){buildQ();}
+buildQ();
+</script>
+</body>
+</html>

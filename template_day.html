@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day Template — 软件测试学习体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════
+   SHARED DESIGN SYSTEM FOR ALL DAYS
+   Copy this CSS into every day file
+═══════════════════════════════════ */
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --accent:#2563eb;--accent2:#1d4ed8;--acbg:rgba(37,99,235,.07);--acbg2:rgba(37,99,235,.13);
+  --green:#16a34a;--gbg:rgba(22,163,74,.08);--gbg2:rgba(22,163,74,.15);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.08);
+  --orange:#ea580c;--obg:rgba(234,88,12,.08);
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --r:10px;--rlg:14px;
+  /* Day accent color — override per stage */
+  --day-color:#2563eb;--day-bg:rgba(37,99,235,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:14px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* ── TOP TABS ── */
+.day-nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.day-badge{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--day-color);padding:4px 10px;border-radius:6px;margin-right:16px;white-space:nowrap;flex-shrink:0}
+.tabs{display:flex;gap:0;flex:1;overflow-x:auto}
+.tab{padding:13px 16px;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;user-select:none}
+.tab:hover{color:var(--text);background:#f8f9fc}
+.tab.active{color:var(--day-color);border-bottom-color:var(--day-color);font-weight:600}
+.tab-dots{display:flex;gap:5px;align-items:center;padding-left:12px;border-left:1px solid var(--border);margin-left:4px}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;cursor:pointer}
+.tdot.done{background:var(--green)}.tdot.active{background:var(--day-color);transform:scale(1.3)}
+
+/* ── PAGES ── */
+.page{display:none;max-width:880px;margin:0 auto;padding:28px 24px 60px}
+.page.visible{display:block}
+
+/* ── HERO ── */
+.hero{border-radius:var(--rlg);padding:26px 30px;margin-bottom:22px;border:1px solid}
+.hero-badge{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:10px;font-weight:700}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero-sub{font-size:13.5px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap}
+.htag{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+.hero-objectives{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.obj-item{background:rgba(255,255,255,.7);border-radius:8px;padding:10px 12px;font-size:12.5px;display:flex;align-items:flex-start;gap:6px}
+.obj-check{color:var(--green);font-weight:700;flex-shrink:0}
+
+/* ── SECTIONS ── */
+.sec{margin-bottom:22px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.sec-title::before{content:'';display:block;width:3px;height:17px;background:var(--day-color);border-radius:2px;flex-shrink:0}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.card-title{font-size:12.5px;font-weight:700;color:var(--day-color);margin-bottom:11px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin:1px}
+.t-blue{background:var(--acbg);color:var(--accent2)}
+.t-green{background:var(--gbg);color:var(--green)}
+.t-red{background:var(--rbg);color:var(--red)}
+.t-amber{background:var(--abg);color:var(--amber)}
+.t-purple{background:var(--pbg);color:var(--purple)}
+.t-orange{background:var(--obg);color:var(--orange)}
+
+/* ── INFO BOXES ── */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#78350f;line-height:1.75}
+.info{background:#eff6ff;border:1px solid #bfdbfe;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#1e40af;line-height:1.75}
+.ok{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#14532d;line-height:1.75}
+.danger{background:#fff1f2;border:1px solid #fecdd3;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#7f1d1d;line-height:1.75}
+
+/* ── CODE ── */
+.code{background:#1e2030;border-radius:8px;padding:14px 16px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12px;line-height:1.85;color:#a6accd;overflow-x:auto}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;margin:10px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:#f0f3fa;padding:9px 12px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:11.5px}
+.tbl td{padding:8px 12px;border:1px solid var(--border);color:#3a4158;vertical-align:top;line-height:1.6}
+.tbl tr:nth-child(even) td{background:#fafbfd}
+
+/* ── MOCKUP ── */
+.mock{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin:12px 0}
+.mock-bar{background:#e8ecf4;padding:7px 13px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.md{width:9px;height:9px;border-radius:50%}
+.mr{background:#ff5f57}.my{background:#febc2e}.mg{background:#28c840}
+.mock-url{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:5px;padding:3px 11px;margin-left:6px;flex:1}
+.mock-lbl{font-size:10px;color:var(--dim);margin-left:auto;font-family:'Space Mono',monospace}
+
+/* ── STEP FLOW ── */
+.steps{display:flex;flex-direction:column}
+.step-row{display:flex;gap:0;position:relative}
+.step-row::before{content:'';position:absolute;left:16px;top:34px;bottom:0;width:1px;background:var(--border);z-index:0}
+.step-row:last-child::before{display:none}
+.step-n{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;margin-right:12px;position:relative;z-index:1}
+.step-c{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;flex:1;margin-bottom:9px}
+.step-t{font-size:13.5px;font-weight:700;margin-bottom:4px}
+.step-b{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* ── INTERVIEW ACCORDION ── */
+.iq{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.iq:hover{border-color:#b8c4dc}
+.iq.open{border-color:var(--day-color)}
+.iq-hdr{padding:13px 17px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;user-select:none}
+.iq-lv{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.lv-b{background:var(--gbg);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.lv-m{background:var(--abg);color:var(--amber);border:1px solid rgba(217,119,6,.3)}
+.lv-h{background:var(--rbg);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.lv-t{background:var(--pbg);color:var(--purple);border:1px solid rgba(124,58,237,.25)}
+.iq-q{font-size:13.5px;font-weight:600;flex:1;line-height:1.5}
+.iq-arr{color:var(--dim);font-size:11px;flex-shrink:0;transition:transform .2s;margin-top:3px}
+.iq.open .iq-arr{transform:rotate(90deg)}
+.iq-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.iq.open .iq-body{max-height:1000px}
+.iq-inner{padding:0 17px 14px}
+.iq-ans{background:#f5f8ff;border-left:3px solid var(--day-color);border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;line-height:1.85;color:#3a4158;margin-bottom:8px}
+.iq-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#78350f;margin-bottom:6px}
+.iq-trap{background:#faf5ff;border:1px solid #e9d5ff;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#6b21a8;margin-bottom:6px}
+.iq-code{background:#1e2030;border-radius:7px;padding:11px 14px;font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.8;color:#a6accd;margin-bottom:8px;overflow-x:auto}
+
+/* ── PRACTICE ── */
+.prac{border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:12px;overflow:hidden}
+.prac-hdr{display:flex;align-items:center;gap:11px;padding:13px 17px;cursor:pointer;user-select:none;background:var(--white);transition:background .15s}
+.prac-hdr:hover{background:#f8f9fc}
+.prac-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:#fff;flex-shrink:0}
+.prac-t{font-size:13.5px;font-weight:600;flex:1}
+.prac-status{font-size:10px;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace;flex-shrink:0}
+.ps-todo{background:#f0f2f7;color:var(--dim)}
+.ps-doing{background:var(--acbg);color:var(--accent)}
+.ps-done{background:var(--gbg2);color:var(--green)}
+.prac-body{display:none;padding:0 17px 17px;background:var(--white);border-top:1px solid var(--border)}
+.prac-body.open{display:block}
+.task-box{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:11px 0}
+.task-lbl{font-size:10.5px;font-weight:700;color:var(--day-color);font-family:'Space Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.check-item{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check-item:last-child{border-bottom:none}
+.check-item input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.check-item span{font-size:13px;color:#3a4158;transition:all .2s}
+.check-item input:checked+span{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(22,163,74,.4)}
+
+/* ── QUIZ ── */
+.quiz-q{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:17px 20px;margin-bottom:10px}
+.quiz-qn{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--day-color);background:var(--acbg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.quiz-qt{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;width:100%}
+.opt:hover:not(:disabled){border-color:rgba(37,99,235,.35);background:var(--acbg)}
+.opt-l{width:20px;height:20px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(37,99,235,.35);background:var(--acbg)}.opt.sel .opt-l{background:var(--day-color);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .opt-l{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .opt-l{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.exp.ok-exp{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
+.exp.no-exp{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
+.q-actions{display:flex;gap:8px;margin-top:18px}
+.btn-s{padding:10px 24px;background:var(--day-color);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.btn-s:hover{opacity:.88}
+.btn-r{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.btn-r:hover{background:#f0f2f7;color:var(--text)}
+.score-area{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
+.score-big{font-family:'Space Mono',monospace;font-size:28px;font-weight:700}
+
+/* ── DO/DONT ── */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:11px 0}
+.do-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--r);padding:13px 15px}
+.dont-box{background:#fff1f2;border:1.5px solid #fca5a5;border-radius:var(--r);padding:13px 15px}
+.do-t{font-size:12px;font-weight:700;color:var(--green);margin-bottom:7px}
+.dont-t{font-size:12px;font-weight:700;color:var(--red);margin-bottom:7px}
+.do-i,.dont-i{font-size:12.5px;padding:2px 0;display:flex;gap:5px;line-height:1.6}
+.do-i{color:#14532d}.dont-i{color:#7f1d1d}
+
+/* ── PAGE NAV ── */
+.pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
+.pnav-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pnav-btn:hover{background:var(--acbg);border-color:rgba(37,99,235,.3);color:var(--accent)}
+.pnav-btn.nxt{background:var(--day-color);color:#fff;border-color:var(--day-color)}
+.pnav-btn.nxt:hover{opacity:.9}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     NAVIGATION BAR — copy & customize per day
+════════════════════════════════════ -->
+<nav class="day-nav">
+  <div class="day-badge">Day XX · 阶段名</div>
+  <div class="tabs">
+    <div class="tab active" onclick="goTab(0,this)">📖 知识讲解</div>
+    <div class="tab" onclick="goTab(1,this)">🖼️ 图解演示</div>
+    <div class="tab" onclick="goTab(2,this)">🛠️ 实战练习</div>
+    <div class="tab" onclick="goTab(3,this)">💬 面试精讲</div>
+    <div class="tab" onclick="goTab(4,this)">✅ 测验</div>
+  </div>
+  <div class="tab-dots" id="dots"></div>
+</nav>
+
+<!-- ════════════════════════════════════
+     PAGE 0 — 知识讲解
+════════════════════════════════════ -->
+<div class="page visible" id="p0">
+  <div class="hero" style="background:linear-gradient(135deg,#dbeafe,#ede9fe);border-color:#bfdbfe">
+    <div class="hero-badge" style="background:rgba(37,99,235,.15);color:#1d4ed8;border:1px solid rgba(37,99,235,.25)">Day XX · 第X阶段</div>
+    <div class="hero-title">章节标题</div>
+    <div class="hero-sub">章节简介，2-3句话概括本章内容和重要性</div>
+    <div class="hero-tags">
+      <span class="htag">🏷️ 标签1</span>
+      <span class="htag">🏷️ 标签2</span>
+      <span class="htag">⏱ 预计 30 分钟</span>
+    </div>
+    <div class="hero-objectives">
+      <div class="obj-item"><span class="obj-check">✓</span><span>学习目标1</span></div>
+      <div class="obj-item"><span class="obj-check">✓</span><span>学习目标2</span></div>
+      <div class="obj-item"><span class="obj-check">✓</span><span>学习目标3</span></div>
+      <div class="obj-item"><span class="obj-check">✓</span><span>学习目标4</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">知识点一</div>
+    <div class="card">
+      <div class="card-title">01 — 小标题</div>
+      <div class="body">
+        知识内容...
+      </div>
+      <div class="info">📌 重点提示</div>
+      <div class="tip">💡 补充说明</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <div></div>
+    <button class="pnav-btn nxt" onclick="goTab(1,null)">图解演示 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PAGE 1 — 图解演示
+════════════════════════════════════ -->
+<div class="page" id="p1">
+  <div class="sec">
+    <div class="sec-title">图解 & 实例演示</div>
+    <!-- 放 mock 截图、流程图等 -->
+  </div>
+
+  <div class="pnav">
+    <button class="pnav-btn" onclick="goTab(0,null)">← 知识讲解</button>
+    <button class="pnav-btn nxt" onclick="goTab(2,null)">实战练习 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PAGE 2 — 实战练习
+════════════════════════════════════ -->
+<div class="page" id="p2">
+  <div class="sec">
+    <div class="sec-title">实战练习</div>
+
+    <div class="prac" id="pr0">
+      <div class="prac-hdr" onclick="togglePrac(0)">
+        <div class="prac-n" style="background:var(--day-color)">P1</div>
+        <div class="prac-t">练习标题</div>
+        <div class="prac-status ps-todo" id="ps0">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb0">
+        <div class="task-box">
+          <div class="task-lbl">任务说明</div>
+          <div class="body">练习内容...</div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="check-item"><input type="checkbox" onchange="checkPrac(0)"><span>检查项1</span></label>
+          <label class="check-item"><input type="checkbox" onchange="checkPrac(0)"><span>检查项2</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pnav-btn" onclick="goTab(1,null)">← 图解演示</button>
+    <button class="pnav-btn nxt" onclick="goTab(3,null)">面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PAGE 3 — 面试精讲
+════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="sec">
+    <div class="sec-title">面试高频题</div>
+
+    <div class="iq" id="iq0">
+      <div class="iq-hdr" onclick="toggleIQ(0)">
+        <span class="iq-lv lv-b">🟢 基础</span>
+        <span class="iq-q">面试题内容?</span>
+        <span class="iq-arr">▶</span>
+      </div>
+      <div class="iq-body">
+        <div class="iq-inner">
+          <div class="iq-ans">答案内容...</div>
+          <div class="iq-tip">💡 面试 Tip：...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pnav-btn" onclick="goTab(2,null)">← 实战练习</button>
+    <button class="pnav-btn nxt" onclick="goTab(4,null)">✅ 测验 →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PAGE 4 — 测验
+════════════════════════════════════ -->
+<div class="page" id="p4">
+  <div class="score-area" id="scoreArea"></div>
+  <div id="quizList"></div>
+  <div class="q-actions">
+    <button class="btn-s" onclick="submitQ()">提交答案</button>
+    <button class="btn-r" onclick="resetQ()">↺ 重新作答</button>
+  </div>
+
+  <div class="pnav" style="margin-top:20px">
+    <button class="pnav-btn" onclick="goTab(3,null)">← 面试精讲</button>
+  </div>
+</div>
+
+<script>
+/* ─── QUIZ DATA — Fill in per day ─── */
+const QS = [
+  {q:'示例题目?',opts:['选项A','选项B','选项C','选项D'],ans:0,exp:'解析...'}
+];
+
+/* ─── TAB NAVIGATION ─── */
+const pages = document.querySelectorAll('.page');
+const tabs = document.querySelectorAll('.tab');
+const visited = new Set([0]);
+
+function initDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  pages.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    dot.className='tdot'+(i===0?' active':'');
+    dot.onclick=()=>goTab(i,null);
+    d.appendChild(dot);
+  });
+}
+function goTab(idx,tabEl){
+  pages.forEach(p=>p.classList.remove('visible'));pages[idx].classList.add('visible');
+  tabs.forEach(t=>t.classList.remove('active'));(tabEl||tabs[idx]).classList.add('active');
+  visited.add(idx);
+  document.querySelectorAll('#dots .tdot').forEach((d,i)=>{d.className='tdot'+(visited.has(i)?i===idx?'tdot active':'tdot done':'tdot');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initDots();
+
+/* ─── PRACTICE ─── */
+function togglePrac(i){
+  const b=document.getElementById('pb'+i);
+  b.classList.toggle('open');
+  if(b.classList.contains('open')){
+    const ps=document.getElementById('ps'+i);
+    if(ps.classList.contains('ps-todo')){ps.className='prac-status ps-doing';ps.textContent='进行中';}
+  }
+}
+function checkPrac(i){
+  const checks=document.querySelectorAll('#pb'+i+' input[type=checkbox]');
+  const done=[...checks].filter(c=>c.checked).length;
+  const ps=document.getElementById('ps'+i);
+  if(done===checks.length){ps.className='prac-status ps-done';ps.textContent='✅ 完成';}
+  else{ps.className='prac-status ps-doing';ps.textContent=done+'/'+checks.length;}
+}
+
+/* ─── INTERVIEW ACCORDION ─── */
+function toggleIQ(i){document.getElementById('iq'+i).classList.toggle('open');}
+
+/* ─── QUIZ ─── */
+let sel={},checked=false;
+function buildQuiz(){
+  sel={};checked=false;
+  document.getElementById('scoreArea').style.display='none';
+  document.getElementById('quizList').innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="quiz-qt"><span class="quiz-qn">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pickQ(${i},${j})">
+          <span class="opt-l">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp" id="e${i}">${q.exp}</div>
+    </div>`).join('');
+}
+function pickQ(qi,oi){
+  if(checked)return;
+  const p=sel[qi];
+  if(p!==undefined)document.getElementById('o'+qi+'_'+p).classList.remove('sel');
+  sel[qi]=oi;document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+function submitQ(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const e=document.getElementById('e'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');e.className='exp ok-exp';}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');e.className='exp no-exp';}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('scoreArea');
+  sa.style.cssText='display:flex;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px;'+(pct>=75?'background:#f0fdf4;border:1.5px solid #86efac;':'background:#fff1f2;border:1.5px solid #fca5a5;');
+  sa.innerHTML=`<div style="text-align:center"><div class="score-big" style="color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+    <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 掌握良好！':pct>=50?'⚠️ 需要加强':'❌ 建议复习'}</div>
+    <div style="font-size:12px;color:var(--muted)">正确率 ${pct}%</div></div>`;
+  sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function resetQ(){buildQuiz();}
+buildQuiz();
+</script>
+</body>
+</html>
