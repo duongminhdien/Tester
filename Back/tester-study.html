@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Middle Tester 面试备考系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #e2e6ef;
+  --border-bright: #c8cedc;
+  --accent: #16a34a;
+  --accent-dim: #15803d;
+  --accent-bg: rgba(22,163,74,0.08);
+  --accent-bg2: rgba(22,163,74,0.13);
+  --text: #1a1f2e;
+  --text-muted: #5a6380;
+  --text-dim: #9aa0b8;
+  --red: #dc2626;
+  --red-bg: rgba(220,38,38,0.08);
+  --amber: #d97706;
+  --amber-bg: rgba(217,119,6,0.08);
+  --blue: #2563eb;
+  --blue-bg: rgba(37,99,235,0.08);
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #eef0f5; }
+::-webkit-scrollbar-thumb { background: #c8cedc; border-radius: 3px; }
+
+/* LAYOUT */
+.app { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 280px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.sidebar-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.progress-wrap { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text-muted); margin-bottom: 8px;
+}
+.progress-bar {
+  height: 4px; background: var(--border);
+  border-radius: 99px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--accent);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+.nav { padding: 12px 12px; flex: 1; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  position: relative;
+}
+.nav-item:hover { background: #f0f2f7; border-color: var(--border); }
+.nav-item.active { background: var(--accent-bg2); border-color: var(--accent-dim); }
+
+.nav-icon {
+  width: 32px; height: 32px;
+  background: #f0f2f7;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.nav-item.active .nav-icon { background: var(--accent-bg2); }
+.nav-item.done .nav-icon { background: rgba(22,163,74,0.15); }
+
+.nav-info { flex: 1; min-width: 0; }
+.nav-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-zh { font-size: 11px; color: var(--text-muted); }
+
+.nav-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; padding: 2px 6px;
+  border-radius: 99px;
+  background: #eef0f5;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-item.done .nav-badge { background: var(--accent-bg); color: var(--accent-dim); }
+
+/* MAIN */
+.main {
+  margin-left: 280px;
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP BAR */
+.topbar {
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left h1 { font-size: 20px; font-weight: 700; }
+.topbar-left p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.tab-bar {
+  display: flex; gap: 4px;
+  background: #f0f2f7;
+  padding: 4px; border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.tab-btn {
+  padding: 7px 18px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Noto Sans SC', sans-serif;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+}
+
+/* CONTENT */
+.content { padding: 36px 40px; flex: 1; max-width: 900px; }
+
+/* LESSON */
+.lesson-section { display: none; }
+.lesson-section.visible { display: block; }
+
+.section-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-dim);
+  padding: 4px 10px; border-radius: 99px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.lesson-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.lesson-block:hover { border-color: var(--border-bright); }
+
+.block-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.03em;
+}
+
+.block-body {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #3a4158;
+}
+.block-body b { color: var(--text); font-weight: 700; }
+.block-body br { display: block; content: ""; margin-top: 2px; }
+
+.highlight-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px; margin-top: 14px;
+}
+.highlight-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.highlight-card .hc-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.highlight-card .hc-val { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* INTERVIEW */
+.interview-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.interview-card:hover { border-color: var(--border-bright); }
+
+.interview-q {
+  padding: 16px 20px;
+  display: flex; align-items: flex-start; gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.q-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-dim);
+  padding: 3px 7px; border-radius: 5px;
+  flex-shrink: 0; margin-top: 1px;
+}
+.q-text { font-size: 14px; font-weight: 500; flex: 1; }
+.q-arrow {
+  color: var(--text-dim);
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+  margin-top: 3px;
+}
+.interview-card.open .q-arrow { transform: rotate(90deg); }
+
+.interview-a {
+  padding: 0 20px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.2s;
+}
+.interview-card.open .interview-a {
+  padding: 0 20px 16px;
+  max-height: 400px;
+}
+.answer-box {
+  background: #f5f8ff;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #3a4158;
+}
+.answer-box b { color: var(--text); }
+
+/* QUIZ */
+.quiz-header {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.quiz-score-display {
+  text-align: center;
+}
+.score-big { font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700; color: var(--accent); }
+.score-label { font-size: 11px; color: var(--text-muted); }
+.quiz-stat { flex: 1; }
+.quiz-stat-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; color: var(--text); }
+.quiz-stat-sub { font-size: 12px; color: var(--text-muted); }
+
+.quiz-q-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.q-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; color: var(--text-muted);
+  margin-bottom: 8px; letter-spacing: 0.1em;
+}
+.q-question { font-size: 14px; font-weight: 500; margin-bottom: 14px; line-height: 1.6; }
+
+.opts { display: flex; flex-direction: column; gap: 6px; }
+.opt-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Noto Sans SC', sans-serif;
+  color: var(--text);
+  transition: all 0.15s;
+  text-align: left;
+}
+.opt-btn:hover:not(:disabled) { border-color: var(--accent-dim); background: var(--accent-bg); }
+.opt-btn .opt-letter {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #e8ecf4;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: background 0.15s;
+}
+.opt-btn.selected .opt-letter { background: var(--accent-dim); color: #fff; }
+.opt-btn.correct .opt-letter { background: var(--accent); color: #fff; }
+.opt-btn.wrong .opt-letter { background: var(--red); color: #fff; }
+.opt-btn.selected { border-color: var(--accent-dim); background: var(--accent-bg); }
+.opt-btn.correct { border-color: var(--accent-dim); background: var(--accent-bg); }
+.opt-btn.wrong { border-color: #b91c1c; background: var(--red-bg); }
+.opt-btn:disabled { cursor: default; }
+
+.explain-box {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f5f8ff;
+  border-left: 3px solid var(--accent);
+  font-size: 13px;
+  color: #3a4158;
+  line-height: 1.7;
+}
+.explain-box.show { display: block; }
+.explain-box.wrong-exp { border-left-color: var(--red); }
+
+.quiz-actions {
+  display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
+}
+.btn-check {
+  padding: 11px 28px;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px; font-weight: 700;
+  font-family: 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-check:hover { opacity: 0.88; }
+.btn-check:active { transform: scale(0.97); }
+.btn-reset {
+  padding: 11px 20px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-reset:hover { background: var(--card); color: var(--text); border-color: var(--border-bright); }
+
+/* EMPTY */
+.empty-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 60px 40px;
+  text-align: center;
+}
+.empty-icon { font-size: 56px; margin-bottom: 20px; }
+.empty-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.empty-sub { font-size: 14px; color: var(--text-muted); max-width: 400px; line-height: 1.7; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 36px;
+  width: 100%; max-width: 480px;
+}
+.stat-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.stat-n { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; color: var(--accent); }
+.stat-l { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; position: relative; height: auto; }
+  .main { margin-left: 0; }
+  .app { flex-direction: column; }
+  .content { padding: 20px; }
+  .topbar { padding: 16px 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">▣ Tester Academy</div>
+      <div class="sidebar-title">Middle Tester<br>面试备考系统</div>
+      <div class="sidebar-sub">Hệ thống ôn tập phỏng vấn</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Tiến độ</span>
+        <span id="progressLabel">0 / 6 hoàn thành</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <nav class="nav" id="navList"></nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div id="emptyState" class="empty-main">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">Chào mừng đến với hệ thống ôn thi</div>
+      <div class="empty-sub">Chọn một chủ đề bên trái để bắt đầu học bài giảng tiếng Trung và luyện tập câu hỏi phỏng vấn.</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-n">6</div><div class="stat-l">Chủ đề</div></div>
+        <div class="stat-card"><div class="stat-n">24</div><div class="stat-l">Câu quiz</div></div>
+        <div class="stat-card"><div class="stat-n">30+</div><div class="stat-l">Câu PV</div></div>
+      </div>
+    </div>
+
+    <div id="topbarWrap" style="display:none">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1 id="topbarTitle"></h1>
+          <p id="topbarSub"></p>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('lesson')">📖 Bài giảng</button>
+          <button class="tab-btn" onclick="switchTab('interview')">💬 Câu hỏi PV</button>
+          <button class="tab-btn" onclick="switchTab('quiz')">✅ Kiểm tra</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="mainContent" style="display:none">
+      <div id="tabLesson" class="lesson-section visible"></div>
+      <div id="tabInterview" class="lesson-section"></div>
+      <div id="tabQuiz" class="lesson-section"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+const topics = [
+  {
+    id: 0, icon: "🧪", title: "Testing Fundamentals", zh: "软件测试基础", badge: "Nền tảng",
+    lesson: [
+      {
+        title: "01 — 什么是软件测试？",
+        body: `软件测试（Software Testing）是通过<b>执行程序</b>来验证软件是否满足需求、发现缺陷的过程。<br><br>
+<b>测试的核心目标：</b><br>
+• 验证软件是否符合需求规格（Verification）<br>
+• 确认软件满足用户实际需求（Validation）<br>
+• 尽早发现并修复缺陷，降低成本<br>
+• 提升软件质量和用户信任度<br><br>
+<b>⚠️ 重要原则：</b> 测试的目的不是证明软件没有错误，而是<b>尽可能多地发现错误</b>。`
+      },
+      {
+        title: "02 — SDLC 与 STLC",
+        body: `<b>SDLC（软件开发生命周期）：</b><br>
+需求分析 → 设计 → 开发 → 测试 → 部署 → 维护<br><br>
+<b>STLC（软件测试生命周期）：</b><br>
+1. 需求分析（Requirement Analysis）<br>
+2. 测试计划（Test Planning）<br>
+3. 测试用例设计（Test Case Design）<br>
+4. 测试环境搭建（Test Environment Setup）<br>
+5. 测试执行（Test Execution）<br>
+6. 缺陷报告与关闭（Defect Reporting & Closure）<br><br>
+STLC 是 SDLC 的<b>子集</b>，专注于测试活动本身。`
+      },
+      {
+        title: "03 — 测试类型",
+        body: `<b>按代码可见度：</b><br>
+• <b>黑盒测试（Black Box）</b>：不知内部代码，只测输入输出<br>
+• <b>白盒测试（White Box）</b>：了解代码逻辑，测试覆盖路径<br>
+• <b>灰盒测试（Grey Box）</b>：两者结合<br><br>
+<b>按功能性：</b><br>
+• <b>功能测试（Functional）</b>：验证功能是否正常<br>
+• <b>非功能测试（Non-functional）</b>：性能、安全、兼容性等<br><br>
+<b>按执行方式：</b><br>
+• 手动测试（Manual Testing）<br>
+• 自动化测试（Automation Testing）`
+      },
+      {
+        title: "04 — 测试级别",
+        body: `• <b>单元测试（Unit Test）</b>：开发人员测试单个模块或函数<br>
+• <b>集成测试（Integration Test）</b>：测试模块间的接口和交互<br>
+• <b>系统测试（System Test）</b>：测试整个系统的完整功能<br>
+• <b>验收测试（UAT）</b>：由用户/客户验证系统是否满足业务需求<br><br>
+<b>Verification vs Validation：</b><br>
+• <b>Verification（验证）</b>：我们是否在正确地构建产品？→ 静态测试、评审<br>
+• <b>Validation（确认）</b>：我们是否构建了正确的产品？→ 动态测试、运行软件`
+      }
+    ],
+    interview: [
+      { q: "什么是软件测试？测试的目的是什么？", a: "软件测试是通过执行软件来发现缺陷、验证功能的过程。目的是<b>提升质量</b>，而非证明没有错误。缺陷发现越早，修复成本越低。" },
+      { q: "SDLC 和 STLC 有什么区别？", a: "SDLC 是软件开发的完整周期（需求→设计→开发→测试→部署→维护）；STLC 是测试专属周期，是 SDLC 的子集，专注于测试活动的规划、执行和关闭。" },
+      { q: "黑盒测试和白盒测试有什么区别？", a: "<b>黑盒测试</b>：不需要了解代码，只验证功能输入输出，适合功能测试和 UAT。<br><b>白盒测试</b>：需要了解代码逻辑，测试覆盖路径和分支，通常由开发人员执行。" },
+      { q: "什么是回归测试（Regression Testing）？", a: "回归测试是在代码修改后，重新执行之前通过的测试用例，确保新改动没有引入新的缺陷（即没有「回退」）。是 CI/CD 中自动化的核心场景。" },
+      { q: "Verification 和 Validation 的区别？", a: "<b>Verification</b>（验证）：做对了吗？→ 检查文档、评审、静态测试。<br><b>Validation</b>（确认）：做的是对的东西吗？→ 动态测试，运行软件验证。" },
+      { q: "什么是探索性测试（Exploratory Testing）？", a: "探索性测试是同时设计和执行测试的方法，测试人员依靠经验和直觉在系统中自由探索，适合发现文档中未覆盖的边缘情况。" }
+    ],
+    quiz: [
+      { q: "黑盒测试的主要特点是什么？", opts: ["需要了解代码内部逻辑", "不需要了解代码，只测输入输出", "只测试数据库连接", "由开发人员独立执行"], ans: 1, exp: "黑盒测试（Black Box Testing）不需要了解内部代码实现，测试人员只关注输入和预期输出，验证功能是否符合需求。" },
+      { q: "STLC 中正确的顺序是？", opts: ["执行→计划→设计→分析", "需求分析→计划→设计→执行", "设计→分析→执行→计划", "计划→执行→分析→设计"], ans: 1, exp: "STLC 正确顺序：需求分析 → 测试计划 → 测试用例设计 → 环境搭建 → 执行 → 缺陷关闭。" },
+      { q: "UAT（用户验收测试）由谁执行？", opts: ["开发人员", "测试人员", "最终用户或客户", "数据库管理员"], ans: 2, exp: "UAT 由最终用户或客户执行，目的是验证系统是否满足实际业务需求，不由测试团队执行。" },
+      { q: "Validation 的正确定义是？", opts: ["检查文档是否符合规范", "确认我们是否构建了正确的产品", "验证代码测试覆盖率", "检查测试用例总数量"], ans: 1, exp: "Validation（确认）回答「我们是否构建了正确的产品？」，通过动态测试（运行软件）来执行。" }
+    ]
+  },
+  {
+    id: 1, icon: "📐", title: "Test Design Techniques", zh: "测试设计技术", badge: "高频考点",
+    lesson: [
+      {
+        title: "01 — 等价类划分（Equivalence Partitioning）",
+        body: `将输入数据划分为若干<b>等价类</b>，同一等价类中的任意值产生相同结果。只需从每个类中选取一个代表值进行测试，减少测试用例数量。<br><br>
+<b>示例：</b>年龄输入框（有效范围 18–60）<br>
+• <b>有效等价类：</b>18 ≤ 年龄 ≤ 60（如：25）<br>
+• <b>无效等价类1：</b>年龄 < 18（如：10）<br>
+• <b>无效等价类2：</b>年龄 > 60（如：70）<br>
+• <b>无效等价类3：</b>非数字（如："abc"）`
+      },
+      {
+        title: "02 — 边界值分析（Boundary Value Analysis）",
+        body: `大多数缺陷发生在<b>边界处</b>，因此重点测试边界值。<br>
+通常选取：最小值、最小值+1、最大值-1、最大值，以及刚好超出范围的值。<br><br>
+<b>示例：</b>年龄输入框（有效范围 18–60）<br>
+• 测试值：<b>17, 18, 19 ... 59, 60, 61</b><br>
+• 17 和 61 → 应该被<b>拒绝</b>（无效）<br>
+• 18 和 60 → 应该被<b>接受</b>（有效边界）<br><br>
+⚡ 等价类划分 + 边界值分析通常<b>配合使用</b>。`
+      },
+      {
+        title: "03 — 决策表测试（Decision Table Testing）",
+        body: `用于测试多个条件组合下的系统行为，适合<b>复杂业务规则</b>的场景。<br><br>
+<b>示例：</b>贷款审批（条件：收入是否达标、信用分是否合格）<br><br>
+&nbsp;&nbsp;收入达标 + 信用合格 → <b>批准</b><br>
+&nbsp;&nbsp;收入达标 + 信用不合格 → <b>拒绝</b><br>
+&nbsp;&nbsp;收入不达标 + 信用合格 → <b>拒绝</b><br>
+&nbsp;&nbsp;收入不达标 + 信用不合格 → <b>拒绝</b>`
+      },
+      {
+        title: "04 — 状态转换测试（State Transition）",
+        body: `测试系统在不同状态之间转换的行为，适合<b>订单、会话、账户</b>等有状态的系统。<br><br>
+<b>示例：</b>订单状态流转<br>
+待支付 → 已支付 → 已发货 → 已完成<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;已取消<br><br>
+<b>测试要点：</b>确认所有合法转换能成功，非法转换被拒绝（如：已完成 → 待支付应被系统拒绝）。`
+      }
+    ],
+    interview: [
+      { q: "什么是等价类划分？请举例说明。", a: "等价类划分是将输入数据分为若干组，每组内任意值的处理方式相同。例如年龄字段（18–60）分为：有效类（18–60）、无效类（&lt;18、&gt;60、非数字）。每类只取一个代表值测试即可。" },
+      { q: "边界值分析和等价类划分有什么区别？", a: "等价类划分确定了测试类别；<b>边界值分析</b>专注于每个类的边界处，因为缺陷最容易出现在边界上。两者通常配合使用：等价类决定「测什么类」，边界值决定「取哪个值」。" },
+      { q: "什么时候使用决策表测试？", a: "当系统有<b>多个输入条件</b>，不同组合导致不同结果时使用。适用于复杂业务规则，如贷款审批、折扣计算、权限控制等。决策表确保所有条件组合都被覆盖。" },
+      { q: "状态转换测试适用于什么场景？", a: "适用于有明确状态的系统，如订单（待付款→已付款→已发货→完成）、账户（正常→冻结→注销）等。需要验证所有<b>合法和非法</b>的状态转换。" },
+      { q: "如何选择合适的测试设计技术？", a: "• 数字范围、输入限制 → <b>边界值 + 等价类</b><br>• 多个条件组合 → <b>决策表</b><br>• 有明确状态流程 → <b>状态转换</b><br>• 业务场景/用户流程 → <b>用例测试</b>" }
+    ],
+    quiz: [
+      { q: "年龄字段有效范围 1–100，边界值分析应选哪些测试值？", opts: ["1, 50, 100", "0, 1, 2, 99, 100, 101", "10, 50, 90", "1 和 100 两个值即可"], ans: 1, exp: "边界值分析应选：无效下边界(0)、有效下边界(1)、下边界+1(2)、上边界-1(99)、有效上边界(100)、无效上边界(101)。" },
+      { q: "以下哪种场景最适合使用决策表测试？", opts: ["测试按钮颜色是否正确", "测试用户名长度限制", "测试会员等级+优惠券组合折扣规则", "测试页面加载速度"], ans: 2, exp: "决策表适合多条件组合的复杂业务规则，如不同条件组合产生不同结果的场景（会员等级×优惠券 = 不同折扣）。" },
+      { q: "等价类划分的主要目的是？", opts: ["测试所有可能的输入值", "减少测试用例数量同时保持覆盖率", "只测试无效输入情况", "只测试有效输入情况"], ans: 1, exp: "等价类划分通过将输入分组，只需从每类中选取代表值，大幅减少测试用例数量，同时保持充分覆盖。" },
+      { q: "状态转换测试中应该验证什么？", opts: ["只验证合法的状态转换", "只验证非法状态转换", "合法转换能成功 + 非法转换被拒绝", "所有状态都能互相转换"], ans: 2, exp: "状态转换测试需要验证两方面：合法的状态转换能正常进行，以及非法的状态转换被系统正确拒绝。" }
+    ]
+  },
+  {
+    id: 2, icon: "🐛", title: "Bug Lifecycle & Reports", zh: "缺陷管理与报告", badge: "必考",
+    lesson: [
+      {
+        title: "01 — 缺陷生命周期（Bug Lifecycle）",
+        body: `<b>完整的缺陷状态流转：</b><br><br>
+1. <b>New（新建）</b>：测试人员发现并提交缺陷<br>
+2. <b>Assigned（已分配）</b>：缺陷被分配给开发人员<br>
+3. <b>Open（处理中）</b>：开发人员开始分析修复<br>
+4. <b>Fixed（已修复）</b>：开发人员完成修复<br>
+5. <b>Retest（重新测试）</b>：测试人员验证修复是否正确<br>
+6. <b>Closed（已关闭）</b>：验证通过，缺陷关闭<br>
+7. <b>Reopened（重新打开）</b>：修复未解决，重新打开<br>
+8. <b>Rejected（已拒绝）</b>：开发认为不是缺陷或不在范围内<br>
+9. <b>Deferred（延期）</b>：暂时不修复，推迟到下个版本`
+      },
+      {
+        title: "02 — Severity vs Priority（严重程度 vs 优先级）",
+        body: `<b>Severity（严重程度）</b>：缺陷对系统功能的影响程度<br>
+• <b>Critical</b>：系统崩溃，无法继续运行<br>
+• <b>Major</b>：主要功能无法使用<br>
+• <b>Minor</b>：功能受影响但有替代方案<br>
+• <b>Trivial</b>：UI 问题、拼写错误等<br><br>
+<b>Priority（优先级）</b>：修复缺陷的紧迫程度 → High / Medium / Low<br><br>
+<b>⚠️ 关键案例：</b><br>
+• 高 Severity + 低 Priority：某功能崩溃，但该功能本周不会使用<br>
+• 低 Severity + 高 Priority：官网首页 CEO 名字拼写错误（影响小，但必须立即修）`
+      },
+      {
+        title: "03 — 如何写一份好的 Bug Report",
+        body: `一份完整的 Bug Report 应包含：<br><br>
+• <b>Bug ID</b>：唯一标识符（如 BUG-1024）<br>
+• <b>标题（Title）</b>：简洁描述问题<br>
+• <b>环境（Environment）</b>：OS、浏览器、版本号<br>
+• <b>重现步骤（Steps to Reproduce）</b>：清晰步骤，让开发可复现<br>
+• <b>预期结果（Expected Result）</b>：应该发生什么<br>
+• <b>实际结果（Actual Result）</b>：实际发生了什么<br>
+• <b>Severity 和 Priority</b><br>
+• <b>附件（Attachments）</b>：截图、视频、日志`
+      },
+      {
+        title: "04 — 好 Bug Report 示例",
+        body: `<b>BUG-1024：用户在 Chrome 103 下点击「立即支付」按钮后页面空白</b><br><br>
+<b>环境：</b>Windows 11, Chrome 103.0, 测试环境 v2.3.1<br>
+<b>重现步骤：</b><br>
+1. 使用账号 test@demo.com 登录<br>
+2. 添加任意商品到购物车<br>
+3. 进入结算页面<br>
+4. 点击「立即支付」按钮<br><br>
+<b>预期结果：</b>跳转至支付成功页面，显示订单号<br>
+<b>实际结果：</b>页面变为完全空白，无任何提示或错误信息<br>
+<b>Severity：Critical　Priority：High</b>`
+      }
+    ],
+    interview: [
+      { q: "请描述缺陷的完整生命周期。", a: "New → Assigned → Open → Fixed → Retest → Closed（若验证失败则 Reopened）。还有两种特殊状态：<b>Rejected</b>（开发认为非缺陷）和 <b>Deferred</b>（延期处理）。" },
+      { q: "Severity 和 Priority 有什么区别？各举一个例子。", a: "<b>Severity</b> 是缺陷对系统的影响度；<b>Priority</b> 是修复的紧迫程度。<br>高 Severity + 低 Priority：次要功能崩溃但未发布。<br>低 Severity + 高 Priority：官网 CEO 名字拼错。" },
+      { q: "一份好的 Bug Report 应该包含哪些内容？", a: "Bug ID、标题、环境（OS/浏览器/版本）、重现步骤、预期结果、实际结果、Severity、Priority、截图/日志。核心是让开发人员能<b>独立复现</b>问题。" },
+      { q: "如果开发人员说「我这里无法复现」，你会怎么处理？", a: "1. 检查环境差异（OS、浏览器版本、测试数据）；2. 提供更详细步骤或视频录屏；3. 在相同环境下与开发共同复现；4. 检查测试数据是否有特殊性。" },
+      { q: "Reopened 和 Rejected 的区别是什么？", a: "<b>Reopened</b>：开发修复后，测试人员 Retest 时发现问题仍存在，重新打开。<br><b>Rejected</b>：开发审查后认为这不是缺陷（如按设计实现、范围外），直接拒绝。" }
+    ],
+    quiz: [
+      { q: "Bug 状态从 Fixed 变为 Reopened，说明什么？", opts: ["缺陷已被成功修复", "测试人员验证后发现修复未解决问题", "缺陷被开发人员拒绝了", "缺陷被推迟到下版本处理"], ans: 1, exp: "Reopened 表示开发修复后，测试人员 Retest 时发现问题仍然存在，因此重新打开缺陷，需要开发再次修复。" },
+      { q: "「网站 Logo 图片显示错误，但不影响任何功能」属于什么 Severity？", opts: ["Critical", "Major", "Minor", "Trivial"], ans: 3, exp: "Trivial 级别指对功能没有影响的微小问题，如 UI 显示问题、图片错误、拼写错误等。" },
+      { q: "「CEO 名字在主页拼写错误」的正确 Severity + Priority 组合？", opts: ["High Severity + High Priority", "Low Severity + High Priority", "High Severity + Low Priority", "Low Severity + Low Priority"], ans: 1, exp: "拼写错误对系统功能影响极小（Low/Trivial Severity），但涉及重要人物形象，需要立即修复（High Priority）。" },
+      { q: "Bug Report 中「Steps to Reproduce」的核心作用是？", opts: ["说明开发人员的工作量", "让开发人员无需沟通即可独立复现问题", "统计本次版本的 Bug 总数", "描述系统的技术架构"], ans: 1, exp: "重现步骤是 Bug Report 最核心的部分，清晰的步骤让开发人员无需额外沟通就能独立复现，大大提高修复效率。" }
+    ]
+  },
+  {
+    id: 3, icon: "📋", title: "Test Planning & Test Cases", zh: "测试计划与测试用例", badge: "Middle必备",
+    lesson: [
+      {
+        title: "01 — 测试计划（Test Plan）",
+        body: `测试计划是描述测试活动的<b>正式文档</b>，内容包括：<br><br>
+• <b>测试范围（Scope）</b>：哪些功能测，哪些不测（In/Out of Scope）<br>
+• <b>测试策略（Strategy）</b>：使用哪些测试方法和技术<br>
+• <b>资源计划（Resources）</b>：人员、工具、环境<br>
+• <b>时间安排（Schedule）</b>：各阶段的时间节点<br>
+• <b>风险与对策（Risk & Mitigation）</b>：可能的风险和应对措施<br>
+• <b>入口/出口条件（Entry/Exit Criteria）</b>：何时开始，何时结束测试`
+      },
+      {
+        title: "02 — 什么是好的测试用例？",
+        body: `<b>测试用例（Test Case）</b>是描述如何验证某个功能的文档，应包含：<br><br>
+• <b>Test Case ID</b>：唯一编号（如 TC_LOGIN_001）<br>
+• <b>测试标题</b>：简洁描述测试目标<br>
+• <b>前置条件（Preconditions）</b>：执行前需满足的条件<br>
+• <b>测试步骤（Test Steps）</b>：详细的操作步骤<br>
+• <b>测试数据（Test Data）</b>：使用的具体数据<br>
+• <b>预期结果（Expected Result）</b>：预期的系统响应<br>
+• <b>实际结果 + Pass/Fail</b>：执行后记录`
+      },
+      {
+        title: "03 — 入口 vs 出口条件",
+        body: `<b>入口条件（Entry Criteria）</b>：开始测试前需满足的条件<br>
+• 需求文档已评审完成<br>
+• 测试环境已搭建完毕<br>
+• 开发代码已部署到测试环境<br>
+• 测试计划和测试用例已编写完成<br><br>
+<b>出口条件（Exit Criteria）</b>：可以结束测试的条件<br>
+• 所有测试用例执行完毕<br>
+• 无 Critical 和 Major 级别的未解决 Bug<br>
+• 测试覆盖率达到约定标准（如 90%）<br>
+• 产品负责人已批准发布`
+      },
+      {
+        title: "04 — 测试用例示例",
+        body: `<b>TC_LOGIN_001：用户使用有效凭证登录</b><br><br>
+<b>前置条件：</b>用户已注册，账号状态正常，已到达登录页<br>
+<b>步骤：</b>1. 输入正确用户名 2. 输入正确密码 3. 点击登录按钮<br>
+<b>数据：</b>用户名 = testuser01，密码 = Test@1234<br>
+<b>预期结果：</b>成功跳转至首页，显示用户名「testuser01」<br>
+<b>结论：</b>Pass ✓<br><br>
+<b>TC_LOGIN_002：用户使用错误密码登录</b><br>
+预期结果：提示「密码错误，请重试」，不跳转，密码框清空`
+      }
+    ],
+    interview: [
+      { q: "测试计划应该包含哪些核心内容？", a: "测试范围（Scope）、测试策略（Strategy）、资源规划（人/工具/环境）、时间安排（Schedule）、风险对策（Risk）、入口/出口条件（Entry/Exit Criteria）。" },
+      { q: "如何判断测试是否可以开始（Entry Criteria）？", a: "需求文档完成评审、测试环境搭建完成、代码已部署到测试环境、测试计划和测试用例已编写完成。缺少任何一项都可能导致测试质量降低。" },
+      { q: "一个好的测试用例有哪些特征？", a: "可复现性强、有清晰的前置条件和预期结果、覆盖正向和负向场景、ID 唯一可追踪、独立性强（不依赖其他用例的执行顺序）。" },
+      { q: "如何确定测试优先级，应该先测什么？", a: "1. 核心业务流程（Critical Path）；2. 高风险模块；3. 新增/修改的功能；4. 历史频繁出 Bug 的区域；5. 最近改动过的代码。" },
+      { q: "测试覆盖率（Test Coverage）是什么？怎么提高？", a: "测试覆盖率衡量测试用例覆盖需求/代码的比例。提高方式：使用等价类划分和边界值分析设计用例、补充负面测试、追踪需求到用例的映射（需求追踪矩阵）。" }
+    ],
+    quiz: [
+      { q: "出口条件（Exit Criteria）的作用是？", opts: ["决定何时开始测试", "决定何时可以结束测试", "定义使用哪些测试工具", "分配测试人员任务"], ans: 1, exp: "出口条件定义了结束测试活动的标准，如用例全部执行、无严重 Bug、覆盖率达标、PO 批准等。" },
+      { q: "测试用例 ID（如 TC_LOGIN_001）的主要作用是？", opts: ["帮助开发人员理解代码", "唯一标识，便于追踪和管理", "说明测试执行时间", "描述测试运行环境"], ans: 1, exp: "测试用例 ID 提供唯一标识，便于在缺陷追踪、报告引用、回归测试选择等场景中定位和管理具体用例。" },
+      { q: "测试用例中「前置条件」描述的是？", opts: ["执行测试后的预期结果", "执行测试前必须满足的状态或条件", "测试失败后的处理方案", "测试人员的技能要求"], ans: 1, exp: "前置条件（Preconditions）是执行测试用例前必须满足的状态，如「用户已登录」、「购物车不为空」等。" },
+      { q: "回归测试（Regression Testing）通常在什么时候执行？", opts: ["项目启动之前", "代码修改或 Bug 修复之后", "需求分析阶段", "系统上线之后半年"], ans: 1, exp: "回归测试在代码变更（功能修改、Bug 修复、版本更新）后执行，确保新改动没有破坏已有正常功能。" }
+    ]
+  },
+  {
+    id: 4, icon: "🔌", title: "API Testing", zh: "接口测试", badge: "技术加分项",
+    lesson: [
+      {
+        title: "01 — 什么是 API 测试？",
+        body: `API 测试是对应用程序接口进行验证，确保其<b>功能、性能、安全性</b>符合预期。<br>
+API 测试不需要 UI，直接与后端交互，比 UI 测试<b>更稳定、更快速、更底层</b>。<br><br>
+<b>为什么 API 测试重要？</b><br>
+• 发现问题比 UI 测试早（缺陷在逻辑层就暴露）<br>
+• 不受 UI 改动影响，测试更稳定<br>
+• 执行速度快，适合 CI/CD 流水线集成`
+      },
+      {
+        title: "02 — REST API 基础",
+        body: `<b>HTTP 方法：</b><br>
+• <b>GET</b>：获取资源（查询）<br>
+• <b>POST</b>：创建资源（新增）<br>
+• <b>PUT</b>：完整更新资源<br>
+• <b>PATCH</b>：部分更新资源<br>
+• <b>DELETE</b>：删除资源<br><br>
+<b>常见 HTTP 状态码：</b><br>
+• <b>200 OK</b>：请求成功　<b>201 Created</b>：资源创建成功<br>
+• <b>400 Bad Request</b>：请求参数错误<br>
+• <b>401 Unauthorized</b>：未认证（未登录）<br>
+• <b>403 Forbidden</b>：已认证但无权限<br>
+• <b>404 Not Found</b>：资源不存在<br>
+• <b>500 Internal Server Error</b>：服务器内部错误`
+      },
+      {
+        title: "03 — API 测试的验证点",
+        body: `测试一个 API 接口时，需要验证：<br><br>
+• <b>状态码（Status Code）</b>：返回是否正确<br>
+• <b>响应体（Response Body）</b>：数据结构和字段值是否正确<br>
+• <b>响应时间（Response Time）</b>：是否在可接受范围内<br>
+• <b>数据类型（Data Type）</b>：字段类型是否符合预期<br>
+• <b>错误处理（Error Handling）</b>：传入错误参数时是否返回合适错误信息<br>
+• <b>认证授权（Auth）</b>：无 Token 返回 401，权限不足返回 403<br>
+• <b>数据一致性</b>：API 返回的数据与数据库实际数据一致`
+      },
+      {
+        title: "04 — Postman 使用要点",
+        body: `Postman 是最常用的 API 测试工具：<br><br>
+• <b>Collection</b>：组织和管理 API 请求集合<br>
+• <b>Environment</b>：管理不同环境变量（URL、Token 等）<br>
+• <b>Pre-request Script</b>：请求前执行的脚本（如自动获取 Token）<br>
+• <b>Tests 标签</b>：编写断言脚本验证响应<br><br>
+<b>常用断言：</b><br>
+pm.test("状态码为200", () => pm.response.to.have.status(200));<br>
+pm.test("含用户ID", () => pm.expect(pm.response.json().userId).to.not.be.null);`
+      }
+    ],
+    interview: [
+      { q: "HTTP 状态码 401 和 403 有什么区别？", a: "<b>401 Unauthorized</b>：用户未认证（未登录），需要先登录。<br><b>403 Forbidden</b>：用户已认证但没有权限访问该资源（如普通用户访问管理员接口）。" },
+      { q: "测试一个 POST 接口，你会验证哪些内容？", a: "1. 正常创建返回 201；2. 响应体包含正确的新建资源信息；3. 数据库中资源已实际创建；4. 缺少必填字段返回 400；5. 无 Token 返回 401；6. 重复创建的处理（如返回 409 Conflict）。" },
+      { q: "PUT 和 PATCH 有什么区别？", a: "<b>PUT</b> 是完整替换资源（需传入所有字段）；<b>PATCH</b> 是部分更新（只传需要修改的字段）。修改用户昵称时，PATCH 只传 nickname 即可，PUT 需传完整用户对象。" },
+      { q: "你如何在没有 API 文档的情况下测试接口？", a: "1. 用 Chrome DevTools Network 抓包分析前端请求；2. 查看 Swagger/API 平台；3. 与开发沟通接口定义；4. 通过等价类划分猜测参数范围并实验验证。" },
+      { q: "什么是幂等性？哪些 HTTP 方法是幂等的？", a: "幂等性指相同请求执行多次，结果与执行一次相同。<b>GET、PUT、DELETE</b> 是幂等的；<b>POST</b> 不是幂等的（每次 POST 可能创建新资源）。" }
+    ],
+    quiz: [
+      { q: "HTTP 状态码 404 表示什么？", opts: ["服务器内部错误", "请求成功返回", "请求的资源不存在", "用户无权限访问"], ans: 2, exp: "404 Not Found 表示请求的资源在服务器上不存在，是最常见的客户端错误之一。" },
+      { q: "测试 API 时，响应时间属于哪类验证？", opts: ["功能验证", "性能验证", "安全验证", "数据类型验证"], ans: 1, exp: "响应时间属于性能验证的范畴，确认 API 在可接受的时间内返回结果（如 P95 < 500ms）。" },
+      { q: "PATCH 和 PUT 的主要区别是？", opts: ["PATCH 删除资源，PUT 创建资源", "PATCH 部分更新，PUT 完整替换", "两者功能完全相同", "PATCH 查询资源，PUT 更新资源"], ans: 1, exp: "PATCH 只需传入需要修改的字段（部分更新）；PUT 需要传入资源的完整数据（完整替换），未传字段会被清空。" },
+      { q: "在 Postman 中，Environment 的主要用途是？", opts: ["编写自动化测试脚本", "管理不同环境的变量（如测试/生产 URL）", "记录 API 响应时间统计", "自动生成测试报告"], ans: 1, exp: "Postman 的 Environment 功能用于管理不同环境（开发/测试/生产）的变量，如 Base URL、Token 等，方便一键切换环境。" }
+    ]
+  },
+  {
+    id: 5, icon: "🔄", title: "Agile & Scrum Testing", zh: "敏捷测试", badge: "实战必备",
+    lesson: [
+      {
+        title: "01 — 敏捷测试的核心理念",
+        body: `在敏捷开发中，测试<b>贯穿整个 Sprint</b>，而非只在最后阶段。<br>
+测试人员从 Sprint 开始就参与需求澄清，与开发紧密协作。<br><br>
+<b>敏捷测试的核心原则：</b><br>
+• <b>早测试，早发现</b>（Shift Left Testing）<br>
+• 持续测试，持续反馈<br>
+• 测试人员是<b>质量伙伴</b>，而非守门员<br>
+• 自动化是可持续测试的基础`
+      },
+      {
+        title: "02 — Tester 在 Scrum 中的职责",
+        body: `<b>Sprint 规划（Sprint Planning）：</b><br>
+• 参与估算（Planning Poker）<br>
+• 识别测试风险，确认验收标准（AC）<br><br>
+<b>Sprint 执行期间：</b><br>
+• 编写和维护测试用例<br>
+• 执行功能测试、回归测试<br>
+• 及时报告 Bug，与开发配合修复<br><br>
+<b>Sprint 评审（Sprint Review）：</b><br>
+• 确认已完成功能满足 DoD（完成定义）<br><br>
+<b>Sprint 回顾（Retrospective）：</b><br>
+• 提出测试流程的改进建议`
+      },
+      {
+        title: "03 — Acceptance Criteria & Given-When-Then",
+        body: `验收标准（AC）定义了一个 User Story「完成」的具体条件。<br>
+通常使用 <b>Given-When-Then</b> 格式编写：<br><br>
+<b>Given</b>（前置条件）用户已登录，购物车有商品<br>
+<b>When</b>（操作）用户点击「加入购物车」<br>
+<b>Then</b>（预期结果）购物车数量加 1，显示「添加成功」提示<br><br>
+✅ 验收标准同时也是<b>测试用例的设计基础</b>，BA 写好 AC，Tester 就能据此写测试用例。`
+      },
+      {
+        title: "04 — DoD 与 CI/CD 中的测试",
+        body: `<b>DoD（完成定义 Definition of Done）</b>是团队约定的「完成」标准：<br>
+• 功能开发完成，Code Review 通过<br>
+• 所有测试用例通过，无 Critical/Major Bug<br>
+• 产品负责人（PO）已验收<br>
+• 文档已更新（如有需要）<br><br>
+<b>CI/CD 中的测试职责：</b><br>
+• <b>CI（持续集成）</b>：代码提交后自动触发构建和自动化测试<br>
+• <b>CD（持续部署）</b>：自动化测试通过后自动部署<br>
+• Tester 维护 Smoke Test、Regression Test 套件<br>
+• 分析自动化失败原因，保障质量门禁（Quality Gate）`
+      }
+    ],
+    interview: [
+      { q: "在 Scrum 中，测试人员在哪些阶段参与工作？", a: "全程参与：Sprint Planning（估算、澄清 AC）→ 执行期（编写用例、测试、报 Bug）→ Sprint Review（确认 DoD）→ Retrospective（改进建议）。" },
+      { q: "什么是 Acceptance Criteria？如何编写？", a: "验收标准是 User Story「完成」的具体条件，常用 <b>Given-When-Then</b> 格式编写。它也是测试用例设计的基础——AC 写清楚，测试用例就有依据。" },
+      { q: "什么是 Shift Left Testing？为什么重要？", a: "Shift Left 是将测试活动尽早引入开发周期（需求阶段就介入），而非等开发完成再测试。缺陷发现越早，修复成本越低，质量越高。" },
+      { q: "DoD 和 Acceptance Criteria 有什么区别？", a: "<b>AC</b> 是针对特定 User Story 的具体通过标准；<b>DoD</b> 是团队级别对「完成」的通用定义，适用于所有 Story，包含代码评审、测试通过、文档更新等。" },
+      { q: "在 Agile 项目中，如何平衡手动测试和自动化测试？", a: "自动化：稳定的回归测试、Smoke Test、API 测试。手动：探索性测试、UI/UX 验证、新功能第一次测试。原则：ROI 高的场景才自动化，不盲目追求自动化覆盖率。" }
+    ],
+    quiz: [
+      { q: "Given-When-Then 格式主要用于编写什么？", opts: ["缺陷报告（Bug Report）", "测试计划（Test Plan）", "验收标准（Acceptance Criteria）", "部署说明文档"], ans: 2, exp: "Given-When-Then 是 BDD（行为驱动开发）中常用的格式，用于编写验收标准，结构清晰，便于测试人员直接转化为测试用例。" },
+      { q: "Shift Left Testing 的核心思想是？", opts: ["在项目结束时进行全面测试", "将测试尽早引入开发周期", "只进行自动化测试", "减少测试用例总数量"], ans: 1, exp: "Shift Left 指向左（时间轴更早）移动测试活动，在需求和设计阶段就介入，早发现早修复，降低成本。" },
+      { q: "CI/CD 流水线中，Smoke Test 的主要目的是？", opts: ["测试所有功能细节", "快速验证构建基本可用，值得进一步测试", "替代所有手动测试", "检查代码风格规范"], ans: 1, exp: "Smoke Test（冒烟测试）是一组快速执行的核心测试，验证构建基本可用（核心功能正常），决定是否值得继续深入测试。" },
+      { q: "DoD（完成定义）通常在什么级别定义？", opts: ["针对每个 Bug 单独定义", "针对每个 Sprint 临时定义", "团队级别通用标准，适用于所有 Story", "只由产品负责人（PO）单独定义"], ans: 2, exp: "DoD 是整个 Scrum 团队共同制定的通用完成标准，适用于所有 User Story，确保团队对「完成」有一致的理解。" }
+    ]
+  }
+];
+
+let currentTopic = null;
+let currentTab = 'lesson';
+let completedTopics = new Set();
+let quizAnswers = {};
+let quizChecked = false;
+
+function renderNav() {
+  const nav = document.getElementById('navList');
+  nav.innerHTML = topics.map(t => `
+    <div class="nav-item ${currentTopic === t.id ? 'active' : ''} ${completedTopics.has(t.id) ? 'done' : ''}"
+         onclick="selectTopic(${t.id})">
+      <div class="nav-icon">${t.icon}</div>
+      <div class="nav-info">
+        <div class="nav-name">${t.title}</div>
+        <div class="nav-zh">${t.zh}</div>
+      </div>
+      <div class="nav-badge">${completedTopics.has(t.id) ? '✓' : t.badge}</div>
+    </div>
+  `).join('');
+  const pct = (completedTopics.size / topics.length * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = completedTopics.size + ' / ' + topics.length + ' hoàn thành';
+}
+
+function selectTopic(id) {
+  currentTopic = id;
+  quizAnswers = {};
+  quizChecked = false;
+  const t = topics[id];
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('topbarWrap').style.display = 'block';
+  document.getElementById('mainContent').style.display = 'block';
+
+  document.getElementById('topbarTitle').textContent = t.icon + ' ' + t.title;
+  document.getElementById('topbarSub').textContent = t.zh + ' — ' + t.lesson.length + ' bài học · ' + t.quiz.length + ' câu quiz';
+
+  renderLesson(t);
+  renderInterview(t);
+  renderQuiz(t);
+  switchTab('lesson');
+  renderNav();
+}
+
+function renderLesson(t) {
+  const el = document.getElementById('tabLesson');
+  el.innerHTML = `<div class="section-badge">📖 Bài giảng · ${t.zh}</div>` +
+    t.lesson.map(b => `
+      <div class="lesson-block">
+        <div class="block-title">${b.title}</div>
+        <div class="block-body">${b.body}</div>
+      </div>
+    `).join('');
+}
+
+function renderInterview(t) {
+  const el = document.getElementById('tabInterview');
+  el.innerHTML = `<div class="section-badge">💬 Câu hỏi phỏng vấn · ${t.interview.length} câu</div>` +
+    t.interview.map((item, i) => `
+      <div class="interview-card" id="ic${i}" onclick="toggleQ(${i})">
+        <div class="interview-q">
+          <span class="q-num">Q${String(i+1).padStart(2,'0')}</span>
+          <span class="q-text">${item.q}</span>
+          <span class="q-arrow">▶</span>
+        </div>
+        <div class="interview-a">
+          <div class="answer-box">${item.a}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+function toggleQ(i) {
+  const card = document.getElementById('ic' + i);
+  card.classList.toggle('open');
+}
+
+function renderQuiz(t) {
+  const el = document.getElementById('tabQuiz');
+  el.innerHTML = `
+    <div class="section-badge">✅ Bài kiểm tra · ${t.quiz.length} câu</div>
+    <div id="quizScoreArea" style="display:none" class="quiz-header">
+      <div class="quiz-score-display">
+        <div class="score-big" id="scoreBig">0/${t.quiz.length}</div>
+        <div class="score-label">kết quả</div>
+      </div>
+      <div class="quiz-stat">
+        <div class="quiz-stat-title" id="scoreMsg"></div>
+        <div class="quiz-stat-sub" id="scoreSub"></div>
+      </div>
+    </div>
+    ${t.quiz.map((q, i) => `
+      <div class="quiz-q-block">
+        <div class="q-label">CÂU ${i+1} / ${t.quiz.length}</div>
+        <div class="q-question">${q.q}</div>
+        <div class="opts">
+          ${q.opts.map((o, j) => `
+            <button class="opt-btn" id="opt${i}_${j}" onclick="pickAns(${i},${j})">
+              <span class="opt-letter">${String.fromCharCode(65+j)}</span>
+              ${o}
+            </button>
+          `).join('')}
+        </div>
+        <div class="explain-box" id="exp${i}">${q.exp}</div>
+      </div>
+    `).join('')}
+    <div class="quiz-actions">
+      <button class="btn-check" onclick="checkAnswers()">Kiểm tra đáp án</button>
+      <button class="btn-reset" onclick="resetQuiz()">↺ Làm lại</button>
+    </div>
+  `;
+}
+
+function pickAns(qi, oi) {
+  if (quizChecked) return;
+  const t = topics[currentTopic];
+  const prev = quizAnswers[qi];
+  if (prev !== undefined) {
+    document.getElementById('opt'+qi+'_'+prev).classList.remove('selected');
+  }
+  quizAnswers[qi] = oi;
+  document.getElementById('opt'+qi+'_'+oi).classList.add('selected');
+}
+
+function checkAnswers() {
+  if (quizChecked) return;
+  quizChecked = true;
+  const t = topics[currentTopic];
+  let score = 0;
+  t.quiz.forEach((q, i) => {
+    const allOpts = t.quiz[i].opts;
+    allOpts.forEach((_, j) => {
+      const btn = document.getElementById('opt'+i+'_'+j);
+      btn.disabled = true;
+      btn.classList.remove('selected');
+    });
+    const exp = document.getElementById('exp'+i);
+    if (quizAnswers[i] === q.ans) {
+      score++;
+      document.getElementById('opt'+i+'_'+q.ans).classList.add('correct');
+      exp.classList.add('show');
+    } else {
+      document.getElementById('opt'+i+'_'+q.ans).classList.add('correct');
+      if (quizAnswers[i] !== undefined) {
+        document.getElementById('opt'+i+'_'+quizAnswers[i]).classList.add('wrong');
+      }
+      exp.classList.add('show', 'wrong-exp');
+    }
+  });
+  const pct = Math.round(score / t.quiz.length * 100);
+  const area = document.getElementById('quizScoreArea');
+  area.style.display = 'flex';
+  document.getElementById('scoreBig').textContent = score + '/' + t.quiz.length;
+  document.getElementById('scoreMsg').textContent = pct >= 75 ? '✅ Đạt yêu cầu! Bạn đã hiểu chủ đề này.' : '⚠️ Cần ôn thêm. Xem lại bài giảng nhé.';
+  document.getElementById('scoreSub').textContent = 'Tỷ lệ đúng: ' + pct + '%' + (pct >= 75 ? ' — Chủ đề đã hoàn thành!' : '');
+  if (pct >= 75) { completedTopics.add(currentTopic); renderNav(); }
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetQuiz() {
+  quizAnswers = {};
+  quizChecked = false;
+  renderQuiz(topics[currentTopic]);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['lesson','interview','quiz'][i] === tab);
+  });
+  document.getElementById('tabLesson').classList.toggle('visible', tab === 'lesson');
+  document.getElementById('tabInterview').classList.toggle('visible', tab === 'interview');
+  document.getElementById('tabQuiz').classList.toggle('visible', tab === 'quiz');
+}
+
+renderNav();
+</script>
+</body>
+</html>

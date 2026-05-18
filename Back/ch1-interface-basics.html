@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第一章 — 接口类型与测试流程</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6fb;--white:#fff;--border:#e3e8f0;--accent:#2563eb;--accent2:#1d4ed8;--acbg:rgba(37,99,235,.07);--acbg2:rgba(37,99,235,.14);--green:#16a34a;--gbg:rgba(22,163,74,.08);--red:#dc2626;--rbg:rgba(220,38,38,.08);--amber:#d97706;--abg:rgba(217,119,6,.08);--purple:#7c3aed;--pbg:rgba(124,58,237,.08);--text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;--r:10px;--rlg:14px}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* NAV */
+.topnav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.nav-brand{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);font-weight:700;padding:16px 0;margin-right:32px;white-space:nowrap}
+.nav-tabs{display:flex;gap:0;flex:1;overflow-x:auto}
+.nav-tab{padding:16px 18px;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.nav-progress{display:flex;align-items:center;gap:8px;padding:0 16px;border-left:1px solid var(--border);white-space:nowrap}
+.progress-dots{display:flex;gap:4px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background .3s}
+.dot.done{background:var(--green)}
+.dot.active{background:var(--accent)}
+
+/* PAGES */
+.page{display:none;max-width:860px;margin:0 auto;padding:36px 24px 60px}
+.page.visible{display:block}
+
+/* HEADINGS */
+.chapter-hero{background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);border:1px solid var(--border);border-radius:var(--rlg);padding:32px 36px;margin-bottom:28px}
+.hero-badge{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);background:var(--acbg);border:1px solid rgba(37,99,235,.2);padding:4px 10px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:12px}
+.hero-title{font-size:24px;font-weight:700;margin-bottom:8px}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.7}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.htag{font-size:12px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+
+/* SECTION */
+.section{margin-bottom:20px}
+.section-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';display:block;width:3px;height:18px;background:var(--accent);border-radius:2px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:22px 24px;margin-bottom:14px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.card-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+/* MOCK SCREENS */
+.mockup-wrap{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin:14px 0}
+.mockup-bar{background:#e8ecf4;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.mock-dot{width:10px;height:10px;border-radius:50%}
+.mock-dot.r{background:#ff5f57}.mock-dot.y{background:#febc2e}.mock-dot.g{background:#28c840}
+.mock-url{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:6px;padding:4px 12px;margin-left:8px;flex:1}
+.mock-label{font-size:10px;color:var(--dim);margin-left:auto;font-family:'Space Mono',monospace}
+.mockup-body{padding:0}
+
+/* POSTMAN MOCK */
+.pm-app{display:flex;height:420px;background:#1a1a2e}
+.pm-sidebar{width:220px;background:#2d2d44;border-right:1px solid rgba(255,255,255,.08);padding:12px 0;flex-shrink:0;overflow:hidden}
+.pm-sidebar-header{padding:8px 14px;font-size:11px;color:rgba(255,255,255,.4);font-family:'Space Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.pm-collection{padding:6px 14px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.pm-collection:hover{background:rgba(255,255,255,.05)}
+.pm-col-icon{font-size:12px}
+.pm-col-name{font-size:12px;color:rgba(255,255,255,.75)}
+.pm-request{padding:5px 14px 5px 28px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.pm-request:hover,.pm-request.sel{background:rgba(37,99,235,.2)}
+.pm-method{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 5px;border-radius:3px;min-width:34px;text-align:center}
+.pm-method.get{background:rgba(22,163,74,.2);color:#4ade80}
+.pm-method.post{background:rgba(234,179,8,.2);color:#fbbf24}
+.pm-method.put{background:rgba(124,58,237,.2);color:#c4b5fd}
+.pm-method.del{background:rgba(220,38,38,.2);color:#fca5a5}
+.pm-req-name{font-size:11.5px;color:rgba(255,255,255,.6)}
+.pm-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.pm-tabs{display:flex;background:#242438;border-bottom:1px solid rgba(255,255,255,.08)}
+.pm-tab{padding:8px 16px;font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent}
+.pm-tab.active{color:#fff;border-bottom-color:#2563eb}
+.pm-url-bar{padding:10px 14px;background:#2d2d44;border-bottom:1px solid rgba(255,255,255,.08);display:flex;gap:8px;align-items:center}
+.pm-method-sel{background:#f59e0b;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:5px 10px;border-radius:5px;border:none}
+.pm-url-input{flex:1;background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:5px;padding:6px 12px;color:rgba(255,255,255,.85);font-size:12.5px;font-family:'Space Mono',monospace}
+.pm-send-btn{background:#2563eb;color:#fff;border:none;padding:6px 16px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.pm-body-area{flex:1;padding:14px;overflow-y:auto;background:#1a1a2e}
+.pm-section-label{font-size:10px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.pm-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.pm-key{background:#242438;border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:5px 10px;color:rgba(255,255,255,.7);font-size:12px;font-family:'Space Mono',monospace;width:140px}
+.pm-val{background:#242438;border:1px solid rgba(37,99,235,.3);border-radius:4px;padding:5px 10px;color:#93c5fd;font-size:12px;font-family:'Space Mono',monospace;flex:1}
+.pm-response{background:#1e1e30;border-top:1px solid rgba(255,255,255,.06);padding:12px 14px;max-height:140px;overflow-y:auto}
+.pm-status-bar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.pm-status-ok{font-size:11px;font-weight:700;color:#4ade80;font-family:'Space Mono',monospace}
+.pm-status-time{font-size:11px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace}
+.pm-json{font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.7}
+.json-key{color:#93c5fd}.json-str{color:#86efac}.json-num{color:#fbbf24}.json-bracket{color:rgba(255,255,255,.4)}
+
+/* HTTP FLOW DIAGRAM */
+.http-flow{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;margin:14px 0}
+.http-box{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.http-box.client{border-color:rgba(37,99,235,.3);background:var(--acbg)}
+.http-box.server{border-color:rgba(22,163,74,.3);background:var(--gbg)}
+.http-box-title{font-size:11px;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:8px;color:var(--muted)}
+.http-box-item{font-size:12px;color:#3a4158;padding:2px 0}
+.http-arrow{display:flex;flex-direction:column;align-items:center;padding:0 14px;gap:14px}
+.arrow-line{display:flex;align-items:center;gap:6px;font-size:11px;font-family:'Space Mono',monospace}
+.arrow-label{white-space:nowrap;font-size:11px;color:var(--muted);padding:3px 8px;background:var(--white);border:1px solid var(--border);border-radius:99px}
+.arrow-req{color:var(--accent)}.arrow-res{color:var(--green)}
+
+/* STATUS CODE TABLE */
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
+.sc-card{border-radius:var(--r);padding:12px 14px;text-align:center}
+.sc-card.s2{background:#dcfce7;border:1px solid #86efac}.sc-card.s3{background:#fef9c3;border:1px solid #fde047}.sc-card.s4{background:#fee2e2;border:1px solid #fca5a5}.sc-card.s5{background:#fce7f3;border:1px solid #f9a8d4}
+.sc-code{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;margin-bottom:4px}
+.sc-card.s2 .sc-code{color:#15803d}.sc-card.s3 .sc-code{color:#854d0e}.sc-card.s4 .sc-code{color:#b91c1c}.sc-card.s5 .sc-code{color:#9d174d}
+.sc-desc{font-size:11px;color:var(--muted)}
+
+/* FLOW STEPS */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:0;position:relative}
+.step::before{content:'';position:absolute;left:19px;top:40px;bottom:0;width:1px;background:var(--border);z-index:0}
+.step:last-child::before{display:none}
+.step-num{width:38px;height:38px;border-radius:50%;background:var(--acbg2);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0;margin-right:14px;position:relative;z-index:1}
+.step-content{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;flex:1;margin-bottom:10px}
+.step-title{font-size:13.5px;font-weight:700;margin-bottom:4px}
+.step-body{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* ARCH CARDS */
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.arch-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rlg);padding:18px 20px;transition:border-color .2s}
+.arch-card:hover{border-color:#b8c4dc}
+.arch-icon{font-size:24px;margin-bottom:10px}
+.arch-name{font-size:14px;font-weight:700;margin-bottom:6px}
+.arch-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;margin-bottom:8px;font-family:'Space Mono',monospace}
+.arch-tag.rest{background:#dcfce7;color:#15803d}
+.arch-tag.soap{background:#dbeafe;color:#1d4ed8}
+.arch-tag.rpc{background:#f3e8ff;color:#7c3aed}
+.arch-tag.ws{background:#fef3c7;color:#92400e}
+.arch-body{font-size:12.5px;color:var(--muted);line-height:1.65}
+
+/* TOOL COMPARISON */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0}
+.tool-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rlg);padding:16px;text-align:center;transition:all .2s}
+.tool-card:hover{border-color:var(--accent);box-shadow:0 4px 12px rgba(37,99,235,.1)}
+.tool-icon{font-size:28px;margin-bottom:8px}
+.tool-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.tool-desc{font-size:11.5px;color:var(--muted);line-height:1.5}
+.tool-badge{margin-top:8px;display:inline-block;font-size:10px;padding:3px 8px;border-radius:99px;font-weight:500}
+
+/* TAG */
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500;margin:1px}
+.tag-blue{background:var(--acbg);color:var(--accent2)}
+.tag-green{background:var(--gbg);color:var(--green)}
+.tag-red{background:var(--rbg);color:var(--red)}
+.tag-amber{background:var(--abg);color:var(--amber)}
+.tag-purple{background:var(--pbg);color:var(--purple)}
+
+/* TIP/INFO BOXES */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:12px 0;font-size:13px;color:#78350f;line-height:1.7}
+.info{background:#eff6ff;border:1px solid #bfdbfe;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:12px 0;font-size:13px;color:#1e40af;line-height:1.7}
+.success{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:12px 0;font-size:13px;color:#14532d;line-height:1.7}
+
+/* CODE */
+.code{background:#f0f2f7;border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12px;line-height:1.8;color:#2d3a5e;overflow-x:auto}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin:12px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:#f0f2f7;padding:9px 13px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:12px}
+.tbl td{padding:8px 13px;border:1px solid var(--border);color:#3a4158;vertical-align:top}
+.tbl tr:nth-child(even) td{background:#fafbfd}
+
+/* QUIZ */
+.quiz-section{background:var(--white);border:2px solid var(--border);border-radius:var(--rlg);padding:24px;margin-top:32px}
+.quiz-title{font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.quiz-q{margin-bottom:18px}
+.quiz-q-text{font-size:14px;font-weight:500;margin-bottom:10px}
+.quiz-q-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);background:var(--acbg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left}
+.opt:hover:not(:disabled){border-color:rgba(37,99,235,.4);background:var(--acbg)}
+.opt-l{width:21px;height:21px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9.5px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(37,99,235,.4);background:var(--acbg)}.opt.sel .opt-l{background:var(--accent2);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .opt-l{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .opt-l{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp-box{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;background:#eff6ff;border-left:3px solid var(--accent);font-size:12.5px;color:#1e40af;line-height:1.75}
+.exp-box.show{display:block}
+.exp-box.wrong-exp{background:#fff5f5;border-left-color:var(--red);color:#7f1d1d}
+.quiz-actions{display:flex;gap:8px;margin-top:20px}
+.btn-submit{padding:10px 26px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.btn-submit:hover{background:var(--accent2)}
+.btn-reset{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.btn-reset:hover{background:#f0f2f7;color:var(--text)}
+.score-box{display:none;background:var(--acbg);border:1px solid rgba(37,99,235,.2);border-radius:var(--r);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.score-big{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--accent)}
+.score-msg{font-size:14px;font-weight:500;color:var(--text)}
+.score-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* NEXT/PREV */
+.page-nav{display:flex;justify-content:space-between;margin-top:36px;padding-top:20px;border-top:1px solid var(--border)}
+.page-nav-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13.5px;font-family:'Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.page-nav-btn:hover{background:var(--acbg);border-color:rgba(37,99,235,.3);color:var(--accent)}
+.page-nav-btn.next{background:var(--accent);color:#fff;border-color:var(--accent2)}
+.page-nav-btn.next:hover{background:var(--accent2)}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="nav-brand">CH.1 接口基础</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage(0,this)">🌐 接口是什么</div>
+    <div class="nav-tab" onclick="showPage(1,this)">🏗️ 接口架构类型</div>
+    <div class="nav-tab" onclick="showPage(2,this)">📡 HTTP 协议详解</div>
+    <div class="nav-tab" onclick="showPage(3,this)">🧪 测试流程实战</div>
+    <div class="nav-tab" onclick="showPage(4,this)">🔧 工具安装指南</div>
+    <div class="nav-tab" onclick="showPage(5,this)">🛠️ 实战练习</div>
+    <div class="nav-tab" onclick="showPage(6,this)">✅ 随堂测验</div>
+  </div>
+  <div class="nav-progress">
+    <div class="progress-dots" id="dots"></div>
+  </div>
+</nav>
+
+<!-- PAGE 0: 接口是什么 -->
+<div class="page visible" id="p0">
+  <div class="chapter-hero">
+    <div class="hero-badge">Chapter 1 — 第一节</div>
+    <div class="hero-title">接口（API）到底是什么？</div>
+    <div class="hero-sub">从零理解接口的本质，区分内外部接口，掌握测试重点</div>
+    <div class="hero-tags">
+      <span class="htag">📘 JMeter Day 1</span>
+      <span class="htag">📗 Postman Day 1</span>
+      <span class="htag">⏱ 预计 15 分钟</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">接口的本质定义</div>
+    <div class="card">
+      <div class="card-title">01 — API 是什么</div>
+      <div class="body">
+        <b>API（Application Programming Interface，应用程序接口）</b>是程序之间约定好的通信方式。<br><br>
+        生活类比：<br>
+        • 餐厅的菜单 = API 文档（告诉你能点什么）<br>
+        • 你点菜 = 发送请求（Request）<br>
+        • 厨房做菜返回 = 服务器响应（Response）<br>
+        • 你只管点菜，不需要知道厨房怎么做 = <b>黑盒测试</b>
+      </div>
+      <div class="info" style="margin-top:12px">📌 <b>接口测试本质</b>：不通过 UI 界面，直接向服务器发送 HTTP 请求，验证响应结果是否符合预期。</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">内部接口 vs 外部接口</div>
+    <div class="card">
+      <div class="card-title">02 — 接口分类（按位置）</div>
+      <div class="tbl-wrap"><table class="tbl">
+        <tr><th>类型</th><th>定义</th><th>示例</th><th>测试重点</th></tr>
+        <tr><td><span class="tag tag-blue">内部接口</span></td><td>系统各子模块之间的接口，或提供给内部系统使用的接口</td><td>订单模块调用库存模块</td><td>参数传递、数据一致性</td></tr>
+        <tr><td><span class="tag tag-green">外部接口①</span></td><td>被测系统调用外部第三方接口</td><td>调用微信支付、短信服务</td><td>容错处理、超时</td></tr>
+        <tr><td><span class="tag tag-amber">外部接口②</span></td><td>系统对外提供的接口（供外部调用）</td><td>提供给合作商的开放API</td><td>鉴权、权限控制、限流</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">接口测试的 6 大检查重点</div>
+    <div class="card">
+      <div class="body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:4px">
+          <div style="background:#f0f7ff;border-radius:8px;padding:12px"><b style="color:var(--accent)">① 参数正确性</b><br><span style="font-size:12.5px;color:var(--muted)">传入正确/错误参数，结果是否符合预期</span></div>
+          <div style="background:#f0fdf4;border-radius:8px;padding:12px"><b style="color:var(--green)">② 功能正确性</b><br><span style="font-size:12.5px;color:var(--muted)">接口业务逻辑是否实现正确</span></div>
+          <div style="background:#fefce8;border-radius:8px;padding:12px"><b style="color:var(--amber)">③ 输出结果</b><br><span style="font-size:12.5px;color:var(--muted)">返回的数据结构、类型、值是否正确</span></div>
+          <div style="background:#fff1f2;border-radius:8px;padding:12px"><b style="color:var(--red)">④ 异常容错</b><br><span style="font-size:12.5px;color:var(--muted)">空值、类型错误、超长参数的处理</span></div>
+          <div style="background:#faf5ff;border-radius:8px;padding:12px"><b style="color:var(--purple)">⑤ 权限控制</b><br><span style="font-size:12.5px;color:var(--muted)">鉴权是否生效、越权访问是否被拦截</span></div>
+          <div style="background:#fff7ed;border-radius:8px;padding:12px"><b style="color:#ea580c">⑥ 限流/分页</b><br><span style="font-size:12.5px;color:var(--muted)">调用次数限制、分页逻辑是否正确</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <div></div>
+    <button class="page-nav-btn next" onclick="showPage(1,null)">下一节：接口架构类型 →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: 接口架构类型 -->
+<div class="page" id="p1">
+  <div class="section">
+    <div class="section-title">三大接口架构</div>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">📋</div>
+        <div class="arch-name">SOAP 架构</div>
+        <div><span class="arch-tag soap">SOAP</span></div>
+        <div class="arch-body">
+          基于 <b>XML 规范</b>，WebService 协议<br><br>
+          • 接口地址以 <code>?wsdl</code> 结尾<br>
+          • 结构严格，报文体积大<br>
+          • 企业级系统、银行多用<br>
+          • <span class="tag tag-blue">Postman ✅</span>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">⚡</div>
+        <div class="arch-name">RESTful 架构</div>
+        <div><span class="arch-tag rest">REST</span></div>
+        <div class="arch-body">
+          基于 <b>JSON + HTTP</b>，最主流<br><br>
+          • 用 HTTP 方法表达操作意图<br>
+          • 轻量、易读、开发效率高<br>
+          • 互联网应用标配<br>
+          • <span class="tag tag-green">Postman ✅ JMeter ✅</span>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🔌</div>
+        <div class="arch-name">RPC 架构</div>
+        <div><span class="arch-tag rpc">RPC</span></div>
+        <div class="arch-body">
+          基于 <b>Dubbo/Thrift</b> 协议<br>SpringCloud 微服务底层<br><br>
+          • 全双工，基于 TCP<br>
+          • 高性能，微服务内部常用<br>
+          • <span class="tag tag-red">Postman ❌ JMeter 需插件</span>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🔄</div>
+        <div class="arch-name">WebSocket</div>
+        <div><span class="arch-tag ws">WS</span></div>
+        <div class="arch-body">
+          基于 TCP，<b>全双工</b>长连接<br><br>
+          • 服务器可主动推送<br>
+          • 聊天、实时推送场景<br>
+          • <span class="tag tag-red">Postman ❌ 不适用</span>
+        </div>
+      </div>
+    </div>
+    <div class="info">💡 <b>记忆口诀：</b>基于 HTTP 的（REST、GraphQL、SOAP）适合 Postman；基于 TCP 全双工的（WebSocket、RPC）不适合 Postman。</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">RESTful 四大 HTTP 方法（最重要）</div>
+    <div class="card">
+      <div class="card-title">接口四要素之一 — Method（请求方法）</div>
+      <!-- Mini Postman mockup showing method selector -->
+      <div class="mockup-wrap">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">http://127.0.0.1:8001/user</div>
+          <div class="mock-label">Postman 请求方法选择</div>
+        </div>
+        <div style="padding:16px 18px;background:#1a1a2e;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;gap:6px">
+            <div style="background:#16a34a;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 12px;border-radius:5px;cursor:pointer">GET</div>
+            <div style="background:#ca8a04;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 12px;border-radius:5px;cursor:pointer">POST</div>
+            <div style="background:#7c3aed;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 12px;border-radius:5px;cursor:pointer">PUT</div>
+            <div style="background:#dc2626;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 12px;border-radius:5px;cursor:pointer">DELETE</div>
+            <div style="background:#0891b2;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 12px;border-radius:5px;cursor:pointer">PATCH</div>
+          </div>
+          <div style="color:rgba(255,255,255,.5);font-family:'Space Mono',monospace;font-size:11px">▲ Postman 方法下拉列表中的选项</div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table class="tbl">
+        <tr><th>方法</th><th>操作</th><th>示例接口</th><th>幂等性</th><th>Postman Body</th></tr>
+        <tr><td><span class="tag tag-green">GET</span></td><td>查询/获取资源</td><td>GET /users → 用户列表</td><td>✅ 是</td><td>无 Body，用 Query Params</td></tr>
+        <tr><td><span class="tag tag-amber">POST</span></td><td>新增/创建资源</td><td>POST /users → 创建用户</td><td>❌ 否</td><td>Body（JSON/form）</td></tr>
+        <tr><td><span class="tag tag-purple">PUT</span></td><td>完整替换资源</td><td>PUT /users/1 → 更新用户</td><td>✅ 是</td><td>Body（JSON）传所有字段</td></tr>
+        <tr><td><span class="tag tag-blue">PATCH</span></td><td>部分更新资源</td><td>PATCH /users/1 → 改昵称</td><td>✅ 是</td><td>Body（JSON）只传改的字段</td></tr>
+        <tr><td><span class="tag tag-red">DELETE</span></td><td>删除资源</td><td>DELETE /users/1 → 删用户</td><td>✅ 是</td><td>通常无 Body</td></tr>
+      </table></div>
+      <div class="tip">⚠️ <b>PUT vs PATCH：</b>PUT 需要传所有字段（缺少的字段会被置空/默认值）；PATCH 只传需要修改的字段。改昵称用 PATCH 更合适。</div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="page-nav-btn" onclick="showPage(0,null)">← 上一节</button>
+    <button class="page-nav-btn next" onclick="showPage(2,null)">下一节：HTTP 协议详解 →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: HTTP 协议详解 -->
+<div class="page" id="p2">
+  <div class="section">
+    <div class="section-title">HTTP 请求 & 响应结构</div>
+    <div class="card">
+      <div class="card-title">HTTP 通信流程图</div>
+      <div class="http-flow">
+        <div class="http-box client">
+          <div class="http-box-title">🖥️ CLIENT（客户端）</div>
+          <div class="http-box-item">📤 <b>请求行</b>：POST /login HTTP/1.1</div>
+          <div class="http-box-item">📋 <b>请求头</b>：</div>
+          <div class="http-box-item" style="padding-left:12px;font-family:'Space Mono',monospace;font-size:11px;color:#2563eb">Host: api.example.com<br>Content-Type: application/json<br>Authorization: Bearer xxx<br>Cookie: session=abc123</div>
+          <div class="http-box-item" style="margin-top:6px">📦 <b>请求体（Body）</b>：</div>
+          <div class="http-box-item" style="padding-left:12px;font-family:'Space Mono',monospace;font-size:11px;color:#2563eb">{"username":"admin",<br>"password":"123456"}</div>
+        </div>
+        <div class="http-arrow">
+          <div class="arrow-line arrow-req">
+            <span>──────</span>
+            <span class="arrow-label">→ 请求</span>
+          </div>
+          <div style="font-size:24px">🌐</div>
+          <div class="arrow-line arrow-res">
+            <span class="arrow-label">← 响应</span>
+            <span>──────</span>
+          </div>
+        </div>
+        <div class="http-box server">
+          <div class="http-box-title">🖧 SERVER（服务器）</div>
+          <div class="http-box-item">📥 <b>响应行</b>：HTTP/1.1 200 OK</div>
+          <div class="http-box-item">📋 <b>响应头</b>：</div>
+          <div class="http-box-item" style="padding-left:12px;font-family:'Space Mono',monospace;font-size:11px;color:#15803d">Server: nginx<br>Content-Type: application/json<br>Set-Cookie: session=abc123<br>（仅第一次响应设置）</div>
+          <div class="http-box-item" style="margin-top:6px">📦 <b>响应体（Body）</b>：</div>
+          <div class="http-box-item" style="padding-left:12px;font-family:'Space Mono',monospace;font-size:11px;color:#15803d">{"code":200,<br>"token":"eyJhbGci..."<br>"message":"登录成功"}</div>
+        </div>
+      </div>
+      <div class="tip">💡 <b>Cookie 重要区分：</b>Set-Cookie 只在服务器的<b>第一次响应</b>中发送；之后每次请求，浏览器/客户端自动通过 Cookie 请求头带回。</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">HTTP 状态码全图</div>
+    <div class="card">
+      <div class="card-title">响应状态码（接口测试必背）</div>
+      <div class="sc-grid">
+        <div class="sc-card s2"><div class="sc-code">200</div><div class="sc-desc">OK 请求成功</div></div>
+        <div class="sc-card s2"><div class="sc-code">201</div><div class="sc-desc">Created 已创建</div></div>
+        <div class="sc-card s2"><div class="sc-code">204</div><div class="sc-desc">No Content 成功无内容</div></div>
+        <div class="sc-card s3"><div class="sc-code">301</div><div class="sc-desc">永久重定向</div></div>
+        <div class="sc-card s3"><div class="sc-code">302</div><div class="sc-desc">临时重定向</div></div>
+        <div class="sc-card s4"><div class="sc-code">400</div><div class="sc-desc">Bad Request 参数错误</div></div>
+        <div class="sc-card s4"><div class="sc-code">401</div><div class="sc-desc">Unauthorized 未认证</div></div>
+        <div class="sc-card s4"><div class="sc-code">403</div><div class="sc-desc">Forbidden 无权限</div></div>
+        <div class="sc-card s4"><div class="sc-code">404</div><div class="sc-desc">Not Found 不存在</div></div>
+        <div class="sc-card s4"><div class="sc-code">422</div><div class="sc-desc">参数值校验失败</div></div>
+        <div class="sc-card s5"><div class="sc-code">500</div><div class="sc-desc">服务器内部错误</div></div>
+        <div class="sc-card s5"><div class="sc-code">503</div><div class="sc-desc">服务不可用</div></div>
+      </div>
+
+      <!-- Postman showing status code -->
+      <div class="mockup-wrap" style="margin-top:16px">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">Postman 响应状态码显示位置</div>
+        </div>
+        <div style="background:#1a1a2e;padding:14px 18px">
+          <div style="display:flex;gap:20px;align-items:center;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);border-radius:5px;padding:4px 10px">
+                <span style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#4ade80">200 OK</span>
+              </div>
+              <span style="font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">↑ 绿色 = 成功</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);border-radius:5px;padding:4px 10px">
+                <span style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#f87171">401 Unauthorized</span>
+              </div>
+              <span style="font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">↑ 红色 = 失败</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:5px;padding:4px 10px">
+                <span style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fbbf24">Time: 234 ms</span>
+              </div>
+              <span style="font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">响应时间</span>
+            </div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:12px;line-height:1.8;color:rgba(255,255,255,.7)">
+            <span style="color:#93c5fd">{</span><br>
+            &nbsp;&nbsp;<span class="json-key">"access_token"</span><span style="color:rgba(255,255,255,.4)">: </span><span class="json-str">"eyJhbGciOiJIUzI1NiIs..."</span><span style="color:rgba(255,255,255,.4)">,</span><br>
+            &nbsp;&nbsp;<span class="json-key">"token_type"</span><span style="color:rgba(255,255,255,.4)">: </span><span class="json-str">"bearer"</span><br>
+            <span style="color:#93c5fd">}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Content-Type 详解</div>
+    <div class="card">
+      <div class="body">
+        <b>Content-Type</b> 决定 Body 的数据格式，非常重要：<br><br>
+      </div>
+      <div class="tbl-wrap"><table class="tbl">
+        <tr><th>Content-Type</th><th>格式</th><th>Postman 选择</th><th>适用场景</th></tr>
+        <tr><td><code>application/json</code></td><td>JSON 对象</td><td>Body → raw → JSON</td><td>REST API 主流方式</td></tr>
+        <tr><td><code>application/x-www-form-urlencoded</code></td><td>key=val&k2=v2</td><td>Body → x-www-form-urlencoded</td><td>传统表单提交</td></tr>
+        <tr><td><code>multipart/form-data</code></td><td>表单+文件</td><td>Body → form-data（选 File）</td><td>文件上传</td></tr>
+        <tr><td><code>text/plain</code></td><td>纯文本</td><td>Body → raw → Text</td><td>简单文本传输</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="page-nav-btn" onclick="showPage(1,null)">← 上一节</button>
+    <button class="page-nav-btn next" onclick="showPage(3,null)">下一节：测试流程实战 →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: 测试流程实战 -->
+<div class="page" id="p3">
+  <div class="section">
+    <div class="section-title">完整接口测试流程（6步）</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">准备阶段</div>
+          <div class="step-body">理解需求文档 → 阅读接口文档（Swagger/ApiPost）→ 体验产品 → 用 Fiddler/Charles 抓包分析</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">熟悉接口四要素</div>
+          <div class="step-body">
+            对每个接口提炼：<b>① Method</b>（请求方法）<b>② URL</b>（接口地址）<b>③ Auth</b>（鉴权方式）<b>④ Parameters</b>（请求参数）
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">设计测试用例（5种类型）</div>
+          <div class="step-body">
+            <span class="tag tag-green">正向用例</span> 有效输入，期望成功（200）<br>
+            <span class="tag tag-blue">扩展正向</span> 有可选参数的更多正向场景<br>
+            <span class="tag tag-amber">有效反向</span> 边界值，期望特定错误码（400/422）<br>
+            <span class="tag tag-red">无效反向</span> 非法输入，期望被拒绝<br>
+            <span class="tag tag-purple">破坏性</span> 超长参数、SQL 注入、空值
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">执行测试</div>
+          <div class="step-body">使用 Postman / JMeter 发送请求，验证响应</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">持续集成</div>
+          <div class="step-body">Postman + Newman + Jenkins / JMeter + Ant + Jenkins，自动化触发，生成报告</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">输出测试报告</div>
+          <div class="step-body">HTML 报告，通过邮件/钉钉发送给团队</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">实战：读懂 Swagger 文档</div>
+    <div class="card">
+      <div class="card-title">Swagger UI 界面模拟</div>
+      <div class="mockup-wrap">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">http://127.0.0.1:8001/docs</div>
+          <div class="mock-label">Swagger UI</div>
+        </div>
+        <div style="background:#fafafa;padding:20px;border-bottom:1px solid var(--border)">
+          <div style="background:#1b4f72;color:#fff;padding:12px 16px;border-radius:6px;margin-bottom:16px">
+            <div style="font-size:18px;font-weight:700">外卖任务委派 API</div>
+            <div style="font-size:12px;opacity:.7;margin-top:4px">Base URL: http://127.0.0.1:7600 &nbsp;|&nbsp; OpenAPI 3.0</div>
+          </div>
+          <!-- POST /login -->
+          <div style="border:1px solid #c8e6c9;border-radius:6px;margin-bottom:10px;overflow:hidden">
+            <div style="background:#e8f5e9;padding:10px 14px;display:flex;gap:10px;align-items:center;cursor:pointer">
+              <div style="background:#2e7d32;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:50px;text-align:center">POST</div>
+              <div style="font-family:'Space Mono',monospace;font-size:13px;color:#1b5e20">/login/access_token</div>
+              <div style="font-size:12px;color:#388e3c;margin-left:8px">用户登录，获取 Token</div>
+            </div>
+            <div style="background:#fff;padding:12px 16px;border-top:1px solid #c8e6c9">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:8px"><b>Request Body（application/json）：</b></div>
+              <div style="background:#f8f9fa;border-radius:4px;padding:10px;font-family:'Space Mono',monospace;font-size:12px;color:#333">
+                {<br>&nbsp;&nbsp;<span style="color:#0d47a1">"email"</span>: <span style="color:#388e3c">"string"</span>, <span style="color:#999">// 必填</span><br>&nbsp;&nbsp;<span style="color:#0d47a1">"password"</span>: <span style="color:#388e3c">"string"</span> <span style="color:#999">// 必填，最少8位</span><br>}
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:10px"><b>响应 200：</b></div>
+              <div style="background:#f8f9fa;border-radius:4px;padding:10px;font-family:'Space Mono',monospace;font-size:12px;color:#333;margin-top:4px">
+                {<br>&nbsp;&nbsp;<span style="color:#0d47a1">"access_token"</span>: <span style="color:#388e3c">"eyJhbGci..."</span>,<br>&nbsp;&nbsp;<span style="color:#0d47a1">"token_type"</span>: <span style="color:#388e3c">"bearer"</span><br>}
+              </div>
+            </div>
+          </div>
+          <!-- GET /todo -->
+          <div style="border:1px solid #b3d4f5;border-radius:6px;overflow:hidden">
+            <div style="background:#e3f2fd;padding:10px 14px;display:flex;gap:10px;align-items:center;cursor:pointer">
+              <div style="background:#1565c0;color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;min-width:50px;text-align:center">GET</div>
+              <div style="font-family:'Space Mono',monospace;font-size:13px;color:#0d47a1">/todo</div>
+              <div style="font-size:12px;color:#1976d2;margin-left:8px">获取任务列表（需要 Token）</div>
+              <div style="margin-left:auto;font-size:11px;background:#fff;border:1px solid #1976d2;color:#1976d2;padding:2px 8px;border-radius:99px">🔒 Bearer Token</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info" style="margin-top:14px">📖 <b>读 Swagger 的顺序：</b>① 看 Base URL → ② 找鉴权方式 → ③ 看请求方法和路径 → ④ 看必填参数 → ⑤ 看预期响应结构 → ⑥ 在线调试一下</div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="page-nav-btn" onclick="showPage(2,null)">← 上一节</button>
+    <button class="page-nav-btn next" onclick="showPage(4,null)">下一节：工具安装指南 →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: 工具安装 -->
+<div class="page" id="p4">
+  <div class="section">
+    <div class="section-title">工具选择与安装指南</div>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-icon">📮</div>
+        <div class="tool-name">Postman</div>
+        <div class="tool-desc">REST API 测试首选，GUI 友好，JS 脚本</div>
+        <div class="tool-badge" style="background:#ff6c37;color:#fff">接口功能测试</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">⚡</div>
+        <div class="tool-name">JMeter</div>
+        <div class="tool-desc">Java 性能测试工具，接口+压力测试</div>
+        <div class="tool-badge" style="background:#d9534f;color:#fff">接口+性能测试</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🔍</div>
+        <div class="tool-name">Fiddler</div>
+        <div class="tool-desc">HTTP 抓包工具，分析接口请求</div>
+        <div class="tool-badge" style="background:#5bc0de;color:#fff">抓包分析</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🌿</div>
+        <div class="tool-name">Newman</div>
+        <div class="tool-desc">Postman 命令行运行器，CI/CD 集成</div>
+        <div class="tool-badge" style="background:#5cb85c;color:#fff">持续集成</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📮 Postman 安装与基础设置</div>
+    <div class="card">
+      <div class="card-title">STEP 1 — 下载安装 Postman</div>
+      <div class="body">
+        官网：<b>https://www.postman.com/downloads/</b><br>
+        选择对应系统版本（Windows / macOS / Linux），双击安装包安装。
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">STEP 2 — 创建第一个请求（实操演示）</div>
+      <!-- Full Postman mockup -->
+      <div class="mockup-wrap">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">Postman — 完整请求界面</div>
+        </div>
+        <div class="pm-app">
+          <div class="pm-sidebar">
+            <div class="pm-sidebar-header">Collections</div>
+            <div class="pm-collection"><span class="pm-col-icon">📁</span><span class="pm-col-name">外卖任务委派</span></div>
+            <div class="pm-request"><span class="pm-method post">POST</span><span class="pm-req-name">1. 登录获取Token</span></div>
+            <div class="pm-request sel"><span class="pm-method get">GET</span><span class="pm-req-name">2. 获取任务列表</span></div>
+            <div class="pm-request"><span class="pm-method post">POST</span><span class="pm-req-name">3. 创建任务</span></div>
+            <div class="pm-request"><span class="pm-method put">PUT</span><span class="pm-req-name">4. 修改任务</span></div>
+            <div class="pm-request"><span class="pm-method del">DEL</span><span class="pm-req-name">5. 删除任务</span></div>
+          </div>
+          <div class="pm-main">
+            <div class="pm-tabs">
+              <div class="pm-tab active">2. 获取任务列表</div>
+              <div class="pm-tab" style="opacity:.4">+</div>
+            </div>
+            <div class="pm-url-bar">
+              <div class="pm-method-sel">GET</div>
+              <div class="pm-url-input">{{base_url}}/todo</div>
+              <div class="pm-send-btn">Send</div>
+            </div>
+            <div style="background:#242438;display:flex;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="padding:7px 14px;font-size:11.5px;color:rgba(255,255,255,.4);cursor:pointer">Params</div>
+              <div style="padding:7px 14px;font-size:11.5px;color:#fff;border-bottom:2px solid #2563eb;cursor:pointer">Authorization</div>
+              <div style="padding:7px 14px;font-size:11.5px;color:rgba(255,255,255,.4);cursor:pointer">Headers</div>
+              <div style="padding:7px 14px;font-size:11.5px;color:rgba(255,255,255,.4);cursor:pointer">Tests</div>
+            </div>
+            <div class="pm-body-area">
+              <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+                <div style="font-size:12px;color:rgba(255,255,255,.5)">Type:</div>
+                <div style="background:#2563eb;color:#fff;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600">Bearer Token</div>
+              </div>
+              <div class="pm-section-label">Token</div>
+              <div class="pm-row">
+                <div class="pm-key">Token</div>
+                <div class="pm-val">{{token}}</div>
+              </div>
+              <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace">
+                ↑ 使用集合变量 {{'{'}{'}'}} 引用 token，自动填充 Authorization 头
+              </div>
+            </div>
+            <div class="pm-response">
+              <div class="pm-status-bar">
+                <span class="pm-status-ok">200 OK</span>
+                <span class="pm-status-time">156 ms · 2.45 KB</span>
+              </div>
+              <div class="pm-json">
+                <span class="json-bracket">[</span><br>
+                &nbsp;&nbsp;<span class="json-bracket">{</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"id"</span><span style="color:rgba(255,255,255,.4)">: </span><span class="json-num">1</span><span style="color:rgba(255,255,255,.4)">,</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"title"</span><span style="color:rgba(255,255,255,.4)">: </span><span class="json-str">"买菜"</span><span style="color:rgba(255,255,255,.4)">,</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="json-key">"is_done"</span><span style="color:rgba(255,255,255,.4)">: </span><span class="json-num">false</span><br>
+                &nbsp;&nbsp;<span class="json-bracket">}</span><br>
+                <span class="json-bracket">]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="success" style="margin-top:14px">✅ <b>操作步骤：</b>① 新建请求选 GET → ② 输入 URL → ③ Authorization 选 Bearer Token → ④ Token 填 {{token}} → ⑤ 点击 Send → ⑥ 看状态码和响应体</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">⚡ JMeter 安装与目录说明</div>
+    <div class="card">
+      <div class="card-title">STEP 1 — 安装前提：JDK 1.8+</div>
+      <div class="code">
+        # 验证 Java 版本（命令提示符/Terminal）<br>
+        java -version<br>
+        # 期望输出：java version "1.8.x" 或更高版本
+      </div>
+      <div class="body">如果没有安装 JDK，前往 Oracle 官网下载 JDK 8/11/17，安装后配置 <b>JAVA_HOME</b> 环境变量。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">STEP 2 — 下载 JMeter & 目录说明</div>
+      <div class="body">官网：<b>https://jmeter.apache.org/download_jmeter.cgi</b><br>下载 .zip 压缩包，解压到任意目录即可（免安装）。</div>
+      <div style="background:#f8f9fc;border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:12px;font-family:'Space Mono',monospace;font-size:12px;line-height:2">
+        <div style="color:var(--accent)">apache-jmeter-5.x/</div>
+        <div style="padding-left:16px">
+          <div><span style="color:var(--amber)">📁 bin/</span> <span style="color:var(--muted)">← 启动脚本（jmeter.bat）、核心配置（jmeter.properties）</span></div>
+          <div><span style="color:var(--green)">📁 lib/</span> <span style="color:var(--muted)">← 存放 JAR 包（数据库驱动等放这里）</span></div>
+          <div><span style="color:var(--purple)">📁 extras/</span> <span style="color:var(--muted)">← Ant/Jenkins 集成文件</span></div>
+          <div><span style="color:var(--muted)">📁 backups/</span> <span style="color:var(--muted)">← JMX 脚本备份</span></div>
+          <div><span style="color:var(--muted)">📁 docs/</span> <span style="color:var(--muted)">← 离线帮助文档</span></div>
+        </div>
+      </div>
+      <div class="code" style="margin-top:12px">
+        # Windows：双击启动<br>
+        bin/jmeter.bat<br><br>
+        # macOS/Linux：<br>
+        cd bin && ./jmeter.sh
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">STEP 3 — JMeter 创建第一个 HTTP 请求</div>
+      <!-- JMeter mockup -->
+      <div class="mockup-wrap">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">Apache JMeter — HTTP 请求配置</div>
+        </div>
+        <div style="background:#f0ede8;padding:0;display:flex;min-height:300px">
+          <!-- Tree sidebar -->
+          <div style="width:180px;background:#e4e0da;border-right:1px solid #ccc;padding:8px 0;font-size:12px">
+            <div style="padding:5px 10px;background:#c7c0b6;font-weight:700">测试计划</div>
+            <div style="padding:4px 10px 4px 20px">👥 线程组</div>
+            <div style="padding:4px 10px 4px 32px;background:#d4cfc9;font-weight:600">🌐 HTTP请求</div>
+            <div style="padding:4px 10px 4px 32px">📊 查看结果树</div>
+          </div>
+          <!-- Config panel -->
+          <div style="flex:1;padding:14px;background:#f7f4f0">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:#333">HTTP请求 — 配置</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 12px;font-size:12px;align-items:center">
+              <span style="color:#555">协议：</span>
+              <div style="background:#fff;border:1px solid #aaa;border-radius:3px;padding:4px 8px;font-family:'Space Mono',monospace">http</div>
+              <span style="color:#555">服务器名称：</span>
+              <div style="background:#fff;border:1px solid #2563eb;border-radius:3px;padding:4px 8px;font-family:'Space Mono',monospace;color:#2563eb">127.0.0.1</div>
+              <span style="color:#555">端口号：</span>
+              <div style="background:#fff;border:1px solid #aaa;border-radius:3px;padding:4px 8px;font-family:'Space Mono',monospace">7600</div>
+              <span style="color:#555">方法：</span>
+              <div style="background:#fff;border:1px solid #aaa;border-radius:3px;padding:4px 8px;font-family:'Space Mono',monospace;display:flex;align-items:center;gap:4px"><span style="color:var(--green);font-weight:700">GET</span> ▼</div>
+              <span style="color:#555">路径：</span>
+              <div style="background:#fff;border:1px solid #2563eb;border-radius:3px;padding:4px 8px;font-family:'Space Mono',monospace;color:#2563eb">/todo</div>
+            </div>
+            <div style="margin-top:12px;font-size:12px;font-weight:600;margin-bottom:6px;color:#555">HTTP请求头管理器：</div>
+            <div style="background:#fff;border:1px solid #ccc;border-radius:3px;padding:8px;font-size:11.5px;font-family:'Space Mono',monospace">
+              <div style="display:grid;grid-template-columns:1fr 2fr;gap:4px">
+                <div style="background:#e0e0e0;padding:3px 6px;border-radius:2px">名称</div>
+                <div style="background:#e0e0e0;padding:3px 6px;border-radius:2px">值</div>
+                <div style="padding:3px 6px">Authorization</div>
+                <div style="padding:3px 6px;color:#2563eb">Bearer ${'{'}access_token{'}'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="success" style="margin-top:12px">✅ <b>JMeter 创建请求步骤：</b>右键测试计划 → 添加线程组 → 右键线程组 → 添加取样器 → HTTP请求 → 填写服务器/端口/路径/方法 → 添加监听器「查看结果树」→ 点击运行▶</div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="page-nav-btn" onclick="showPage(3,null)">← 上一节</button>
+    <button class="page-nav-btn next" onclick="showPage(5,null)">下一节：实战练习 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: PRACTICE -->
+<div class="page" id="p5">
+  <div class="chapter-hero" style="background:linear-gradient(135deg,#fdf4ff 0%,#eff6ff 100%)">
+    <div class="hero-badge">🛠️ 实战练习 — 第一章</div>
+    <div class="hero-title">动手做：从零完成 3 个接口测试任务</div>
+    <div class="hero-sub">每个练习都有完整的分步骤操作指南，跟着做就能 Master 本章内容</div>
+    <div class="hero-tags">
+      <span class="htag">🧪 练习1：读懂接口文档</span>
+      <span class="htag">📮 练习2：Postman 发第一个请求</span>
+      <span class="htag">🔍 练习3：设计测试用例</span>
+    </div>
+  </div>
+
+  <!-- ═══ PRACTICE 1 ═══ -->
+  <div class="section">
+    <div class="section-title">🧪 练习 1 — 读懂接口文档，提炼四要素</div>
+    <div class="card">
+      <div class="card-title">📋 任务说明</div>
+      <div class="body">
+        给你一份真实的接口文档摘录，请提炼出接口四要素，并分析该接口的鉴权方式。<br><br>
+        <b>目标接口文档（登录接口）：</b>
+      </div>
+      <div style="background:#1a1a2e;border-radius:10px;padding:20px;margin:14px 0;font-family:'Space Mono',monospace;font-size:12.5px;line-height:2;color:rgba(255,255,255,.85)">
+        <div style="color:#fbbf24;margin-bottom:6px">▌ POST /login/access_token</div>
+        <div style="color:rgba(255,255,255,.4);margin-bottom:12px">Request: application/json &nbsp;|&nbsp; Auth: 无</div>
+        <div style="color:rgba(255,255,255,.5);margin-bottom:4px">// Request Body:</div>
+        <div><span style="color:#93c5fd">{</span></div>
+        <div>&nbsp;&nbsp;<span style="color:#86efac">"email"</span>: <span style="color:#fcd34d">"string"</span> <span style="color:rgba(255,255,255,.35)">// 必填，用户邮箱</span></div>
+        <div>&nbsp;&nbsp;<span style="color:#86efac">"password"</span>: <span style="color:#fcd34d">"string"</span> <span style="color:rgba(255,255,255,.35)">// 必填，最少8位</span></div>
+        <div><span style="color:#93c5fd">}</span></div>
+        <div style="margin-top:10px;color:rgba(255,255,255,.5)">// Response 200:</div>
+        <div><span style="color:#93c5fd">{</span></div>
+        <div>&nbsp;&nbsp;<span style="color:#86efac">"access_token"</span>: <span style="color:#fcd34d">"eyJhbGci..."</span></div>
+        <div>&nbsp;&nbsp;<span style="color:#86efac">"token_type"</span>: <span style="color:#fcd34d">"bearer"</span></div>
+        <div><span style="color:#93c5fd">}</span></div>
+        <div style="margin-top:10px;color:rgba(255,255,255,.4)">Base URL: http://127.0.0.1:7600</div>
+      </div>
+
+      <div class="card-title" style="margin-top:16px">✏️ 你来分析（点击展开答案）</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0">
+        <div style="border:2px dashed var(--border);border-radius:8px;padding:14px;cursor:pointer" onclick="this.style.borderColor='var(--accent)';this.innerHTML=this.innerHTML.replace('❓','✅').replace('___填写___','<b style=color:var(--accent)>POST</b>')">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">① METHOD</div>
+          <div style="font-size:14px;color:var(--dim)">❓ ___填写___</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px">→ 点击查看答案</div>
+        </div>
+        <div style="border:2px dashed var(--border);border-radius:8px;padding:14px;cursor:pointer" onclick="this.style.borderColor='var(--accent)';this.innerHTML=this.innerHTML.replace('❓','✅').replace('___填写___','<b style=color:var(--accent)>http://127.0.0.1:7600/login/access_token</b>')">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">② URL（完整）</div>
+          <div style="font-size:14px;color:var(--dim)">❓ ___填写___</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px">→ 点击查看答案</div>
+        </div>
+        <div style="border:2px dashed var(--border);border-radius:8px;padding:14px;cursor:pointer" onclick="this.style.borderColor='var(--accent)';this.innerHTML=this.innerHTML.replace('❓','✅').replace('___填写___','<b style=color:var(--accent)>无（登录接口不需要鉴权）</b>')">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">③ AUTH（鉴权）</div>
+          <div style="font-size:14px;color:var(--dim)">❓ ___填写___</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px">→ 点击查看答案</div>
+        </div>
+        <div style="border:2px dashed var(--border);border-radius:8px;padding:14px;cursor:pointer" onclick="this.style.borderColor='var(--accent)';this.innerHTML=this.innerHTML.replace('❓','✅').replace('___填写___','<b style=color:var(--accent)>Body(JSON): email, password</b>')">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">④ PARAMETERS</div>
+          <div style="font-size:14px;color:var(--dim)">❓ ___填写___</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px">→ 点击查看答案</div>
+        </div>
+      </div>
+      <div class="success">✅ <b>掌握标准：</b>能在 30 秒内从任意接口文档中提炼出四要素，就说明你真正理解了接口的本质。</div>
+    </div>
+  </div>
+
+  <!-- ═══ PRACTICE 2 ═══ -->
+  <div class="section">
+    <div class="section-title">📮 练习 2 — Postman 完整实操：登录 + 获取列表</div>
+
+    <div class="card">
+      <div class="card-title">🎯 任务目标</div>
+      <div class="body">完成两个接口的测试：<br>① POST 登录接口 → 获取 access_token<br>② GET 任务列表 → 用 token 鉴权访问</div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="card" style="border-left:4px solid var(--accent)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">1</div>
+        <div class="card-title" style="margin-bottom:0">打开 Postman，新建 Collection</div>
+      </div>
+      <div class="body">
+        <b>操作步骤：</b><br>
+        ① 打开 Postman，点击左侧 <code>Collections</code><br>
+        ② 点击 <code>+</code> 新建集合<br>
+        ③ 命名为 <b>「接口测试练习」</b><br>
+        ④ 点击集合名右侧的 <code>⋯</code> → <b>Add Variable</b><br>
+        ⑤ 添加变量：Key = <code>base_url</code>，Value = <code>http://127.0.0.1:7600</code>
+      </div>
+      <div class="mockup-wrap" style="margin-top:12px">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">Postman — 新建 Collection 并设置变量</div>
+        </div>
+        <div style="background:#1a1a2e;padding:16px;display:flex;gap:16px">
+          <div style="background:#2d2d44;border-radius:8px;padding:12px;width:180px;font-size:12px">
+            <div style="color:rgba(255,255,255,.4);font-size:10px;font-family:'Space Mono',monospace;margin-bottom:8px">COLLECTIONS</div>
+            <div style="background:rgba(37,99,235,.25);border:1px solid rgba(37,99,235,.4);border-radius:5px;padding:8px 10px;color:#93c5fd;display:flex;align-items:center;gap:6px">
+              <span>📁</span><span style="font-size:12px">接口测试练习</span>
+            </div>
+          </div>
+          <div style="flex:1;background:#242438;border-radius:8px;padding:14px">
+            <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px;font-weight:600">集合变量（Collection Variables）</div>
+            <div style="background:#1a1a2e;border-radius:6px;overflow:hidden">
+              <div style="display:grid;grid-template-columns:1fr 2fr;background:#2d2d44;padding:6px 12px;font-size:10px;font-family:'Space Mono',monospace;color:rgba(255,255,255,.4)">
+                <div>VARIABLE</div><div>INITIAL VALUE</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 2fr;padding:8px 12px;border-top:1px solid rgba(255,255,255,.06)">
+                <div style="font-family:'Space Mono',monospace;font-size:12px;color:#86efac">base_url</div>
+                <div style="font-family:'Space Mono',monospace;font-size:12px;color:#fbbf24">http://127.0.0.1:7600</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 2fr;padding:8px 12px;border-top:1px solid rgba(255,255,255,.06)">
+                <div style="font-family:'Space Mono',monospace;font-size:12px;color:#86efac">token</div>
+                <div style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(255,255,255,.3)">(自动填充)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card" style="border-left:4px solid var(--green)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">2</div>
+        <div class="card-title" style="margin-bottom:0;color:var(--green)">新建登录请求 POST /login/access_token</div>
+      </div>
+      <div class="body">
+        <b>操作步骤：</b><br>
+        ① 右键集合 → <b>Add Request</b>，命名 <code>1. 登录获取Token</code><br>
+        ② 方法选 <b>POST</b><br>
+        ③ URL 填：<code>{{base_url}}/login/access_token</code><br>
+        ④ 点击 <b>Body</b> 标签 → 选 <b>raw</b> → 右侧下拉选 <b>JSON</b><br>
+        ⑤ 在 Body 中输入以下内容：
+      </div>
+      <div class="code" style="margin:12px 0">{
+  "email": "admin@qq.com",
+  "password": "123456789"
+}</div>
+      <div class="body">
+        ⑥ 点击 <b>Tests</b> 标签，粘贴以下脚本（自动保存 token）：
+      </div>
+      <div class="code">// 登录成功时自动保存 token
+if (pm.response.code === 200) {
+    let token = pm.response.json().access_token;
+    pm.collectionVariables.set("token", token);
+    console.log("✅ Token 已保存:", token.substring(0, 20) + "...");
+} else {
+    console.log("❌ 登录失败，状态码:", pm.response.code);
+}</div>
+      <div class="body" style="margin-top:10px">⑦ 点击 <b>Send</b> 发送请求</div>
+
+      <!-- Response preview -->
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;margin-top:12px">
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:10px">
+          <span style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#4ade80">200 OK</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,255,255,.3)">~180ms</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#fbbf24">↑ 期望看到这个</span>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:12px;line-height:1.8">
+          <span style="color:#93c5fd">{</span><br>
+          &nbsp;&nbsp;<span style="color:#86efac">"access_token"</span><span style="color:rgba(255,255,255,.4)">: </span><span style="color:#fcd34d">"eyJhbGciOiJIUzI1NiIs..."</span><span style="color:rgba(255,255,255,.4)">,</span><br>
+          &nbsp;&nbsp;<span style="color:#86efac">"token_type"</span><span style="color:rgba(255,255,255,.4)">: </span><span style="color:#fcd34d">"bearer"</span><br>
+          <span style="color:#93c5fd">}</span>
+        </div>
+      </div>
+      <div class="success" style="margin-top:10px">✅ <b>验证点：</b>状态码 = 200，响应体包含 access_token 字段，Console 显示「Token 已保存」</div>
+      <div class="tip">⚠️ <b>常见错误：</b>如果返回 422，检查 password 是否少于 8 位。如果返回 400，检查 email 格式是否正确。</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card" style="border-left:4px solid var(--amber)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--amber);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">3</div>
+        <div class="card-title" style="margin-bottom:0;color:var(--amber)">新建任务列表请求 GET /todo</div>
+      </div>
+      <div class="body">
+        <b>操作步骤：</b><br>
+        ① 右键集合 → <b>Add Request</b>，命名 <code>2. 获取任务列表</code><br>
+        ② 方法选 <b>GET</b><br>
+        ③ URL 填：<code>{{base_url}}/todo</code><br>
+        ④ 点击 <b>Authorization</b> 标签<br>
+        ⑤ Type 选 <b>Bearer Token</b><br>
+        ⑥ Token 字段填：<code>{{token}}</code>（引用之前保存的变量）<br>
+        ⑦ 点击 <b>Send</b>
+      </div>
+      <div class="mockup-wrap" style="margin-top:12px">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">Authorization → Bearer Token 配置</div>
+        </div>
+        <div style="background:#1a1a2e;padding:14px">
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-size:12px">
+            <span style="color:rgba(255,255,255,.5);font-family:'Space Mono',monospace">Type:</span>
+            <div style="background:#2563eb;color:#fff;padding:4px 10px;border-radius:4px;font-weight:600;font-size:11px;display:inline-block;width:fit-content">Bearer Token</div>
+            <span style="color:rgba(255,255,255,.5);font-family:'Space Mono',monospace">Token:</span>
+            <div style="background:#2d2d44;border:1px solid rgba(37,99,235,.5);border-radius:4px;padding:6px 12px;font-family:'Space Mono',monospace;color:#93c5fd;font-size:12px">{{token}}</div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace">
+            → Postman 会自动转换为：Authorization: Bearer eyJhbGci...
+          </div>
+        </div>
+      </div>
+      <div class="success" style="margin-top:10px">✅ <b>验证点：</b>状态码 = 200，返回任务数组。如果返回 401，说明 token 未保存成功，先重新执行步骤2。</div>
+    </div>
+
+    <!-- Step 4: Verify -->
+    <div class="card" style="border-left:4px solid var(--purple)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">4</div>
+        <div class="card-title" style="margin-bottom:0;color:var(--purple)">加断言：自动验证响应结果</div>
+      </div>
+      <div class="body">
+        <b>给「获取任务列表」请求添加断言：</b><br>
+        点击 <b>Tests</b> 标签，粘贴以下代码：
+      </div>
+      <div class="code">// 断言1：状态码是 200
+pm.test("✅ 状态码为 200", function () {
+    pm.response.to.have.status(200);
+});
+
+// 断言2：响应时间小于 2000ms
+pm.test("✅ 响应时间 < 2000ms", function () {
+    pm.expect(pm.response.responseTime).to.be.below(2000);
+});
+
+// 断言3：返回的是数组
+pm.test("✅ 返回结果是数组", function () {
+    let data = pm.response.json();
+    pm.expect(data).to.be.an("array");
+});
+
+// 断言4：第一条任务有 id 字段
+pm.test("✅ 任务有 id 字段", function () {
+    let data = pm.response.json();
+    if (data.length > 0) {
+        pm.expect(data[0]).to.have.property("id");
+    }
+});</div>
+      <div class="body" style="margin-top:10px">点击 <b>Send</b>，在右侧看 <b>Test Results</b> 标签，所有 ✅ 通过即成功！</div>
+
+      <div class="mockup-wrap" style="margin-top:12px">
+        <div class="mockup-bar">
+          <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
+          <div class="mock-url">Test Results — 断言结果面板</div>
+        </div>
+        <div style="background:#1a1a2e;padding:14px;font-family:'Space Mono',monospace;font-size:12px">
+          <div style="color:rgba(255,255,255,.4);margin-bottom:10px;font-size:10px;letter-spacing:.1em">TEST RESULTS (4/4 passed)</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#4ade80">●</span><span style="color:rgba(255,255,255,.8)">✅ 状态码为 200</span><span style="color:#4ade80;margin-left:auto">PASS</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#4ade80">●</span><span style="color:rgba(255,255,255,.8)">✅ 响应时间 &lt; 2000ms</span><span style="color:#4ade80;margin-left:auto">PASS</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#4ade80">●</span><span style="color:rgba(255,255,255,.8)">✅ 返回结果是数组</span><span style="color:#4ade80;margin-left:auto">PASS</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#4ade80">●</span><span style="color:rgba(255,255,255,.8)">✅ 任务有 id 字段</span><span style="color:#4ade80;margin-left:auto">PASS</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRACTICE 3 ═══ -->
+  <div class="section">
+    <div class="section-title">🔍 练习 3 — 设计完整测试用例表（登录接口）</div>
+    <div class="card">
+      <div class="card-title">📋 任务：基于登录接口，设计覆盖全场景的测试用例</div>
+      <div class="body">
+        接口：<code>POST /login/access_token</code>，参数：email（必填）、password（必填，≥8位）
+      </div>
+
+      <div class="tbl-wrap" style="margin-top:14px">
+        <table class="tbl">
+          <tr>
+            <th>用例编号</th><th>用例类型</th><th>email</th><th>password</th><th>预期状态码</th><th>验证点</th>
+          </tr>
+          <tr style="background:#f0fdf4">
+            <td><code>TC-001</code></td>
+            <td><span class="tag tag-green">正向</span></td>
+            <td>admin@qq.com</td>
+            <td>123456789</td>
+            <td style="color:var(--green);font-weight:700">200</td>
+            <td>返回 access_token</td>
+          </tr>
+          <tr>
+            <td><code>TC-002</code></td>
+            <td><span class="tag tag-amber">有效反向</span></td>
+            <td>admin@qq.com</td>
+            <td>wrongpass</td>
+            <td style="color:var(--amber);font-weight:700">400</td>
+            <td>返回「密码不正确」</td>
+          </tr>
+          <tr>
+            <td><code>TC-003</code></td>
+            <td><span class="tag tag-amber">有效反向</span></td>
+            <td>admin@qq.com</td>
+            <td>123</td>
+            <td style="color:var(--amber);font-weight:700">422</td>
+            <td>密码长度不足8位</td>
+          </tr>
+          <tr>
+            <td><code>TC-004</code></td>
+            <td><span class="tag tag-red">无效反向</span></td>
+            <td>notanemail</td>
+            <td>123456789</td>
+            <td style="color:var(--red);font-weight:700">422</td>
+            <td>邮箱格式不合法</td>
+          </tr>
+          <tr>
+            <td><code>TC-005</code></td>
+            <td><span class="tag tag-red">无效反向</span></td>
+            <td>（空）</td>
+            <td>123456789</td>
+            <td style="color:var(--red);font-weight:700">422</td>
+            <td>必填字段为空</td>
+          </tr>
+          <tr>
+            <td><code>TC-006</code></td>
+            <td><span class="tag tag-red">无效反向</span></td>
+            <td>admin@qq.com</td>
+            <td>（空）</td>
+            <td style="color:var(--red);font-weight:700">422</td>
+            <td>密码为空</td>
+          </tr>
+          <tr style="background:#faf5ff">
+            <td><code>TC-007</code></td>
+            <td><span class="tag tag-purple">破坏性</span></td>
+            <td>' OR '1'='1</td>
+            <td>任意</td>
+            <td style="color:var(--purple);font-weight:700">400/422</td>
+            <td>SQL注入，应被拦截</td>
+          </tr>
+          <tr style="background:#faf5ff">
+            <td><code>TC-008</code></td>
+            <td><span class="tag tag-purple">破坏性</span></td>
+            <td>a@b.c（最短合法邮箱）</td>
+            <td>12345678（8位边界）</td>
+            <td style="color:var(--green);font-weight:700">200</td>
+            <td>边界值，应成功</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card-title" style="margin-top:18px">🚀 动手执行：在 Postman 中运行以上用例</div>
+      <div class="body">
+        <b>方法一：手动逐条执行</b><br>
+        按上表修改 Body 参数，点击 Send，验证状态码是否符合预期。<br><br>
+        <b>方法二：用 Collection Runner 批量执行（推荐）</b>
+      </div>
+      <div class="code" style="margin-top:10px"># Collection Runner 操作步骤：
+# ① 点击集合名旁的 ▶ Run 按钮
+# ② 在 Runner 中选择要执行的请求
+# ③ 点击「Run 接口测试练习」
+# ④ 查看每条请求的通过/失败情况</div>
+
+      <div class="info" style="margin-top:14px">💡 <b>数据驱动进阶（可选）：</b>将上面 8 条测试数据保存为 CSV 文件，用 <code>-d data.csv</code> 参数通过 Newman 批量执行，真正做到数据和脚本分离！</div>
+    </div>
+  </div>
+
+  <!-- ═══ PRACTICE 4 ═══ -->
+  <div class="section">
+    <div class="section-title">🎯 挑战练习 4 — 完成完整的 CRUD 业务闭环</div>
+    <div class="card">
+      <div class="card-title">任务：测试外卖任务管理系统（增删查改完整流程）</div>
+      <div class="body">
+        按照以下顺序完成 6 个接口的测试，每个接口的输出作为下一个接口的输入：
+      </div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">1</div>
+            <div style="width:1px;flex:1;background:var(--border);margin:4px 0"></div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;margin-bottom:8px;margin-left:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px"><span class="tag tag-amber">POST</span> /login/access_token</div>
+            <div style="font-size:12.5px;color:var(--muted)">登录 → 保存 token 到集合变量</div>
+            <div class="code" style="margin-top:8px;padding:8px 12px">{"email":"admin@qq.com","password":"123456789"}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">2</div>
+            <div style="width:1px;flex:1;background:var(--border);margin:4px 0"></div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;margin-bottom:8px;margin-left:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px"><span class="tag tag-amber">POST</span> /todo</div>
+            <div style="font-size:12.5px;color:var(--muted)">创建任务 → 从响应中保存 task_id</div>
+            <div class="code" style="margin-top:8px;padding:8px 12px">// Tests 脚本保存 id：
+let id = pm.response.json().id;
+pm.collectionVariables.set("task_id", id);</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--amber);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">3</div>
+            <div style="width:1px;flex:1;background:var(--border);margin:4px 0"></div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;margin-bottom:8px;margin-left:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:4px"><span class="tag tag-purple">PUT</span> /todo/{{task_id}}</div>
+            <div style="font-size:12.5px;color:var(--muted)">修改任务内容</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">4</div>
+            <div style="width:1px;flex:1;background:var(--border);margin:4px 0"></div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;margin-bottom:8px;margin-left:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px"><span class="tag tag-green">GET</span> /todo/{{task_id}}</div>
+            <div style="font-size:12.5px;color:var(--muted)">查询任务 → 验证修改是否生效</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">5</div>
+            <div style="width:1px;flex:1;background:var(--border);margin:4px 0"></div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;margin-bottom:8px;margin-left:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px"><span class="tag tag-red">DELETE</span> /todo/{{task_id}}</div>
+            <div style="font-size:12.5px;color:var(--muted)">删除任务</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">6</div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;margin-bottom:8px;margin-left:8px">
+            <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px"><span class="tag tag-green">GET</span> /todo/{{task_id}}</div>
+            <div style="font-size:12.5px;color:var(--muted)">再次查询 → 期望返回 404（已删除）</div>
+            <div class="code" style="margin-top:8px;padding:8px 12px">// 断言已删除：
+pm.test("任务已被删除", ()=>{
+  pm.response.to.have.status(404);
+});</div>
+          </div>
+        </div>
+      </div>
+      <div class="success">🏆 <b>完成标准：</b>能独立完成这 6 步 CRUD 闭环，并且所有断言通过，说明你已经具备真实项目接口测试能力！</div>
+    </div>
+  </div>
+
+  <!-- Self-check -->
+  <div class="section">
+    <div class="section-title">✅ 完成度自检清单</div>
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:8px" id="checklist">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+          <input type="checkbox" onchange="updateCheck()" style="width:16px;height:16px;accent-color:var(--green)">
+          <span style="font-size:13.5px">我能从接口文档中 30 秒提炼出四要素（Method/URL/Auth/Params）</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+          <input type="checkbox" onchange="updateCheck()" style="width:16px;height:16px;accent-color:var(--green)">
+          <span style="font-size:13.5px">我已在 Postman 中成功发送登录请求并获得 200 响应</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+          <input type="checkbox" onchange="updateCheck()" style="width:16px;height:16px;accent-color:var(--green)">
+          <span style="font-size:13.5px">我知道如何用 Tests 脚本自动保存 token 到集合变量</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+          <input type="checkbox" onchange="updateCheck()" style="width:16px;height:16px;accent-color:var(--green)">
+          <span style="font-size:13.5px">我已设计出覆盖正向/反向/破坏性的完整用例表（≥6条）</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+          <input type="checkbox" onchange="updateCheck()" style="width:16px;height:16px;accent-color:var(--green)">
+          <span style="font-size:13.5px">我能看懂 HTTP 状态码并解释 401 vs 403 的区别</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">
+          <input type="checkbox" onchange="updateCheck()" style="width:16px;height:16px;accent-color:var(--green)">
+          <span style="font-size:13.5px">我已完成 CRUD 闭环（登录→增→改→查→删→验证已删除）</span>
+        </label>
+      </div>
+      <div id="checkResult" style="margin-top:14px;padding:12px 16px;border-radius:8px;background:#f0f2f7;font-size:13.5px;color:var(--muted);text-align:center">
+        ☝️ 勾选完成的项目，追踪你的学习进度
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="page-nav-btn" onclick="showPage(4,null)">← 上一节：工具安装</button>
+    <button class="page-nav-btn next" onclick="showPage(6,null)">✅ 开始测验 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QUIZ -->
+<div class="page" id="p6">
+  <div class="chapter-hero" style="background:linear-gradient(135deg,#f0fdf4,#eff6ff)">
+    <div class="hero-badge">随堂测验 — 第一章</div>
+    <div class="hero-title">检验学习成果</div>
+    <div class="hero-sub">完成 8 道题，正确率 ≥ 75% 即表示掌握本章内容</div>
+  </div>
+
+  <div class="quiz-section">
+    <div id="scoreArea" style="display:none;background:var(--acbg);border:1px solid rgba(37,99,235,.2);border-radius:var(--r);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px">
+      <div><div class="score-big" id="scoreBig">0/8</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+      <div><div class="score-msg" id="scoreMsg"></div><div class="score-sub" id="scoreSub"></div></div>
+    </div>
+
+    <div id="quizBody"></div>
+
+    <div class="quiz-actions">
+      <button class="btn-submit" onclick="checkQ()">提交答案</button>
+      <button class="btn-reset" onclick="resetQ()">↺ 重新作答</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const pages = document.querySelectorAll('.page');
+const tabs = document.querySelectorAll('.nav-tab');
+const totalPages = pages.length;
+const visited = new Set([0]);
+
+function initDots(){
+  const d=document.getElementById('dots');
+  d.innerHTML='';
+  for(let i=0;i<totalPages;i++){
+    const dot=document.createElement('div');
+    dot.className='dot'+(i===0?' active':'');
+    dot.id='dot'+i;
+    d.appendChild(dot);
+  }
+}
+
+function showPage(idx, tabEl){
+  pages.forEach(p=>p.classList.remove('visible'));
+  pages[idx].classList.add('visible');
+  tabs.forEach(t=>t.classList.remove('active'));
+  (tabEl||tabs[idx]).classList.add('active');
+  visited.add(idx);
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.className='dot'+(visited.has(i)?i===idx?'dot active':'dot done':'dot');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateCheck(){
+  const boxes=document.querySelectorAll('#checklist input[type=checkbox]');
+  const done=[...boxes].filter(b=>b.checked).length;
+  const total=boxes.length;
+  const pct=Math.round(done/total*100);
+  const el=document.getElementById('checkResult');
+  if(done===total){
+    el.style.background='#f0fdf4';el.style.color='#15803d';
+    el.innerHTML='🏆 全部完成！你已 Master 第一章，可以进入测验了！';
+  } else {
+    el.style.background='#eff6ff';el.style.color='#1e40af';
+    el.innerHTML='📊 完成进度：'+done+'/'+total+' ('+pct+'%) — 继续加油！';
+  }
+}
+
+initDots();
+
+// QUIZ
+const QS = [
+  {q:"API 的全称是什么？它的本质是？",opts:["Automated Programming Interface，自动化接口","Application Programming Interface，程序之间约定好的通信方式","Advanced Processing Interface，高级处理接口","All Platform Interface，跨平台接口"],ans:1,exp:"API = Application Programming Interface（应用程序接口），本质是程序之间约定好的通信方式，就像餐厅菜单一样定义了「能点什么、怎么点」。"},
+  {q:"以下哪种接口类型不适合使用 Postman 测试？",opts:["REST API","GraphQL API","WebSocket 全双工接口","SOAP API"],ans:2,exp:"WebSocket 基于 TCP 全双工长连接，Postman 主要支持基于 HTTP 的半双工协议（REST/GraphQL/SOAP），不适合测试 WebSocket 和 RPC（Dubbo/Thrift）类接口。"},
+  {q:"HTTP 状态码 401 和 403 的区别是？",opts:["401=成功，403=失败","401=未认证（未登录），403=已认证但无权限","401=服务器错误，403=客户端错误","两者完全相同，可以互换"],ans:1,exp:"401 Unauthorized：用户未认证（Token 为空/过期），需要先登录。403 Forbidden：用户已认证但没有权限访问该资源（如普通用户访问管理员接口）。"},
+  {q:"RESTful 架构中，修改用户昵称（部分更新）应该使用哪个方法？",opts:["GET","POST","PUT（完整替换）","PATCH（部分更新）"],ans:3,exp:"PATCH 用于部分更新资源，只需传入要修改的字段；PUT 需要传入资源的所有字段（完整替换，缺少的字段可能被清空）。修改昵称用 PATCH 更合适。"},
+  {q:"Swagger 文档中，完整的接口地址 = ？",opts:["只有接口路径","只有 Base URL","Base URL + 接口路径","域名 + 端口"],ans:2,exp:"完整接口地址 = Base URL（如 http://127.0.0.1:8001）+ 接口路径（如 /login/with_form），两者拼接才是可以直接调用的完整 URL。"},
+  {q:"HTTP 请求中，Cookie 和 Set-Cookie 的区别是？",opts:["两者完全相同","Cookie：客户端→服务器（每次请求带）；Set-Cookie：服务器→客户端（第一次响应设置）","Cookie：服务器→客户端；Set-Cookie：客户端→服务器","Cookie 只在第一次请求时发送"],ans:1,exp:"Set-Cookie 在服务器的第一次响应中发送给客户端（存入浏览器）；之后每次请求，浏览器自动通过 Cookie 请求头将这个值带回给服务器。"},
+  {q:"接口测试四要素中不包含哪项？",opts:["Method（请求方法）","URL（接口地址）","Auth（鉴权方式）","Response Time（响应时间）"],ans:3,exp:"接口四要素：① Method（请求方法）② URL（接口地址）③ Auth（鉴权方式）④ Parameters（请求参数）。响应时间是测试验证点，不是接口的定义要素。"},
+  {q:"JMeter 的 bin/ 目录中，jmeter.properties 文件的作用是？",opts:["存放 JAR 包依赖","JMeter 的核心配置文件（输出格式、编码等）","离线帮助文档","与 Jenkins 的集成配置"],ans:1,exp:"jmeter.properties 是 JMeter 的核心配置文件，包含输出格式、字符编码、代理设置等全局配置。bin/ 目录还包含启动脚本 jmeter.bat（Windows）。"}
+];
+
+let sel={};let checked=false;
+
+function renderQ(){
+  sel={};checked=false;
+  document.getElementById('scoreArea').style.display='none';
+  const body=document.getElementById('quizBody');
+  body.innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="quiz-q-text"><span class="quiz-q-num">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pick(${i},${j})">
+          <span class="opt-l">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp-box" id="exp${i}">${q.exp}</div>
+    </div>`).join('');
+}
+
+function pick(qi,oi){
+  if(checked)return;
+  const prev=sel[qi];
+  if(prev!==undefined){document.getElementById('o'+qi+'_'+prev).classList.remove('sel');}
+  sel[qi]=oi;
+  document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+
+function checkQ(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const exp=document.getElementById('exp'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');exp.classList.add('show');}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');exp.classList.add('show','wrong-exp');}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('scoreArea');sa.style.display='flex';
+  document.getElementById('scoreBig').textContent=score+'/'+QS.length;
+  document.getElementById('scoreMsg').textContent=pct>=75?'🎉 优秀！本章掌握良好':pct>=50?'⚠️ 良好，建议复习错题':'❌ 需要重新学习本章';
+  document.getElementById('scoreSub').textContent='正确率 '+pct+'%';
+  sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetQ(){renderQ();}
+renderQ();
+</script>
+
+<style>
+.quiz-page-nav{display:flex;justify-content:flex-start;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+</style>
+
+<div style="max-width:860px;margin:0 auto;padding:0 24px 20px">
+  <div class="quiz-page-nav">
+    <button class="page-nav-btn" onclick="showPage(5,null)">← 返回实战练习</button>
+  </div>
+</div>
+
+</body>
+</html>
