@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Day 01 · 软件测试概念与分类</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/source-han-sans-simplified-c-webfont@1.0.2/source-han-sans-simplified-c.min.css" rel="stylesheet">
 <style>
 :root{
   --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
@@ -19,7 +20,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;letter-spacing:.01em}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
 
 /* ── NAV ── */
@@ -81,7 +82,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
 .box-card:hover{transform:translateY(-2px)}
 .box-circle{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:'Space Mono',monospace}
 .box-name{font-size:14px;font-weight:700;margin-bottom:8px}
-.box-desc{font-size:12px;color:var(--muted);line-height:1.65}
+.box-desc{font-size:12px;color:var(--muted);line-height:1.7;letter-spacing:.01em}
 .box-black{background:#1a1a1a;color:#fff}.box-gray{background:#6b7280;color:#fff}.box-white2{background:#e5e7eb;color:#1a1a1a;border:2px solid #9ca3af}
 .bc-black{background:#1c1c1c;border-color:#111}.bc-gray{background:#f3f4f6;border-color:#9ca3af}.bc-white2{background:#f9fafb;border-color:#d1d5db}
 
@@ -113,7 +114,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
 .e-card:hover{border-color:var(--day);box-shadow:0 4px 12px rgba(220,38,38,.1)}
 .e-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--day);margin-bottom:6px;font-weight:700}
 .e-title{font-size:13.5px;font-weight:700;margin-bottom:5px;color:var(--text)}
-.e-content{font-size:12.5px;color:var(--muted);line-height:1.65}
+.e-content{font-size:12.5px;color:var(--muted);line-height:1.7;letter-spacing:.01em}
 .e-example{margin-top:8px;background:var(--daybg);border-radius:5px;padding:6px 10px;font-size:12px;color:#7f1d1d;font-style:italic}
 
 /* ── EQUIVALENCE CLASS ── */
@@ -191,15 +192,15 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
 .exp.ok-e{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
 .exp.no-e{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
 .q-acts{display:flex;gap:8px;margin-top:18px}
-.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
 .bs:hover{opacity:.88}
-.br{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Noto Sans SC',sans-serif;cursor:pointer}
+.br{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
 .br:hover{background:#f0f2f7;color:var(--text)}
 .sa{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
 
 /* ── PAGE NAV ── */
 .pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
-.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
 .pb:hover{background:var(--daybg);border-color:rgba(220,38,38,.3);color:var(--day)}
 .pb.nx{background:var(--day);color:#fff;border-color:var(--red)}
 .pb.nx:hover{opacity:.9}
