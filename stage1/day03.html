@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 03 · 软件缺陷管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/source-han-sans-simplified-c-webfont@1.0.2/source-han-sans-simplified-c.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --day:#0891b2;--daybg:rgba(8,145,178,.08);--daybg2:rgba(8,145,178,.15);
+  --accent:#2563eb;--acbg:rgba(37,99,235,.08);
+  --green:#16a34a;--gbg:rgba(22,163,74,.09);--gbg2:rgba(22,163,74,.16);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.08);
+  --orange:#ea580c;--obg:rgba(234,88,12,.08);
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --r:10px;--rlg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;letter-spacing:.01em}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* ── NAV ── */
+.dn{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06);gap:0}
+.db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--day);padding:5px 11px;border-radius:6px;margin-right:14px;white-space:nowrap;flex-shrink:0}
+.ts{display:flex;gap:0;flex:1;overflow-x:auto}
+.t{padding:13px 15px;font-size:12.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;user-select:none}
+.t:hover{color:var(--text);background:#f8f9fc}
+.t.a{color:var(--day);border-bottom-color:var(--day);font-weight:600}
+.td{display:flex;gap:5px;align-items:center;padding-left:12px;border-left:1px solid var(--border);margin-left:6px;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;cursor:pointer}
+.dot.dn2{background:var(--green)}.dot.da{background:var(--day);transform:scale(1.3)}
+
+/* ── PAGES ── */
+.page{display:none;max-width:920px;margin:0 auto;padding:28px 22px 70px}
+.page.vis{display:block}
+
+/* ── HERO ── */
+.hero{border-radius:var(--rlg);padding:26px 30px;margin-bottom:24px;border:1px solid}
+.hero-badge{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:10px;font-weight:700}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero-sub{font-size:13.5px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.htag{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+.hero-obj{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.obj{background:rgba(255,255,255,.75);border-radius:8px;padding:9px 12px;font-size:12.5px;display:flex;align-items:flex-start;gap:6px}
+.obj-ck{color:var(--green);font-weight:700;flex-shrink:0}
+
+/* ── SECTIONS ── */
+.sec{margin-bottom:24px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.sec-title::before{content:'';display:block;width:3px;height:17px;background:var(--day);border-radius:2px;flex-shrink:0}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.ct{font-size:12.5px;font-weight:700;color:var(--day);margin-bottom:11px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin:1px}
+.tbl{background:var(--acbg);color:var(--accent)}.tgr{background:var(--gbg);color:var(--green)}
+.tam{background:var(--abg);color:var(--amber)}.trd{background:var(--rbg);color:var(--red)}
+.tpu{background:var(--pbg);color:var(--purple)}.ttl{background:var(--daybg);color:var(--day)}
+.tor{background:var(--obg);color:var(--orange)}
+
+/* ── BOXES ── */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#78350f;line-height:1.75}
+.info{background:#ecfeff;border:1px solid #a5f3fc;border-left:3px solid var(--day);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#164e63;line-height:1.75}
+.ok{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#14532d;line-height:1.75}
+.danger{background:#fff1f2;border:1px solid #fecdd3;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#7f1d1d;line-height:1.75}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;margin:10px 0}
+.tbl2{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl2 th{background:#f0f3fa;padding:8px 11px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:11.5px}
+.tbl2 td{padding:7px 11px;border:1px solid var(--border);color:#3a4158;vertical-align:top;line-height:1.6}
+.tbl2 tr:nth-child(even) td{background:#fafbfd}
+
+/* ── BUG STANDARD CARDS ── */
+.std-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin:14px 0}
+.std-card{border-radius:var(--r);padding:14px 15px;text-align:center;border:1.5px solid;transition:all .2s;cursor:default}
+.std-card:hover{transform:translateY(-2px)}
+.std-icon{font-size:24px;margin-bottom:7px}
+.std-name{font-size:13px;font-weight:700;margin-bottom:5px}
+.std-desc{font-size:12px;line-height:1.6}
+
+/* ── SEVERITY/PRIORITY VISUAL ── */
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.sp-box{border-radius:var(--rlg);padding:16px 18px;border:1.5px solid}
+.sp-title{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.sp-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.sp-item:last-child{border-bottom:none}
+.sp-badge{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;flex-shrink:0;min-width:32px;text-align:center}
+.sp-text{font-size:12.5px;line-height:1.5}
+
+/* ── LIFECYCLE FLOW ── */
+.lc-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:14px 0;justify-content:center}
+.lc-node{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:80px}
+.lc-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;text-align:center;line-height:1.3;border:2px solid}
+.lc-label{font-size:10.5px;color:var(--muted);text-align:center;line-height:1.4}
+.lc-arrow{font-size:16px;color:var(--dim);padding:0 4px;margin-bottom:20px;flex-shrink:0}
+.lc-arrow-down{font-size:13px;color:var(--dim);writing-mode:vertical-lr;margin-bottom:20px}
+
+/* ── BUG ELEMENTS GRID ── */
+.el-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0}
+.el-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;transition:all .2s}
+.el-card:hover{border-color:var(--day)}
+.el-icon{font-size:22px;margin-bottom:7px}
+.el-name{font-size:13.5px;font-weight:700;margin-bottom:5px}
+.el-desc{font-size:12.5px;color:var(--muted);line-height:1.65}
+.el-example{background:var(--daybg);border-radius:5px;padding:6px 10px;font-size:12px;color:#164e63;margin-top:7px;font-style:italic}
+
+/* ── BUG TITLE FORMULA ── */
+.title-formula{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0;padding:14px 18px;background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r)}
+.tf-part{background:var(--white);border:1.5px solid var(--border);border-radius:6px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--text)}
+.tf-plus{font-size:18px;color:var(--dim);font-weight:700}
+.tf-eq{font-size:18px;color:var(--day);font-weight:700}
+.tf-result{background:var(--daybg);border:1.5px solid var(--day);border-radius:6px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--day)}
+
+/* ── TOOL MOCK ── */
+.mock-zentao{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin:14px 0}
+.mock-header{background:#1a4b6e;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.mock-logo{color:#fff;font-size:14px;font-weight:700}
+.mock-nav{display:flex;gap:12px}
+.mock-nav-item{color:rgba(255,255,255,.7);font-size:12px;cursor:pointer}
+.mock-nav-item.active{color:#fff;border-bottom:2px solid #38bdf8}
+.mock-body{padding:16px}
+.mock-toolbar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.mock-btn{font-size:11.5px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text)}
+.mock-btn.primary{background:var(--day);color:#fff;border-color:var(--day)}
+.mock-table{width:100%;border-collapse:collapse;font-size:12px}
+.mock-table th{background:#f0f3fa;padding:7px 10px;text-align:left;font-weight:600;border:1px solid var(--border)}
+.mock-table td{padding:7px 10px;border:1px solid var(--border);vertical-align:middle}
+.status-new{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.status-active{display:inline-block;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.status-resolved{display:inline-block;background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.status-closed{display:inline-block;background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+
+/* ── BUG FORM MOCK ── */
+.bug-form{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:16px;margin:12px 0;font-size:13px}
+.bug-form-row{display:grid;grid-template-columns:100px 1fr;gap:8px;align-items:start;margin-bottom:10px}
+.bug-form-label{font-size:12px;font-weight:600;color:var(--muted);padding-top:7px;text-align:right}
+.bug-form-field{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--text);line-height:1.6}
+.bug-form-field.highlight{border-color:var(--day);background:#ecfeff}
+.bug-form-textarea{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12.5px;color:var(--text);line-height:1.75;min-height:80px}
+.bug-form-textarea.highlight{border-color:var(--day);background:#ecfeff}
+.required-star{color:var(--red);font-size:13px;margin-right:2px}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column}
+.step-row{display:flex;gap:0;position:relative}
+.step-row::before{content:'';position:absolute;left:16px;top:34px;bottom:0;width:1px;background:var(--border);z-index:0}
+.step-row:last-child::before{display:none}
+.step-n{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;margin-right:12px;position:relative;z-index:1;background:var(--day)}
+.step-c{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;flex:1;margin-bottom:9px}
+.step-t{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.step-b{font-size:12.5px;color:var(--muted);line-height:1.7}
+
+/* ── INTERVIEW ── */
+.iq{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:8px;overflow:hidden}
+.iq.open{border-color:var(--day)}
+.iq-hdr{padding:13px 17px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;user-select:none}
+.iq-lv{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.lv-b{background:var(--gbg);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.lv-m{background:var(--abg);color:var(--amber);border:1px solid rgba(217,119,6,.3)}
+.lv-h{background:var(--rbg);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.lv-t{background:var(--daybg);color:var(--day);border:1px solid rgba(8,145,178,.3)}
+.iq-q{font-size:13.5px;font-weight:600;flex:1;line-height:1.5}
+.iq-arr{color:var(--dim);font-size:11px;flex-shrink:0;transition:transform .2s;margin-top:3px}
+.iq.open .iq-arr{transform:rotate(90deg)}
+.iq-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.iq.open .iq-body{max-height:1400px}
+.iq-inner{padding:0 17px 16px}
+.iq-ans{background:#ecfeff;border-left:3px solid var(--day);border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;line-height:1.85;color:#3a4158;margin-bottom:8px}
+.iq-ans b{color:var(--text)}
+.iq-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#78350f;margin-bottom:6px}
+.iq-trap{background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#7f1d1d;margin-bottom:6px}
+.iq-example{background:#f8f9fc;border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+
+/* ── PRACTICE ── */
+.prac{border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:12px;overflow:hidden}
+.prac-hdr{display:flex;align-items:center;gap:11px;padding:13px 17px;cursor:pointer;user-select:none;background:var(--white);transition:background .15s}
+.prac-hdr:hover{background:#f8f9fc}
+.prac-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:#fff;flex-shrink:0}
+.prac-t{font-size:13.5px;font-weight:600;flex:1}
+.ps{font-size:10px;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace;flex-shrink:0}
+.ps-todo{background:#f0f2f7;color:var(--dim)}.ps-do{background:var(--daybg);color:var(--day)}.ps-done{background:var(--gbg2);color:var(--green)}
+.prac-body{display:none;padding:0 17px 17px;background:var(--white);border-top:1px solid var(--border)}
+.prac-body.open{display:block}
+.task-box{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:11px 0}
+.task-lbl{font-size:10.5px;font-weight:700;color:var(--day);font-family:'Space Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.ci{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ci:last-child{border-bottom:none}
+.ci input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.ci span{font-size:13px;color:#3a4158}
+.ci input:checked+span{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(22,163,74,.4)}
+
+/* ── QUIZ ── */
+.quiz-q{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:17px 20px;margin-bottom:10px}
+.qn{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--day);background:var(--daybg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.qt{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;width:100%}
+.opt:hover:not(:disabled){border-color:rgba(8,145,178,.35);background:var(--daybg)}
+.ol{width:20px;height:20px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(8,145,178,.35);background:var(--daybg)}.opt.sel .ol{background:var(--day);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .ol{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .ol{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.exp.ok-e{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
+.exp.no-e{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
+.q-acts{display:flex;gap:8px;margin-top:18px}
+.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer;transition:all .15s}
+.bs:hover{opacity:.88}
+.br{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.br:hover{background:#f0f2f7;color:var(--text)}
+.sa{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
+
+/* ── PAGE NAV ── */
+.pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
+.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pb:hover{background:var(--daybg);border-color:rgba(8,145,178,.3);color:var(--day)}
+.pb.nx{background:var(--day);color:#fff;border-color:var(--day)}
+.pb.nx:hover{opacity:.9}
+
+/* ── DO/DONT ── */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.do-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--r);padding:14px 16px}
+.dont-box{background:#fff1f2;border:1.5px solid #fca5a5;border-radius:var(--r);padding:14px 16px}
+.do-t{font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.dont-t{font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.do-i{font-size:12.5px;color:#14532d;padding:3px 0;display:flex;gap:6px;line-height:1.6}
+.dont-i{font-size:12.5px;color:#7f1d1d;padding:3px 0;display:flex;gap:6px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="dn">
+  <div class="db">Day 03 · 阶段一</div>
+  <div class="ts">
+    <div class="t a" onclick="gp(0,this)">📖 知识讲解</div>
+    <div class="t" onclick="gp(1,this)">🖼️ 图解演示</div>
+    <div class="t" onclick="gp(2,this)">🛠️ 实战练习</div>
+    <div class="t" onclick="gp(3,this)">💬 面试精讲</div>
+    <div class="t" onclick="gp(4,this)">✅ 测验(18题)</div>
+  </div>
+  <div class="td" id="dots"></div>
+</nav>
+
+<!-- ════ PAGE 0 — 知识讲解 ════ -->
+<div class="page vis" id="p0">
+  <div class="hero" style="background:linear-gradient(135deg,#ecfeff 0%,#cffafe 40%,#f0fdf4 100%);border-color:#a5f3fc">
+    <div class="hero-badge" style="background:rgba(8,145,178,.12);color:#0e7490;border:1px solid rgba(8,145,178,.3)">Day 03 · 第一阶段 — 测试基础</div>
+    <div class="hero-title">软件缺陷（Bug）完全指南</div>
+    <div class="hero-sub">掌握缺陷的定义、标准、生命周期、核心要素、提交规范，以及使用禅道/JIRA等工具进行缺陷管理的完整流程。</div>
+    <div class="hero-tags">
+      <span class="htag">⏱ 预计 60 分钟</span>
+      <span class="htag">🐛 缺陷管理全流程</span>
+      <span class="htag">🔧 禅道工具实操</span>
+      <span class="htag">✅ 18道测验题</span>
+    </div>
+    <div class="hero-obj">
+      <div class="obj"><span class="obj-ck">✓</span><span>能说出软件缺陷的5个判定标准</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能描述缺陷的完整生命周期</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握缺陷6大核心要素与提交信息</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能写出规范的缺陷标题</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>了解禅道/JIRA工具使用流程</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>理解回归测试与回归Bug的区别</span></div>
+    </div>
+  </div>
+
+  <!-- ── 一、缺陷定义 ── -->
+  <div class="sec">
+    <div class="sec-title">一、软件缺陷（Bug）定义与标准</div>
+    <div class="card">
+      <div class="ct">01 — 什么是软件缺陷？</div>
+      <div class="body">
+        <b>软件中存在的各种问题，都为缺陷，简称 Bug。</b><br><br>
+        不仅仅是功能"崩溃"才是Bug，以下5种情况都属于缺陷：
+      </div>
+      <div class="std-grid">
+        <div class="std-card" style="background:#fee2e2;border-color:#fca5a5">
+          <div class="std-icon">➕</div>
+          <div class="std-name" style="color:#b91c1c">多功能</div>
+          <div class="std-desc" style="color:#7f1d1d">软件实现了需求未规定的功能<br>例：注册时多了一个"邀请码"字段</div>
+        </div>
+        <div class="std-card" style="background:#fef3c7;border-color:#fde047">
+          <div class="std-icon">➖</div>
+          <div class="std-name" style="color:#854d0e">少功能</div>
+          <div class="std-desc" style="color:#78350f">需求规定的功能没有实现<br>例：注册时缺少"手机验证码"功能</div>
+        </div>
+        <div class="std-card" style="background:#fee2e2;border-color:#fca5a5">
+          <div class="std-icon">❌</div>
+          <div class="std-name" style="color:#b91c1c">功能错误</div>
+          <div class="std-desc" style="color:#7f1d1d">功能存在但行为不符合需求<br>例：密码格式正确却提示错误</div>
+        </div>
+        <div class="std-card" style="background:#ede9fe;border-color:#c4b5fd">
+          <div class="std-icon">🔒</div>
+          <div class="std-name" style="color:#5b21b6">缺少隐性功能</div>
+          <div class="std-desc" style="color:#4c1d95">用户默认存在但未明文规定的功能<br>例：账号被封禁后应有提示</div>
+        </div>
+        <div class="std-card" style="background:#ecfeff;border-color:#a5f3fc">
+          <div class="std-icon">😤</div>
+          <div class="std-name" style="color:#0e7490">易用性问题</div>
+          <div class="std-desc" style="color:#164e63">从专业测试角度发现的使用体验问题<br>例：按钮太小，操作不直观</div>
+        </div>
+      </div>
+      <div class="info">📌 <b>记忆口诀：多少错隐易</b> — 多功能 / 少功能 / 功能错误 / 缺少隐性功能 / 易用性</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">02 — 缺陷产生的根本原因</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0">
+        <div style="background:#fef3c7;border:1.5px solid #fde047;border-radius:var(--r);padding:13px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">📋</div>
+          <div style="font-size:13px;font-weight:700;color:#854d0e;margin-bottom:4px">需求文档</div>
+          <div style="font-size:12px;color:#78350f">需求描述不清晰、有歧义或缺失</div>
+        </div>
+        <div style="background:#fce7f3;border:1.5px solid #f9a8d4;border-radius:var(--r);padding:13px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🏗️</div>
+          <div style="font-size:13px;font-weight:700;color:#9d174d;margin-bottom:4px">架构设计</div>
+          <div style="font-size:12px;color:#831843">系统架构设计存在缺陷或不合理</div>
+        </div>
+        <div style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:var(--r);padding:13px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">💻</div>
+          <div style="font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:4px">编码实现</div>
+          <div style="font-size:12px;color:#7f1d1d">开发人员编写代码时引入的错误</div>
+        </div>
+        <div style="background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:var(--r);padding:13px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🖥️</div>
+          <div style="font-size:13px;font-weight:700;color:#0369a1;margin-bottom:4px">环境问题</div>
+          <div style="font-size:12px;color:#075985">硬件或软件环境差异导致的问题</div>
+        </div>
+      </div>
+      <div class="tip">💡 <b>重要：</b>越早发现缺陷，修复成本越低。需求阶段发现的Bug修复成本是上线后的<b>100倍以上</b>，这就是为什么测试要提前介入需求评审！</div>
+    </div>
+  </div>
+
+  <!-- ── 二、缺陷生命周期 ── -->
+  <div class="sec">
+    <div class="sec-title">二、缺陷生命周期（Bug Lifecycle）</div>
+    <div class="card">
+      <div class="ct">03 — 完整的缺陷流转流程</div>
+      <div class="lc-flow">
+        <div class="lc-node">
+          <div class="lc-circle" style="background:#dbeafe;border-color:#3b82f6;color:#1d4ed8">提交<br>缺陷</div>
+          <div class="lc-label">测试提交<br>New状态</div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-node">
+          <div class="lc-circle" style="background:#fef3c7;border-color:#f59e0b;color:#92400e">分派<br>缺陷</div>
+          <div class="lc-label">分配给<br>开发人员</div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-node">
+          <div class="lc-circle" style="background:#fce7f3;border-color:#ec4899;color:#9d174d">确认<br>是否Bug</div>
+          <div class="lc-label">开发确认<br>是/否</div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-node">
+          <div class="lc-circle" style="background:#fee2e2;border-color:#f87171;color:#b91c1c">处理<br>缺陷</div>
+          <div class="lc-label">修复/拒绝<br>/延期</div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-node">
+          <div class="lc-circle" style="background:#f0fdf4;border-color:#4ade80;color:#15803d">回归<br>测试</div>
+          <div class="lc-label">测试验证<br>是否修复</div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-node">
+          <div class="lc-circle" style="background:#e5e7eb;border-color:#9ca3af;color:#374151">关闭<br>缺陷</div>
+          <div class="lc-label">Closed<br>通过验证</div>
+        </div>
+      </div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>缺陷状态</th><th>英文</th><th>说明</th><th>下一步</th></tr>
+        <tr><td><span class="tag tbl">New（新建）</span></td><td>New</td><td>测试人员刚提交的缺陷</td><td>分派给开发</td></tr>
+        <tr><td><span class="tag tor">Open（处理中）</span></td><td>Open/Active</td><td>开发已接受，正在处理</td><td>修复完成</td></tr>
+        <tr><td><span class="tag tgr">Resolved（已解决）</span></td><td>Resolved</td><td>开发修复完毕，等待验证</td><td>回归测试</td></tr>
+        <tr><td><span class="tag" style="background:#e5e7eb;color:#374151">Closed（已关闭）</span></td><td>Closed</td><td>验证通过，缺陷关闭</td><td>—</td></tr>
+        <tr><td><span class="tag trd">Reopened（重新打开）</span></td><td>Reopened</td><td>验证失败，缺陷重新激活</td><td>重新处理</td></tr>
+        <tr><td><span class="tag tpu">Postponed（延期）</span></td><td>Postponed</td><td>确认是Bug但推迟到下个版本修复</td><td>后续版本</td></tr>
+        <tr><td><span class="tag" style="background:#f3f4f6;color:#6b7280">Rejected（拒绝）</span></td><td>Rejected</td><td>开发认为不是Bug或不在范围内</td><td>沟通确认</td></tr>
+      </table></div>
+      <div class="tip">⚠️ <b>回归测试（Regression Testing）：</b><br>① <b>常规项目：</b>发布新增N个模块 → 最少测新增模块 + 关联的旧模块<br>② <b>非常规项目</b>（银行、军队、航天）：新增任何功能 → 必须全部复测<br>③ <b>回归Bug：</b>上版本的Bug，开发修复后，下版本重新验证是否真的修好了</div>
+    </div>
+  </div>
+
+  <!-- ── 三、缺陷核心要素 ── -->
+  <div class="sec">
+    <div class="sec-title">三、缺陷核心要素（6大要素）</div>
+    <div class="card">
+      <div class="ct">04 — 描述一个缺陷必须包含的内容</div>
+      <div class="el-grid">
+        <div class="el-card">
+          <div class="el-icon">📌</div>
+          <div class="el-name">① 缺陷的标题</div>
+          <div class="el-desc">描述缺陷的核心问题，让人一眼看明白哪里错了</div>
+          <div class="el-example">「15位数字标题，期望：不合法，实际：合法」</div>
+        </div>
+        <div class="el-card">
+          <div class="el-icon">🔑</div>
+          <div class="el-name">② 缺陷的预置条件</div>
+          <div class="el-desc">缺陷产生的前提环境，复现时必须满足</div>
+          <div class="el-example">「已登录账号，网络正常，位于注册页面」</div>
+        </div>
+        <div class="el-card">
+          <div class="el-icon">🚶</div>
+          <div class="el-name">③ 缺陷的复现步骤</div>
+          <div class="el-desc">复现缺陷的详细操作过程，步骤清晰可重复</div>
+          <div class="el-example">「1.输入标题 2.点击提交 3.查看结果」</div>
+        </div>
+        <div class="el-card">
+          <div class="el-icon">✅</div>
+          <div class="el-name">④ 缺陷的预期结果</div>
+          <div class="el-desc">按照需求规定，应该出现的正确结果</div>
+          <div class="el-example">「系统提示：标题格式不合法」</div>
+        </div>
+        <div class="el-card">
+          <div class="el-icon">🔍</div>
+          <div class="el-name">⑤ 缺陷的实际结果</div>
+          <div class="el-desc">实际执行后，系统真正表现出来的结果</div>
+          <div class="el-example">「系统提示：标题合法，并保存成功」</div>
+        </div>
+        <div class="el-card">
+          <div class="el-icon">📎</div>
+          <div class="el-name">⑥ 缺陷的必要附件</div>
+          <div class="el-desc">截图、日志、视频等证明缺陷存在的证据</div>
+          <div class="el-example">「附：复现截图、错误日志.txt」</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 四、缺陷提交要素 ── -->
+  <div class="sec">
+    <div class="sec-title">四、缺陷提交信息（严重度 · 优先级 · 类型 · 状态）</div>
+    <div class="card">
+      <div class="ct">05 — 严重程度（Severity）vs 优先级（Priority）</div>
+      <div class="sp-grid">
+        <div class="sp-box" style="background:#fff1f2;border-color:#fecdd3">
+          <div class="sp-title" style="color:#b91c1c">⚡ 严重程度（S）</div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#7f1d1d;color:#fff">S1</div>
+            <div class="sp-text"><b>严重</b>：主功能完全不可用，导致崩溃</div>
+          </div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#dc2626;color:#fff">S2</div>
+            <div class="sp-text"><b>一般</b>：次要功能受影响或性能问题</div>
+          </div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#f87171;color:#fff">S3</div>
+            <div class="sp-text"><b>微小</b>：易用性问题、界面问题</div>
+          </div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#fca5a5;color:#7f1d1d">S4</div>
+            <div class="sp-text"><b>建议</b>：产品优化建议，非缺陷</div>
+          </div>
+        </div>
+        <div class="sp-box" style="background:#fef9c3;border-color:#fde047">
+          <div class="sp-title" style="color:#854d0e">⭐ 修复优先级（Priority）</div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#92400e;color:#fff">P0</div>
+            <div class="sp-text"><b>24小时内解决</b>：极紧急</div>
+          </div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#d97706;color:#fff">P1</div>
+            <div class="sp-text"><b>发布前必须修复</b>：高优先级</div>
+          </div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#f59e0b;color:#fff">P2</div>
+            <div class="sp-text"><b>可以在下一个版本修复</b>：中优先级</div>
+          </div>
+          <div class="sp-item">
+            <div class="sp-badge" style="background:#fbbf24;color:#78350f">P3</div>
+            <div class="sp-text"><b>尽量修复</b>：低优先级</div>
+          </div>
+        </div>
+      </div>
+      <div class="danger"><b>🔴 高频考点：严重程度 ≠ 优先级</b><br>
+        <b>高严重 + 低优先级：</b>主功能崩溃，但该功能本版本不上线<br>
+        <b>低严重 + 高优先级：</b>CEO名字页面拼写错误（S3界面问题），但明天就要对外发布（P0立即修）
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">06 — 缺陷类型（Bug Type）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:10px 0">
+        <div style="background:var(--rbg);border:1px solid #fca5a5;border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px">1️⃣ 功能错误</div>
+          <div style="font-size:12px;color:#7f1d1d">逻辑不对，结果错误</div>
+        </div>
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:4px">2️⃣ UI页面错误</div>
+          <div style="font-size:12px;color:#075985">布局、样式、文字显示问题</div>
+        </div>
+        <div style="background:#fef3c7;border:1px solid #fde047;border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:#854d0e;margin-bottom:4px">3️⃣ 兼容性问题</div>
+          <div style="font-size:12px;color:#78350f">不同浏览器/设备表现不一致</div>
+        </div>
+        <div style="background:var(--pbg);border:1px solid #c4b5fd;border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px">4️⃣ 数据问题</div>
+          <div style="font-size:12px;color:#4c1d95">数据库存储、读取、计算错误</div>
+        </div>
+        <div style="background:var(--gbg);border:1px solid #86efac;border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px">5️⃣ 易用性问题</div>
+          <div style="font-size:12px;color:#14532d">操作不便，体验差</div>
+        </div>
+        <div style="background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px">6️⃣ 建议</div>
+          <div style="font-size:12px;color:var(--dim)">优化建议，非必须修复</div>
+        </div>
+        <div style="background:var(--obg);border:1px solid #fed7aa;border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px">7️⃣ 架构缺陷</div>
+          <div style="font-size:12px;color:#c2410c">系统设计层面的结构性问题</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 五、缺陷标题写法 ── -->
+  <div class="sec">
+    <div class="sec-title">五、如何写好缺陷标题（高频考点）</div>
+    <div class="card">
+      <div class="ct">07 — 缺陷标题的公式</div>
+      <div class="body" style="margin-bottom:12px">
+        <b>核心目标：让看标题的人（开发/项目经理）一眼明白——在哪里，发现了什么问题。</b>
+      </div>
+      <div class="title-formula">
+        <div class="tf-part">测试数据</div>
+        <div class="tf-plus">+</div>
+        <div class="tf-part">预期结果</div>
+        <div class="tf-plus">+</div>
+        <div class="tf-part">实际结果</div>
+        <div class="tf-eq">=</div>
+        <div class="tf-result">好标题</div>
+      </div>
+      <div class="body" style="margin-top:12px;margin-bottom:10px">或者：</div>
+      <div class="title-formula">
+        <div class="tf-part">测试数据描述</div>
+        <div class="tf-plus">+</div>
+        <div class="tf-part">实际结果</div>
+        <div class="tf-plus">+</div>
+        <div class="tf-part">需求</div>
+        <div class="tf-eq">=</div>
+        <div class="tf-result">好标题</div>
+      </div>
+
+      <div class="tw" style="margin-top:14px"><table class="tbl2">
+        <tr><th>标题类型</th><th>❌ 差的标题</th><th>✅ 好的标题</th></tr>
+        <tr><td>数据+预期+实际</td><td>标题15位数字有问题</td><td>「15位纯数字标题，期望：不合法，实际：合法」</td></tr>
+        <tr><td>数据+实际+需求</td><td>标题可以输入很长</td><td>「标题15位纯数字结果合法（需求：标题为≤30个字符）」</td></tr>
+        <tr><td>多条件场景</td><td>文件修改有Bug</td><td>「输入第一类A或B、第二列不是数字，预期输出L和M，实际仅输出L」</td></tr>
+        <tr><td>ATM场景</td><td>取款失败</td><td>「输入不正确的取款金额，结果取款成功（预期：提示不是正确金额）」</td></tr>
+      </table></div>
+      <div class="do-dont" style="margin-top:14px">
+        <div class="do-box">
+          <div class="do-t">✅ 好标题的特征</div>
+          <div class="do-i"><span>→</span><span>包含具体测试数据</span></div>
+          <div class="do-i"><span>→</span><span>说明预期 vs 实际的差异</span></div>
+          <div class="do-i"><span>→</span><span>一句话让人看明白问题</span></div>
+          <div class="do-i"><span>→</span><span>不需要再看描述就能理解</span></div>
+        </div>
+        <div class="dont-box">
+          <div class="dont-t">❌ 烂标题的特征</div>
+          <div class="dont-i"><span>×</span><span>「XXX有Bug」「XXX不对」</span></div>
+          <div class="dont-i"><span>×</span><span>没有具体数据，模糊描述</span></div>
+          <div class="dont-i"><span>×</span><span>没有说明期望和实际的区别</span></div>
+          <div class="dont-i"><span>×</span><span>过长，超过100个字</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 六、提交注意事项 ── -->
+  <div class="sec">
+    <div class="sec-title">六、提交缺陷注意事项</div>
+    <div class="card">
+      <div class="ct">08 — 提交缺陷前的3个检查</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0">
+        <div style="background:var(--daybg);border:1.5px solid rgba(8,145,178,.3);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:8px">🔄</div>
+          <div style="font-size:13px;font-weight:700;color:var(--day);margin-bottom:5px">可重现性</div>
+          <div style="font-size:12px;color:#164e63">缺陷必须能被复现，偶发性Bug需多次确认是否必现</div>
+        </div>
+        <div style="background:var(--gbg);border:1.5px solid rgba(22,163,74,.25);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:8px">1️⃣</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:5px">唯一性</div>
+          <div style="font-size:12px;color:#14532d">一个Bug报告只描述一个问题，不能把多个Bug合并提交</div>
+        </div>
+        <div style="background:var(--pbg);border:1.5px solid rgba(124,58,237,.25);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:8px">📏</div>
+          <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:5px">规范性</div>
+          <div style="font-size:12px;color:#4c1d95">符合公司/项目的缺陷提交规范和模板要求</div>
+        </div>
+      </div>
+      <div class="danger"><b>🔴 面试必背：发现缺陷后，首先怎么办？</b><br>
+        答：<b>① 确定Bug可以复现（多试几次）→ ② 确认这确实是Bug（对照需求文档）→ ③ 检查是否已有相同Bug被提交 → ④ 再提交缺陷报告</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 七、缺陷管理工具 ── -->
+  <div class="sec">
+    <div class="sec-title">七、缺陷管理工具简介</div>
+    <div class="card">
+      <div class="ct">09 — 常用工具对比</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>工具</th><th>特点</th><th>适用场景</th><th>价格</th></tr>
+        <tr><td><b>禅道（ZenTao）</b></td><td>国产，三权分立，四角协同，中文友好</td><td>中小公司首选</td><td>开源免费版</td></tr>
+        <tr><td><b>JIRA</b></td><td>功能强大，高度可定制，插件丰富</td><td>中大型团队，敏捷项目</td><td>付费</td></tr>
+        <tr><td><b>TFS / Azure DevOps</b></td><td>微软生态，与VS Code集成好</td><td>.NET项目，微软技术栈</td><td>付费</td></tr>
+        <tr><td><b>Excel</b></td><td>简单易用，无需配置</td><td>小型项目，初学练习</td><td>免费</td></tr>
+      </table></div>
+      <div class="info">📌 <b>禅道的三权分立：</b>产品部门（构想者）、研发部门（执行者）、测试部门（保证者）<br><b>四角协同：</b>产品经理 + 项目经理 + 研发团队 + 测试团队<br>测试人员在禅道中的操作：撰写用例 → 执行用例 → 提交Bug → 验证Bug → 关闭Bug</div>
+    </div>
+  </div>
+
+  <!-- ── 工作流程小结 ── -->
+  <div class="sec">
+    <div class="sec-title">八、工作流程总结</div>
+    <div class="card">
+      <div class="ct">10 — 测试人员完整工作链路</div>
+      <div style="background:#1e2030;border-radius:var(--r);padding:16px 20px">
+        <div style="font-family:'Space Mono',monospace;font-size:12.5px;line-height:2.2;color:#a6accd">
+          <span style="color:#86efac">Step 1</span> 需求分析（评审需求文档）<br>
+          <span style="color:#93c5fd">Step 2</span> 设计测试用例（等价类+边界值+判定表+流程图）<br>
+          <span style="color:#fbbf24">Step 3</span> 执行用例（实施功能测试）<br>
+          <span style="color:#f87171">Step 4</span> 发现缺陷 → <span style="color:#f87171">确认可复现 → 确认是Bug → 检查是否重复 → 提交</span><br>
+          <span style="color:#c4b5fd">Step 5</span> 回归测试（验证开发修复的Bug）→ 通过则关闭<br>
+          <span style="color:#86efac">Step 6</span> 输出测试报告（Bug统计 + 测试总结）
+        </div>
+      </div>
+      <div class="ok" style="margin-top:12px"><b>✅ 缺陷描述5个重点：</b>缺陷标题 / 前置条件 / 复现步骤 / 预期结果 / 实际结果 + 附件备注<br><b>✅ 提交缺陷信息4要素：</b>指派人 / 缺陷等级 / 修复优先级 / 类型+状态</div>
+    </div>
+  </div>
+
+  <div class="pnav"><div></div><button class="pb nx" onclick="gp(1,null)">图解演示 →</button></div>
+</div>
+
+<!-- ════ PAGE 1 — 图解演示 ════ -->
+<div class="page" id="p1">
+  <div class="sec">
+    <div class="sec-title">缺陷跟踪流程图</div>
+    <div class="card">
+      <div class="ct">缺陷从提交到关闭的完整流转</div>
+      <svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif">
+        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/></marker></defs>
+        <!-- 提交缺陷 -->
+        <rect x="270" y="20" width="120" height="34" rx="17" fill="#0891b2"/>
+        <text x="330" y="42" text-anchor="middle" fill="white" font-size="13" font-weight="700">提交缺陷</text>
+        <line x1="330" y1="54" x2="330" y2="74" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 分派缺陷 -->
+        <rect x="265" y="74" width="130" height="32" rx="5" fill="#2563eb"/>
+        <text x="330" y="95" text-anchor="middle" fill="white" font-size="12">分派给开发</text>
+        <line x1="330" y1="106" x2="330" y2="126" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 是否重复 -->
+        <polygon points="330,126 395,154 330,182 265,154" fill="#7c3aed"/>
+        <text x="330" y="157" text-anchor="middle" fill="white" font-size="11" font-weight="700">是否重复？</text>
+        <!-- Y right -->
+        <text x="400" y="150" font-size="10" fill="#dc2626">Y</text>
+        <line x1="395" y1="154" x2="500" y2="154" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="500" y="138" width="80" height="32" rx="5" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+        <text x="540" y="159" text-anchor="middle" fill="#374151" font-size="11">关闭（重复）</text>
+        <!-- N down -->
+        <text x="338" y="196" font-size="10" fill="#16a34a">N</text>
+        <line x1="330" y1="182" x2="330" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 是否Bug -->
+        <polygon points="330,202 395,230 330,258 265,230" fill="#dc2626"/>
+        <text x="330" y="233" text-anchor="middle" fill="white" font-size="11" font-weight="700">确认是Bug？</text>
+        <!-- N right -->
+        <text x="400" y="226" font-size="10" fill="#dc2626">N</text>
+        <line x1="395" y1="230" x2="500" y2="230" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="500" y="214" width="80" height="32" rx="5" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+        <text x="540" y="235" text-anchor="middle" fill="#374151" font-size="11">拒绝缺陷</text>
+        <!-- Y down -->
+        <text x="338" y="272" font-size="10" fill="#16a34a">Y</text>
+        <line x1="330" y1="258" x2="330" y2="278" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 延期处理 -->
+        <polygon points="330,278 395,306 330,334 265,306" fill="#d97706"/>
+        <text x="330" y="309" text-anchor="middle" fill="white" font-size="11" font-weight="700">是否延期？</text>
+        <!-- Y right -->
+        <text x="400" y="302" font-size="10" fill="#d97706">Y</text>
+        <line x1="395" y1="306" x2="500" y2="306" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="500" y="290" width="80" height="32" rx="5" fill="#fef3c7" stroke="#fde047" stroke-width="1"/>
+        <text x="540" y="311" text-anchor="middle" fill="#92400e" font-size="11">后续版本处理</text>
+        <!-- N down -->
+        <text x="338" y="348" font-size="10" fill="#16a34a">N</text>
+        <line x1="330" y1="334" x2="330" y2="354" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 处理缺陷 -->
+        <rect x="265" y="354" width="130" height="32" rx="5" fill="#16a34a"/>
+        <text x="330" y="375" text-anchor="middle" fill="white" font-size="12">开发修复缺陷</text>
+        <line x1="330" y1="386" x2="330" y2="406" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 回归测试 -->
+        <polygon points="330,406 395,430 330,454 265,430" fill="#0891b2"/>
+        <text x="330" y="433" text-anchor="middle" fill="white" font-size="11" font-weight="700">验证通过？</text>
+        <!-- Y right to close -->
+        <text x="400" y="426" font-size="10" fill="#16a34a">Y</text>
+        <line x1="395" y1="430" x2="500" y2="430" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="500" y="414" width="80" height="32" rx="17" fill="#374151"/>
+        <text x="540" y="435" text-anchor="middle" fill="white" font-size="12" font-weight="700">关闭缺陷</text>
+        <!-- N left back -->
+        <text x="252" y="426" font-size="10" fill="#dc2626">N→重新打开</text>
+        <line x1="265" y1="430" x2="120" y2="430" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <line x1="120" y1="430" x2="120" y2="230" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <line x1="120" y1="230" x2="265" y2="230" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+        <text x="70" y="330" text-anchor="middle" font-size="10" fill="#dc2626">重新处理</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">禅道Bug提交界面模拟</div>
+    <div class="card">
+      <div class="ct">规范的缺陷提交表单（高亮字段为必填核心要素）</div>
+      <div class="mock-zentao">
+        <div class="mock-header">
+          <div class="mock-logo">🔵 禅道 ZenTao · 测试管理</div>
+          <div style="color:rgba(255,255,255,.6);font-size:12px">当前用户：测试甲</div>
+        </div>
+        <div class="mock-body">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px">+ 提Bug</div>
+          <div class="bug-form">
+            <div class="bug-form-row">
+              <div class="bug-form-label"><span class="required-star">*</span>Bug标题</div>
+              <div class="bug-form-field highlight">15位纯数字标题，期望：不合法，实际：系统提示合法</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="bug-form-row">
+                <div class="bug-form-label">严重程度</div>
+                <div class="bug-form-field"><span style="color:#dc2626;font-weight:700">S1 严重</span> ▼</div>
+              </div>
+              <div class="bug-form-row">
+                <div class="bug-form-label">优先级</div>
+                <div class="bug-form-field"><span style="color:#d97706;font-weight:700">P1</span> ▼</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="bug-form-row">
+                <div class="bug-form-label">Bug类型</div>
+                <div class="bug-form-field">功能错误 ▼</div>
+              </div>
+              <div class="bug-form-row">
+                <div class="bug-form-label">指派给</div>
+                <div class="bug-form-field">开发甲 ▼</div>
+              </div>
+            </div>
+            <div class="bug-form-row">
+              <div class="bug-form-label"><span class="required-star">*</span>复现步骤</div>
+              <div class="bug-form-textarea highlight">【步骤】<br>1. 打开标题验证程序<br>2. 输入标题：15位数字字符串<br>3. 点击验证/提交<br><br>【预期结果】<br>系统提示：标题格式不合法（超出字符限制）<br><br>【实际结果】<br>系统提示：标题合法，并成功保存</div>
+            </div>
+            <div class="bug-form-row">
+              <div class="bug-form-label">附件</div>
+              <div class="bug-form-field" style="color:var(--day);cursor:pointer">📎 上传截图/日志文件...</div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button style="padding:7px 22px;background:var(--day);color:#fff;border:none;border-radius:5px;font-size:13px;cursor:pointer;font-weight:600">保存</button>
+              <button style="padding:7px 16px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;font-size:13px;cursor:pointer">返回</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info">📌 <b>核心字段说明：</b>蓝色高亮字段是描述缺陷最重要的内容。Bug标题要一眼看明白，复现步骤要让开发无需沟通就能复现！</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Excel 缺陷管理表格示例</div>
+    <div class="card">
+      <div class="ct">用 Excel 管理缺陷的标准模板</div>
+      <div class="mock-zentao">
+        <div class="mock-header">
+          <div class="mock-logo">📊 Excel 缺陷管理表</div>
+        </div>
+        <div class="mock-body" style="padding:0">
+          <table class="mock-table" style="width:100%">
+            <tr>
+              <th>缺陷ID</th><th>缺陷标题</th><th>状态</th><th>严重度</th><th>优先级</th><th>所属模块</th><th>指派人</th><th>缺陷描述摘要</th>
+            </tr>
+            <tr>
+              <td><b>bug001</b></td>
+              <td>正常下单成功后支付失败</td>
+              <td><span class="status-new">New</span></td>
+              <td><span style="color:#dc2626;font-weight:700">S1</span></td>
+              <td>P0</td>
+              <td>Ego核心业务</td>
+              <td>开发甲</td>
+              <td>1.下单 2.支付 3.无响应</td>
+            </tr>
+            <tr>
+              <td><b>bug002</b></td>
+              <td>15位纯数字标题，期望不合法，实际合法</td>
+              <td><span class="status-active">处理中</span></td>
+              <td><span style="color:#d97706;font-weight:700">S2</span></td>
+              <td>P1</td>
+              <td>标题模块</td>
+              <td>开发乙</td>
+              <td>输入15位数字通过验证</td>
+            </tr>
+            <tr>
+              <td><b>bug003</b></td>
+              <td>登录按钮在小屏手机上显示不完整</td>
+              <td><span class="status-resolved">已解决</span></td>
+              <td><span style="color:#0891b2;font-weight:700">S3</span></td>
+              <td>P2</td>
+              <td>登录模块</td>
+              <td>开发丙</td>
+              <td>分辨率320px时按钮截断</td>
+            </tr>
+            <tr>
+              <td><b>bug004</b></td>
+              <td>建议优化注册流程引导提示</td>
+              <td><span class="status-closed">已关闭</span></td>
+              <td><span style="color:#6b7280;font-weight:700">S4</span></td>
+              <td>P3</td>
+              <td>注册模块</td>
+              <td>—</td>
+              <td>产品建议优化</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(0,null)">← 知识讲解</button>
+    <button class="pb nx" onclick="gp(2,null)">实战练习 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 2 — 实战练习 ════ -->
+<div class="page" id="p2">
+  <div class="sec">
+    <div class="sec-title">实战练习 — 3个任务</div>
+
+    <div class="prac" id="pr0">
+      <div class="prac-hdr" onclick="tp(0)">
+        <div class="prac-n" style="background:var(--day)">P1</div>
+        <div class="prac-t">📝 练习：写出规范的缺陷标题</div>
+        <div class="ps ps-todo" id="ps0">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb0">
+        <div class="task-box">
+          <div class="task-lbl">任务说明</div>
+          <div class="body">根据以下测试场景，写出规范的缺陷标题（使用"测试数据 + 预期结果 + 实际结果"公式）</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin:12px 0">
+          <!-- Scene 1 -->
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--text)">场景1：QQ账号验证</div>
+            <div style="padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.75">
+              测试数据：输入3位自然数账号（123）<br>
+              预期结果：QQ账号不合法<br>
+              实际结果：QQ账号合法，登录成功
+            </div>
+            <div style="padding:0 14px 12px;background:rgba(0,0,0,.02)">
+              <div style="font-size:11px;color:var(--day);font-weight:700;margin-bottom:5px;font-family:'Space Mono',monospace">你的答案（点击查看标准答案）</div>
+              <div style="border:2px dashed var(--border);border-radius:6px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.innerHTML='<b style=color:var(--day)>✅ 标准答案：</b>「输入3位自然数（123），期望：QQ账号不合法，实际：系统判定合法并登录成功」';this.style.borderColor='var(--day)';this.style.background='var(--daybg)';this.style.color='var(--text)'">👆 点击查看标准答案</div>
+            </div>
+          </div>
+          <!-- Scene 2 -->
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--text)">场景2：ATM取款</div>
+            <div style="padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.75">
+              测试数据：输入取款金额101元（非整数倍）<br>
+              预期结果：提示"取款金额不正确"<br>
+              实际结果：取款成功，余额减少101元
+            </div>
+            <div style="padding:0 14px 12px;background:rgba(0,0,0,.02)">
+              <div style="font-size:11px;color:var(--day);font-weight:700;margin-bottom:5px;font-family:'Space Mono',monospace">你的答案</div>
+              <div style="border:2px dashed var(--border);border-radius:6px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.innerHTML='<b style=color:var(--day)>✅ 标准答案：</b>「输入非整数倍取款金额101元，期望：提示取款金额不正确，实际：取款成功余额减少101元」';this.style.borderColor='var(--day)';this.style.background='var(--daybg)';this.style.color='var(--text)'">👆 点击查看标准答案</div>
+            </div>
+          </div>
+          <!-- Scene 3 -->
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--text)">场景3：文件修改</div>
+            <div style="padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.75">
+              测试数据：第一列输入A或B，第二列输入非数字（a）<br>
+              预期结果：输出L和M<br>
+              实际结果：只输出L
+            </div>
+            <div style="padding:0 14px 12px;background:rgba(0,0,0,.02)">
+              <div style="font-size:11px;color:var(--day);font-weight:700;margin-bottom:5px;font-family:'Space Mono',monospace">你的答案</div>
+              <div style="border:2px dashed var(--border);border-radius:6px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.innerHTML='<b style=color:var(--day)>✅ 标准答案：</b>「第一列A或B、第二列非数字（a），期望输出L和M，实际仅输出L」';this.style.borderColor='var(--day)';this.style.background='var(--daybg)';this.style.color='var(--text)'">👆 点击查看标准答案</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我理解缺陷标题的"数据+预期+实际"公式</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>3道场景题都能写出让人看明白的标题</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我知道好标题 vs 烂标题的区别</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="prac" id="pr1">
+      <div class="prac-hdr" onclick="tp(1)">
+        <div class="prac-n" style="background:var(--green)">P2</div>
+        <div class="prac-t">🐛 练习：完整填写一份缺陷报告</div>
+        <div class="ps ps-todo" id="ps1">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb1">
+        <div class="task-box">
+          <div class="task-lbl">场景</div>
+          <div class="body">
+            在测试"注册抢88现金"页面时，发现：密码字段输入纯数字"123456"（6位），期望显示"密码格式不合法（需包含字母+数字）"，但实际显示"密码格式正确"，可以注册成功。<br><br>
+            请填写完整的缺陷报告（包含6大核心要素 + 提交信息）。
+          </div>
+        </div>
+        <div class="task-box" style="margin-top:10px">
+          <div class="task-lbl">参考答案</div>
+          <div class="bug-form" style="background:var(--white)">
+            <div class="bug-form-row">
+              <div class="bug-form-label">缺陷标题</div>
+              <div class="bug-form-field highlight">输入纯数字密码「123456」，期望：格式不合法，实际：提示合法并注册成功</div>
+            </div>
+            <div class="bug-form-row">
+              <div class="bug-form-label">预置条件</div>
+              <div class="bug-form-field">打开注册页面，网络正常，手机号和验证码已填写正确</div>
+            </div>
+            <div class="bug-form-row">
+              <div class="bug-form-label">复现步骤</div>
+              <div class="bug-form-textarea">1. 打开注册抢88现金页面
+2. 手机号输入正确未注册号码
+3. 密码字段输入：123456（纯数字，6位）
+4. 输入正确验证码
+5. 点击"免费注册"按钮</div>
+            </div>
+            <div class="bug-form-row">
+              <div class="bug-form-label">预期结果</div>
+              <div class="bug-form-field">密码字段提示红色错误信息：「密码格式不合法，需包含字母+数字组合」</div>
+            </div>
+            <div class="bug-form-row">
+              <div class="bug-form-label">实际结果</div>
+              <div class="bug-form-field highlight">系统提示密码格式正确，注册成功，跳转至首页</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px">
+              <div><div class="bug-form-label" style="text-align:left;padding:0 0 4px">严重程度</div><div class="bug-form-field">S1 严重</div></div>
+              <div><div class="bug-form-label" style="text-align:left;padding:0 0 4px">优先级</div><div class="bug-form-field">P1 发布前必修</div></div>
+              <div><div class="bug-form-label" style="text-align:left;padding:0 0 4px">Bug类型</div><div class="bug-form-field">功能错误</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>我已填写完整的6大核心要素</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>复现步骤清晰，开发无需沟通就能复现</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>正确设置了严重度（S1）和优先级（P1）</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>我理解为什么这个Bug是S1而不是S2</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="prac" id="pr2">
+      <div class="prac-hdr" onclick="tp(2)">
+        <div class="prac-n" style="background:var(--orange)">P3</div>
+        <div class="prac-t">🏗️ 综合练习：注册页面完整测试（用例+执行+缺陷）</div>
+        <div class="ps ps-todo" id="ps2">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb2">
+        <div class="task-box">
+          <div class="task-lbl">注册页面测试点（Day03作业）</div>
+          <div class="body">
+            根据以下测试点，先设计用例，再模拟执行，发现问题时写出缺陷报告：<br><br>
+            <b>手机号：</b>正向（未注册正确手机号）；逆向：长度（10位/12位）、类型（为空/非数字）、规则（已注册）<br>
+            <b>密码：</b>正向（6/16/10位字母+数字）；逆向：长度（5/17位）、规则（纯数字/纯字母）、类型（为空）<br>
+            <b>图片验证码：</b>正向（正确未过期）；逆向（为空/错误/过期）<br>
+            <b>短信验证码：</b>同图片验证码<br>
+            <b>邀请人：</b>存在/为空/不存在<br>
+            <b>协议：</b>勾选/不勾选
+          </div>
+        </div>
+        <div class="task-box" style="margin-top:10px">
+          <div class="task-lbl">设计原则提示</div>
+          <div class="body">
+            正向用例：<b>3条</b>，一次尽量覆盖多个字段（多个有效数据放一条用例）<br>
+            逆向用例：<b>16条</b>，每次只改变一个字段为无效值，其余保持有效<br>
+            边界值（密码）：上点6/16、离点5/17、内点10<br>
+            等价类（密码规则）：纯数字、纯字母、字母+数字
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>正向用例3条，覆盖多个有效字段</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>逆向用例≥16条，每次只改变一个字段</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>密码字段包含边界值（5/6/10/16/17位）</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>模拟执行后发现的Bug已按规范填写缺陷报告</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>每条缺陷标题符合"数据+预期+实际"格式</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav">
+    <button class="pb" onclick="gp(1,null)">← 图解演示</button>
+    <button class="pb nx" onclick="gp(3,null)">面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 3 — 面试精讲 ════ -->
+<div class="page" id="p3">
+  <div class="sec">
+    <div class="sec-title">Day 03 高频面试题（15题）</div>
+    <div id="iqList"></div>
+  </div>
+  <div class="pnav">
+    <button class="pb" onclick="gp(2,null)">← 实战练习</button>
+    <button class="pb nx" onclick="gp(4,null)">✅ 测验(18题) →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 4 — 测验 (18题) ════ -->
+<div class="page" id="p4">
+  <div class="sec">
+    <div class="sec-title" style="margin-bottom:8px">Day 03 随堂测验 — 18道题</div>
+    <div class="body" style="color:var(--muted);margin-bottom:16px;font-size:13px">覆盖缺陷定义、标准、生命周期、要素、标题写法、提交规范、工具，正确率≥75%（14题）通过。</div>
+    <div class="sa" id="sa"></div>
+    <div id="qList"></div>
+    <div class="q-acts">
+      <button class="bs" onclick="sub()">提交答案</button>
+      <button class="br" onclick="rst()">↺ 重新作答</button>
+    </div>
+  </div>
+  <div class="pnav" style="margin-top:20px">
+    <button class="pb" onclick="gp(3,null)">← 面试精讲</button>
+    <button class="pb nx" onclick="gp(0,null)">🔄 重新学习</button>
+  </div>
+</div>
+
+<script>
+/* ── INTERVIEW DATA ── */
+const IQS=[
+  {lv:'lv-b',lvt:'🟢 基础',q:'软件缺陷（Bug）的5个判定标准是什么？',
+   ans:`软件中存在以下任意一种情况，都属于缺陷：<br>
+① <b>多功能</b>：实现了需求未规定的功能<br>
+② <b>少功能</b>：需求规定的功能没有实现<br>
+③ <b>功能错误</b>：功能存在但行为不符合需求<br>
+④ <b>缺少隐性功能</b>：用户默认存在但未明文规定的功能缺失<br>
+⑤ <b>易用性问题</b>：从专业测试角度发现的使用体验问题`,
+   tip:'背口诀"多少错隐易"，面试时逐一展开。',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'缺陷的6大核心要素是什么？',
+   ans:`描述一个缺陷必须包含：<br>
+① <b>缺陷标题</b>：描述核心问题，一眼看明白<br>
+② <b>预置条件</b>：缺陷产生的前提环境<br>
+③ <b>复现步骤</b>：详细可重复的操作过程<br>
+④ <b>预期结果</b>：按需求应该得到的正确结果<br>
+⑤ <b>实际结果</b>：实际看到的错误表现<br>
+⑥ <b>必要附件</b>：截图、日志、视频等证据`,
+   tip:'',trap:'⚠️ 常见遗漏：忘写"预置条件"或附件，导致开发无法复现。'},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'缺陷的严重程度（Severity）如何分级？',
+   ans:`<b>S1 严重</b>：主功能完全不可用，导致系统崩溃<br>
+<b>S2 一般</b>：次要功能受影响或性能下降<br>
+<b>S3 微小</b>：易用性问题、界面显示问题<br>
+<b>S4 建议</b>：产品优化建议，非真正缺陷`,
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'缺陷的修复优先级（Priority）如何分级？',
+   ans:`<b>P0</b>：极紧急，24小时内必须解决<br>
+<b>P1</b>：发布前必须修复<br>
+<b>P2</b>：可以在下一个版本修复<br>
+<b>P3</b>：尽量修复，不紧急`,
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'缺陷提交的3个注意事项是什么？',
+   ans:`① <b>可重现性</b>：提交前确认缺陷可以稳定复现<br>
+② <b>唯一性</b>：一个Bug报告只描述一个问题<br>
+③ <b>规范性</b>：按照公司/项目的缺陷模板填写`,
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'缺陷有哪7种类型？',
+   ans:`① 功能错误<br>
+② UI页面错误<br>
+③ 兼容性问题<br>
+④ 数据（数据库）问题<br>
+⑤ 易用性问题<br>
+⑥ 建议<br>
+⑦ 架构缺陷`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'缺陷的生命周期经历哪些状态？',
+   ans:`完整流转：<br>
+<b>New（新建）</b> → 分派缺陷 → 确认是否重复 → 确认是否Bug → 是否延期？<br>
+→ 若是Bug且不延期 → <b>Open（处理中）</b> → 修复完成 → <b>Resolved（已解决）</b><br>
+→ 回归测试 → 通过则 <b>Closed（关闭）</b>，不通过则 <b>Reopened（重新打开）</b><br><br>
+特殊状态：<b>Postponed（延期）</b>放后续版本、<b>Rejected（拒绝）</b>确认非Bug`,
+   tip:'',trap:'⚠️ 常见错误：只说New→Resolved→Closed，忘了Reopened和Postponed等状态。'},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'什么是回归测试？什么是回归Bug？',
+   ans:`<b>回归测试（Regression Testing）</b>：开发修复Bug后，测试人员重新执行相关测试用例来验证是否真正修复。<br><br>
+<b>回归Bug</b>：上一个版本发现的缺陷，开发修复完毕后，在下个版本重新验证的那个Bug就叫回归Bug。<br><br>
+<b>回归策略：</b><br>
+• 常规项目：至少测新增模块 + 关联旧模块<br>
+• 非常规项目（银行/军队/航天）：新增任何功能必须全部复测`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'如何写出规范的缺陷标题？给出公式和示例。',
+   ans:`<b>公式：测试数据 + 预期结果 + 实际结果</b><br><br>
+<b>示例1（数据+预期+实际）：</b><br>
+「15位纯数字标题，期望：不合法，实际：系统判定合法」<br><br>
+<b>示例2（数据+实际+需求）：</b><br>
+「输入不正确的取款金额101元，结果取款成功（预期：提示取款金额不正确）」<br><br>
+<b>核心目标：</b>让开发/项目经理看标题就明白问题在哪里，不需要再阅读详细描述`,
+   tip:'',trap:'⚠️ 坏标题："XXX有Bug""XXX不对"——这种标题不说明具体数据和预期，无法判断问题所在。'},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'缺陷产生的4个根本原因是什么？',
+   ans:`① <b>需求文档</b>：需求描述不清晰、有歧义或存在缺失<br>
+② <b>架构设计</b>：系统架构设计不合理或存在缺陷<br>
+③ <b>编码实现</b>：开发人员在编写代码时引入的错误<br>
+④ <b>环境问题</b>：硬件或软件运行环境差异导致的问题<br><br>
+<b>重要：</b>越早发现缺陷，修复成本越低。需求阶段发现Bug修复成本是上线后的100倍以上。`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'常用的缺陷管理工具有哪些？各自的特点？',
+   ans:`① <b>禅道（ZenTao）</b>：国产开源，"三权分立"（产品/研发/测试）"四角协同"，中文界面，适合中小公司<br>
+② <b>JIRA</b>：功能强大，高度可定制，插件丰富，适合中大型团队和敏捷项目，付费<br>
+③ <b>TFS / Azure DevOps</b>：微软生态，与Visual Studio集成好，适合.NET项目<br>
+④ <b>Excel</b>：简单易用，无需配置，适合小型项目或学习练习`,
+   tip:'',trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【必背面试题】发现缺陷后，首先应该怎么办？',
+   ans:`<b>标准答案（4步）：</b><br>
+① <b>确认Bug可以复现</b>（多试几次，排除偶发性）<br>
+② <b>确认这确实是Bug</b>（对照需求文档判断是否符合预期）<br>
+③ <b>检查是否已有相同Bug被提交</b>（避免重复提交）<br>
+④ <b>按规范提交缺陷报告</b>（6大要素+提交信息）`,
+   tip:'这是测试面试最高频的问题之一，必须背下来这4步！',
+   trap:'❌ 错误答案："发现Bug直接提交" / "马上告诉开发"。要先确认可复现、确认是Bug才提交！'},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】严重程度（S）和优先级（P）是同一回事吗？举例说明。',
+   ans:`<b>不一样！高频陷阱题。</b><br><br>
+<b>严重程度（S）</b>：缺陷对软件功能的影响程度<br>
+<b>优先级（P）</b>：修复这个缺陷的紧迫程度<br><br>
+<b>高S低P场景：</b>主功能崩溃（S1），但该功能本版本不发布（P2可以等）<br>
+<b>低S高P场景：</b>CEO名字拼写错误（S3界面问题），但明天就要对外发布（P0立即修）<br><br>
+<b>结论：</b>严重程度由缺陷影响决定，优先级由业务需求决定，两者独立评估。`,
+   tip:'这道题能显示你对缺陷管理的真实理解深度，面试必说这两个反例！',
+   trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】以下缺陷标题哪个更规范？为什么？A.「登录功能有Bug」B.「输入正确账号密码点击登录，期望：进入首页，实际：提示账号不存在」',
+   ans:`<b>B更规范。</b><br><br>
+<b>A的问题：</b><br>
+• 没有具体测试数据（什么账号？什么密码？）<br>
+• 没有说明预期和实际的差异<br>
+• 看标题完全不知道哪里出了问题<br><br>
+<b>B的优点：</b><br>
+• 包含了测试数据（正确账号密码）<br>
+• 说明了预期结果（进入首页）<br>
+• 说明了实际结果（提示账号不存在）<br>
+• 一句话让开发明白问题所在`,
+   tip:'',trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】当开发说"这不是Bug，这是按设计做的"，你应该怎么处理？',
+   ans:`<b>正确处理流程：</b><br>
+① <b>先查需求文档</b>：拿出需求规格说明，看是否有明确规定<br>
+② <b>对比预期和实际</b>：如果需求有明确规定，说明是开发理解有误<br>
+③ <b>友好沟通确认</b>：与开发共同查看需求文档，达成一致<br>
+④ <b>升级处理</b>：如果双方意见不一致，提交给产品经理/项目经理裁决<br>
+⑤ <b>特殊情况</b>：如果需求文档确实没有说明，可能是"缺少隐性功能"，建议作为优化提交<br><br>
+<b>核心原则：</b>以需求文档为准，不能主观判断，有争议就找产品经理。`,
+   tip:'体现你有处理开发-测试冲突的经验，让面试官感受到你的沟通能力和专业素养。',
+   trap:''}
+];
+
+function buildIQ(){
+  document.getElementById('iqList').innerHTML=IQS.map((q,i)=>`
+    <div class="iq" id="iq${i}">
+      <div class="iq-hdr" onclick="tiq(${i})">
+        <span class="iq-lv ${q.lv}">${q.lvt}</span>
+        <span class="iq-q">Q${i+1}. ${q.q}</span>
+        <span class="iq-arr">▶</span>
+      </div>
+      <div class="iq-body">
+        <div class="iq-inner">
+          <div class="iq-ans">${q.ans}</div>
+          ${q.tip?`<div class="iq-tip">💡 <b>面试 Tip：</b>${q.tip}</div>`:''}
+          ${q.trap?`<div class="iq-trap">⚠️ <b>常见错误：</b>${q.trap}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function tiq(i){document.getElementById('iq'+i).classList.toggle('open');}
+buildIQ();
+
+/* ── QUIZ 18 QUESTIONS ── */
+const QS=[
+  {q:'软件缺陷的5个判定标准中，以下哪个不属于缺陷标准？',
+   opts:['多功能（实现了需求未规定的功能）','少功能（需求功能未实现）','测试用例执行失败','缺少隐性功能'],
+   ans:2,exp:'缺陷5个标准：多功能、少功能、功能错误、缺少隐性功能、易用性问题。「测试用例执行失败」不是缺陷标准，而是发现缺陷的方式。'},
+
+  {q:'以下哪种情况属于"缺少隐性功能"缺陷？',
+   opts:['登录按钮文字显示错误','用户账号被封禁后没有任何提示直接无法登录','密码输入框无法输入特殊字符','搜索结果排序逻辑有误'],
+   ans:1,exp:'隐性功能是用户默认应该存在但需求文档未明确规定的功能。账号被封禁应有明确提示是用户的合理预期，但需求可能没有写明，属于缺少隐性功能。'},
+
+  {q:'缺陷的6大核心要素中，哪个是"让开发能独立复现Bug"的关键？',
+   opts:['缺陷标题','预置条件','复现步骤','必要附件'],
+   ans:2,exp:'复现步骤是让开发人员无需额外沟通就能重现Bug的关键。步骤需要清晰、详细、可重复执行。缺少或模糊的步骤会严重影响Bug修复效率。'},
+
+  {q:'缺陷严重程度S1代表什么？',
+   opts:['建议优化问题','易用性和界面问题','次要功能受影响','主功能完全不可用，导致崩溃'],
+   ans:3,exp:'S1 严重：主功能完全不可用，系统崩溃无法继续使用。S2一般：次要功能受影响。S3微小：易用性/界面问题。S4建议：优化建议。'},
+
+  {q:'「CEO名字在官网首页拼写错误」，正确的严重度和优先级应该是？',
+   opts:['S1严重，P0极紧急','S3微小（界面），P0/P1高优先级','S2一般，P2中优先级','S4建议，P3低优先级'],
+   ans:1,exp:'名字拼写错误是界面问题（S3微小），但CEO名字错误会影响公司形象，且可能明天就要对外发布，所以优先级高（P0/P1）。这是"低严重度+高优先级"的典型案例。'},
+
+  {q:'缺陷提交的"唯一性"原则是指？',
+   opts:['每个Bug都有唯一的Bug ID','一份Bug报告只描述一个问题','每个Bug只能被提交一次','Bug只能由一个人提交'],
+   ans:1,exp:'唯一性：一个缺陷报告只描述一个问题，不能把多个Bug合并在一份报告里。否则开发修复时可能只改了其中一个，难以追踪和管理。'},
+
+  {q:'发现Bug后，正确的处理顺序是？',
+   opts:['直接告诉开发修复→提交Bug报告','确认可复现→确认是Bug→检查是否重复→提交','先截图→然后提交→再告知开发','写Bug报告→让产品经理确认→提交'],
+   ans:1,exp:'正确4步：①确认Bug可以复现（排除偶发）→②确认这确实是Bug（对照需求）→③检查是否已有相同Bug被提交→④按规范提交缺陷报告。不要直接提交！'},
+
+  {q:'缺陷状态"Reopened（重新打开）"表示什么？',
+   opts:['测试人员新建了一个缺陷','开发已开始修复这个缺陷','开发修复后测试验证仍然失败，重新激活','产品经理重新打开了需求'],
+   ans:2,exp:'Reopened：开发声称已修复（状态变为Resolved），测试人员进行回归验证后发现问题依然存在，将缺陷重新打开，状态从Resolved变为Reopened。'},
+
+  {q:'以下哪个缺陷标题写得最规范？',
+   opts:['登录页面有问题','用户登录功能Bug','输入正确账号密码点击登录，期望进入首页，实际提示账号不存在','登录失败Bug #001'],
+   ans:2,exp:'规范标题公式：测试数据+预期结果+实际结果。"输入正确账号密码"是测试数据，"期望进入首页"是预期，"实际提示账号不存在"是实际结果，一眼明白问题所在。'},
+
+  {q:'缺陷的"回归测试"是什么时候执行的？',
+   opts:['项目开始时','每次提交代码后','开发修复Bug后，测试人员验证修复是否生效','每天固定时间执行'],
+   ans:2,exp:'回归测试是在开发修复Bug后执行的，目的是验证该Bug是否真的被修复。同时也需要验证修复是否引入了新的问题（解决A缺陷可能注入B缺陷）。'},
+
+  {q:'禅道（ZenTao）的"三权分立"指的是哪三权？',
+   opts:['产品经理、项目经理、测试经理','产品部门（构想者）、研发部门（执行者）、测试部门（保证者）','前端、后端、测试','需求、开发、运维'],
+   ans:1,exp:'禅道三权分立：产品部门（构想者，负责需求）、研发部门（执行者，负责开发）、测试部门（保证者，负责质量）。三权分立保证了职责独立，避免互相干扰。'},
+
+  {q:'以下哪种情况会导致缺陷被"Rejected（拒绝）"？',
+   opts:['测试人员提交了重复的Bug','开发认为该现象符合设计，不是Bug','Bug太难修复','测试用例设计有问题'],
+   ans:1,exp:'Rejected（拒绝）：开发审查后认为该行为符合设计规格或不在负责范围内，不认为是Bug。遇到这种情况，测试人员应对照需求文档确认，有争议找产品经理裁决。'},
+
+  {q:'缺陷产生的根本原因不包括以下哪项？',
+   opts:['需求文档不清晰','测试人员不够细心','编码实现错误','软件运行环境问题'],
+   ans:1,exp:'缺陷产生的4个根本原因：需求文档问题、架构设计问题、编码实现问题、环境问题。"测试人员不够细心"不是缺陷产生的根本原因，而是缺陷被发现的概率问题。'},
+
+  {q:'非常规项目（银行/军队/航天）的回归测试策略是？',
+   opts:['只测新增模块','只测新增模块和关联旧模块','新增任何功能，必须全部复测','只测上次发现过Bug的模块'],
+   ans:2,exp:'非常规项目对质量要求极高，新增任何功能都必须进行全量回归测试。常规项目只需测新增模块及其关联的旧模块即可。'},
+
+  {q:'用Excel管理缺陷时，以下哪些字段是最关键的？',
+   opts:['缺陷ID、颜色、字体','缺陷ID、标题、状态、严重度、优先级、描述','只需要标题和状态','只需要缺陷ID和指派人'],
+   ans:1,exp:'Excel缺陷管理表最关键字段：缺陷ID（唯一标识）、标题（快速理解问题）、状态（跟踪进度）、严重度/优先级（决定修复顺序）、描述（复现步骤+预期+实际）。'},
+
+  {q:'以下哪个描述的是"功能错误"类型的缺陷？',
+   opts:['登录页面的按钮样式与设计稿不符','用户注册后没有收到欢迎邮件（需求有规定）','搜索功能速度较慢影响用户体验','系统在某些浏览器上无法正常运行'],
+   ans:1,exp:'功能错误：功能存在但行为不符合需求规定。注册后没有收到欢迎邮件（需求有规定）是功能行为不正确。按钮样式不符是UI错误，速度慢可能是性能或易用性问题，浏览器兼容问题是兼容性缺陷。'},
+
+  {q:'当开发说"这个Bug无法复现，我这里运行正常"，测试应该怎么做？',
+   opts:['接受开发的说法，关闭Bug','提供更详细的复现步骤，包括操作系统/浏览器版本等环境信息，请开发在相同环境下重现','直接升级到项目经理','删除这条Bug重新提交'],
+   ans:1,exp:'Bug无法复现时：①检查是否有环境差异（OS/浏览器版本、测试数据）②提供更详细的步骤和截图/视频③请开发在完全相同的环境下重现④若仍无法复现，升级或保留Bug待进一步分析。'},
+
+  {q:'以下关于缺陷生命周期的描述，哪个是正确的？',
+   opts:['缺陷一旦关闭（Closed）就不能再打开','Bug从New状态必须依次经过Open→Resolved→Closed','Postponed状态的Bug说明不是真正的Bug','缺陷关闭后如果下个版本又出现，测试人员需要重新提交或重新打开'],
+   ans:3,exp:'Postponed（延期）不代表不是Bug，而是确认是Bug但当前版本不修复，推迟到后续版本。如果已关闭的Bug在新版本又出现，应重新打开（Reopen）或重新提交。'},
+];
+
+/* ── CORE JS ── */
+const pages=document.querySelectorAll('.page');
+const tabs=document.querySelectorAll('.t');
+const vis=new Set([0]);
+function initDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  pages.forEach((_,i)=>{const dot=document.createElement('div');dot.className='dot'+(i===0?' da':'');dot.onclick=()=>gp(i,null);d.appendChild(dot);});
+}
+function gp(idx,tabEl){
+  pages.forEach(p=>p.classList.remove('vis'));pages[idx].classList.add('vis');
+  tabs.forEach(t=>t.classList.remove('a'));(tabEl||tabs[idx]).classList.add('a');
+  vis.add(idx);
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>{d.className='dot'+(vis.has(i)?i===idx?'dot da':'dot dn2':'dot');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initDots();
+
+function tp(i){
+  const b=document.getElementById('pb'+i);b.classList.toggle('open');
+  if(b.classList.contains('open')){const p=document.getElementById('ps'+i);if(p.classList.contains('ps-todo')){p.className='ps ps-do';p.textContent='进行中';}}
+}
+function cp(i){
+  const checks=document.querySelectorAll('#pb'+i+' input[type=checkbox]');
+  const done=[...checks].filter(c=>c.checked).length;
+  const ps=document.getElementById('ps'+i);
+  if(done===checks.length){ps.className='ps ps-done';ps.textContent='✅ 完成';}
+  else{ps.className='ps ps-do';ps.textContent=done+'/'+checks.length;}
+}
+
+let sel={},checked=false;
+function buildQ(){
+  sel={};checked=false;
+  document.getElementById('sa').style.display='none';
+  document.getElementById('qList').innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="qt"><span class="qn">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pq(${i},${j})">
+          <span class="ol">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp" id="e${i}">${q.exp}</div>
+    </div>`).join('');
+}
+function pq(qi,oi){
+  if(checked)return;
+  const p=sel[qi];if(p!==undefined)document.getElementById('o'+qi+'_'+p).classList.remove('sel');
+  sel[qi]=oi;document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+function sub(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const e=document.getElementById('e'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');e.className='exp ok-e';}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');e.className='exp no-e';}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('sa');
+  sa.style.cssText='display:flex;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px;'+(pct>=75?'background:#f0fdf4;border:1.5px solid #86efac;':'background:#fff1f2;border:1.5px solid #fca5a5;');
+  sa.innerHTML=`<div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+    <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 优秀！Day03掌握良好！':pct>=50?'⚠️ 良好，建议复习错题':'❌ 需要重新学习本章'}</div>
+    <div style="font-size:12px;color:var(--muted)">正确率 ${pct}% · 通过标准：≥75%（≥14题）</div></div>`;
+  sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rst(){buildQ();}
+buildQ();
+</script>
+</body>
+</html>
