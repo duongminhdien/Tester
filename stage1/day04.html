@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 04 · HTML基础与前端测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/source-han-sans-simplified-c-webfont@1.0.2/source-han-sans-simplified-c.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --day:#16a34a;--daybg:rgba(22,163,74,.08);--daybg2:rgba(22,163,74,.15);
+  --accent:#2563eb;--acbg:rgba(37,99,235,.08);
+  --green:#16a34a;--gbg:rgba(22,163,74,.09);--gbg2:rgba(22,163,74,.16);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.08);
+  --teal:#0891b2;--tbg:rgba(8,145,178,.09);
+  --orange:#ea580c;--obg:rgba(234,88,12,.08);
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --r:10px;--rlg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;letter-spacing:.01em}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* NAV */
+.dn{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--day);padding:5px 11px;border-radius:6px;margin-right:14px;white-space:nowrap;flex-shrink:0}
+.ts{display:flex;gap:0;flex:1;overflow-x:auto}
+.t{padding:13px 15px;font-size:12.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;user-select:none}
+.t:hover{color:var(--text);background:#f8f9fc}
+.t.a{color:var(--day);border-bottom-color:var(--day);font-weight:600}
+.td{display:flex;gap:5px;align-items:center;padding-left:12px;border-left:1px solid var(--border);margin-left:6px;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;cursor:pointer}
+.dot.dn2{background:var(--green)}.dot.da{background:var(--day);transform:scale(1.3)}
+
+/* PAGES */
+.page{display:none;max-width:920px;margin:0 auto;padding:28px 22px 70px}
+.page.vis{display:block}
+
+/* HERO */
+.hero{border-radius:var(--rlg);padding:26px 30px;margin-bottom:24px;border:1px solid}
+.hero-badge{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:10px;font-weight:700}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero-sub{font-size:13.5px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.htag{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+.hero-obj{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.obj{background:rgba(255,255,255,.75);border-radius:8px;padding:9px 12px;font-size:12.5px;display:flex;align-items:flex-start;gap:6px}
+.obj-ck{color:var(--green);font-weight:700;flex-shrink:0}
+
+/* SECTIONS */
+.sec{margin-bottom:24px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';display:block;width:3px;height:17px;background:var(--day);border-radius:2px;flex-shrink:0}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.ct{font-size:12.5px;font-weight:700;color:var(--day);margin-bottom:11px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+/* TAGS */
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin:1px}
+.tbl{background:var(--acbg);color:var(--accent)}.tgr{background:var(--gbg);color:var(--green)}
+.tam{background:var(--abg);color:var(--amber)}.trd{background:var(--rbg);color:var(--red)}
+.tpu{background:var(--pbg);color:var(--purple)}.ttl{background:var(--tbg);color:var(--teal)}
+.tor{background:var(--obg);color:var(--orange)}
+
+/* BOXES */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#78350f;line-height:1.75}
+.info{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#14532d;line-height:1.75}
+.danger{background:#fff1f2;border:1px solid #fecdd3;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#7f1d1d;line-height:1.75}
+.note{background:#eff6ff;border:1px solid #bfdbfe;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#1e40af;line-height:1.75}
+
+/* CODE BLOCKS */
+.code{background:#1e2030;border-radius:8px;padding:14px 16px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12px;line-height:1.9;color:#a6accd;overflow-x:auto;position:relative}
+.code .tag-c{color:#f87171}.code .attr{color:#fbbf24}.code .val{color:#86efac}
+.code .cmt{color:#546e7a;font-style:italic}.code .kw{color:#89ddff}
+.code-label{position:absolute;top:8px;right:10px;font-size:10px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace}
+
+/* TABLE */
+.tw{overflow-x:auto;margin:10px 0}
+.tbl2{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl2 th{background:#f0f3fa;padding:8px 11px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:11.5px}
+.tbl2 td{padding:7px 11px;border:1px solid var(--border);color:#3a4158;vertical-align:top;line-height:1.6}
+.tbl2 tr:nth-child(even) td{background:#fafbfd}
+
+/* TAG CARDS */
+.tag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0}
+.tag-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;transition:all .2s}
+.tag-card:hover{border-color:var(--day);transform:translateY(-1px)}
+.tag-card-name{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--day);margin-bottom:6px}
+.tag-card-desc{font-size:12.5px;color:var(--muted);margin-bottom:8px;line-height:1.6}
+.tag-card-test{background:var(--rbg);border-radius:5px;padding:6px 10px;font-size:12px;color:var(--red);line-height:1.6}
+.tag-card-test::before{content:'🔴 测试点：';font-weight:700}
+
+/* BROWSER MOCK */
+.browser{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;margin:14px 0}
+.browser-bar{background:#e8ecf4;padding:8px 13px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.bd{width:9px;height:9px;border-radius:50%}
+.br{background:#ff5f57}.by{background:#febc2e}.bg{background:#28c840}
+.browser-url{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:5px;padding:3px 11px;margin-left:6px;flex:1}
+.browser-body{padding:16px 18px;background:var(--white)}
+
+/* GET/POST COMPARE */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.cmp-box{border-radius:var(--rlg);padding:16px 18px;border:1.5px solid}
+.cmp-title{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;font-family:'Space Mono',monospace}
+.cmp-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.06);font-size:12.5px;line-height:1.6}
+.cmp-item:last-child{border-bottom:none}
+
+/* THREE CORES */
+.three-cores{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}
+.core-card{border-radius:var(--rlg);padding:18px 16px;text-align:center;border:2px solid}
+.core-icon{font-size:28px;margin-bottom:10px}
+.core-name{font-size:15px;font-weight:700;margin-bottom:5px}
+.core-desc{font-size:12px;line-height:1.65}
+
+/* INTERVIEW */
+.iq{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:8px;overflow:hidden}
+.iq.open{border-color:var(--day)}
+.iq-hdr{padding:13px 17px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;user-select:none}
+.iq-lv{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.lv-b{background:var(--gbg);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.lv-m{background:var(--abg);color:var(--amber);border:1px solid rgba(217,119,6,.3)}
+.lv-h{background:var(--rbg);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.lv-t{background:var(--daybg);color:var(--day);border:1px solid rgba(22,163,74,.3)}
+.iq-q{font-size:13.5px;font-weight:600;flex:1;line-height:1.5}
+.iq-arr{color:var(--dim);font-size:11px;flex-shrink:0;transition:transform .2s;margin-top:3px}
+.iq.open .iq-arr{transform:rotate(90deg)}
+.iq-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.iq.open .iq-body{max-height:1200px}
+.iq-inner{padding:0 17px 16px}
+.iq-ans{background:#f0fdf4;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;line-height:1.85;color:#3a4158;margin-bottom:8px}
+.iq-ans b{color:var(--text)}
+.iq-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#78350f;margin-bottom:6px}
+.iq-trap{background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#7f1d1d;margin-bottom:6px}
+
+/* PRACTICE */
+.prac{border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:12px;overflow:hidden}
+.prac-hdr{display:flex;align-items:center;gap:11px;padding:13px 17px;cursor:pointer;user-select:none;background:var(--white);transition:background .15s}
+.prac-hdr:hover{background:#f8f9fc}
+.prac-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:#fff;flex-shrink:0}
+.prac-t{font-size:13.5px;font-weight:600;flex:1}
+.ps{font-size:10px;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace;flex-shrink:0}
+.ps-todo{background:#f0f2f7;color:var(--dim)}.ps-do{background:var(--daybg);color:var(--day)}.ps-done{background:var(--gbg2);color:var(--green)}
+.prac-body{display:none;padding:0 17px 17px;background:var(--white);border-top:1px solid var(--border)}
+.prac-body.open{display:block}
+.task-box{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:11px 0}
+.task-lbl{font-size:10.5px;font-weight:700;color:var(--day);font-family:'Space Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.ci{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ci:last-child{border-bottom:none}
+.ci input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.ci span{font-size:13px;color:#3a4158}
+.ci input:checked+span{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(22,163,74,.4)}
+
+/* INTERACTIVE DEMO */
+.demo-wrap{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:16px;margin:12px 0}
+.demo-label{font-size:11px;font-weight:700;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.demo-result{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:12px 14px;min-height:40px;font-size:13.5px}
+.demo-btn{padding:6px 16px;background:var(--day);color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;margin-top:8px}
+.demo-btn:hover{opacity:.88}
+
+/* QUIZ */
+.quiz-q{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:17px 20px;margin-bottom:10px}
+.qn{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--day);background:var(--daybg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.qt{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;width:100%}
+.opt:hover:not(:disabled){border-color:rgba(22,163,74,.35);background:var(--daybg)}
+.ol{width:20px;height:20px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(22,163,74,.35);background:var(--daybg)}.opt.sel .ol{background:var(--green);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .ol{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .ol{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.exp.ok-e{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
+.exp.no-e{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
+.q-acts{display:flex;gap:8px;margin-top:18px}
+.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.bs:hover{opacity:.88}
+.br2{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.br2:hover{background:#f0f2f7;color:var(--text)}
+.sa{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
+
+/* PAGE NAV */
+.pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
+.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pb:hover{background:var(--daybg);border-color:rgba(22,163,74,.3);color:var(--day)}
+.pb.nx{background:var(--day);color:#fff;border-color:var(--day)}
+.pb.nx:hover{opacity:.9}
+
+@media(max-width:640px){
+  .three-box,.eq-flow,.bv-grid,.arch-grid,.three-cores,.opt-grid,.method-grid,.tp-grid,.el-grid,.std-grid,.tag-grid,.eight-grid,.sp-grid,.do-dont,.compare-grid,.eq-class-grid,.flow-hex,.hero-obj,.qm-grid{grid-template-columns:1fr!important}
+  .sp-grid,.do-dont,.compare-grid,.eq-class-grid{grid-template-columns:1fr!important}
+  .dn{flex-wrap:wrap;padding:6px 12px;gap:4px}
+  .db{margin:4px 0;font-size:9px}
+  .ts{width:100%;overflow-x:auto}
+  .t{padding:9px 11px;font-size:11.5px}
+  .td{display:none}
+  .page{padding:16px 14px 60px}
+  .hero{padding:18px 16px}
+  .hero-title{font-size:18px}
+  .card{padding:15px 16px}
+  .pnav{flex-direction:column;gap:8px}
+  .pb{justify-content:center}
+  .qt{font-size:13px}
+  .iq-q{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="dn">
+  <div class="db">Day 04 · 阶段一</div>
+  <div class="ts">
+    <div class="t a" onclick="gp(0,this)">📖 知识讲解</div>
+    <div class="t" onclick="gp(1,this)">🖼️ 图解演示</div>
+    <div class="t" onclick="gp(2,this)">🛠️ 实战练习</div>
+    <div class="t" onclick="gp(3,this)">💬 面试精讲</div>
+    <div class="t" onclick="gp(4,this)">✅ 测验(15题)</div>
+  </div>
+  <div class="td" id="dots"></div>
+</nav>
+
+<!-- ════ PAGE 0 — 知识讲解 ════ -->
+<div class="page vis" id="p0">
+  <div class="hero" style="background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 40%,#eff6ff 100%);border-color:#86efac">
+    <div class="hero-badge" style="background:rgba(22,163,74,.12);color:#15803d;border:1px solid rgba(22,163,74,.3)">Day 04 · 第一阶段 — 测试基础</div>
+    <div class="hero-title">HTML 基础 · 前端三大核心 · 测试人员必知</div>
+    <div class="hero-sub">测试人员不需要会写代码，但必须能读懂 HTML 页面结构，识别测试点，理解 GET/POST 区别，并能对前端页面进行有效测试。</div>
+    <div class="hero-tags">
+      <span class="htag">⏱ 预计 50 分钟</span>
+      <span class="htag">🏷️ 常用标签与测试点</span>
+      <span class="htag">📋 表单 GET/POST 详解</span>
+      <span class="htag">✅ 15道测验题</span>
+    </div>
+    <div class="hero-obj">
+      <div class="obj"><span class="obj-ck">✓</span><span>了解前端三大核心（HTML/CSS/JS）</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握常见HTML标签的作用和测试点</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>理解 GET vs POST 的核心区别</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能对登录页面设计完整测试用例</span></div>
+    </div>
+  </div>
+
+  <!-- 一、前端三大核心 -->
+  <div class="sec">
+    <div class="sec-title">一、前端三大核心技术</div>
+    <div class="card">
+      <div class="three-cores">
+        <div class="core-card" style="background:#fef9c3;border-color:#fde047">
+          <div class="core-icon">🏗️</div>
+          <div class="core-name" style="color:#854d0e">HTML</div>
+          <div class="core-desc" style="color:#78350f">超文本标记语言<br>定义页面<b>结构和内容</b><br>由一套标记标签组成</div>
+        </div>
+        <div class="core-card" style="background:#dbeafe;border-color:#93c5fd">
+          <div class="core-icon">🎨</div>
+          <div class="core-name" style="color:#1d4ed8">CSS</div>
+          <div class="core-desc" style="color:#1e3a8a">层叠样式表<br>控制页面<b>外观和布局</b><br>颜色、字体、位置</div>
+        </div>
+        <div class="core-card" style="background:#fce7f3;border-color:#f9a8d4">
+          <div class="core-icon">⚡</div>
+          <div class="core-name" style="color:#9d174d">JavaScript</div>
+          <div class="core-desc" style="color:#831843">脚本语言<br>实现页面<b>交互和动态</b><br>按钮点击、表单验证</div>
+        </div>
+      </div>
+      <div class="info">📌 <b>测试人员的定位：</b>不需要写代码，但要能<b>读懂结构</b>（HTML）、识别<b>交互逻辑</b>（JS）、发现<b>样式问题</b>（CSS）。</div>
+    </div>
+  </div>
+
+  <!-- 二、HTML 骨架 -->
+  <div class="sec">
+    <div class="sec-title">二、HTML 骨架结构</div>
+    <div class="card">
+      <div class="ct">01 — 标签分类</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0">
+        <div style="background:var(--gbg);border:1.5px solid rgba(22,163,74,.3);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--green);margin-bottom:5px">单标签</div>
+          <div style="background:#1e2030;border-radius:5px;padding:7px;font-family:'Space Mono',monospace;font-size:12px;color:#86efac">&lt;标签名 /&gt;</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">自闭合，无内容<br>例：&lt;br /&gt; &lt;img /&gt;</div>
+        </div>
+        <div style="background:var(--acbg);border:1.5px solid rgba(37,99,235,.25);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px">双标签</div>
+          <div style="background:#1e2030;border-radius:5px;padding:7px;font-family:'Space Mono',monospace;font-size:11px;color:#93c5fd">&lt;标签名&gt;&lt;/标签名&gt;</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">有开始有结束<br>例：&lt;p&gt;&lt;/p&gt;</div>
+        </div>
+        <div style="background:var(--abg);border:1.5px solid rgba(217,119,6,.25);border-radius:var(--r);padding:12px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--amber);margin-bottom:5px">属性</div>
+          <div style="background:#1e2030;border-radius:5px;padding:7px;font-family:'Space Mono',monospace;font-size:11px;color:#fbbf24">属性名="属性值"</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">描述标签特征<br>例：href="url"</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">02 — 完整骨架结构</div>
+      <div class="code">
+<span class="cmt">&lt;!-- 声明文档类型 --&gt;</span>
+<span class="tag-c">&lt;!DOCTYPE</span> <span class="attr">html</span><span class="tag-c">&gt;</span>
+<span class="tag-c">&lt;html&gt;</span>                   <span class="cmt">&lt;!-- 根标签，所有内容放这里 --&gt;</span>
+  <span class="tag-c">&lt;head&gt;</span>                 <span class="cmt">&lt;!-- 头部标签，配置信息 --&gt;</span>
+    <span class="tag-c">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span><span class="tag-c">&gt;</span>   <span class="cmt">&lt;!-- 字符编码 --&gt;</span>
+    <span class="tag-c">&lt;title&gt;</span>传智播客黑马程序员<span class="tag-c">&lt;/title&gt;</span>  <span class="cmt">&lt;!-- 页面标题 --&gt;</span>
+  <span class="tag-c">&lt;/head&gt;</span>
+  <span class="tag-c">&lt;body&gt;</span>                 <span class="cmt">&lt;!-- 身体标签，代码编写区域 --&gt;</span>
+    <span class="cmt">&lt;!-- 这里写页面内容 --&gt;</span>
+  <span class="tag-c">&lt;/body&gt;</span>
+<span class="tag-c">&lt;/html&gt;</span>
+      </div>
+      <div class="tip">💡 <b>注释测试点（面试高频）：</b>前端页面上线之前，测试人员需要<b>检查注释</b>——注释中可能包含敏感信息（密码、内部接口地址、开发调试信息），必须在上线前清除！快捷键：<code style="background:#f0f2f7;padding:1px 5px;border-radius:3px">Ctrl+/</code></div>
+    </div>
+  </div>
+
+  <!-- 三、常见标签 -->
+  <div class="sec">
+    <div class="sec-title">三、常见 HTML 标签 & 测试点</div>
+    <div class="tag-grid">
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;h1&gt; ~ &lt;h6&gt; 标题标签</div>
+        <div class="tag-card-desc">h1最大，h6最小。独占一行，具有语义化特征。</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;h1&gt;我是h1&lt;/h1&gt;<br>&lt;h6&gt;我是h6&lt;/h6&gt;</div>
+        <div class="tag-card-test">标题层级是否正确，SEO 相关</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;p&gt; 段落标签</div>
+        <div class="tag-card-desc">语义化，独占一行（块元素），前后自动留空行。</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;p&gt;我是段落&lt;/p&gt;</div>
+        <div class="tag-card-test">文本是否正确显示，段落间距</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;a&gt; 超链接标签</div>
+        <div class="tag-card-desc">点击文本跳转到指定页面。href=跳转地址；target=打开方式（_blank新窗口）。</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;a href="https://..." target="_blank"&gt;<br>  点击跳转<br>&lt;/a&gt;</div>
+        <div class="tag-card-test">链接是否有效、target是否正确、点击区域是否合理</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;img&gt; 图片标签（单标签）</div>
+        <div class="tag-card-desc">src=图片路径；title=悬停文字；alt=未加载时提示；width/height=尺寸。</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;img src="pic.jpg" title="悬停文字"<br>  alt="未加载提示" width="100"/&gt;</div>
+        <div class="tag-card-test">必须有 title 属性；alt 图片未加载时显示；图片路径正确</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;div&gt; / &lt;span&gt; 布局标签</div>
+        <div class="tag-card-desc">div：大盒子，独占一行（块元素）<br>span：小盒子，一行可放多个（行内元素）</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;div&gt;独占一行&lt;/div&gt;<br>&lt;span&gt;内联1&lt;/span&gt;&lt;span&gt;内联2&lt;/span&gt;</div>
+        <div class="tag-card-test">页面布局是否正确，响应式适配</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;ul&gt;/&lt;ol&gt; 列表标签</div>
+        <div class="tag-card-desc">ul=无序列表（●）；ol=有序列表（1.2.3.）；li=列表项</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;ul&gt;&lt;li&gt;测试&lt;/li&gt;&lt;li&gt;开发&lt;/li&gt;&lt;/ul&gt;</div>
+        <div class="tag-card-test">列表项数量、排序是否正确</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;br&gt; / &amp;nbsp; 换行与空格</div>
+        <div class="tag-card-desc">br=换行（单标签）；&amp;nbsp;=空格字符实体（& + shift+7）</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">黑马&lt;br /&gt;软件&amp;nbsp;&amp;nbsp;测试</div>
+        <div class="tag-card-test">换行位置是否符合设计，间距是否统一</div>
+      </div>
+      <div class="tag-card">
+        <div class="tag-card-name">&lt;script&gt;/&lt;style&gt;/&lt;link&gt;</div>
+        <div class="tag-card-desc">script=引入JS；style=内联CSS；link=外部CSS文件</div>
+        <div style="background:#1e2030;border-radius:5px;padding:8px 10px;margin:7px 0;font-family:'Space Mono',monospace;font-size:11px;color:#a6accd">&lt;script&gt;// JS代码&lt;/script&gt;<br>&lt;link rel="stylesheet" href="s.css"&gt;</div>
+        <div class="tag-card-test">资源是否正常加载，是否存在死链</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 四、Input & Form -->
+  <div class="sec">
+    <div class="sec-title">四、表单元素（Input & Form）— 测试核心</div>
+    <div class="card">
+      <div class="ct">03 — Input 标签类型（测试重点）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>type值</th><th>元素类型</th><th>示例代码</th><th>测试点</th></tr>
+        <tr><td><span class="tag tbl">text</span></td><td>文本框</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="text"&gt;</code></td><td>输入内容、最大长度、特殊字符</td></tr>
+        <tr><td><span class="tag trd">password</span></td><td>密码框</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="password"&gt;</code></td><td>是否加密显示（●●●）、强度验证</td></tr>
+        <tr><td><span class="tag tgr">radio</span></td><td>单选按钮</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="radio" name="one"&gt;</code></td><td>同组（同name）只能选一个、默认值</td></tr>
+        <tr><td><span class="tag tgr">checkbox</span></td><td>复选框</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="checkbox"&gt;</code></td><td>多选、全选、反选功能</td></tr>
+        <tr><td><span class="tag tpu">submit</span></td><td>提交按钮</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="submit"&gt;</code></td><td>提交表单数据，value属性改按钮文字</td></tr>
+        <tr><td><span class="tag tam">reset</span></td><td>重置按钮</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="reset"&gt;</code></td><td>恢复所有字段为默认值</td></tr>
+        <tr><td><span class="tag ttl">button</span></td><td>普通按钮</td><td><code style="font-size:11px;background:#f0f2f7;padding:1px 5px;border-radius:3px">&lt;input type="button" value="点我"&gt;</code></td><td>默认无执行效果，需配合JS；value赋值</td></tr>
+      </table></div>
+      <div class="danger"><b>🔴 单选按钮测试要点：</b>必须给同一组的 radio 设置<b>相同的 name 属性值</b>，才能实现单选效果。如果 name 不同，每个都可以独立选中，这是 Bug！</div>
+      <div class="tip">⚠️ <b>按钮测试要点：</b>普通按钮（type=button）默认没有任何执行效果，需要配合 JS 实现。统一使用 <b>value 属性</b>来设置按钮显示文字。</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">04 — Form 标签 & GET vs POST（核心考点）</div>
+      <div class="body" style="margin-bottom:12px">
+        <b>form 标签的作用：</b>将页面输入的数据提交到后台或指定页面。<br>
+        关键属性：<code style="background:#f0f2f7;padding:1px 5px;border-radius:3px">action</code>（提交到哪个地址）+ <code style="background:#f0f2f7;padding:1px 5px;border-radius:3px">method</code>（提交方式 get/post）
+      </div>
+      <div class="compare-grid">
+        <div class="cmp-box" style="background:#eff6ff;border-color:#bfdbfe">
+          <div class="cmp-title" style="color:var(--accent)">🔵 GET 方法</div>
+          <div class="cmp-item" style="color:#1e40af"><span>📌</span><span>参数在 <b>URL 中明文显示</b>（可见）</span></div>
+          <div class="cmp-item" style="color:#1e40af"><span>⚡</span><span>提交速度<b>较快</b></span></div>
+          <div class="cmp-item" style="color:#1e40af"><span>📏</span><span>参数长度有<b>限制</b>（约2KB）</span></div>
+          <div class="cmp-item" style="color:#1e40af"><span>🔍</span><span>适合：<b>查询操作</b>（搜索、分页）</span></div>
+          <div style="background:#dbeafe;border-radius:5px;padding:7px 10px;margin-top:8px;font-family:'Space Mono',monospace;font-size:11px;color:#1d4ed8">?username=admin&password=123</div>
+        </div>
+        <div class="cmp-box" style="background:#fef9c3;border-color:#fde047">
+          <div class="cmp-title" style="color:#854d0e">🟡 POST 方法</div>
+          <div class="cmp-item" style="color:#78350f"><span>🔒</span><span>参数在 <b>请求体中</b>，URL 不可见</span></div>
+          <div class="cmp-item" style="color:#78350f"><span>🐢</span><span>提交速度<b>相对较慢</b></span></div>
+          <div class="cmp-item" style="color:#78350f"><span>∞</span><span>参数长度<b>无限制</b></span></div>
+          <div class="cmp-item" style="color:#78350f"><span>✍️</span><span>适合：<b>登录、注册、提交数据</b></span></div>
+          <div style="background:#fef3c7;border-radius:5px;padding:7px 10px;margin-top:8px;font-family:'Space Mono',monospace;font-size:11px;color:#92400e">请求体中：{username:admin, password:123}</div>
+        </div>
+      </div>
+      <div class="danger"><b>🔴 高频面试题：GET 和 POST 的区别？</b><br>
+        ① GET 参数 URL 明文可见，POST 在请求体不可见<br>
+        ② GET 有长度限制，POST 无限制<br>
+        ③ GET 用于查询，POST 用于提交数据（登录/注册）<br>
+        ④ GET 速度快（无请求体），POST 慢（需处理请求体）<br>
+        ⑤ <b>安全性：POST 更安全</b>（密码不在URL暴露）
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">05 — 完整 Form 表单示例代码</div>
+      <div class="code">
+<span class="tag-c">&lt;form</span> <span class="attr">action</span>=<span class="val">"接受数据.html"</span> <span class="attr">method</span>=<span class="val">"post"</span><span class="tag-c">&gt;</span>
+  用户名：<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"text"</span> <span class="attr">name</span>=<span class="val">"username"</span><span class="tag-c">/&gt;</span>
+  密码框：<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"password"</span> <span class="attr">name</span>=<span class="val">"password"</span><span class="tag-c">/&gt;</span>
+
+  <span class="cmt">&lt;!-- 单选：同name属性为一组，才能单选 --&gt;</span>
+  性别：
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"radio"</span> <span class="attr">name</span>=<span class="val">"sex"</span><span class="tag-c">/&gt;</span>男
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"radio"</span> <span class="attr">name</span>=<span class="val">"sex"</span><span class="tag-c">/&gt;</span>女
+
+  您的爱好：
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"checkbox"</span><span class="tag-c">/&gt;</span>挣钱
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"checkbox"</span><span class="tag-c">/&gt;</span>学习
+
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"submit"</span><span class="tag-c">/&gt;</span>   <span class="cmt">&lt;!-- 提交按钮 --&gt;</span>
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"reset"</span><span class="tag-c">/&gt;</span>    <span class="cmt">&lt;!-- 重置按钮 --&gt;</span>
+  <span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"button"</span> <span class="attr">value</span>=<span class="val">"点我试试"</span><span class="tag-c">/&gt;</span>  <span class="cmt">&lt;!-- 普通按钮，需配合JS --&gt;</span>
+<span class="tag-c">&lt;/form&gt;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 五、路径 -->
+  <div class="sec">
+    <div class="sec-title">五、路径类型（相对路径 & 绝对路径）</div>
+    <div class="card">
+      <div class="ct">06 — 路径详解</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>路径类型</th><th>说明</th><th>示例</th><th>测试点</th></tr>
+        <tr>
+          <td><span class="tag tgr">相对路径</span></td>
+          <td>以当前文件为起点<br>同级：<code>./</code><br>上一级：<code>../</code></td>
+          <td><code>&lt;img src="../img/pic.jpg"&gt;</code></td>
+          <td>部署时路径是否仍然有效</td>
+        </tr>
+        <tr>
+          <td><span class="tag trd">绝对路径</span></td>
+          <td>完整的磁盘或网络路径</td>
+          <td><code>C:\Users\img\01.jpg</code></td>
+          <td>⚠️ 开发环境能用，生产环境路径失效！</td>
+        </tr>
+      </table></div>
+      <div class="danger"><b>🔴 路径测试要点：</b>代码中不能出现绝对路径（如 C:\Users\... 的本机路径），上线后路径会失效导致图片/资源无法加载！测试时要验证所有资源在测试环境正常加载。</div>
+    </div>
+  </div>
+
+  <div class="pnav"><div></div><button class="pb nx" onclick="gp(1,null)">图解演示 →</button></div>
+</div>
+
+<!-- ════ PAGE 1 — 图解演示 ════ -->
+<div class="page" id="p1">
+  <div class="sec">
+    <div class="sec-title">HTML 标签效果 — 浏览器渲染预览</div>
+    <div class="card">
+      <div class="ct">标题标签 h1~h6 效果</div>
+      <div class="browser">
+        <div class="browser-bar"><div class="bd br"></div><div class="bd by"></div><div class="bd bg"></div><div class="browser-url">01-标题与段落.html</div></div>
+        <div class="browser-body">
+          <h1 style="font-size:2em;font-weight:700;margin:4px 0">我是 h1 标题（最大）</h1>
+          <h2 style="font-size:1.5em;font-weight:700;margin:4px 0">我是 h2 标题</h2>
+          <h3 style="font-size:1.17em;font-weight:700;margin:4px 0">我是 h3 标题</h3>
+          <h4 style="font-size:1em;font-weight:700;margin:4px 0">我是 h4 标题</h4>
+          <h5 style="font-size:.83em;font-weight:700;margin:4px 0">我是 h5 标题</h5>
+          <h6 style="font-size:.67em;font-weight:700;margin:4px 0">我是 h6 标题（最小）</h6>
+          <hr style="margin:10px 0;border-color:var(--border)">
+          <p style="margin:6px 0">我是段落1 — p 标签独占一行，前后有间距</p>
+          <p style="margin:6px 0">我是段落2 — 两个 p 标签之间自动换行</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">超链接 & 图片标签</div>
+      <div class="browser">
+        <div class="browser-bar"><div class="bd br"></div><div class="bd by"></div><div class="bd bg"></div><div class="browser-url">03-超链接.html</div></div>
+        <div class="browser-body">
+          <a href="#" style="color:#2563eb;text-decoration:underline">点击我打开百度（新窗口）</a>
+          <br style="margin:8px 0">
+          <a href="#" style="color:#2563eb;text-decoration:underline">点击我打开本地文件（同窗口）</a>
+          <hr style="margin:12px 0;border-color:var(--border)">
+          <div style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;color:var(--muted);background:#f8f9fc">
+            <div style="font-size:24px;margin-bottom:6px">🖼️</div>
+            <div style="font-size:12px">img 标签：鼠标悬停显示 title 文字<br>图片未加载时显示 alt 文字</div>
+            <div style="margin-top:10px;background:var(--daybg);border-radius:5px;padding:6px 12px;font-size:12px;color:var(--green)">
+              <b>测试点：</b>img 必须有 title 属性！
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">完整表单 — 可交互演示</div>
+    <div class="card">
+      <div class="ct">Form 表单各元素效果 + GET参数演示</div>
+      <div class="browser">
+        <div class="browser-bar"><div class="bd br"></div><div class="bd by"></div><div class="bd bg"></div><div class="browser-url" id="formUrl">form.html</div></div>
+        <div class="browser-body">
+          <div style="display:grid;gap:12px;max-width:400px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <label style="width:70px;font-size:13px;color:var(--muted)">用户名：</label>
+              <input type="text" id="demoUser" placeholder="输入用户名" style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <label style="width:70px;font-size:13px;color:var(--muted)">密 码：</label>
+              <input type="password" id="demoPwd" placeholder="密码（加密显示）" style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <label style="width:70px;font-size:13px;color:var(--muted)">性 别：</label>
+              <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="sex" value="male"> 男</label>
+              <label style="display:flex;align-items:center;gap:4px;margin-left:12px"><input type="radio" name="sex" value="female"> 女</label>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <label style="width:70px;font-size:13px;color:var(--muted);padding-top:4px">爱 好：</label>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <label style="display:flex;align-items:center;gap:4px"><input type="checkbox"> 挣钱</label>
+                <label style="display:flex;align-items:center;gap:4px"><input type="checkbox"> 学习</label>
+                <label style="display:flex;align-items:center;gap:4px"><input type="checkbox"> 旅游</label>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
+              <button onclick="submitGet()" style="padding:8px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer">GET提交</button>
+              <button onclick="submitPost()" style="padding:8px;background:#16a34a;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer">POST提交</button>
+              <button onclick="resetForm()" style="padding:8px;background:#f0f2f7;color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer">重置</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-wrap" style="margin-top:12px">
+        <div class="demo-label">提交结果对比</div>
+        <div id="getResult" style="display:none;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px">🔵 GET — URL参数明文可见：</div>
+          <div id="getUrl" style="background:#1e2030;border-radius:6px;padding:10px 14px;font-family:'Space Mono',monospace;font-size:12px;color:#93c5fd;word-break:break-all"></div>
+          <div style="font-size:12px;color:var(--red);margin-top:5px">⚠️ 注意：密码在URL中暴露，非常不安全！</div>
+        </div>
+        <div id="postResult" style="display:none">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:5px">🟢 POST — 参数在请求体中，URL不显示参数：</div>
+          <div style="background:#1e2030;border-radius:6px;padding:10px 14px;font-family:'Space Mono',monospace;font-size:12px;color:#86efac">URL: form.html （无参数！）</div>
+          <div id="postBody" style="background:#1e2030;border-radius:6px;padding:10px 14px;font-family:'Space Mono',monospace;font-size:12px;color:#a6accd;margin-top:5px"></div>
+          <div style="font-size:12px;color:var(--green);margin-top:5px">✅ 参数在请求体中传输，密码不暴露在URL。</div>
+        </div>
+        <div id="noResult" style="font-size:13px;color:var(--muted)">👆 点击 GET提交 或 POST提交 查看区别</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">注释测试点 — 代码扫描示例</div>
+    <div class="card">
+      <div class="ct">前端页面注释中可能暴露的敏感信息</div>
+      <div class="code">
+<span class="cmt">&lt;!-- 以下是开发调试信息，上线前应删除！ --&gt;</span>
+<span class="cmt">&lt;!-- 测试账号：admin / password123 --&gt;</span>     <span style="color:#f87171">← ❌ 危险！</span>
+<span class="cmt">&lt;!-- API地址：http://internal.api.com/v2 --&gt;</span>  <span style="color:#f87171">← ❌ 暴露内网</span>
+<span class="cmt">&lt;!-- TODO: 这里的验证逻辑有问题，先绕过 --&gt;</span>   <span style="color:#f87171">← ❌ 绕过验证</span>
+<span class="cmt">&lt;!-- 数据库密码：db_pass_2024 --&gt;</span>            <span style="color:#f87171">← ❌ 严重漏洞</span>
+
+<span class="cmt">&lt;!-- ✅ 正常注释（可保留）：--&gt;</span>
+<span class="cmt">&lt;!-- 导航栏组件 --&gt;</span>
+<span class="tag-c">&lt;nav&gt;</span>...<span class="tag-c">&lt;/nav&gt;</span>
+      </div>
+      <div class="danger"><b>🔴 测试人员必须在页面上线前检查：</b>右键 → 查看源代码（Ctrl+U），搜索注释标记 &lt;!-- → 检查是否含密码、内网地址、调试信息、TODO等敏感内容！</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(0,null)">← 知识讲解</button>
+    <button class="pb nx" onclick="gp(2,null)">实战练习 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 2 — 实战练习 ════ -->
+<div class="page" id="p2">
+  <div class="sec">
+    <div class="sec-title">实战练习 — 3个任务</div>
+
+    <div class="prac" id="pr0">
+      <div class="prac-hdr" onclick="tp(0)">
+        <div class="prac-n" style="background:var(--day)">P1</div>
+        <div class="prac-t">🔍 识别HTML代码中的测试点</div>
+        <div class="ps ps-todo" id="ps0">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb0">
+        <div class="task-box">
+          <div class="task-lbl">任务说明</div>
+          <div class="body">阅读以下HTML代码，找出所有测试点和潜在问题</div>
+        </div>
+        <div class="code" style="font-size:12.5px">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;登录页面&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  <span style="color:#f87171">&lt;!-- 测试账号：test / 123456 密码 --&gt;</span>  <span style="color:#fbbf24">← 问题①</span>
+  &lt;img src="logo.png" /&gt;                         <span style="color:#fbbf24">← 问题②</span>
+  &lt;form action="login.php" method="get"&gt;         <span style="color:#fbbf24">← 问题③</span>
+    用户名：&lt;input type="text" name="user"&gt;
+    密 码：&lt;input type="password" name="pwd"&gt;
+    &lt;input type="radio" /&gt;记住我                  <span style="color:#fbbf24">← 问题④</span>
+    &lt;input type="radio" /&gt;不记住
+    &lt;img src="C:\Users\dev\logo2.png" /&gt;          <span style="color:#fbbf24">← 问题⑤</span>
+    &lt;input type="submit" value="登录"&gt;
+  &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">
+          <div style="border:2px dashed var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.style.borderColor='var(--red)';this.innerHTML='<b style=color:var(--red)>问题①：</b>注释中包含测试账号密码，上线前必须删除！';this.style.color='var(--text)'">👆 点击揭示问题①</div>
+          <div style="border:2px dashed var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.style.borderColor='var(--amber)';this.innerHTML='<b style=color:var(--amber)>问题②：</b>img标签缺少 title 和 alt 属性，不符合测试规范！';this.style.color='var(--text)'">👆 点击揭示问题②</div>
+          <div style="border:2px dashed var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.style.borderColor='var(--red)';this.innerHTML='<b style=color:var(--red)>问题③：</b>登录表单使用GET方法！密码会明文显示在URL中，严重安全问题，应改为POST！';this.style.color='var(--text)'">👆 点击揭示问题③</div>
+          <div style="border:2px dashed var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.style.borderColor='var(--amber)';this.innerHTML='<b style=color:var(--amber)>问题④：</b>两个radio没有设置相同的name属性，无法实现单选效果，两个都可以同时选中！';this.style.color='var(--text)'">👆 点击揭示问题④</div>
+          <div style="border:2px dashed var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.style.borderColor='var(--red)';this.innerHTML='<b style=color:var(--red)>问题⑤：</b>绝对路径 C:\\Users\\... 是本机路径，部署到服务器后图片无法加载！应改为相对路径。';this.style.color='var(--text)'">👆 点击揭示问题⑤</div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我找到了5处问题</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我理解为什么登录不能用GET方法</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我知道单选按钮需要相同name属性</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="prac" id="pr1">
+      <div class="prac-hdr" onclick="tp(1)">
+        <div class="prac-n" style="background:var(--accent)">P2</div>
+        <div class="prac-t">📋 设计登录模块完整测试用例</div>
+        <div class="ps ps-todo" id="ps1">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb1">
+        <div class="task-box">
+          <div class="task-lbl">登录页面需求说明（来自 Day04 课堂）</div>
+          <div class="body">
+            <b>1. 输入手机号（11位中国手机号）：</b><br>
+            文本框失去焦点时验证，红色=失败，绿色=成功<br><br>
+            <b>2. 点击发送验证码：</b><br>
+            手机号绿色→弹出"点击按钮进行验证"；手机号红色→提示不正确<br><br>
+            <b>3. 点击按钮进行验证（拖拽验证）：</b><br>
+            拖拽图形到指定位置→按钮消失；未到位→晃动提醒，回到原位；超过5次→提示"尝试过多"<br><br>
+            <b>4. 输入验证码：</b><br>
+            正确验证码 + 勾选协议 → 登录进入系统<br>
+            错误验证码 + 勾选协议 → 提示验证码错误<br>
+            正确验证码 + 未勾选协议 → 提示请勾选<br><br>
+            <b>5. 点击登录：</b>手机号、验证码均绿色，勾选协议 → 登录成功
+          </div>
+        </div>
+        <div class="task-box" style="background:#f0fdf4;border-color:#bbf7d0;margin-top:10px">
+          <div class="task-lbl" style="color:var(--green)">参考测试用例表</div>
+          <div class="tw"><table class="tbl2" style="font-size:12px">
+            <tr><th>编号</th><th>标题</th><th>前置条件</th><th>步骤</th><th>数据</th><th>预期</th></tr>
+            <tr><td>login_001</td><td>登录成功</td><td>打开登录页</td><td>1.输入手机号 2.拖拽验证 3.输入验证码 4.勾选协议 5.点击登录</td><td>手机：正确11位；验证码：正确；协议：勾选</td><td>登录成功，进入系统</td></tr>
+            <tr><td>login_002</td><td>手机号失去焦点验证（正确）</td><td>打开登录页</td><td>1.输入手机号 2.点击其他区域</td><td>正确11位手机号</td><td>输入框变绿色</td></tr>
+            <tr><td>login_003</td><td>手机号失去焦点验证（错误）</td><td>打开登录页</td><td>1.输入手机号 2.点击其他区域</td><td>10位手机号</td><td>输入框变红色</td></tr>
+            <tr><td>login_004</td><td>手机号红色时发送验证码</td><td>手机号红色状态</td><td>点击发送验证码</td><td>—</td><td>提示手机号不正确</td></tr>
+            <tr><td>login_005</td><td>拖拽验证超过5次</td><td>拖拽验证界面</td><td>拖拽失败5次以上</td><td>—</td><td>提示"尝试过多，请点击重试"</td></tr>
+            <tr><td>login_006</td><td>验证码正确未勾选协议</td><td>已完成验证</td><td>1.输入验证码 2.不勾选协议 3.点击登录</td><td>正确验证码</td><td>提示请勾选协议</td></tr>
+            <tr><td>login_007</td><td>验证码错误勾选协议</td><td>已完成验证</td><td>1.输入错误验证码 2.勾选协议 3.点击登录</td><td>错误验证码</td><td>提示验证码错误</td></tr>
+          </table></div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>我已设计≥7条覆盖正向和反向的登录用例</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>包含了手机号验证、拖拽验证、验证码、协议的用例</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>每条用例包含八大要素</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="prac" id="pr2">
+      <div class="prac-hdr" onclick="tp(2)">
+        <div class="prac-n" style="background:var(--orange)">P3</div>
+        <div class="prac-t">🏷️ 对照 HTML 标签查找页面 Bug</div>
+        <div class="ps ps-todo" id="ps2">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb2">
+        <div class="task-box">
+          <div class="task-lbl">任务说明</div>
+          <div class="body">
+            打开任意一个登录页面（可以是你公司的系统，或者使用浏览器开发者工具）。<br>
+            按照以下清单逐项检查，发现问题后写出缺陷报告（标题+复现步骤+预期+实际）。
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0">
+          <div style="background:var(--rbg);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);padding:13px">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">🔴 安全类检查</div>
+            <div style="font-size:12.5px;color:#7f1d1d;line-height:1.9">
+              □ 查看源代码，搜索注释中是否有敏感信息<br>
+              □ 登录表单是否使用 POST 而非 GET<br>
+              □ 密码框是否使用 type="password"<br>
+              □ 密码是否加密传输（HTTPS）
+            </div>
+          </div>
+          <div style="background:var(--abg);border:1px solid rgba(217,119,6,.2);border-radius:var(--r);padding:13px">
+            <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px">🟡 功能类检查</div>
+            <div style="font-size:12.5px;color:#78350f;line-height:1.9">
+              □ 图片是否有 title 和 alt 属性<br>
+              □ 单选按钮是否设置相同 name<br>
+              □ 超链接 href 是否有效<br>
+              □ 重置按钮是否能清空所有字段
+            </div>
+          </div>
+          <div style="background:var(--gbg);border:1px solid rgba(22,163,74,.2);border-radius:var(--r);padding:13px">
+            <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">🟢 布局类检查</div>
+            <div style="font-size:12.5px;color:#14532d;line-height:1.9">
+              □ 图片资源是否正常加载<br>
+              □ 是否存在绝对路径（本机路径）<br>
+              □ div/span 布局是否正确显示<br>
+              □ 列表顺序是否正确
+            </div>
+          </div>
+          <div style="background:var(--acbg);border:1px solid rgba(37,99,235,.2);border-radius:var(--r);padding:13px">
+            <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">🔵 兼容类检查</div>
+            <div style="font-size:12.5px;color:#1e40af;line-height:1.9">
+              □ Chrome、Firefox、Edge 各浏览器效果<br>
+              □ 手机端与PC端显示是否正常<br>
+              □ 分辨率不同时布局是否正确<br>
+              □ 链接 target="_blank" 是否正常
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:7px;font-family:'Space Mono',monospace">完成检查</div>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>我已查看源代码，检查注释内容</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>我已验证登录表单使用了POST方法</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(2)"><span>发现问题后写出了规范的缺陷标题</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav">
+    <button class="pb" onclick="gp(1,null)">← 图解演示</button>
+    <button class="pb nx" onclick="gp(3,null)">面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 3 — 面试精讲 ════ -->
+<div class="page" id="p3">
+  <div class="sec">
+    <div class="sec-title">Day 04 高频面试题（12题）</div>
+    <div id="iqList"></div>
+  </div>
+  <div class="pnav">
+    <button class="pb" onclick="gp(2,null)">← 实战练习</button>
+    <button class="pb nx" onclick="gp(4,null)">✅ 测验(15题) →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 4 — 测验 (15题) ════ -->
+<div class="page" id="p4">
+  <div class="sec">
+    <div class="sec-title" style="margin-bottom:8px">Day 04 随堂测验 — 15道题</div>
+    <div class="body" style="color:var(--muted);margin-bottom:16px;font-size:13px">覆盖HTML标签、测试点、GET/POST、注释、路径等，正确率≥75%（≥12题）通过。</div>
+    <div class="sa" id="sa"></div>
+    <div id="qList"></div>
+    <div class="q-acts">
+      <button class="bs" onclick="sub()">提交答案</button>
+      <button class="br2" onclick="rst()">↺ 重新作答</button>
+    </div>
+  </div>
+  <div class="pnav" style="margin-top:20px">
+    <button class="pb" onclick="gp(3,null)">← 面试精讲</button>
+    <button class="pb nx" onclick="gp(0,null)">🔄 重新学习</button>
+  </div>
+</div>
+
+<script>
+/* ── GET/POST DEMO ── */
+function submitGet(){
+  const u=document.getElementById('demoUser').value||'（空）';
+  const p=document.getElementById('demoPwd').value||'（空）';
+  document.getElementById('noResult').style.display='none';
+  document.getElementById('postResult').style.display='none';
+  document.getElementById('getResult').style.display='block';
+  document.getElementById('getUrl').textContent='form.html?username='+u+'&password='+p+'&sex=...';
+  document.getElementById('formUrl').textContent='form.html?username='+u+'&password='+p;
+}
+function submitPost(){
+  const u=document.getElementById('demoUser').value||'（空）';
+  const p=document.getElementById('demoPwd').value||'（空）';
+  document.getElementById('noResult').style.display='none';
+  document.getElementById('getResult').style.display='none';
+  document.getElementById('postResult').style.display='block';
+  document.getElementById('postBody').textContent='请求体(Body): { username: "'+u+'", password: "'+p+'" }';
+  document.getElementById('formUrl').textContent='form.html';
+}
+function resetForm(){
+  document.getElementById('demoUser').value='';
+  document.getElementById('demoPwd').value='';
+  document.querySelectorAll('input[type=radio], input[type=checkbox]').forEach(el=>el.checked=false);
+  document.getElementById('noResult').style.display='block';
+  document.getElementById('getResult').style.display='none';
+  document.getElementById('postResult').style.display='none';
+  document.getElementById('formUrl').textContent='form.html';
+}
+
+/* ── INTERVIEW DATA ── */
+const IQS=[
+  {lv:'lv-b',lvt:'🟢 基础',q:'前端三大核心技术分别是什么？各自的作用？',
+   ans:`① <b>HTML</b>（超文本标记语言）：定义页面<b>结构和内容</b>，由一套标记标签组成<br>
+② <b>CSS</b>（层叠样式表）：控制页面<b>外观和布局</b>，颜色、字体、位置<br>
+③ <b>JavaScript</b>：实现页面<b>交互和动态效果</b>，表单验证、按钮事件等<br><br>
+<b>测试人员的定位：</b>不需要写代码，但要能读懂结构、识别交互逻辑、发现样式问题。`,
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'img 标签有哪些常用属性？测试时需要关注哪个属性？',
+   ans:`img 标签常用属性：<br>
+• <b>src</b>：图片路径（必须）<br>
+• <b>title</b>：鼠标悬停时显示的文字<br>
+• <b>alt</b>：图片未加载时显示的提示文字<br>
+• <b>width</b> / <b>height</b>：图片宽度和高度<br><br>
+<b>测试重点：img 必须有 title 属性！</b>这是前端页面上线的标准要求，缺少会被认定为 Bug。同时 alt 属性也要有，用于图片无法加载时给用户提示。`,
+   tip:'',trap:'⚠️ 常见错误：只说 src，忘了 title 是测试重点。'},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'HTML 单选按钮（radio）如何实现单选效果？如果不生效是什么Bug？',
+   ans:`实现单选效果的关键：<b>同一组的 radio 必须设置相同的 name 属性值</b>。<br><br>
+示例：<br>
+<code>&lt;input type="radio" name="sex"&gt; 男</code><br>
+<code>&lt;input type="radio" name="sex"&gt; 女</code><br><br>
+<b>如果 name 不同或不设置 name</b>：每个 radio 各自独立，可以同时选中多个，单选失效。这是一个<b>功能错误类型的 Bug</b>，标题可写：「性别单选按钮可同时选中男和女，期望：只能选其中之一」`,
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'HTML 注释有什么测试价值？如何快速检查？',
+   ans:`注释（&lt;!-- 注释内容 --&gt;）不会被浏览器执行，但代码中可以看到。<br><br>
+<b>测试价值：</b>前端页面上线前必须检查注释，防止以下内容被暴露：<br>
+• 测试账号密码<br>
+• 内部 API 地址或数据库信息<br>
+• 安全漏洞（如"此处跳过了验证"）<br>
+• 开发者的敏感调试信息<br><br>
+<b>检查方法：</b>浏览器按 <code>Ctrl+U</code> 查看源代码，搜索 &lt;!-- 标记。`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'GET 和 POST 方法的区别是什么？（最高频考题）',
+   ans:`<b>5个核心区别：</b><br><br>
+① <b>参数可见性：</b>GET 参数在 URL 明文显示，POST 在请求体中不可见<br>
+② <b>数据长度：</b>GET 有长度限制（约2KB），POST 无限制<br>
+③ <b>安全性：</b>POST 更安全（密码不会出现在URL）<br>
+④ <b>速度：</b>GET 较快（无请求体），POST 稍慢<br>
+⑤ <b>适用场景：</b>GET 用于查询操作；POST 用于登录、注册、提交数据<br><br>
+<b>测试角度：</b>登录/注册表单必须使用 POST，如果用 GET 是安全类 Bug！`,
+   tip:'这是最高频的前端面试题，背下5个区别并能举例说明。',
+   trap:'⚠️ 很多人只说"GET在URL可见，POST不可见"，不够全面，要说出5个区别！'},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'form 标签的 action 和 method 属性分别是什么？',
+   ans:`<b>form 标签用于提交页面数据到后台。</b><br><br>
+• <b>action</b>：指定数据提交到哪个页面或接口地址<br>
+  示例：<code>action="https://api.example.com/login"</code><br><br>
+• <b>method</b>：指定提交方式，值为 get 或 post<br>
+  示例：<code>method="post"</code><br><br>
+<b>测试重点：</b><br>
+① action 地址是否正确（是否为正确的接口地址）<br>
+② 涉及密码的表单必须用 method="post"<br>
+③ 表单数据是否正确传递到后端（用浏览器 Network 面板验证）`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'相对路径和绝对路径的区别？为什么前端代码不应使用绝对路径？',
+   ans:`<b>相对路径：</b>以当前文件所在位置为起点<br>
+• 同级：<code>./文件名</code> 或直接写文件名<br>
+• 上一级：<code>../文件名</code><br><br>
+<b>绝对路径：</b>从磁盘根目录开始的完整路径<br>
+• 示例：<code>C:\Users\dev\images\logo.png</code><br><br>
+<b>为什么不用绝对路径：</b>绝对路径是开发者本机路径，部署到测试服务器或生产服务器后路径不存在，会导致<b>图片/资源无法加载</b>（显示为404或破损图标）。这是一个严重的 Bug！`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'普通按钮（type=button）和提交按钮（type=submit）的区别？',
+   ans:`<b>type=submit（提交按钮）：</b><br>
+• 有内置的提交行为，点击后自动提交 form 表单数据<br>
+• 不需要 JS 就能工作<br><br>
+<b>type=button（普通按钮）：</b><br>
+• 默认没有任何执行效果<br>
+• 需要配合 JS 的 onclick 事件来实现功能<br>
+• 按钮文字通过 <b>value 属性</b>设置（这是测试点！）<br><br>
+<b>type=reset（重置按钮）：</b>点击后清空 form 内所有输入，恢复为默认值`,
+   tip:'',trap:'⚠️ 测试要点：检查按钮文字是否用 value 设置，以及普通按钮是否有对应的 JS 事件处理。'},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】以下代码有什么问题？如何改正？',
+   ans:`<b>代码：</b><br>
+<code>&lt;form action="login.php" method="get"&gt;<br>&nbsp;&nbsp;&lt;input type="password" name="pwd"&gt;<br>&lt;/form&gt;</code><br><br>
+<b>问题：</b>密码表单使用了 GET 方法！密码会以明文出现在 URL 中：<br>
+<code>login.php?pwd=mypassword123</code><br><br>
+<b>后果：</b><br>
+• 密码暴露在浏览器地址栏，肉眼可见<br>
+• 会被保存在浏览器历史记录中<br>
+• 会被保存在服务器访问日志中<br>
+• 是严重的安全漏洞（S1级Bug）<br><br>
+<b>修正：</b>将 <code>method="get"</code> 改为 <code>method="post"</code>`,
+   tip:'这种Bug真实项目中存在过，面试时说出这个例子展示安全意识。',
+   trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】测试人员如何使用浏览器开发者工具验证表单是使用GET还是POST？',
+   ans:`<b>使用 Chrome DevTools 验证方法：</b><br><br>
+① 按 <b>F12</b> 打开开发者工具<br>
+② 点击 <b>Network</b>（网络）面板<br>
+③ 勾选 <b>Preserve log</b>（保留日志）<br>
+④ 填写表单并点击提交<br>
+⑤ 在 Network 中找到提交请求，点击查看：<br>
+&nbsp;&nbsp;• <b>Headers</b> → Request Method：GET 还是 POST<br>
+&nbsp;&nbsp;• GET：在 URL 或 Query String Parameters 中看到参数<br>
+&nbsp;&nbsp;• POST：在 Request Body / Payload 中看到参数<br><br>
+<b>同时可以验证：</b>参数是否完整传递、是否有 HTTPS 加密、响应码是否正确`,
+   tip:'能说出F12 → Network → Headers这个操作流程，体现你有真实测试经验。',
+   trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】前端页面上线前，测试人员需要检查哪些HTML相关项目？',
+   ans:`前端页面上线前的 HTML 检查清单：<br><br>
+① <b>注释检查：</b>Ctrl+U 查看源码，删除敏感注释（密码/接口地址/调试信息）<br>
+② <b>路径检查：</b>确保所有 src/href 不含绝对路径（C:\\ 开头）<br>
+③ <b>图片属性：</b>img 标签是否有 title 和 alt 属性<br>
+④ <b>表单安全：</b>登录/注册表单是否使用 POST<br>
+⑤ <b>单选验证：</b>radio 按钮是否设置了相同 name<br>
+⑥ <b>链接有效性：</b>所有 a 标签的 href 是否有效，不能有空链接或404<br>
+⑦ <b>资源加载：</b>CSS、JS 文件是否正常加载，无404错误<br>
+⑧ <b>页面标题：</b>title 标签内容是否正确（影响SEO）`,
+   tip:'这个问题体现你对前端测试的系统性思维，列出清单式的答案更专业。',
+   trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】div 和 span 有什么区别？对测试有什么影响？',
+   ans:`<b>div（块级元素）：</b><br>
+• 独占一行，前后自动换行<br>
+• 宽度默认撑满父容器<br>
+• 用于大区块布局（导航、内容区、侧边栏）<br><br>
+<b>span（行内元素）：</b><br>
+• 不独占一行，多个 span 可以在一行<br>
+• 宽度只有内容那么宽<br>
+• 用于文字内局部样式（高亮、颜色变化）<br><br>
+<b>测试影响：</b><br>
+• 页面布局混乱可能是 div/span 使用错误导致<br>
+• 元素不在同一行但应该在一行 → 可能是 div 误用<br>
+• 点击区域异常 → 可能是块级/行内元素的点击范围问题`,
+   tip:'',trap:''}
+];
+
+function buildIQ(){
+  document.getElementById('iqList').innerHTML=IQS.map((q,i)=>`
+    <div class="iq" id="iq${i}">
+      <div class="iq-hdr" onclick="tiq(${i})">
+        <span class="iq-lv ${q.lv}">${q.lvt}</span>
+        <span class="iq-q">Q${i+1}. ${q.q}</span>
+        <span class="iq-arr">▶</span>
+      </div>
+      <div class="iq-body">
+        <div class="iq-inner">
+          <div class="iq-ans">${q.ans}</div>
+          ${q.tip?`<div class="iq-tip">💡 <b>面试 Tip：</b>${q.tip}</div>`:''}
+          ${q.trap?`<div class="iq-trap">⚠️ <b>常见错误：</b>${q.trap}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function tiq(i){document.getElementById('iq'+i).classList.toggle('open');}
+buildIQ();
+
+/* ── QUIZ DATA ── */
+const QS=[
+  {q:'前端三大核心技术中，负责定义页面"结构和内容"的是？',
+   opts:['CSS','JavaScript','HTML','jQuery'],
+   ans:2,exp:'HTML（超文本标记语言）负责定义页面的结构和内容，由一套标记标签组成。CSS负责样式外观，JavaScript负责交互和动态效果。'},
+  {q:'img 标签中，"图片未加载时显示的提示文字"由哪个属性控制？',
+   opts:['src','title','alt','href'],
+   ans:2,exp:'alt属性：图片未加载时显示的提示文字。title属性：鼠标悬停时显示的文字。两个都是img的测试点，其中title是重点——img必须有title属性！'},
+  {q:'测试人员发现img标签缺少title属性，这属于哪种缺陷类型？',
+   opts:['架构缺陷','功能错误','易用性问题','UI页面错误'],
+   ans:2,exp:'img必须有title属性是前端页面的规范要求（悬停显示文字），缺少会影响用户使用体验，属于易用性问题（S3类缺陷）。'},
+  {q:'实现单选按钮（radio）的单选效果，关键是什么？',
+   opts:['每个radio设置不同的name属性','同组radio设置相同的name属性','设置id属性','使用JavaScript绑定事件'],
+   ans:1,exp:'单选效果的关键：同一组的radio必须设置相同的name属性值，这样浏览器才知道它们是同一组，只能选其中一个。'},
+  {q:'登录表单应该使用哪种提交方法？为什么？',
+   opts:['GET，因为速度快','POST，因为参数不在URL明文显示','GET，因为简单','POST，因为参数长度无限制'],
+   ans:1,exp:'登录表单必须使用POST：密码等敏感数据不能出现在URL中（GET会明文显示在URL）。安全性是选POST的首要原因，参数长度无限制是额外优势。'},
+  {q:'GET 方法的参数长度限制约为多少？',
+   opts:['无限制','约2KB','约10MB','约100字节'],
+   ans:1,exp:'GET方法的URL长度有限制（不同浏览器和服务器约为2KB~8KB），而POST在请求体中传输，理论上无长度限制。'},
+  {q:'以下哪种情况会发生"路径失效"的Bug？',
+   opts:['使用相对路径 ../img/pic.jpg','使用相对路径 ./pic.jpg','使用绝对路径 C:\\Users\\dev\\pic.jpg','使用相对路径 pic.jpg'],
+   ans:2,exp:'绝对路径（C:\\Users\\...）是开发者本机路径，部署到服务器后该路径不存在，会导致图片/资源无法加载，出现404或破损图标。这是一个需要在测试时发现的Bug！'},
+  {q:'普通按钮（type=button）的按钮文字通过哪个属性设置？',
+   opts:['text属性','label属性','value属性','name属性'],
+   ans:2,exp:'按钮文字统一使用value属性赋值：<input type="button" value="点击我">。普通按钮默认没有执行效果，需配合JS来实现功能。'},
+  {q:'以下HTML代码有什么问题？<form action="login.php" method="get"><input type="password"></form>',
+   opts:['action地址不正确','密码表单使用GET方法，密码会明文显示在URL中','缺少submit按钮','input缺少name属性'],
+   ans:1,exp:'密码表单绝对不能使用GET方法！GET会将参数附加到URL中明文显示（如login.php?password=123456），是严重的安全漏洞（S1级Bug）。'},
+  {q:'HTML注释的语法是什么？测试人员为什么要检查注释？',
+   opts:['// 注释','/* 注释 */','<!-- 注释 -->','# 注释'],
+   ans:2,exp:'HTML注释语法：<!-- 注释内容 -->。测试人员检查注释是因为注释可能包含敏感信息（测试账号密码、内部接口地址、调试代码、安全漏洞说明），这些不应该在上线时存在。'},
+  {q:'div 和 span 的主要区别是？',
+   opts:['div用于显示文字，span用于图片','div是块级元素独占一行，span是行内元素不独占行','div比span大','两者没有区别'],
+   ans:1,exp:'div（块级元素）：独占一行，宽度默认撑满父容器，用于大区块布局。span（行内元素）：不独占一行，多个可以在一行，用于文字局部样式。'},
+  {q:'有序列表和无序列表分别用哪个标签？',
+   opts:['ol 有序，ul 无序','ul 有序，ol 无序','list 有序，items 无序','ol 和 ul 都可以做有序列表'],
+   ans:0,exp:'ol（Ordered List）=有序列表，自动生成1.2.3.序号；ul（Unordered List）=无序列表，显示●点。列表项都用li标签。'},
+  {q:'如何快速查看前端页面的源代码检查注释？',
+   opts:['右键→检查','按Ctrl+U查看页面源代码','按F12打开控制台','按Ctrl+Shift+I'],
+   ans:1,exp:'Ctrl+U（Windows）可以直接查看页面的完整HTML源代码，是检查注释最直接的方法。F12和右键→检查也可以看到，但Ctrl+U显示的是原始HTML，没有浏览器解析过的，更直观。'},
+  {q:'form标签的action属性指定什么？',
+   opts:['表单样式','数据提交到哪个地址/接口','表单的宽度','表单的提交方式'],
+   ans:1,exp:'action属性：指定将表单数据提交到哪个页面或后台接口地址。method属性才是指定提交方式（get/post）。'},
+  {q:'以下关于GET和POST的描述，哪个是错误的？',
+   opts:['GET参数在URL中明文可见','POST比GET更安全','POST提交速度比GET更快','GET有参数长度限制'],
+   ans:2,exp:'POST提交速度比GET快——这是错的！GET更快（因为只有URL，没有请求体）；POST因为需要处理请求体，相对较慢。正确的是：POST更安全（参数不在URL）、POST无长度限制。'}
+];
+
+/* ── CORE JS ── */
+const pages=document.querySelectorAll('.page');
+const tabs=document.querySelectorAll('.t');
+const vis=new Set([0]);
+function initDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  pages.forEach((_,i)=>{const dot=document.createElement('div');dot.className='dot'+(i===0?' da':'');dot.onclick=()=>gp(i,null);d.appendChild(dot);});
+}
+function gp(idx,tabEl){
+  pages.forEach(p=>p.classList.remove('vis'));pages[idx].classList.add('vis');
+  tabs.forEach(t=>t.classList.remove('a'));(tabEl||tabs[idx]).classList.add('a');
+  vis.add(idx);
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>{d.className='dot'+(vis.has(i)?i===idx?'dot da':'dot dn2':'dot');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initDots();
+function tp(i){
+  const b=document.getElementById('pb'+i);b.classList.toggle('open');
+  if(b.classList.contains('open')){const p=document.getElementById('ps'+i);if(p.classList.contains('ps-todo')){p.className='ps ps-do';p.textContent='进行中';}}
+}
+function cp(i){
+  const checks=document.querySelectorAll('#pb'+i+' input[type=checkbox]');
+  const done=[...checks].filter(c=>c.checked).length;
+  const ps=document.getElementById('ps'+i);
+  if(done===checks.length){ps.className='ps ps-done';ps.textContent='✅ 完成';}
+  else{ps.className='ps ps-do';ps.textContent=done+'/'+checks.length;}
+}
+let sel={},checked=false;
+function buildQ(){
+  sel={};checked=false;
+  document.getElementById('sa').style.display='none';
+  document.getElementById('qList').innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="qt"><span class="qn">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pq(${i},${j})">
+          <span class="ol">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp" id="e${i}">${q.exp}</div>
+    </div>`).join('');
+}
+function pq(qi,oi){
+  if(checked)return;
+  const p=sel[qi];if(p!==undefined)document.getElementById('o'+qi+'_'+p).classList.remove('sel');
+  sel[qi]=oi;document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+function sub(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const e=document.getElementById('e'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');e.className='exp ok-e';}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');e.className='exp no-e';}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('sa');
+  sa.style.cssText='display:flex;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px;'+(pct>=75?'background:#f0fdf4;border:1.5px solid #86efac;':'background:#fff1f2;border:1.5px solid #fca5a5;');
+  sa.innerHTML=`<div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+    <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 优秀！Day04掌握良好！':pct>=50?'⚠️ 良好，建议复习错题':'❌ 需要重新学习本章'}</div>
+    <div style="font-size:12px;color:var(--muted)">正确率 ${pct}% · 通过：≥75%（≥12题）</div></div>`;
+  // Notify parent index.html to save quiz score
+  try { window.parent.postMessage({type:'qa_quiz_result',score,total:QS.length},'*'); } catch(e){}
+    sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rst(){buildQ();}
+buildQ();
+</script>
+</body>
+</html>

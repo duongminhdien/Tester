@@ -185,24 +185,30 @@ body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(-
 /* Mobile toggle */
 .mob-toggle{display:none;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-size:18px}
 
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;transition:opacity .3s}
+.overlay.show{display:block}
+
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);transition:transform .3s}
   .sidebar.open{transform:translateX(0)}
   .main{margin-left:0}
   .mob-toggle{display:block}
   .topbar{padding:10px 16px}
+  .sb-close{display:flex!important}
 }
 </style>
 </head>
 <body>
 
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 <div class="layout">
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
   <aside class="sidebar" id="sidebar">
-    <div class="sb-header">
+    <div class="sb-header" style="position:relative">
       <div class="sb-logo">▣ QA Academy</div>
       <div class="sb-title">软件测试完整学习体系</div>
       <div class="sb-sub">从零到职场 · 全程实战</div>
+      <button class="sb-close" onclick="closeSidebar()" style="display:none;position:absolute;top:8px;right:10px;background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;align-items:center;justify-content:center;line-height:1">✕</button>
     </div>
 
     <div class="sb-progress">
@@ -239,6 +245,8 @@ body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(-
       </div>
       <div class="topbar-actions">
         <button class="tb-btn" onclick="markDone()" id="btnDone" style="display:none">✓ 标记完成</button>
+        <button class="tb-btn" onclick="exportProgress()" title="导出进度JSON文件" style="font-size:16px;padding:5px 9px" id="btnExport">⬇</button>
+        <label class="tb-btn" title="导入进度JSON文件" style="font-size:16px;padding:5px 9px;cursor:pointer">⬆<input type="file" accept=".json" onchange="importProgress(this.files[0])" style="display:none"></label>
         <button class="tb-btn primary" onclick="nextDay()" id="btnNext" style="display:none">下一天 →</button>
       </div>
     </div>
@@ -303,21 +311,23 @@ const CURRICULUM = [
     color:'#2563eb',
     colorBg:'rgba(37,99,235,.08)',
     days:[
-      {id:'s1d1',day:'Day 01',title:'软件测试概念与分类',file:'stage1/day01.html',tags:'测试定义·SDLC·黑白盒',practice:3,qa:8,status:'available'},
-      {id:'s1d2',day:'Day 02',title:'测试用例设计方法',file:'stage1/day02.html',tags:'等价类·边界值·决策表',practice:4,qa:8,status:'locked'},
-      {id:'s1d3',day:'Day 03',title:'缺陷管理与报告',file:'stage1/day03.html',tags:'Bug生命周期·Severity·Priority',practice:3,qa:7,status:'locked'},
-      {id:'s1d4',day:'Day 04',title:'测试计划与用例文档',file:'stage1/day04.html',tags:'Test Plan·Test Case·Entry/Exit',practice:3,qa:7,status:'locked'},
+      {id:'s1d1',day:'Day 01',title:'软件测试概念 · 分类 · 用例',file:'stage1/day01.html',tags:'软件测试概念 · 分类 · 用例',practice:3,qa:8,status:'available'},
+      {id:'s1d2',day:'Day 02',title:'边界值 · 判定表 · 流程图法 · 错误推测法',file:'stage1/day02.html',tags:'边界值 · 判定表 · 流程图法 · 错误推测法',practice:4,qa:8,status:'locked'},
+      {id:'s1d3',day:'Day 03',title:'软件缺陷（Bug）完全指南',file:'stage1/day03.html',tags:'软件缺陷（Bug）完全指南',practice:3,qa:7,status:'locked'},
+      {id:'s1d4',day:'Day 04',title:'HTML 基础 · 前端三大核心 · 测试人员必知',file:'stage1/day04.html',tags:'HTML 基础 · 前端三大核心 · 测试人员必知',practice:3,qa:7,status:'locked'},
+      {id:'s1d5',day:'Day 05',title:'Web资讯管理平台实战测试',file:'stage1/day05.html',tags:'Web资讯管理平台实战测试',practice:3,qa:7,status:'locked'},
+      {id:'s1d6',day:'Day 06',title:'阶段综合测试 · Day 01–05 复习',file:'stage1/day06.html',tags:'阶段综合测试 · Day 01–05 复习',practice:3,qa:7,status:'locked'},
     ]
   },
   {
     id:'stage2',
-    name:'接口测试',
+    name:'Linux&数据库',
     icon:'🔌',
     color:'#16a34a',
     colorBg:'rgba(22,163,74,.08)',
     days:[
-      {id:'s2d1',day:'Day 05',title:'HTTP协议与接口基础',file:'stage2/day05.html',tags:'HTTP·RESTful·状态码',practice:3,qa:8,status:'locked'},
-      {id:'s2d2',day:'Day 06',title:'Postman实战入门',file:'stage2/day06.html',tags:'Collection·变量·断言',practice:5,qa:8,status:'locked'},
+      {id:'s2d1',day:'Day 01',title:'Linux 基础 — 文件与目录操作',file:'stage2/day01.html',tags:'Linux 基础 — 文件与目录操作',practice:3,qa:8,status:'locked'},
+      {id:'s2d2',day:'Day 02',title:'系统命令 / 权限管理 / 打包压缩 / vi编辑器',file:'stage2/day02.html',tags:'系统命令 / 权限管理 / 打包压缩 / vi编辑器',practice:5,qa:8,status:'locked'},
       {id:'s2d3',day:'Day 07',title:'Token鉴权与接口关联',file:'stage2/day07.html',tags:'JWT·Bearer·pm脚本',practice:4,qa:7,status:'locked'},
       {id:'s2d4',day:'Day 08',title:'数据驱动与Newman CI',file:'stage2/day08.html',tags:'DDT·CSV·Jenkins',practice:4,qa:7,status:'locked'},
     ]
@@ -374,9 +384,132 @@ const CURRICULUM = [
   }
 ];
 
+/* ═══ PROGRESS STORE ═══ */
+const STORE_KEY = 'qa_progress_v2';
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  // Migrate from old key
+  const old = localStorage.getItem('qa_completed');
+  if (old) {
+    const ids = JSON.parse(old);
+    const store = createStore();
+    ids.forEach(id => { store.completed[id] = { completedAt: new Date().toISOString(), quizScore: null, quizTotal: null }; });
+    saveStore(store);
+    return store;
+  }
+  return createStore();
+}
+
+function createStore() {
+  return {
+    version: 2,
+    createdAt: new Date().toISOString(),
+    lastUpdated: new Date().toISOString(),
+    completed: {},   // { dayId: { completedAt, quizScore, quizTotal, timeSpentMin } }
+    quizHistory: {}  // { dayId: [{ score, total, pct, date }] }
+  };
+}
+
+function saveStore(store) {
+  store.lastUpdated = new Date().toISOString();
+  localStorage.setItem(STORE_KEY, JSON.stringify(store));
+}
+
+function exportProgress() {
+  const store = loadStore();
+  const allDays = CURRICULUM.flatMap(s => s.days);
+  const total = allDays.length;
+  const done = Object.keys(store.completed).length;
+
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    summary: {
+      totalDays: total,
+      completedDays: done,
+      progressPct: Math.round(done / total * 100),
+      lastActivity: store.lastUpdated
+    },
+    days: allDays.map(day => {
+      const info = store.completed[day.id];
+      const quizHistory = store.quizHistory[day.id] || [];
+      const bestQuiz = quizHistory.length ? quizHistory.reduce((a,b) => a.pct > b.pct ? a : b) : null;
+      return {
+        id: day.id,
+        title: day.title,
+        status: info ? 'completed' : 'pending',
+        completedAt: info?.completedAt || null,
+        timeSpentMin: info?.timeSpentMin || null,
+        quiz: {
+          attempts: quizHistory.length,
+          bestScore: bestQuiz ? `${bestQuiz.score}/${bestQuiz.total}` : null,
+          bestPct: bestQuiz?.pct || null,
+          history: quizHistory
+        }
+      };
+    })
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `qa_progress_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importProgress(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.days) throw new Error('Invalid format');
+      const store = createStore();
+      data.days.forEach(d => {
+        if (d.status === 'completed' && d.completedAt) {
+          store.completed[d.id] = {
+            completedAt: d.completedAt,
+            timeSpentMin: d.timeSpentMin,
+            quizScore: d.quiz?.bestScore || null
+          };
+        }
+        if (d.quiz?.history?.length) {
+          store.quizHistory[d.id] = d.quiz.history;
+        }
+      });
+      saveStore(store);
+      completedDays = Object.keys(store.completed);
+      buildSidebar(); buildWelcome(); updateProgress();
+      showToast('✅ 进度已导入！');
+    } catch(err) {
+      showToast('❌ 文件格式错误');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 22px;border-radius:99px;font-size:13.5px;font-family:"Source Han Sans SC","Noto Sans SC",sans-serif;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+
 /* ═══ STATE ═══ */
 let currentDay = null;
-let completedDays = JSON.parse(localStorage.getItem('qa_completed') || '[]');
+let _store = loadStore();
+let completedDays = Object.keys(_store.completed);
+let _sessionStart = Date.now();
 
 /* ═══ INIT ═══ */
 function init() {
@@ -481,6 +614,7 @@ function expandStage(id) {
 
 /* ═══ OPEN DAY ═══ */
 function openDay(dayId) {
+  if (window.innerWidth <= 768) closeSidebar();
   // Find day data
   let dayData = null;
   let stageData = null;
@@ -561,14 +695,21 @@ function markDone() {
   const id = currentDay.dayData.id;
   if (!completedDays.includes(id)) {
     completedDays.push(id);
-    localStorage.setItem('qa_completed', JSON.stringify(completedDays));
+    const timeSpent = Math.round((Date.now() - _sessionStart) / 60000);
+    _store.completed[id] = {
+      completedAt: new Date().toISOString(),
+      timeSpentMin: timeSpent > 0 ? timeSpent : null,
+      quizScore: _store.quizHistory[id]?.slice(-1)[0]?.score || null,
+      quizTotal: _store.quizHistory[id]?.slice(-1)[0]?.total || null
+    };
+    saveStore(_store);
+    _sessionStart = Date.now();
   }
   document.getElementById('btnDone').style.display = 'none';
   buildSidebar();
   buildWelcome();
   updateProgress();
-  
-  // Unlock next day
+  showToast('🎉 已完成！进度已保存');
   unlockNext();
 }
 
@@ -599,9 +740,37 @@ function nextDay() {
   }
 }
 
+/* ═══ QUIZ SCORE LISTENER (from iframe day files) ═══ */
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'qa_quiz_result' && currentDay) {
+    const id = currentDay.dayData.id;
+    const { score, total } = e.data;
+    const pct = Math.round(score / total * 100);
+    if (!_store.quizHistory[id]) _store.quizHistory[id] = [];
+    _store.quizHistory[id].push({ score, total, pct, date: new Date().toISOString() });
+    // Keep only last 10 attempts
+    if (_store.quizHistory[id].length > 10) _store.quizHistory[id].shift();
+    saveStore(_store);
+    // Show best score badge in topbar
+    const best = _store.quizHistory[id].reduce((a,b) => a.pct > b.pct ? a : b);
+    showToast('📝 测验结果：' + score + '/' + total + ' (' + pct + '%) · 最高：' + best.pct + '%');
+  }
+});
+
 /* ═══ MOBILE ═══ */
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
+  const sb = document.getElementById('sidebar');
+  if (sb.classList.contains('open')) { closeSidebar(); } else { openSidebar(); }
+}
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow = '';
 }
 
 /* ═══ START ═══ */

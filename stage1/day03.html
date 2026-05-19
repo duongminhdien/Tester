@@ -236,6 +236,24 @@ body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(-
 .dont-t{font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .do-i{font-size:12.5px;color:#14532d;padding:3px 0;display:flex;gap:6px;line-height:1.6}
 .dont-i{font-size:12.5px;color:#7f1d1d;padding:3px 0;display:flex;gap:6px;line-height:1.6}
+
+@media(max-width:640px){
+  .three-box,.eq-flow,.bv-grid,.arch-grid,.three-cores,.opt-grid,.method-grid,.tp-grid,.el-grid,.std-grid,.tag-grid,.eight-grid,.sp-grid,.do-dont,.compare-grid,.eq-class-grid,.flow-hex,.hero-obj,.qm-grid{grid-template-columns:1fr!important}
+  .sp-grid,.do-dont,.compare-grid,.eq-class-grid{grid-template-columns:1fr!important}
+  .dn{flex-wrap:wrap;padding:6px 12px;gap:4px}
+  .db{margin:4px 0;font-size:9px}
+  .ts{width:100%;overflow-x:auto}
+  .t{padding:9px 11px;font-size:11.5px}
+  .td{display:none}
+  .page{padding:16px 14px 60px}
+  .hero{padding:18px 16px}
+  .hero-title{font-size:18px}
+  .card{padding:15px 16px}
+  .pnav{flex-direction:column;gap:8px}
+  .pb{justify-content:center}
+  .qt{font-size:13px}
+  .iq-q{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -583,7 +601,7 @@ body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(-
     <div class="sec-title">六、提交缺陷注意事项</div>
     <div class="card">
       <div class="ct">08 — 提交缺陷前的3个检查</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0">
         <div style="background:var(--daybg);border:1.5px solid rgba(8,145,178,.3);border-radius:var(--r);padding:14px;text-align:center">
           <div style="font-size:24px;margin-bottom:8px">🔄</div>
           <div style="font-size:13px;font-weight:700;color:var(--day);margin-bottom:5px">可重现性</div>
@@ -944,7 +962,7 @@ body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(-
               <div class="bug-form-label">实际结果</div>
               <div class="bug-form-field highlight">系统提示密码格式正确，注册成功，跳转至首页</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:4px">
               <div><div class="bug-form-label" style="text-align:left;padding:0 0 4px">严重程度</div><div class="bug-form-field">S1 严重</div></div>
               <div><div class="bug-form-label" style="text-align:left;padding:0 0 4px">优先级</div><div class="bug-form-field">P1 发布前必修</div></div>
               <div><div class="bug-form-label" style="text-align:left;padding:0 0 4px">Bug类型</div><div class="bug-form-field">功能错误</div></div>
@@ -1332,7 +1350,9 @@ function sub(){
   sa.innerHTML=`<div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
     <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 优秀！Day03掌握良好！':pct>=50?'⚠️ 良好，建议复习错题':'❌ 需要重新学习本章'}</div>
     <div style="font-size:12px;color:var(--muted)">正确率 ${pct}% · 通过标准：≥75%（≥14题）</div></div>`;
-  sa.scrollIntoView({behavior:'smooth',block:'start'});
+  // Notify parent index.html to save quiz score
+  try { window.parent.postMessage({type:'qa_quiz_result',score,total:QS.length},'*'); } catch(e){}
+    sa.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function rst(){buildQ();}
 buildQ();

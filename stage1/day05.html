@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 05 · 项目实战 · 黑马头条</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/source-han-sans-simplified-c-webfont@1.0.2/source-han-sans-simplified-c.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --day:#ea580c;--daybg:rgba(234,88,12,.08);--daybg2:rgba(234,88,12,.15);
+  --accent:#2563eb;--acbg:rgba(37,99,235,.08);
+  --green:#16a34a;--gbg:rgba(22,163,74,.09);--gbg2:rgba(22,163,74,.16);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.08);
+  --teal:#0891b2;--tbg:rgba(8,145,178,.09);
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --r:10px;--rlg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;letter-spacing:.01em}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+.dn{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--day);padding:5px 11px;border-radius:6px;margin-right:14px;white-space:nowrap;flex-shrink:0}
+.ts{display:flex;gap:0;flex:1;overflow-x:auto}
+.t{padding:13px 15px;font-size:12.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;user-select:none}
+.t:hover{color:var(--text);background:#f8f9fc}
+.t.a{color:var(--day);border-bottom-color:var(--day);font-weight:600}
+.td{display:flex;gap:5px;align-items:center;padding-left:12px;border-left:1px solid var(--border);margin-left:6px;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;cursor:pointer}
+.dot.dn2{background:var(--green)}.dot.da{background:var(--day);transform:scale(1.3)}
+
+.page{display:none;max-width:960px;margin:0 auto;padding:28px 22px 70px}
+.page.vis{display:block}
+
+.hero{border-radius:var(--rlg);padding:26px 30px;margin-bottom:24px;border:1px solid}
+.hero-badge{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:10px;font-weight:700}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero-sub{font-size:13.5px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.htag{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+.hero-obj{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.obj{background:rgba(255,255,255,.75);border-radius:8px;padding:9px 12px;font-size:12.5px;display:flex;align-items:flex-start;gap:6px}
+.obj-ck{color:var(--green);font-weight:700;flex-shrink:0}
+
+.sec{margin-bottom:24px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';display:block;width:3px;height:17px;background:var(--day);border-radius:2px;flex-shrink:0}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.ct{font-size:12.5px;font-weight:700;color:var(--day);margin-bottom:11px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin:1px}
+.tbl{background:var(--acbg);color:var(--accent)}.tgr{background:var(--gbg);color:var(--green)}
+.tam{background:var(--abg);color:var(--amber)}.trd{background:var(--rbg);color:var(--red)}
+.tpu{background:var(--pbg);color:var(--purple)}.ttl{background:var(--tbg);color:var(--teal)}
+.tor{background:var(--daybg);color:var(--day)}
+
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#78350f;line-height:1.75}
+.info{background:#eff6ff;border:1px solid #bfdbfe;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#1e40af;line-height:1.75}
+.ok{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#14532d;line-height:1.75}
+.danger{background:#fff1f2;border:1px solid #fecdd3;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#7f1d1d;line-height:1.75}
+
+.tw{overflow-x:auto;margin:10px 0}
+.tbl2{width:100%;border-collapse:collapse;font-size:12px}
+.tbl2 th{background:#f0f3fa;padding:8px 10px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:11px;white-space:nowrap}
+.tbl2 td{padding:7px 10px;border:1px solid var(--border);color:#3a4158;vertical-align:top;line-height:1.55;font-size:12px}
+.tbl2 tr:nth-child(even) td{background:#fafbfd}
+.tbl2 tr.p0 td{background:#fef9c3!important}.tbl2 tr.p1 td{background:#fff7f7!important}
+.tbl2 tr.p2 td{background:#f0f9ff!important}.tbl2 tr.p3 td{background:#f9fafb!important}
+
+/* PROJECT ARCHITECTURE */
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.arch-box{border-radius:var(--r);padding:14px 16px;border:1.5px solid}
+.arch-title{font-size:13px;font-weight:700;margin-bottom:8px;padding:4px 10px;border-radius:5px;display:inline-block}
+.arch-items{font-size:12.5px;line-height:1.9}
+
+/* FLOW STEPS */
+.flow-steps{display:flex;gap:0;align-items:center;flex-wrap:wrap;margin:14px 0;justify-content:center}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:90px}
+.flow-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.flow-label{font-size:11px;color:var(--muted);text-align:center;line-height:1.4;max-width:80px}
+.flow-arrow{font-size:16px;color:var(--dim);padding:0 4px;margin-bottom:16px}
+
+/* TESTPOINT CARD */
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.tp-card{border-radius:var(--r);border:1.5px solid;padding:13px 15px}
+.tp-dir{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:8px;font-family:'Space Mono',monospace}
+.tp-list{font-size:12.5px;line-height:1.9}
+.tp-item{display:flex;gap:5px}
+
+/* SLIDER VISUAL */
+.slider-demo{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:16px;margin:12px 0}
+.slider-track{position:relative;height:40px;background:#e2e8f0;border-radius:20px;margin:10px 0;overflow:hidden;cursor:pointer}
+.slider-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#16a34a,#4ade80);border-radius:20px;transition:width .3s;width:0%}
+.slider-btn{position:absolute;left:0;top:50%;transform:translateY(-50%);width:36px;height:36px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:14px;transition:left .3s;cursor:grab}
+.slider-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;color:var(--muted);white-space:nowrap;pointer-events:none}
+.slider-status{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center;min-height:20px}
+
+/* INTERVIEW */
+.iq{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:8px;overflow:hidden}
+.iq.open{border-color:var(--day)}
+.iq-hdr{padding:13px 17px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;user-select:none}
+.iq-lv{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.lv-b{background:var(--gbg);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.lv-m{background:var(--abg);color:var(--amber);border:1px solid rgba(217,119,6,.3)}
+.lv-h{background:var(--rbg);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.lv-t{background:var(--daybg);color:var(--day);border:1px solid rgba(234,88,12,.3)}
+.iq-q{font-size:13.5px;font-weight:600;flex:1;line-height:1.5}
+.iq-arr{color:var(--dim);font-size:11px;flex-shrink:0;transition:transform .2s;margin-top:3px}
+.iq.open .iq-arr{transform:rotate(90deg)}
+.iq-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.iq.open .iq-body{max-height:1400px}
+.iq-inner{padding:0 17px 16px}
+.iq-ans{background:#fff7f0;border-left:3px solid var(--day);border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;line-height:1.85;color:#3a4158;margin-bottom:8px}
+.iq-ans b{color:var(--text)}
+.iq-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#78350f;margin-bottom:6px}
+.iq-trap{background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#7f1d1d;margin-bottom:6px}
+
+/* PRACTICE */
+.prac{border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:12px;overflow:hidden}
+.prac-hdr{display:flex;align-items:center;gap:11px;padding:13px 17px;cursor:pointer;user-select:none;background:var(--white);transition:background .15s}
+.prac-hdr:hover{background:#f8f9fc}
+.prac-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:#fff;flex-shrink:0}
+.prac-t{font-size:13.5px;font-weight:600;flex:1}
+.ps{font-size:10px;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace;flex-shrink:0}
+.ps-todo{background:#f0f2f7;color:var(--dim)}.ps-do{background:var(--daybg);color:var(--day)}.ps-done{background:var(--gbg2);color:var(--green)}
+.prac-body{display:none;padding:0 17px 17px;background:var(--white);border-top:1px solid var(--border)}
+.prac-body.open{display:block}
+.task-box{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:11px 0}
+.task-lbl{font-size:10.5px;font-weight:700;color:var(--day);font-family:'Space Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.ci{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ci:last-child{border-bottom:none}
+.ci input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.ci span{font-size:13px;color:#3a4158}
+.ci input:checked+span{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(22,163,74,.4)}
+
+/* QUIZ */
+.quiz-q{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:17px 20px;margin-bottom:10px}
+.qn{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--day);background:var(--daybg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.qt{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;width:100%}
+.opt:hover:not(:disabled){border-color:rgba(234,88,12,.35);background:var(--daybg)}
+.ol{width:20px;height:20px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(234,88,12,.35);background:var(--daybg)}.opt.sel .ol{background:var(--day);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .ol{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .ol{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.exp.ok-e{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
+.exp.no-e{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
+.q-acts{display:flex;gap:8px;margin-top:18px}
+.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.bs:hover{opacity:.88}
+.br2{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.br2:hover{background:#f0f2f7;color:var(--text)}
+.sa{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
+
+.pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
+.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pb:hover{background:var(--daybg);border-color:rgba(234,88,12,.3);color:var(--day)}
+.pb.nx{background:var(--day);color:#fff;border-color:var(--day)}
+.pb.nx:hover{opacity:.9}
+
+@media(max-width:640px){
+  .three-box,.eq-flow,.bv-grid,.arch-grid,.three-cores,.opt-grid,.method-grid,.tp-grid,.el-grid,.std-grid,.tag-grid,.eight-grid,.sp-grid,.do-dont,.compare-grid,.eq-class-grid,.flow-hex,.hero-obj,.qm-grid{grid-template-columns:1fr!important}
+  .sp-grid,.do-dont,.compare-grid,.eq-class-grid{grid-template-columns:1fr!important}
+  .dn{flex-wrap:wrap;padding:6px 12px;gap:4px}
+  .db{margin:4px 0;font-size:9px}
+  .ts{width:100%;overflow-x:auto}
+  .t{padding:9px 11px;font-size:11.5px}
+  .td{display:none}
+  .page{padding:16px 14px 60px}
+  .hero{padding:18px 16px}
+  .hero-title{font-size:18px}
+  .card{padding:15px 16px}
+  .pnav{flex-direction:column;gap:8px}
+  .pb{justify-content:center}
+  .qt{font-size:13px}
+  .iq-q{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="dn">
+  <div class="db">Day 05 · 项目实战</div>
+  <div class="ts">
+    <div class="t a" onclick="gp(0,this)">📖 项目介绍</div>
+    <div class="t" onclick="gp(1,this)">🔐 登录模块</div>
+    <div class="t" onclick="gp(2,this)">📝 发布文章</div>
+    <div class="t" onclick="gp(3,this)">💬 面试精讲</div>
+    <div class="t" onclick="gp(4,this)">✅ 测验(15题)</div>
+  </div>
+  <div class="td" id="dots"></div>
+</nav>
+
+<!-- ════ PAGE 0 — 项目介绍 ════ -->
+<div class="page vis" id="p0">
+  <div class="hero" style="background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 40%,#fef3c7 100%);border-color:#fed7aa">
+    <div class="hero-badge" style="background:rgba(234,88,12,.12);color:#c2410c;border:1px solid rgba(234,88,12,.3)">Day 05 · 第一阶段 — 项目实战</div>
+    <div class="hero-title">黑马头条 · Web资讯管理平台实战测试</div>
+    <div class="hero-sub">将前4天学到的测试方法（等价类、边界值、流程图法）综合运用到真实项目中。完整实施登录模块和发布文章模块的功能测试，覆盖功能、兼容性、界面布局等多个维度。</div>
+    <div class="hero-tags">
+      <span class="htag">🏢 真实项目实战</span>
+      <span class="htag">🔐 登录模块 22条用例</span>
+      <span class="htag">📝 发布文章 29条用例</span>
+      <span class="htag">✅ 15道测验题</span>
+    </div>
+    <div class="hero-obj">
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握完整的测试实施6步流程</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能针对登录模块设计覆盖全场景的测试点</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能针对发布文章模块设计功能+非功能测试点</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>理解滑块验证的测试策略（边界值）</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握兼容性测试的5大浏览器覆盖策略</span></div>
+    </div>
+  </div>
+
+  <!-- 项目架构 -->
+  <div class="sec">
+    <div class="sec-title">一、黑马头条项目架构</div>
+    <div class="card">
+      <div class="ct">01 — 项目子系统架构</div>
+      <div class="arch-grid">
+        <div class="arch-box" style="background:#eff6ff;border-color:#bfdbfe">
+          <div class="arch-title" style="background:#2563eb;color:#fff">用户前台</div>
+          <div class="arch-items" style="color:#1e40af">
+            内容推荐 / 内容搜索<br>
+            频道管理 / 内容展示<br>
+            个人页查看 / 提问<br>
+            个人中心 / 系统设置
+          </div>
+        </div>
+        <div class="arch-box" style="background:#f0fdf4;border-color:#86efac">
+          <div class="arch-title" style="background:#16a34a;color:#fff">自媒体前台</div>
+          <div class="arch-items" style="color:#14532d">
+            <b>内容发布 / 内容管理</b><br>
+            粉丝管理 / 评论管理<br>
+            数据分析 / 我的收益<br>
+            私信管理 / 素材管理
+          </div>
+        </div>
+        <div class="arch-box" style="background:#fff7ed;border-color:#fed7aa">
+          <div class="arch-title" style="background:#ea580c;color:#fff">系统后台</div>
+          <div class="arch-items" style="color:#c2410c">
+            用户管理 / 信息管理<br>
+            审批管理 / 公告管理<br>
+            客服管理 / 系统管理
+          </div>
+        </div>
+      </div>
+      <div class="info">📌 <b>本次实施模块（功能测试）：</b>① 登录模块 ② 发布文章模块（均属于自媒体前台）</div>
+    </div>
+  </div>
+
+  <!-- 测试实施6步 -->
+  <div class="sec">
+    <div class="sec-title">二、测试实施 6 步流程</div>
+    <div class="card">
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-circle" style="background:#2563eb">1</div>
+          <div class="flow-label">分析需求<br>阅读需求文档</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-circle" style="background:#7c3aed">2</div>
+          <div class="flow-label">设计测试点<br>提取功能点</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-circle" style="background:#ea580c">3</div>
+          <div class="flow-label">编写用例<br>覆盖测试点</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-circle" style="background:#16a34a">4</div>
+          <div class="flow-label">执行用例<br>实施测试</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-circle" style="background:#dc2626">5</div>
+          <div class="flow-label">缺陷管理<br>提交验证关闭</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-circle" style="background:#6b7280">6</div>
+          <div class="flow-label">测试总结<br>输出报告</div>
+        </div>
+      </div>
+      <div class="ok"><b>✅ 这6步是测试工程师完整的工作链路，</b>每个模块（登录、发布文章）都要走完这6步。</div>
+    </div>
+  </div>
+
+  <div class="pnav"><div></div><button class="pb nx" onclick="gp(1,null)">🔐 登录模块 →</button></div>
+</div>
+
+<!-- ════ PAGE 1 — 登录模块 ════ -->
+<div class="page" id="p1">
+  <div class="sec">
+    <div class="sec-title">登录模块 — 完整测试实施</div>
+
+    <!-- 需求分析 -->
+    <div class="card">
+      <div class="ct">STEP 1 — 需求分析（5个交互节点）</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin:10px 0">
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:6px;font-family:'Space Mono',monospace">需求1 — 手机号输入</div>
+          <div class="body">输入正确的中国手机号（11位）：文本框<b>失去焦点</b>时验证 → 红色=失败，绿色=成功</div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:6px;font-family:'Space Mono',monospace">需求2 — 发送验证码</div>
+          <div class="body">手机号绿色 → 弹出"点击按钮进行验证"；手机号红色 → 提示手机号不正确</div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:6px;font-family:'Space Mono',monospace">需求3 — 滑块验证</div>
+          <div class="body">
+            拖拽图形到指定位置 → 按钮消失（验证成功）<br>
+            拖拽图形未到指定位置 → 晃动提醒，滑块回到初始位置<br>
+            超过5次 → 提示"尝试过多，请点击重试"
+          </div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:6px;font-family:'Space Mono',monospace">需求4 — 输入验证码</div>
+          <div class="body">
+            正确验证码 + 勾选协议 → 进入系统<br>
+            错误验证码 + 勾选协议 → 提示验证码错误<br>
+            正确验证码 + 未勾选协议 → 提示请勾选
+          </div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:6px;font-family:'Space Mono',monospace">需求5 — 点击登录</div>
+          <div class="body">手机号绿色 + 验证码绿色 + 勾选协议 → 登录成功，跳转个人主页</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 测试点 -->
+    <div class="card">
+      <div class="ct">STEP 2 — 测试点设计（功能 + 非功能）</div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)">功能测试点</div>
+        <div class="tp-grid">
+          <div class="tp-card" style="background:var(--gbg);border-color:rgba(22,163,74,.3)">
+            <div class="tp-dir" style="background:var(--gbg2);color:var(--green)">手机号</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:6px">已注册手机号</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">为空</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">11位非自然数</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">10位自然数（少1位）</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">12位自然数（多1位）</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">11位正确但未注册</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--acbg);border-color:rgba(37,99,235,.25)">
+            <div class="tp-dir" style="background:var(--acbg);color:var(--accent)">验证码</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:6px">正确验证码</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">为空</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">错误验证码</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">过期验证码</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--abg);border-color:rgba(217,119,6,.3)">
+            <div class="tp-dir" style="background:var(--abg);color:var(--amber)">协议</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:6px">勾选协议</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">未勾选协议</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--daybg);border-color:rgba(234,88,12,.25)">
+            <div class="tp-dir" style="background:var(--daybg2);color:var(--day)">滑块（边界值）</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:6px">发送验证码成功</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">上点：1次失败、5次失败</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:6px">离点：6次（超限）</span></div>
+              <div class="tp-item"><span style="color:var(--accent)">内点</span><span style="margin-left:6px">3次失败</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-top:14px;margin-bottom:8px;color:var(--text)">非功能测试点</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
+          <div style="background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px">兼容性</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">5大浏览器：谷歌、火狐、IE、Edge、欧鹏、苹果Safari</div>
+          </div>
+          <div style="background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px">界面布局</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">① 布局与UI原型一致<br>② 图片与文字准确无误</div>
+          </div>
+          <div style="background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">性能 & 安全</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">登录响应时间<br>密码传输加密</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 滑块演示 -->
+    <div class="card">
+      <div class="ct">STEP 2B — 滑块验证 边界值分析（可交互）</div>
+      <div class="body" style="margin-bottom:12px">滑块验证失败次数：上点=1次、5次；离点=6次（触发锁定）；内点=3次</div>
+      <div class="slider-demo">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;font-family:'Space Mono',monospace">拖动滑块模拟验证</div>
+        <div class="slider-track" id="sliderTrack" onclick="moveSlider(event)">
+          <div class="slider-fill" id="sliderFill"></div>
+          <div class="slider-btn" id="sliderBtn">→</div>
+          <div class="slider-text" id="sliderText">← 向右拖动完成验证</div>
+        </div>
+        <div class="slider-status" id="sliderStatus">点击滑块轨道任意位置模拟拖动</div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button onclick="sliderFail()" style="padding:6px 14px;background:var(--rbg);border:1px solid rgba(220,38,38,.3);border-radius:6px;font-size:12.5px;color:var(--red);cursor:pointer">模拟失败一次</button>
+          <button onclick="sliderSuccess()" style="padding:6px 14px;background:var(--gbg);border:1px solid rgba(22,163,74,.3);border-radius:6px;font-size:12.5px;color:var(--green);cursor:pointer">模拟拖拽成功</button>
+          <button onclick="sliderReset()" style="padding:6px 14px;background:#f0f2f7;border:1px solid var(--border);border-radius:6px;font-size:12.5px;color:var(--muted);cursor:pointer">重置</button>
+        </div>
+        <div id="failCount" style="margin-top:8px;font-size:12.5px;color:var(--muted)">失败次数：0 / 5</div>
+      </div>
+
+      <!-- 滑块用例表 -->
+      <div style="font-size:13px;font-weight:700;margin:14px 0 8px;color:var(--text)">滑块相关测试用例（5条）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>编号</th><th>用例标题</th><th>测试数据</th><th>预期结果</th><th>点类型</th></tr>
+        <tr class="p0"><td>login_018</td><td>发送验证码成功（滑到指定位置）</td><td>拖拽到指定位置</td><td>手机号成功获取验证码</td><td><span class="tag tgr">正向</span></td></tr>
+        <tr><td>login_019</td><td>失败1次未到位</td><td>拖拽未到指定位置（1次）</td><td>验证码获取失败，滑块回到初始</td><td><span class="tag tor">上点</span></td></tr>
+        <tr><td>login_020</td><td>失败3次未到位</td><td>拖拽失败3次</td><td>验证码获取失败，滑块回原位</td><td><span class="tag tbl">内点</span></td></tr>
+        <tr><td>login_021</td><td>失败5次未到位</td><td>拖拽失败5次</td><td>验证码获取失败，滑块回原位</td><td><span class="tag tor">上点</span></td></tr>
+        <tr><td>login_022</td><td>失败6次（超过5次限制）</td><td>拖拽失败6次</td><td>第6次滑块界面消失，提示"尝试过多，请点击重试"</td><td><span class="tag tam">离点</span></td></tr>
+      </table></div>
+    </div>
+
+    <!-- 完整用例表 -->
+    <div class="card">
+      <div class="ct">STEP 3 — 完整测试用例（22条）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>编号</th><th>用例标题</th><th>优先级</th><th>前置条件</th><th>主要测试数据</th><th>预期结果</th></tr>
+        <tr class="p0"><td>login_001</td><td>登录成功</td><td><span class="tag tgr">P0</span></td><td>打开登录页，手机已注册</td><td>手机：注册号；验证码：正确</td><td>登录成功，跳转主页，手机号文本框失去焦点变绿</td></tr>
+        <tr class="p1"><td>login_002</td><td>登录失败（手机号为空）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：空；验证码：12345</td><td>登录失败，手机号不能为空，变红色</td></tr>
+        <tr class="p1"><td>login_003</td><td>登录失败（11位非自然数）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：13600001111a</td><td>请输入正确手机号，变红色，滑块不可点</td></tr>
+        <tr class="p1"><td>login_004</td><td>登录失败（10位自然数）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：1360000111</td><td>手机号未注册，变红色，滑块不可点</td></tr>
+        <tr class="p1"><td>login_005</td><td>登录失败（12位自然数）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：136000011112</td><td>手机号未注册，变红色，滑块不可点</td></tr>
+        <tr class="p1"><td>login_006</td><td>登录失败（11位手机号未注册）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：13600001111（未注册）</td><td>手机号未注册，变红色，滑块不可点</td></tr>
+        <tr class="p1"><td>login_007</td><td>登录失败（验证码为空）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：13600001111；验证码：空</td><td>登录失败，验证码不能为空</td></tr>
+        <tr class="p1"><td>login_008</td><td>登录失败（验证码错误）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>手机：13600001111；验证码：error</td><td>登录失败，验证码不正确</td></tr>
+        <tr class="p1"><td>login_009</td><td>登录失败（验证码过期）</td><td><span class="tag trd">P1</span></td><td>打开登录页，验证码已过期</td><td>手机：13600001111；验证码：过期码</td><td>登录失败，验证码已过期</td></tr>
+        <tr class="p1"><td>login_010</td><td>登录失败（未同意协议）</td><td><span class="tag trd">P1</span></td><td>打开登录页</td><td>协议：不勾选</td><td>登录失败，请先同意协议</td></tr>
+        <tr class="p2"><td>login_011~015</td><td>5大浏览器兼容性（谷歌/火狐/IE/Edge/苹果）</td><td><span class="tag tbl">P2</span></td><td>各浏览器安装正常</td><td>正确手机号+验证码</td><td>显示与UI原型一致，功能正常</td></tr>
+        <tr class="p3"><td>login_016</td><td>显示与UI一致（布局）</td><td><span class="tag" style="background:#f3f4f6;color:#6b7280">P3</span></td><td>打开页面</td><td>检查布局</td><td>页面与UI原型一致</td></tr>
+        <tr class="p0"><td>login_018~022</td><td>滑块验证（5条边界值用例）</td><td><span class="tag tgr">P0/P1</span></td><td>见上方滑块表</td><td>—</td><td>见上方滑块表</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(0,null)">← 项目介绍</button>
+    <button class="pb nx" onclick="gp(2,null)">📝 发布文章 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 2 — 发布文章 ════ -->
+<div class="page" id="p2">
+  <div class="sec">
+    <div class="sec-title">发布文章模块 — 完整测试实施</div>
+
+    <div class="card">
+      <div class="ct">STEP 1 — 需求分析</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0">
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:7px">必填字段规则</div>
+          <div class="body">
+            <span class="tag trd">1</span> 文章标题不能小于5个字符<br>
+            <span class="tag trd">2</span> 文章内容不能为空<br>
+            <span class="tag trd">3</span> 频道不能为空（下拉选择）
+          </div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:7px">封面选择（4种模式）</div>
+          <div class="body">
+            <span class="tag tgr">单图</span> 选1张图作为封面<br>
+            <span class="tag tgr">三图</span> 选3张图作为封面<br>
+            <span class="tag tgr">无图</span> 不设置封面<br>
+            <span class="tag tgr">自动</span> 系统自动选择封面
+          </div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:7px">图片上传规则</div>
+          <div class="body">
+            素材库/上传图片 可切换<br>
+            支持格式：jpeg / jpg / png<br>
+            单图大小不超过 <b>3MB</b>
+          </div>
+        </div>
+        <div style="background:#f0f2f7;border-radius:var(--r);padding:12px 15px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:7px">发布按钮</div>
+          <div class="body">
+            <span class="tag tgr">发表</span>→文章待审核，显示在内容列表<br>
+            <span class="tag tbl">存草稿</span>→文章草稿，可查看和发布
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">STEP 2 — 测试点设计（功能+非功能）</div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">功能测试点分析</div>
+        <div class="tp-grid">
+          <div class="tp-card" style="background:var(--gbg);border-color:rgba(22,163,74,.3)">
+            <div class="tp-dir" style="background:var(--gbg2);color:var(--green)">标题</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">5位字符（1@#4a）</span></div>
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">6位字符（&*()_+中）</span></div>
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">≥5位特殊字符（!@#QWE）</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">4位字符（不足5位）</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">为空</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">含敏感词</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--acbg);border-color:rgba(37,99,235,.25)">
+            <div class="tp-dir" style="background:var(--acbg);color:var(--accent)">内容</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">各类字符+URL+第三方</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">为空</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">含敏感词</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--abg);border-color:rgba(217,119,6,.25)">
+            <div class="tp-dir" style="background:var(--abg);color:var(--amber)">频道</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">选择数据库中存在的频道</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">不选择（为空）</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--rbg);border-color:rgba(220,38,38,.25)">
+            <div class="tp-dir" style="background:var(--rbg);color:var(--red)">封面</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">单图/三图/无图/自动</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">单图模式未选图片</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">三图模式少于3张</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--pbg);border-color:rgba(124,58,237,.25)">
+            <div class="tp-dir" style="background:var(--pbg);color:var(--purple)">按钮</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">点击发表 → 待审核</span></div>
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">点击存草稿 → 草稿</span></div>
+            </div>
+          </div>
+          <div class="tp-card" style="background:var(--daybg);border-color:rgba(234,88,12,.25)">
+            <div class="tp-dir" style="background:var(--daybg2);color:var(--day)">上传图片</div>
+            <div class="tp-list">
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">上传单图（jpeg≤3MB）</span></div>
+              <div class="tp-item"><span style="color:var(--green)">正向</span><span style="margin-left:4px">上传多图（jpeg/jpg/png）</span></div>
+              <div style="height:1px;background:var(--border);margin:4px 0"></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">为空（未选择）</span></div>
+              <div class="tp-item"><span style="color:var(--red)">逆向</span><span style="margin-left:4px">大于3MB</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tip">💡 <b>标题字段测试策略：</b>需求要求"不能小于5个字符"→ 用<b>边界值</b>设计。上点=5位（合法），离点=4位（不合法），内点=6位（合法）。同时用<b>等价类</b>区分特殊字符、中文、英文等类型。</div>
+    </div>
+
+    <!-- 发布文章用例 -->
+    <div class="card">
+      <div class="ct">STEP 3 — 完整测试用例（精选）</div>
+
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)">正向用例（发布成功）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>编号</th><th>用例标题</th><th>前置条件</th><th>测试数据</th><th>预期结果</th></tr>
+        <tr class="p0"><td>article_001</td><td>发布文章成功（单图）</td><td>已登录，素材库有图</td><td>标题：!@#4a；内容：你好；封面：单图（001.jpeg）；频道：数据库</td><td>发布成功，文章待审核，运营管理员代审</td></tr>
+        <tr class="p0"><td>article_002</td><td>发布文章成功（三图）</td><td>已登录，素材库有3图</td><td>标题：&*()_+中；封面：三图（001,002,003）；频道：数据库</td><td>发布成功，文章待审核</td></tr>
+        <tr class="p0"><td>article_003</td><td>发布文章成功（自动）</td><td>已登录</td><td>标题：!@##SDFABC；封面：自动；频道：数据库</td><td>发布成功，文章待审核</td></tr>
+        <tr class="p0"><td>article_004</td><td>存草稿成功（无图）</td><td>已登录</td><td>标题：!@#4a；封面：无图；频道：数据库</td><td>存草稿成功，草稿可查看及发布</td></tr>
+      </table></div>
+
+      <div style="font-size:13px;font-weight:700;margin:14px 0 8px;color:var(--text)">逆向用例（标题/内容/频道/封面）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>编号</th><th>用例标题</th><th>测试数据</th><th>预期结果</th></tr>
+        <tr class="p1"><td>article_007</td><td>发布失败（标题4个字符）</td><td>标题：1234</td><td>发布失败，提示标题不能小于5个字符</td></tr>
+        <tr class="p1"><td>article_008</td><td>发布失败（标题为空）</td><td>标题：空</td><td>发布失败，提示标题不能为空，应大于5个字符</td></tr>
+        <tr class="p1"><td>article_009</td><td>发布失败（标题含敏感词）</td><td>标题：含敏感词xx字</td><td>发布失败，提示标题不能含xx字</td></tr>
+        <tr class="p1"><td>article_010</td><td>发布失败（内容为空）</td><td>内容：空</td><td>发布失败，提示内容不能为空</td></tr>
+        <tr class="p1"><td>article_011</td><td>发布失败（内容含敏感词）</td><td>内容：含敏感词</td><td>发布失败，提示内容不能含xx字</td></tr>
+        <tr class="p1"><td>article_012</td><td>发布失败（频道为空）</td><td>频道：空</td><td>发布失败，请选择频道</td></tr>
+        <tr class="p1"><td>article_013</td><td>发布失败（单图未选图片）</td><td>封面：单图，未选图</td><td>发布失败，请上传封面图片</td></tr>
+        <tr class="p1"><td>article_014</td><td>发布失败（三图未一张图片）</td><td>封面：三图，未选图</td><td>发布失败，请上传封面图片</td></tr>
+      </table></div>
+
+      <div style="font-size:13px;font-weight:700;margin:14px 0 8px;color:var(--text)">非功能用例（兼容性+界面+图片上传）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>编号</th><th>用例标题</th><th>优先级</th><th>测试步骤</th><th>预期结果</th></tr>
+        <tr class="p2"><td>article_015~019</td><td>5大浏览器兼容性（火狐/IE/Edge/欧鹏/苹果）</td><td><span class="tag tbl">P2</span></td><td>各浏览器安装，使用发布文章功能</td><td>显示与UI一致，发布成功</td></tr>
+        <tr class="p3"><td>article_020</td><td>界面布局与UI原型一致</td><td><span class="tag" style="background:#f3f4f6;color:#6b7280">P3</span></td><td>检查页面布局</td><td>页面与原型一致</td></tr>
+        <tr class="p1"><td>article_023</td><td>素材库显示正确（全部/收藏标签）</td><td><span class="tag trd">P1</span></td><td>查看全部和收藏标签；检查图片数量</td><td>标签正确，图片数量与实际一致；超10张分页</td></tr>
+        <tr class="p0"><td>article_026</td><td>上传单图成功（≤3MB，jpeg）</td><td><span class="tag tgr">P0</span></td><td>点击添加图片→选001.jpeg→上传→确定</td><td>上传成功，素材库中显示该图</td></tr>
+        <tr class="p0"><td>article_027</td><td>上传多图成功（jpeg+jpg+png）</td><td><span class="tag tgr">P0</span></td><td>选002.jpeg+003.jpg+png→上传→确定</td><td>上传成功，素材库中显示</td></tr>
+        <tr class="p1"><td>article_028</td><td>上传失败（图片为空）</td><td><span class="tag trd">P1</span></td><td>点击上传（不选图片）</td><td>提示"请选择一张图片"</td></tr>
+        <tr class="p1"><td>article_029</td><td>上传失败（图片大小>3MB）</td><td><span class="tag trd">P1</span></td><td>选005.png（>3MB）→点击上传</td><td>上传失败，图片应小于3MB</td></tr>
+      </table></div>
+    </div>
+
+    <!-- 实战练习 -->
+    <div class="card">
+      <div class="ct">STEP 4/5/6 — 执行用例 · 缺陷管理 · 测试总结</div>
+      <div class="prac" id="pr0" style="margin-top:10px">
+        <div class="prac-hdr" onclick="tp(0)">
+          <div class="prac-n" style="background:var(--day)">实</div>
+          <div class="prac-t">📋 自测：发现以下缺陷，写出规范缺陷标题</div>
+          <div class="ps ps-todo" id="ps0">未开始</div>
+          <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+        </div>
+        <div class="prac-body" id="pb0">
+          <div style="display:flex;flex-direction:column;gap:10px;margin:12px 0">
+            <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+              <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">场景1：发布文章模块</div>
+              <div style="padding:10px 14px;font-size:13px;color:var(--muted)">标题输入4个字符"1234"，点击发表，期望提示"标题不能少于5个字符"，实际提示"发布成功"</div>
+              <div style="padding:0 14px 10px">
+                <div style="border:2px dashed var(--border);border-radius:6px;padding:9px 13px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.innerHTML='✅ <b>标准答案：</b>「输入4位字符标题（1234），期望：提示不能少于5个字符，实际：发布成功」';this.style.borderColor='var(--day)';this.style.color='var(--text)'">👆 点击查看答案</div>
+              </div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+              <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">场景2：封面单图</div>
+              <div style="padding:10px 14px;font-size:13px;color:var(--muted)">选择"单图"封面模式，不选择图片，点击发表，期望提示"请上传封面图片"，实际发布成功</div>
+              <div style="padding:0 14px 10px">
+                <div style="border:2px dashed var(--border);border-radius:6px;padding:9px 13px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.innerHTML='✅ <b>标准答案：</b>「选择单图封面模式未选图片点击发表，期望：提示请上传封面图片，实际：发布成功」';this.style.borderColor='var(--day)';this.style.color='var(--text)'">👆 点击查看答案</div>
+              </div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+              <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">场景3：图片上传</div>
+              <div style="padding:10px 14px;font-size:13px;color:var(--muted)">上传5MB的png图片，期望提示"图片大小不能超过3MB"，实际上传成功并显示在素材库</div>
+              <div style="padding:0 14px 10px">
+                <div style="border:2px dashed var(--border);border-radius:6px;padding:9px 13px;cursor:pointer;font-size:13px;color:var(--dim)" onclick="this.innerHTML='✅ <b>标准答案：</b>「上传5MB的PNG图片，期望：提示图片应小于3MB，实际：上传成功显示在素材库」';this.style.borderColor='var(--day)';this.style.color='var(--text)'">👆 点击查看答案</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+            <label class="ci"><input type="checkbox" onchange="cp(0)"><span>3道场景都能写出规范缺陷标题</span></label>
+            <label class="ci"><input type="checkbox" onchange="cp(0)"><span>缺陷标题包含：测试数据+预期+实际</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(1,null)">← 登录模块</button>
+    <button class="pb nx" onclick="gp(3,null)">💬 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 3 — 面试精讲 ════ -->
+<div class="page" id="p3">
+  <div class="sec">
+    <div class="sec-title">Day 05 高频面试题（12题）</div>
+    <div id="iqList"></div>
+  </div>
+  <div class="pnav">
+    <button class="pb" onclick="gp(2,null)">← 发布文章</button>
+    <button class="pb nx" onclick="gp(4,null)">✅ 测验(15题) →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 4 — 测验 (15题) ════ -->
+<div class="page" id="p4">
+  <div class="sec">
+    <div class="sec-title" style="margin-bottom:8px">Day 05 随堂测验 — 15道题</div>
+    <div class="body" style="color:var(--muted);margin-bottom:16px;font-size:13px">覆盖项目实施流程、登录测试点、发布文章测试点、滑块边界值、兼容性测试，正确率≥75%通过。</div>
+    <div class="sa" id="sa"></div>
+    <div id="qList"></div>
+    <div class="q-acts">
+      <button class="bs" onclick="sub()">提交答案</button>
+      <button class="br2" onclick="rst()">↺ 重新作答</button>
+    </div>
+  </div>
+  <div class="pnav" style="margin-top:20px">
+    <button class="pb" onclick="gp(3,null)">← 面试精讲</button>
+    <button class="pb nx" onclick="gp(0,null)">🔄 重新学习</button>
+  </div>
+</div>
+
+<script>
+/* SLIDER DEMO */
+let failCount = 0;
+const maxFail = 5;
+
+function sliderSuccess(){
+  if(failCount >= maxFail){document.getElementById('sliderStatus').innerHTML='<span style="color:var(--red)">⚠️ 已超过5次失败，滑块已锁定！需点击重试。</span>';return;}
+  document.getElementById('sliderFill').style.width='90%';
+  document.getElementById('sliderBtn').style.left='calc(90% - 18px)';
+  document.getElementById('sliderText').textContent='';
+  document.getElementById('sliderStatus').innerHTML='<span style="color:var(--green)">✅ 验证成功！已发送验证码。</span>';
+  document.getElementById('sliderBtn').textContent='✓';
+  document.getElementById('sliderBtn').style.background='var(--green)';
+  document.getElementById('sliderBtn').style.color='#fff';
+}
+
+function sliderFail(){
+  if(failCount >= maxFail) return;
+  failCount++;
+  document.getElementById('failCount').textContent='失败次数：'+failCount+' / '+maxFail;
+  const btn=document.getElementById('sliderBtn');
+  btn.style.animation='shake .4s';
+  btn.style.left='0px';
+  document.getElementById('sliderFill').style.width='0%';
+  setTimeout(()=>{btn.style.animation='';},400);
+  if(failCount >= maxFail){
+    document.getElementById('sliderStatus').innerHTML='<span style="color:var(--red)">❌ 第'+failCount+'次 → 提示"尝试过多，请点击重试"（对应用例 login_022 离点）</span>';
+    document.getElementById('sliderText').textContent='尝试过多，请点击重试';
+    document.getElementById('sliderBtn').style.display='none';
+  } else if(failCount===1||failCount===5){
+    document.getElementById('sliderStatus').innerHTML='<span style="color:var(--amber)">⚠️ 第'+failCount+'次失败（上点）→ 晃动提醒，回到初始位置</span>';
+  } else {
+    document.getElementById('sliderStatus').innerHTML='<span style="color:var(--amber)">⚠️ 第'+failCount+'次失败（内点）→ 晃动提醒，回到初始位置</span>';
+  }
+}
+
+function sliderReset(){
+  failCount=0;
+  document.getElementById('sliderFill').style.width='0%';
+  document.getElementById('sliderBtn').style.left='0px';
+  document.getElementById('sliderBtn').style.display='flex';
+  document.getElementById('sliderBtn').textContent='→';
+  document.getElementById('sliderBtn').style.background='#fff';
+  document.getElementById('sliderBtn').style.color='';
+  document.getElementById('sliderText').textContent='← 向右拖动完成验证';
+  document.getElementById('sliderStatus').textContent='点击滑块轨道任意位置模拟拖动';
+  document.getElementById('failCount').textContent='失败次数：0 / '+maxFail;
+}
+
+function moveSlider(e){
+  if(failCount>=maxFail)return;
+  const track=document.getElementById('sliderTrack');
+  const rect=track.getBoundingClientRect();
+  const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+  if(pct>0.85){sliderSuccess();}
+  else{
+    document.getElementById('sliderFill').style.width=(pct*100)+'%';
+    document.getElementById('sliderBtn').style.left=Math.max(0,pct*rect.width-18)+'px';
+  }
+}
+
+/* INTERVIEW DATA */
+const IQS=[
+  {lv:'lv-b',lvt:'🟢 基础',q:'测试实施的完整6步流程是什么？',
+   ans:`① <b>分析需求</b>：阅读需求文档，理解功能规格<br>
+② <b>设计测试点</b>：从需求中提取需要验证的功能点<br>
+③ <b>编写用例</b>：设计用例覆盖所有测试点（正向+逆向+非功能）<br>
+④ <b>执行用例</b>：实施功能测试，记录结果<br>
+⑤ <b>缺陷管理</b>：提交Bug → 验证 → 关闭<br>
+⑥ <b>测试总结</b>：输出测试报告，统计Bug，总结优缺点`,
+   tip:'面试必背，这是测试工程师的完整工作流，体现你理解项目全貌。',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'登录模块的功能测试点包括哪些？',
+   ans:`登录模块功能测试点分4个维度：<br>
+① <b>手机号：</b>已注册正确号码（正向）；为空、11位非自然数、10位、12位、11位未注册（逆向）<br>
+② <b>验证码：</b>正确（正向）；为空、错误、过期（逆向）<br>
+③ <b>协议：</b>勾选（正向）；未勾选（逆向）<br>
+④ <b>滑块验证：</b>拖到位（正向）；1次/3次/5次失败（上点/内点）；6次触发锁定（离点）`,
+   tip:'',trap:''},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'登录模块除了功能测试，还需要测什么？',
+   ans:`登录模块非功能测试包括：<br>
+① <b>兼容性测试：</b>5大主流浏览器（谷歌Chrome、火狐Firefox、IE、Edge、苹果Safari）<br>
+② <b>界面布局：</b>布局与UI原型一致；图片与文字准确无误<br>
+③ <b>性能测试：</b>登录响应时间是否在可接受范围<br>
+④ <b>安全测试：</b>密码是否加密传输（HTTPS），防暴力破解（登录次数限制）`,
+   tip:'',trap:'⚠️ 常见错误：只说功能测试，忘了非功能测试。面试问到"还需要测什么"要能说出兼容性、性能、安全。'},
+
+  {lv:'lv-b',lvt:'🟢 基础',q:'发布文章模块，标题字段应该如何设计测试点？',
+   ans:`需求：文章标题不能小于5个字符<br><br>
+<b>用等价类划分类型：</b><br>
+有效：字母、数字、特殊字符、中文<br>
+无效：敏感词<br><br>
+<b>用边界值分析长度：</b><br>
+上点：5位（合法，刚好满足）<br>
+离点：4位（不合法，少1位）<br>
+内点：6位或更多（合法中间值）<br><br>
+<b>覆盖测试数据示例：</b><br>
+正向：1@#4a（5位特殊+字母）、&*()_+中（6位）、大于5位特殊字符串<br>
+逆向：1234（4位）、空、含敏感词`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'发布文章的封面功能如何设计测试用例？',
+   ans:`封面有4种模式，针对每种设计正逆向：<br><br>
+<b>单图模式：</b><br>
+正向：选择1张图片发布成功<br>
+逆向：选择单图模式但不选图片 → 提示"请上传封面图片"<br><br>
+<b>三图模式：</b><br>
+正向：选择3张图片（三选1、三选2、三选3不同组合）<br>
+逆向：选择三图模式但未选任何图片 → 提示"请上传封面图片"<br><br>
+<b>无图模式：</b>正向：不选图片，直接发布 → 成功（无封面）<br>
+<b>自动模式：</b>正向：系统自动选择封面，发布成功`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'滑块验证使用了哪种测试方法？如何设计测试点？',
+   ans:`滑块验证失败次数限制使用<b>边界值分析法</b>：<br><br>
+需求：超过5次失败 → 提示"尝试过多"<br><br>
+<b>上点（边界值）：</b>1次失败、5次失败<br>
+<b>离点（超出边界）：</b>6次失败（触发锁定）<br>
+<b>内点（中间值）：</b>3次失败<br><br>
+<b>总共设计5条测试用例：</b><br>
+login_018：成功（正向）<br>
+login_019：失败1次（上点）<br>
+login_020：失败3次（内点）<br>
+login_021：失败5次（上点）<br>
+login_022：失败6次（离点）→ 触发锁定提示`,
+   tip:'面试说出"这里用了边界值，5次是上点，6次是离点（触发锁定）"，体现方法论应用。',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'图片上传功能需要测试哪些内容？',
+   ans:`图片上传功能的测试维度：<br><br>
+<b>格式验证：</b><br>
+正向：jpeg、jpg、png（支持格式）<br>
+逆向：其他格式如gif、bmp、docx（不支持）<br><br>
+<b>大小验证（边界值）：</b><br>
+正向：≤3MB（如2MB图片上传成功）<br>
+逆向：>3MB（如5MB提示"图片应小于3MB"）<br><br>
+<b>数量验证：</b><br>
+正向：上传单张（成功）、上传多张（成功）<br>
+逆向：不选择图片直接上传（提示"请选择一张图片"）<br><br>
+<b>素材库展示：</b>分页显示（超10张分页）、全部/收藏切换`,
+   tip:'',trap:''},
+
+  {lv:'lv-m',lvt:'🟡 进阶',q:'兼容性测试要覆盖哪些浏览器？为什么？',
+   ans:`<b>5大主流浏览器：</b><br>
+谷歌（Chrome）、火狐（Firefox）、IE、Edge、苹果（Safari）（还包括欧鹏Opera）<br><br>
+<b>原因：</b>不同浏览器的渲染引擎不同：<br>
+Chrome/Edge = Blink；Firefox = Gecko；Safari = WebKit；IE = Trident（旧版）<br>
+同一段代码在不同浏览器中可能显示效果不同（CSS兼容性）<br><br>
+<b>测试内容：</b><br>
+① 页面显示是否与UI原型一致<br>
+② 功能是否正常（登录、发布文章等）<br>
+③ 交互效果是否正常（滑块、弹窗等）`,
+   tip:'',trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】正向用例只需要写一条吗？为什么发布文章有4条正向用例？',
+   ans:`<b>不是，正向用例可以有多条。</b><br><br>
+<b>原因：</b>正向用例需要覆盖所有<b>有效的功能分支</b>，而不只是一条"全正确"的用例。<br><br>
+发布文章的4条正向用例对应4种封面模式（单图/三图/无图/自动）——每种模式的业务逻辑不同，都需要验证。<br><br>
+<b>正向用例设计原则：</b><br>
+• 每条正向用例尽量覆盖多个有效字段（提升效率）<br>
+• 每种功能分支（如单图/三图/无图/自动）各需一条正向用例<br>
+• 逆向用例：每次只改变一个字段为无效值（隔离验证）`,
+   tip:'',trap:'⚠️ 错误认知：正向只有一条"全部正确"就够了。正确是：有几种有效功能分支，就需要对应几条正向用例。'},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】测试发布文章时，标题输入了5个中文字符，发表成功，这条用例应该通过还是失败？',
+   ans:`<b>结论：应该通过（Pass）。</b><br><br>
+需求规定"文章标题不能小于5个字符"，5个中文字符 = 5个字符 ≥ 5，满足需求。<br><br>
+<b>注意：</b>需求说的是"字符"而非"字节"。一个中文字符在需求层面算1个字符（即使在存储层面可能是2-3字节）。如果系统对5个中文字符提示"不能少于5个字符"，那才是Bug！<br><br>
+<b>扩展测试点：</b>要确认需求中"字符"的定义——是按字符计还是按字节计，这是需求评审时需要澄清的点。`,
+   tip:'遇到字符/字节混淆的情况，一定要在需求评审时澄清，避免测试时争议。',trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】在测试登录时，发现手机号输入框可以输入超过11位，但超过11位点击登录会提示错误。这是Bug吗？',
+   ans:`<b>这需要具体分析，可能不是Bug，也可能是Bug（取决于需求文档）。</b><br><br>
+<b>情况A — 需求没有明确规定输入框最大长度：</b><br>
+只要超出11位无法登录（后端校验生效），前端不限制输入长度本身可以接受。但这可能导致用户体验差（用户不知道超过11位后会被拒绝），可作为"易用性建议"类Bug（S4）提交。<br><br>
+<b>情况B — 需求明确规定输入框最大11位：</b><br>
+前端输入框应限制最多输入11位，可以多输是Bug（功能错误，S2）。<br><br>
+<b>处理方式：</b>先对照需求文档确认，再判断是否提Bug。这也是"发现Bug后先确认是Bug"的原则体现。`,
+   tip:'',trap:''},
+
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】发布文章后，文章状态显示"待审核"而不是"已发布"，这是Bug吗？',
+   ans:`<b>不是Bug。</b><br><br>
+根据需求文档：发布文章后，文章状态显示<b>待审核</b>，由运营管理员审核，这是正常的业务流程。<br><br>
+<b>这里体现了一个重要原则：</b><br>
+测试人员不能凭直觉判断是否是Bug，必须对照需求文档。很多初级测试工程师会把"待审核"当成Bug提交，但这恰恰是需求规定的正常行为。<br><br>
+<b>如果以下情况出现才是Bug：</b><br>
+• 发布后状态显示"已发布"（未经审核）<br>
+• 发布后文章直接对外可见（绕过审核）<br>
+• 状态显示"草稿"而不是"待审核"`,
+   tip:'测试人员一定要深度理解需求，不能凭感觉判断Bug，要以需求文档为准。',trap:''}
+];
+
+function buildIQ(){
+  document.getElementById('iqList').innerHTML=IQS.map((q,i)=>`
+    <div class="iq" id="iq${i}">
+      <div class="iq-hdr" onclick="tiq(${i})">
+        <span class="iq-lv ${q.lv}">${q.lvt}</span>
+        <span class="iq-q">Q${i+1}. ${q.q}</span>
+        <span class="iq-arr">▶</span>
+      </div>
+      <div class="iq-body">
+        <div class="iq-inner">
+          <div class="iq-ans">${q.ans}</div>
+          ${q.tip?`<div class="iq-tip">💡 <b>面试 Tip：</b>${q.tip}</div>`:''}
+          ${q.trap?`<div class="iq-trap">⚠️ <b>常见错误：</b>${q.trap}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function tiq(i){document.getElementById('iq'+i).classList.toggle('open');}
+buildIQ();
+
+/* QUIZ */
+const QS=[
+  {q:'测试实施的正确6步顺序是？',
+   opts:['执行用例→设计测试点→分析需求→编写用例→缺陷管理→测试总结','分析需求→设计测试点→编写用例→执行用例→缺陷管理→测试总结','设计测试点→编写用例→分析需求→执行用例→缺陷管理→测试总结','分析需求→编写用例→设计测试点→执行用例→测试总结→缺陷管理'],
+   ans:1,exp:'正确顺序：①分析需求→②设计测试点→③编写用例覆盖测试点→④执行用例→⑤缺陷管理（提交/验证/关闭）→⑥测试总结。顺序不能乱，要先分析再设计再执行。'},
+  {q:'登录模块中，手机号字段的"逆向"测试点不包含哪项？',
+   opts:['11位非自然数（如含字母）','11位正确已注册手机号','10位自然数（少一位）','11位正确但未注册'],
+   ans:1,exp:'11位正确已注册手机号是正向用例（期望登录成功）。逆向用例是所有期望失败/拒绝的场景：为空、非自然数、位数不对（10位/12位）、格式对但未注册。'},
+  {q:'滑块验证失败次数限制（超过5次锁定），用哪种测试方法设计？上点和离点分别是什么？',
+   opts:['等价类，有效=1-5次，无效=6次以上','判定表，条件=是否5次，动作=锁定/不锁定','边界值，上点=1次和5次，离点=6次','流程图法，画出滑块失败流程'],
+   ans:2,exp:'滑块次数限制是典型的边界值场景：上点=1次和5次（边界上的点），离点=6次（紧邻边界外侧，触发锁定），内点=3次（范围中间值）。共设计5条测试用例。'},
+  {q:'发布文章需求：标题不能小于5个字符。以下哪个测试数据是"上点（边界点）"？',
+   opts:['4个字符（4位）','5个字符（5位）','6个字符（6位）','为空'],
+   ans:1,exp:'上点=边界上的点，即恰好满足边界条件的值。需求是"不能小于5个字符"，所以5个字符是上点（边界本身），4个字符是离点（边界外），6个字符是内点（范围内）。'},
+  {q:'图片上传规则：大小不超过3MB。测试数据"上传5MB图片"属于？',
+   opts:['正向用例','有效等价类','无效等价类/逆向用例','边界值上点'],
+   ans:2,exp:'5MB大于3MB，不满足上传要求，属于无效等价类（逆向用例）。预期结果是提示"图片应小于3MB"。上传失败是正确行为。'},
+  {q:'封面选择"三图"模式，测试人员应该设计哪些用例？',
+   opts:['只设计"三图模式+3张图"的正向用例','只设计"不选图片"的逆向用例','正向：选3张图片；逆向：选1或2张（不足3张）；逆向：不选图片','不需要单独测试，发布成功就行'],
+   ans:2,exp:'封面三图模式需要覆盖：正向（选足3张成功）、逆向（不足3张提示）、逆向（不选图片提示）。还可以测试不同图片组合（001+002+003等不同选择方式）。'},
+  {q:'兼容性测试需要覆盖哪些主流浏览器？',
+   opts:['只需要Chrome','Chrome和Firefox两种就够','谷歌、火狐、IE/Edge、欧鹏、苹果Safari共5大浏览器厂商','只测最新版本的Chrome和Safari'],
+   ans:2,exp:'兼容性测试需覆盖5大浏览器厂商：谷歌(Chrome)、火狐(Firefox)、IE/Edge、欧鹏(Opera)、苹果(Safari)。不同浏览器渲染引擎不同，同一页面可能显示差异。'},
+  {q:'测试发布文章时，发现文章发表后状态显示"待审核"，这是Bug吗？',
+   opts:['是Bug，发布后应直接显示"已发布"','不是Bug，根据需求文档这是正常的审核流程','不确定，需要问开发','是Bug，用户体验不好'],
+   ans:1,exp:'根据需求文档，发布文章后状态显示"待审核"，由运营管理员审核，这是正常业务流程。测试人员必须对照需求文档判断，不能凭感觉认为"应该直接发布"。'},
+  {q:'正向用例是否只需要写一条"全部正确"的用例？',
+   opts:['是，一条正向用例就够了','否，需要覆盖所有有效的功能分支（如每种封面模式各一条）','是，逆向用例才需要多条','正向用例不用写，只写逆向'],
+   ans:1,exp:'正向用例需要覆盖所有有效的功能分支。发布文章有4种封面模式（单图/三图/无图/自动），每种都需要正向验证，所以有4条正向用例。原则：有几种有效分支就写几条正向用例，每条尽量覆盖多个有效字段。'},
+  {q:'登录模块界面布局测试，主要验证什么？',
+   opts:['登录速度是否足够快','页面布局与UI原型一致，图片与文字准确无误','是否支持所有浏览器','密码是否加密传输'],
+   ans:1,exp:'界面布局测试的两个核心验证点：①布局与UI原型（设计稿）一致；②图片与文字准确无误（无错别字、图片不错位）。这属于非功能测试中的UI测试。'},
+  {q:'发布文章时，输入了含敏感词的内容，点击发表，正确的预期结果是？',
+   opts:['发布成功，内容直接展示','发布失败，提示内容不能含xx字（敏感词）','进入待审核状态','系统无响应'],
+   ans:1,exp:'根据需求，含敏感词的内容应该发布失败，系统提示不能含有该敏感词。这是内容安全过滤的功能测试，预期是拒绝发布并给出明确提示。'},
+  {q:'素材库图片超过10张时，正确的系统行为是？',
+   opts:['只显示前10张，其余不显示','显示所有图片但要等待较长时间','分页显示，超过10张后分页','删除最旧的图片腾出空间'],
+   ans:2,exp:'根据需求，素材库全部和收藏显示所有图片，超过10张分页显示。测试用例article_025验证了这一点：当素材库有12张图时，分2页显示（第1页10张，第2页2张）。'},
+  {q:'以下哪个不是登录测试中"验证码"字段的逆向测试点？',
+   opts:['验证码为空','验证码错误','验证码正确','验证码过期'],
+   ans:2,exp:'验证码正确是正向测试点（期望登录成功）。逆向测试点：为空（期望提示验证码不能为空）、错误（期望提示验证码错误）、过期（期望提示验证码已过期）。'},
+  {q:'发布文章模块，标题输入了5个中文字符，发表后系统提示"标题不能少于5个字符"，这是什么情况？',
+   opts:['正常，中文字符比英文大所以5个中文不够','这是Bug，5个字符已满足需求不应提示错误','这是正常的严格校验，提高了系统安全性','需要再测试一次才能判断'],
+   ans:1,exp:'需求规定"标题不能小于5个字符"，5个中文字符=5个字符，完全满足需求。系统错误地提示"不能少于5个字符"是Bug（功能错误）。可能是开发按字节计算（一个中文=2-3字节），而不是按字符计算。'},
+  {q:'完成登录和发布文章两个模块的测试后，下一步应该做什么？',
+   opts:['直接上线发布','继续测试其他模块，不需要总结','输出测试报告（Bug统计、遇到的问题、测试总结）','重新测试一遍'],
+   ans:2,exp:'测试流程第6步：测试总结，输出测试报告。报告内容包括：①Bug分析及统计 ②测试中遇到的问题 ③测试总结（本次测试的优点和不足）。这是完整测试工作的最后一步。'}
+];
+
+/* CORE JS */
+const pages=document.querySelectorAll('.page');
+const tabs=document.querySelectorAll('.t');
+const vis=new Set([0]);
+function initDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  pages.forEach((_,i)=>{const dot=document.createElement('div');dot.className='dot'+(i===0?' da':'');dot.onclick=()=>gp(i,null);d.appendChild(dot);});
+}
+function gp(idx,tabEl){
+  pages.forEach(p=>p.classList.remove('vis'));pages[idx].classList.add('vis');
+  tabs.forEach(t=>t.classList.remove('a'));(tabEl||tabs[idx]).classList.add('a');
+  vis.add(idx);
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>{d.className='dot'+(vis.has(i)?i===idx?'dot da':'dot dn2':'dot');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initDots();
+function tp(i){
+  const b=document.getElementById('pb'+i);b.classList.toggle('open');
+  if(b.classList.contains('open')){const p=document.getElementById('ps'+i);if(p.classList.contains('ps-todo')){p.className='ps ps-do';p.textContent='进行中';}}
+}
+function cp(i){
+  const checks=document.querySelectorAll('#pb'+i+' input[type=checkbox]');
+  const done=[...checks].filter(c=>c.checked).length;
+  const ps=document.getElementById('ps'+i);
+  if(done===checks.length){ps.className='ps ps-done';ps.textContent='✅ 完成';}
+  else{ps.className='ps ps-do';ps.textContent=done+'/'+checks.length;}
+}
+let sel={},checked=false;
+function buildQ(){
+  sel={};checked=false;
+  document.getElementById('sa').style.display='none';
+  document.getElementById('qList').innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="qt"><span class="qn">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pq(${i},${j})">
+          <span class="ol">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp" id="e${i}">${q.exp}</div>
+    </div>`).join('');
+}
+function pq(qi,oi){
+  if(checked)return;
+  const p=sel[qi];if(p!==undefined)document.getElementById('o'+qi+'_'+p).classList.remove('sel');
+  sel[qi]=oi;document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+function sub(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const e=document.getElementById('e'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');e.className='exp ok-e';}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');e.className='exp no-e';}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('sa');
+  sa.style.cssText='display:flex;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px;'+(pct>=75?'background:#f0fdf4;border:1.5px solid #86efac;':'background:#fff1f2;border:1.5px solid #fca5a5;');
+  sa.innerHTML=`<div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+    <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 优秀！Day05项目实战掌握良好！':pct>=50?'⚠️ 良好，建议复习错题':'❌ 建议重新学习本章'}</div>
+    <div style="font-size:12px;color:var(--muted)">正确率 ${pct}% · 通过：≥75%（≥12题）</div></div>`;
+  // Notify parent index.html to save quiz score
+  try { window.parent.postMessage({type:'qa_quiz_result',score,total:QS.length},'*'); } catch(e){}
+    sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rst(){buildQ();}
+buildQ();
+</script>
+</body>
+</html>

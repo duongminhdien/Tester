@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Day 01 · 文件与目录命令</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/source-han-sans-simplified-c-webfont@1.0.2/source-han-sans-simplified-c.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6fb;--white:#fff;--border:#e3e8f0;
+  --day:#1e293b;--daybg:rgba(30,41,59,.08);--daybg2:rgba(30,41,59,.13);
+  --green:#16a34a;--gbg:rgba(22,163,74,.09);--gbg2:rgba(22,163,74,.16);
+  --red:#dc2626;--rbg:rgba(220,38,38,.08);
+  --amber:#d97706;--abg:rgba(217,119,6,.09);
+  --accent:#2563eb;--acbg:rgba(37,99,235,.08);
+  --purple:#7c3aed;--pbg:rgba(124,58,237,.08);
+  --teal:#0891b2;--tbg:rgba(8,145,178,.09);
+  --orange:#ea580c;--obg:rgba(234,88,12,.08);
+  --terminal:#0f172a;--term-green:#4ade80;--term-yellow:#fbbf24;
+  --term-blue:#60a5fa;--term-red:#f87171;--term-muted:#64748b;
+  --text:#1a1f2e;--muted:#5a6380;--dim:#9aa0b8;
+  --r:10px;--rlg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;letter-spacing:.01em}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c8cedc;border-radius:3px}
+
+/* NAV */
+.dn{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--day);padding:5px 11px;border-radius:6px;margin-right:14px;white-space:nowrap;flex-shrink:0}
+.ts{display:flex;gap:0;flex:1;overflow-x:auto}
+.t{padding:13px 15px;font-size:12.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;user-select:none}
+.t:hover{color:var(--text);background:#f8f9fc}
+.t.a{color:var(--day);border-bottom-color:var(--day);font-weight:600}
+.td{display:flex;gap:5px;align-items:center;padding-left:12px;border-left:1px solid var(--border);margin-left:6px;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;cursor:pointer}
+.dot.dn2{background:var(--green)}.dot.da{background:var(--day);transform:scale(1.3)}
+
+/* PAGES */
+.page{display:none;max-width:940px;margin:0 auto;padding:28px 22px 70px}
+.page.vis{display:block}
+
+/* HERO */
+.hero{border-radius:var(--rlg);padding:26px 30px;margin-bottom:24px;border:1px solid}
+.hero-badge{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;padding:3px 9px;border-radius:99px;text-transform:uppercase;display:inline-block;margin-bottom:10px;font-weight:700}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero-sub{font-size:13.5px;color:var(--muted);line-height:1.75;margin-bottom:12px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.htag{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--white);color:var(--muted)}
+.hero-obj{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.obj{background:rgba(255,255,255,.75);border-radius:8px;padding:9px 12px;font-size:12.5px;display:flex;align-items:flex-start;gap:6px}
+.obj-ck{color:var(--green);font-weight:700;flex-shrink:0}
+
+/* SECTIONS */
+.sec{margin-bottom:24px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';display:block;width:3px;height:17px;background:var(--day);border-radius:2px;flex-shrink:0}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:#b8c4dc}
+.ct{font-size:12.5px;font-weight:700;color:var(--day);margin-bottom:11px;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.body{font-size:13.5px;line-height:1.9;color:#3a4158}
+.body b{color:var(--text)}
+
+/* TAGS */
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin:1px}
+.tgr{background:var(--gbg);color:var(--green)}.trd{background:var(--rbg);color:var(--red)}
+.tam{background:var(--abg);color:var(--amber)}.tbl{background:var(--acbg);color:var(--accent)}
+.tpu{background:var(--pbg);color:var(--purple)}.ttl{background:var(--tbg);color:var(--teal)}
+.tor{background:var(--obg);color:var(--orange)}.tdk{background:var(--daybg);color:var(--day)}
+
+/* BOXES */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#78350f;line-height:1.75}
+.info{background:#eff6ff;border:1px solid #bfdbfe;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#1e40af;line-height:1.75}
+.ok{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#14532d;line-height:1.75}
+.danger{background:#fff1f2;border:1px solid #fecdd3;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:13px;color:#7f1d1d;line-height:1.75}
+
+/* TERMINAL */
+.terminal{background:var(--terminal);border-radius:var(--rlg);overflow:hidden;margin:12px 0;font-family:'Space Mono',monospace}
+.term-bar{background:#1e293b;padding:9px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #334155}
+.tdot{width:10px;height:10px;border-radius:50%}
+.tr{background:#ff5f57}.ty{background:#febc2e}.tg{background:#28c840}
+.term-title{font-size:11px;color:#64748b;margin-left:6px;flex:1;text-align:center}
+.term-body{padding:14px 18px;font-size:12.5px;line-height:2;overflow-x:auto}
+.term-line{display:flex;gap:0;align-items:baseline;flex-wrap:wrap}
+.prompt{color:var(--term-green);white-space:nowrap}
+.cmd{color:#fff;margin-left:4px}
+.out{color:#94a3b8;padding-left:0;display:block;width:100%}
+.out-green{color:var(--term-green)}
+.out-blue{color:var(--term-blue)}
+.out-yellow{color:var(--term-yellow)}
+.out-red{color:var(--term-red)}
+.comment{color:var(--term-muted);font-style:italic}
+.hl{background:rgba(74,222,128,.12);border-radius:3px;padding:0 2px}
+
+/* INTERACTIVE TERMINAL */
+.iterm{background:var(--terminal);border-radius:var(--rlg);overflow:hidden;margin:14px 0}
+.iterm-bar{background:#1e293b;padding:8px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #334155}
+.iterm-screen{padding:12px 16px;font-family:'Space Mono',monospace;font-size:12px;line-height:1.9;min-height:200px;max-height:360px;overflow-y:auto;color:#94a3b8}
+.iterm-input-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid #1e293b;background:#0f172a}
+.iterm-prompt{font-family:'Space Mono',monospace;font-size:12px;color:var(--term-green);white-space:nowrap}
+.iterm-input{background:transparent;border:none;outline:none;font-family:'Space Mono',monospace;font-size:12px;color:#fff;flex:1}
+.iterm-btn{padding:4px 12px;background:#334155;border:none;border-radius:4px;color:#94a3b8;font-size:11px;cursor:pointer;font-family:'Space Mono',monospace}
+.iterm-btn:hover{background:#475569;color:#fff}
+.shortcut-grid{display:flex;gap:6px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid #1e293b}
+.sc{padding:4px 10px;background:#1e293b;border:1px solid #334155;border-radius:5px;font-family:'Space Mono',monospace;font-size:11px;color:#94a3b8;cursor:pointer;transition:all .15s}
+.sc:hover{background:#334155;color:#fff}
+
+/* COMMAND TABLE */
+.cmd-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.cmd-table th{background:#1e293b;padding:9px 12px;text-align:left;font-weight:600;color:#94a3b8;border:1px solid #334155;font-family:'Space Mono',monospace;font-size:11px}
+.cmd-table td{padding:8px 12px;border:1px solid var(--border);vertical-align:top;line-height:1.6}
+.cmd-table tr:nth-child(even) td{background:#fafbfd}
+.cmd-table td:first-child{font-family:'Space Mono',monospace;color:var(--day);font-weight:700;background:#f8f9fc;white-space:nowrap}
+
+/* DIR TREE */
+.tree{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.9;margin:12px 0;overflow-x:auto}
+.tree-dir{color:var(--accent);font-weight:700}
+.tree-file{color:var(--text)}
+.tree-desc{color:var(--muted)}
+
+/* TABLE */
+.tw{overflow-x:auto;margin:10px 0}
+.tbl2{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl2 th{background:#f0f3fa;padding:8px 11px;text-align:left;font-weight:600;color:var(--text);border:1px solid var(--border);font-size:11.5px}
+.tbl2 td{padding:7px 11px;border:1px solid var(--border);color:#3a4158;vertical-align:top;line-height:1.6}
+.tbl2 tr:nth-child(even) td{background:#fafbfd}
+
+/* INTERVIEW */
+.iq{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:8px;overflow:hidden}
+.iq.open{border-color:var(--day)}
+.iq-hdr{padding:13px 17px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;user-select:none}
+.iq-lv{font-size:9.5px;font-weight:700;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.lv-b{background:var(--gbg);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+.lv-m{background:var(--abg);color:var(--amber);border:1px solid rgba(217,119,6,.3)}
+.lv-h{background:var(--rbg);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+.lv-t{background:var(--daybg);color:var(--day);border:1px solid rgba(30,41,59,.3)}
+.iq-q{font-size:13.5px;font-weight:600;flex:1;line-height:1.5}
+.iq-arr{color:var(--dim);font-size:11px;flex-shrink:0;transition:transform .2s;margin-top:3px}
+.iq.open .iq-arr{transform:rotate(90deg)}
+.iq-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.iq.open .iq-body{max-height:1400px}
+.iq-inner{padding:0 17px 16px}
+.iq-ans{background:#f8f9fc;border-left:3px solid var(--day);border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;line-height:1.85;color:#3a4158;margin-bottom:8px}
+.iq-ans b{color:var(--text)}
+.iq-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#78350f;margin-bottom:6px}
+.iq-trap{background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:9px 13px;font-size:12.5px;color:#7f1d1d;margin-bottom:6px}
+
+/* PRACTICE */
+.prac{border:1px solid var(--border);border-radius:var(--rlg);margin-bottom:12px;overflow:hidden}
+.prac-hdr{display:flex;align-items:center;gap:11px;padding:13px 17px;cursor:pointer;user-select:none;background:var(--white);transition:background .15s}
+.prac-hdr:hover{background:#f8f9fc}
+.prac-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:#fff;flex-shrink:0}
+.prac-t{font-size:13.5px;font-weight:600;flex:1}
+.ps{font-size:10px;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace;flex-shrink:0}
+.ps-todo{background:#f0f2f7;color:var(--dim)}.ps-do{background:var(--daybg);color:var(--day)}.ps-done{background:var(--gbg2);color:var(--green)}
+.prac-body{display:none;padding:0 17px 17px;background:var(--white);border-top:1px solid var(--border)}
+.prac-body.open{display:block}
+.task-box{background:#f8f9fc;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:11px 0}
+.task-lbl{font-size:10.5px;font-weight:700;color:var(--day);font-family:'Space Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.ci{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ci:last-child{border-bottom:none}
+.ci input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.ci span{font-size:13px;color:#3a4158}
+.ci input:checked+span{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(22,163,74,.4)}
+
+/* QUIZ */
+.quiz-q{background:var(--white);border:1px solid var(--border);border-radius:var(--rlg);padding:17px 20px;margin-bottom:10px}
+.qn{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--day);background:var(--daybg);padding:2px 7px;border-radius:4px;margin-right:6px}
+.qt{font-size:13.5px;font-weight:600;margin-bottom:10px;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;width:100%}
+.opt:hover:not(:disabled){border-color:rgba(30,41,59,.3);background:var(--daybg)}
+.ol{width:20px;height:20px;border-radius:50%;background:#e8ecf4;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;flex-shrink:0;color:var(--muted);margin-top:1px;transition:all .15s}
+.opt.sel{border-color:rgba(30,41,59,.3);background:var(--daybg)}.opt.sel .ol{background:var(--day);color:#fff}
+.opt.ok{border-color:#15803d;background:var(--gbg)}.opt.ok .ol{background:var(--green);color:#fff}
+.opt.no{border-color:#b91c1c;background:var(--rbg)}.opt.no .ol{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+.exp{display:none;margin-top:9px;padding:9px 13px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.exp.ok-e{display:block;background:#f0fdf4;border-left:3px solid var(--green);color:#14532d}
+.exp.no-e{display:block;background:#fff5f5;border-left:3px solid var(--red);color:#7f1d1d}
+.q-acts{display:flex;gap:8px;margin-top:18px}
+.bs{padding:10px 24px;background:var(--day);color:#fff;border:none;border-radius:var(--r);font-size:13.5px;font-weight:700;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.bs:hover{opacity:.88}
+.br2{padding:10px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-size:13.5px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;cursor:pointer}
+.sa{display:none;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px}
+
+.pnav{display:flex;justify-content:space-between;margin-top:32px;padding-top:18px;border-top:1px solid var(--border)}
+.pb{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Source Han Sans SC','Noto Sans SC',sans-serif;color:var(--text);transition:all .15s}
+.pb:hover{background:var(--daybg);border-color:rgba(30,41,59,.3);color:var(--day)}
+.pb.nx{background:var(--day);color:#fff;border-color:var(--day)}
+.pb.nx:hover{opacity:.9}
+
+@media(max-width:640px){
+  .three-box,.eq-flow,.bv-grid,.arch-grid,.three-cores,.opt-grid,.method-grid,.tp-grid,.el-grid,.std-grid,.tag-grid,.eight-grid,.sp-grid,.do-dont,.compare-grid,.eq-class-grid,.flow-hex,.hero-obj,.qm-grid{grid-template-columns:1fr!important}
+  .sp-grid,.do-dont,.compare-grid,.eq-class-grid{grid-template-columns:1fr!important}
+  .dn{flex-wrap:wrap;padding:6px 12px;gap:4px}
+  .db{margin:4px 0;font-size:9px}
+  .ts{width:100%;overflow-x:auto}
+  .t{padding:9px 11px;font-size:11.5px}
+  .td{display:none}
+  .page{padding:16px 14px 60px}
+  .hero{padding:18px 16px}
+  .hero-title{font-size:18px}
+  .card{padding:15px 16px}
+  .pnav{flex-direction:column;gap:8px}
+  .pb{justify-content:center}
+  .qt{font-size:13px}
+  .iq-q{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="dn">
+  <div class="db">Linux · Day 01</div>
+  <div class="ts">
+    <div class="t a" onclick="gp(0,this)">📖 Linux介绍</div>
+    <div class="t" onclick="gp(1,this)">💻 常用命令</div>
+    <div class="t" onclick="gp(2,this)">🖥️ 终端练习</div>
+    <div class="t" onclick="gp(3,this)">💬 面试精讲</div>
+    <div class="t" onclick="gp(4,this)">✅ 测验(15题)</div>
+  </div>
+  <div class="td" id="dots"></div>
+</nav>
+
+<!-- ════ PAGE 0 — Linux介绍 ════ -->
+<div class="page vis" id="p0">
+  <div class="hero" style="background:linear-gradient(135deg,#f8fafc 0%,#e2e8f0 40%,#f0fdf4 100%);border-color:#cbd5e1">
+    <div class="hero-badge" style="background:rgba(30,41,59,.1);color:#1e293b;border:1px solid rgba(30,41,59,.25)">第二阶段 · Linux&数据库 · Day 01</div>
+    <div class="hero-title">Linux 基础 — 文件与目录操作</div>
+    <div class="hero-sub">掌握 Linux 系统基础知识、目录结构、远程连接方式，以及 ls、cd、touch、mkdir、rm、cp、mv、cat、grep 等核心命令，能在终端独立完成文件和目录操作。</div>
+    <div class="hero-tags">
+      <span class="htag">🐧 Linux 操作系统</span>
+      <span class="htag">⌨️ 11个核心命令</span>
+      <span class="htag">🖥️ 交互式终端演示</span>
+      <span class="htag">✅ 15道测验题</span>
+    </div>
+    <div class="hero-obj">
+      <div class="obj"><span class="obj-ck">✓</span><span>了解Linux特点和主要应用领域</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握Linux目录结构（/, /home, /etc等）</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能通过SSH远程连接Linux服务器</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>掌握文件和目录的增删改查命令</span></div>
+      <div class="obj"><span class="obj-ck">✓</span><span>能使用管道符和重定向组合命令</span></div>
+    </div>
+  </div>
+
+  <!-- Linux介绍 -->
+  <div class="sec">
+    <div class="sec-title">一、Linux 操作系统介绍</div>
+    <div class="card">
+      <div class="ct">01 — Linux是什么？</div>
+      <div class="body">
+        Linux 是一个开源、免费的操作系统，其内核由 Linus Torvalds 于1991年创建。严格来说，Linux 是操作系统的<b>内核</b>，常见发行版有 CentOS、Ubuntu、Debian、RedHat 等。<br><br>
+        <b>血缘关系：</b>Unix → BSD → Darwin/macOS；Linux 是 Unix 精神的继承者（GNU is Not Unix）
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0">
+        <div style="background:var(--gbg);border:1.5px solid rgba(22,163,74,.3);border-radius:var(--r);padding:13px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:7px">✅ Linux 4大特点</div>
+          <div style="font-size:12.5px;color:#14532d;line-height:1.9">开源免费<br>安全稳定<br>可移植性好（可安装在不同设备）<br>高性能</div>
+        </div>
+        <div style="background:var(--acbg);border:1.5px solid rgba(37,99,235,.25);border-radius:var(--r);padding:13px">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:7px">🌐 主要应用领域</div>
+          <div style="font-size:12.5px;color:#1e40af;line-height:1.9">应用服务器<br>数据库服务器<br>网络服务器<br>虚拟化/云计算</div>
+        </div>
+        <div style="background:var(--daybg);border:1.5px solid rgba(30,41,59,.2);border-radius:var(--r);padding:13px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:7px">📱 你不知道的Linux</div>
+          <div style="font-size:12.5px;color:#334155;line-height:1.9">Android内核是Linux<br>Samsung TIZEN内核是Linux<br>iOS来自Darwin来自BSD来自Unix</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">02 — 常见发行版</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="background:#fff1f2;border:1.5px solid #fca5a5;border-radius:8px;padding:9px 16px;text-align:center">
+          <div style="font-weight:700;color:#b91c1c;font-size:13px">RedHat</div>
+          <div style="font-size:11.5px;color:var(--muted)">企业级付费</div>
+        </div>
+        <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:9px 16px;text-align:center">
+          <div style="font-weight:700;color:#c2410c;font-size:13px">CentOS</div>
+          <div style="font-size:11.5px;color:var(--muted)">RedHat免费版，最常用</div>
+        </div>
+        <div style="background:#fef3c7;border:1.5px solid #fde047;border-radius:8px;padding:9px 16px;text-align:center">
+          <div style="font-weight:700;color:#854d0e;font-size:13px">Ubuntu</div>
+          <div style="font-size:11.5px;color:var(--muted)">桌面友好，开发常用</div>
+        </div>
+        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:9px 16px;text-align:center">
+          <div style="font-weight:700;color:#15803d;font-size:13px">Debian</div>
+          <div style="font-size:11.5px;color:var(--muted)">稳定，Ubuntu的父</div>
+        </div>
+        <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:9px 16px;text-align:center">
+          <div style="font-weight:700;color:#1d4ed8;font-size:13px">SuSE / Fedora</div>
+          <div style="font-size:11.5px;color:var(--muted)">欧洲/社区版</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 目录结构 -->
+  <div class="sec">
+    <div class="sec-title">二、Linux 目录结构（重要）</div>
+    <div class="card">
+      <div class="ct">03 — 核心目录说明</div>
+      <div class="tree">
+        <span style="color:#fbbf24">/ (根目录，唯一)</span><br>
+        ├── <span class="tree-dir">home</span>  <span class="tree-desc">用户目录，~等价于/home/用户名</span><br>
+        ├── <span class="tree-dir">root</span>  <span class="tree-desc">管理员root的专属目录</span><br>
+        ├── <span class="tree-dir">usr</span>   <span class="tree-desc">用户软件安装目录（Unix System Resources）</span><br>
+        ├── <span class="tree-dir">etc</span>   <span class="tree-desc">系统配置文件</span><br>
+        ├── <span class="tree-dir">boot</span>  <span class="tree-desc">启动文件（内核）</span><br>
+        ├── <span class="tree-dir">bin</span>   <span class="tree-desc">常用命令（ls/cd等在这里）</span><br>
+        ├── <span class="tree-dir">tmp</span>   <span class="tree-desc">临时文件（重启后清空）</span><br>
+        ├── <span class="tree-dir">var</span>   <span class="tree-desc">日志文件</span><br>
+        └── <span class="tree-dir">opt</span>   <span class="tree-desc">第三方软件安装位置</span>
+      </div>
+      <div class="info">📌 <b>关键点：</b>Linux 只有一个根目录 <code style="background:#f0f2f7;padding:1px 5px;border-radius:3px">/</code>，所有目录都从根出发。<code>~</code> 表示当前用户的家目录，通常是 <code>/home/用户名</code>（root用户是 <code>/root</code>）</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>目录</th><th>全称/含义</th><th>用途</th></tr>
+        <tr><td>/</td><td>Root（根）</td><td>整个文件系统的起点，唯一根</td></tr>
+        <tr><td>/home</td><td>Home directory</td><td>普通用户的家目录所在（/home/admin）</td></tr>
+        <tr><td>/root</td><td>Root's home</td><td>root管理员专属家目录</td></tr>
+        <tr><td>/etc</td><td>Etcetera</td><td>系统和软件的配置文件（MySQL配置在这）</td></tr>
+        <tr><td>/usr/bin</td><td>User Binary</td><td>用户级别的命令（ls, grep等）</td></tr>
+        <tr><td>/tmp</td><td>Temporary</td><td>临时文件，重启后可能清空</td></tr>
+        <tr><td>/opt</td><td>Optional</td><td>第三方软件安装目录（JDK, MySQL等）</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- 远程连接 -->
+  <div class="sec">
+    <div class="sec-title">三、远程连接 Linux</div>
+    <div class="card">
+      <div class="ct">04 — SSH远程连接流程</div>
+      <div class="body" style="margin-bottom:12px">要远程控制Linux服务器，需要：① 对方开启SSH服务 ② 知道IP地址和端口 ③ 使用SSH客户端连接</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
+        <div style="background:var(--daybg);border:1.5px solid rgba(30,41,59,.2);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--day);margin-bottom:8px">🔍 查看Linux的IP地址</div>
+          <div class="terminal" style="margin:0">
+            <div class="term-body" style="padding:8px 12px">
+              <span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ifconfig</span><br>
+              <span class="out">ens33: inet <span class="hl out-yellow">192.168.228.134</span> netmask 255.255.255.0</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--gbg);border:1.5px solid rgba(22,163,74,.25);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">🏓 测试网络连通性</div>
+          <div class="terminal" style="margin:0">
+            <div class="term-body" style="padding:8px 12px">
+              <span class="prompt">$</span><span class="cmd"> ping 192.168.228.134</span><br>
+              <span class="out out-green">64 bytes from 192.168.228.134: icmp_seq=1 ttl=64 time=0.4ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tw" style="margin-top:10px"><table class="tbl2">
+        <tr><th>工具</th><th>类型</th><th>特点</th></tr>
+        <tr><td><b>FinalShell</b></td><td>SSH客户端</td><td>国产，免费，功能丰富，SFTP文件传输</td></tr>
+        <tr><td><b>XShell</b></td><td>SSH客户端</td><td>功能强大，企业常用</td></tr>
+        <tr><td>连接步骤</td><td colspan="2">① ifconfig查IP → ② ping测连通 → ③ 客户端填IP/端口22/用户名/密码 → ④ 连接</td></tr>
+      </table></div>
+      <div class="tip">💡 <b>检查SSH服务是否开启：</b><code style="background:#1e2030;color:#86efac;padding:2px 8px;border-radius:4px;font-family:'Space Mono',monospace">netstat -anpt | grep ssh</code> — 如果看到LISTEN状态说明SSH服务正常运行，可以连接</div>
+    </div>
+  </div>
+
+  <div class="pnav"><div></div><button class="pb nx" onclick="gp(1,null)">💻 常用命令 →</button></div>
+</div>
+
+<!-- ════ PAGE 1 — 常用命令 ════ -->
+<div class="page" id="p1">
+  <div class="sec">
+    <div class="sec-title">Linux 命令格式 & 全部常用命令</div>
+
+    <div class="card">
+      <div class="ct">命令格式</div>
+      <div style="background:var(--terminal);border-radius:var(--r);padding:14px 18px;font-family:'Space Mono',monospace;font-size:13.5px;color:#fff;margin:10px 0;text-align:center">
+        <span style="color:var(--term-yellow)">command</span>
+        <span style="color:#64748b"> [</span><span style="color:var(--term-blue)">-options</span><span style="color:#64748b">] [</span><span style="color:var(--term-green)">parameter</span><span style="color:#64748b">]</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0;font-size:12.5px">
+        <div style="background:#f8f9fc;border-radius:6px;padding:10px 12px">
+          <span style="color:var(--amber);font-family:'Space Mono',monospace;font-weight:700">command</span>
+          <div style="color:var(--muted);margin-top:3px">命令的名称（必须有）</div>
+        </div>
+        <div style="background:#f8f9fc;border-radius:6px;padding:10px 12px">
+          <span style="color:var(--accent);font-family:'Space Mono',monospace;font-weight:700">[-options]</span>
+          <div style="color:var(--muted);margin-top:3px">可选项，可有一个或多个，也可没有</div>
+        </div>
+        <div style="background:#f8f9fc;border-radius:6px;padding:10px 12px">
+          <span style="color:var(--green);font-family:'Space Mono',monospace;font-weight:700">[parameter]</span>
+          <div style="color:var(--muted);margin-top:3px">参数，可有一个或多个，也可没有</div>
+        </div>
+      </div>
+      <div class="info">📌 <b>查看帮助：</b><code style="background:#f0f2f7;padding:1px 5px;border-radius:3px">command --help</code>（简洁）或 <code style="background:#f0f2f7;padding:1px 5px;border-radius:3px">man command</code>（详细，按Q退出）</div>
+    </div>
+
+    <!-- ls -->
+    <div class="card">
+      <div class="ct">3.1 ★★★ ls — 查看目录内容</div>
+      <div class="body" style="margin-bottom:10px">格式：<code style="background:#1e2030;color:#86efac;padding:2px 8px;border-radius:4px;font-family:'Space Mono',monospace">ls [-lah] [文件或目录]</code></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:10px 0">
+        <div style="background:var(--gbg);border-radius:6px;padding:10px;text-align:center"><code style="font-family:'Space Mono',monospace;color:var(--green)">-l</code><div style="font-size:12px;color:#14532d;margin-top:3px">列表形式显示详细信息</div></div>
+        <div style="background:var(--acbg);border-radius:6px;padding:10px;text-align:center"><code style="font-family:'Space Mono',monospace;color:var(--accent)">-a</code><div style="font-size:12px;color:#1e40af;margin-top:3px">显示所有文件（含隐藏文件）</div></div>
+        <div style="background:var(--abg);border-radius:6px;padding:10px;text-align:center"><code style="font-family:'Space Mono',monospace;color:var(--amber)">-h</code><div style="font-size:12px;color:#78350f;margin-top:3px">显示文件大小（须与-l合用）</div></div>
+      </div>
+      <div class="terminal">
+        <div class="term-bar"><div class="tdot tr"></div><div class="tdot ty"></div><div class="tdot tg"></div><div class="term-title">admin@localhost:~</div></div>
+        <div class="term-body">
+          <div class="term-line"><span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ls</span><span class="comment" style="margin-left:12px"># 列出当前目录文件</span></div>
+          <div class="term-line"><span class="out out-blue">公共 模板 视频 图片 文档 下载 音乐 桌面</span></div>
+          <div class="term-line"><span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ls -l</span><span class="comment" style="margin-left:12px"># 详细信息</span></div>
+          <div class="term-line"><span class="out">drwxr-xr-x. 2 admin admin 6 5月 16 2020 公共</span></div>
+          <div class="term-line"><span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ls -lha</span><span class="comment" style="margin-left:12px"># 详细+隐藏+大小</span></div>
+          <div class="term-line"><span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ls -lha /usr/bin</span><span class="comment" style="margin-left:12px"># 查看指定目录</span></div>
+          <div class="term-line"><span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ls *.txt</span><span class="comment" style="margin-left:12px"># 通配符：所有.txt文件</span></div>
+          <div class="term-line"><span class="out">123.txt  1.txt  23.txt  abc.txt  ab.txt</span></div>
+          <div class="term-line"><span class="prompt">[admin@localhost ~]$</span><span class="cmd"> ls /bin/*.sh</span><span class="comment" style="margin-left:12px"># /bin目录下所有.sh文件</span></div>
+        </div>
+      </div>
+      <div class="ok"><b>通配符说明：</b><code>*</code> 匹配0到多个任意字符；<code>?</code> 匹配单个任意字符；<code>[abcd]</code> 匹配括号内任意一个字符；<code>[a-z]</code> 匹配a到z范围内任意一个字符</div>
+    </div>
+
+    <!-- cd -->
+    <div class="card">
+      <div class="ct">3.2 ★★★ cd — 切换目录</div>
+      <div class="body" style="margin-bottom:10px">格式：<code style="background:#1e2030;color:#86efac;padding:2px 8px;border-radius:4px;font-family:'Space Mono',monospace">cd [目录路径]</code></div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>命令</th><th>作用</th><th>示例</th></tr>
+        <tr><td>cd</td><td>回到家目录（等同于cd ~）</td><td><code>cd</code></td></tr>
+        <tr><td>cd ~</td><td>回到家目录（/home/用户名）</td><td><code>cd ~</code></td></tr>
+        <tr><td>cd /</td><td>去根目录</td><td><code>cd /</code></td></tr>
+        <tr><td>cd ..</td><td>返回上一层目录</td><td><code>cd ..</code></td></tr>
+        <tr><td>cd -</td><td>返回上一次所在目录</td><td><code>cd -</code></td></tr>
+        <tr><td>cd /etc/abrt</td><td>绝对路径（/开头，唯一确定）</td><td><code>cd /etc/abrt</code></td></tr>
+        <tr><td>cd usr/bin</td><td>相对路径（当前位置出发）</td><td>当前在/时用<code>cd usr/bin</code></td></tr>
+      </table></div>
+      <div class="danger"><b>🔴 绝对路径 vs 相对路径：</b><br>绝对路径：必须以 / 或 ~ 开头，是唯一确定的路径（如 /etc/kernel）<br>相对路径：不以 / 或 ~ 开头，从当前位置出发（如 usr/bin，效果随当前位置变化）</div>
+    </div>
+
+    <!-- touch mkdir -->
+    <div class="card">
+      <div class="ct">3.3 touch · 3.4 ★★★ mkdir — 创建文件/目录</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:7px;color:var(--text)">touch — 创建文件</div>
+          <div class="terminal">
+            <div class="term-body" style="padding:10px 12px">
+              <span class="prompt">$</span><span class="cmd"> touch 1.txt 2.txt</span><br>
+              <span class="comment"># 同时创建多个文件</span><br>
+              <span class="comment"># 文件已存在→更新修改时间</span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px">创建的是普通文件（不是文件夹）</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:7px;color:var(--text)">mkdir — 创建目录</div>
+          <div class="terminal">
+            <div class="term-body" style="padding:10px 12px">
+              <span class="prompt">$</span><span class="cmd"> mkdir mike</span><br>
+              <span class="comment"># 当前路径下创建mike</span><br>
+              <span class="prompt">$</span><span class="cmd"> mkdir -p a/b/c</span><br>
+              <span class="comment"># 创建多层嵌套目录</span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px">目录已存在→报错；用-p可创建多层</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- rm -->
+    <div class="card">
+      <div class="ct">3.5 ★★★ rm — 删除文件或目录</div>
+      <div class="body" style="margin-bottom:8px">格式：<code style="background:#1e2030;color:#f87171;padding:2px 8px;border-radius:4px;font-family:'Space Mono',monospace">rm [-irf] 目录名或文件名</code></div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>选项</th><th>含义</th><th>说明</th></tr>
+        <tr><td><code>-i</code></td><td>交互式删除</td><td>删除前询问确认（默认选项），推荐使用</td></tr>
+        <tr><td><code>-f</code></td><td>强制删除</td><td>忽略不存在的文件，不提示确认</td></tr>
+        <tr><td><code>-r</code></td><td>递归删除</td><td><b>删除目录及目录下所有内容</b>（必须加）</td></tr>
+      </table></div>
+      <div class="terminal">
+        <div class="term-body" style="padding:10px 14px">
+          <span class="prompt">$</span><span class="cmd"> rm -r mike/</span><span class="comment" style="margin-left:12px"># 删除mike目录及其下所有内容</span><br>
+          <span class="prompt">$</span><span class="cmd"> rm -rf a.txt</span><span class="comment" style="margin-left:12px"># 强制删除，不提示</span><br>
+          <span class="prompt">$</span><span class="cmd"> rm -rf test*</span><span class="comment" style="margin-left:12px"># 删除所有test开头的目录/文件</span>
+        </div>
+      </div>
+      <div class="danger"><b>⚠️ 重要警告：</b>rm 删除后无法恢复！建议在 rm 命令后加 -i 参数，养成删除前确认的好习惯。生产环境禁止 <code>rm -rf /</code>！</div>
+    </div>
+
+    <!-- cp mv -->
+    <div class="card">
+      <div class="ct">3.6 ★★★ cp · 3.7 ★★★ mv — 复制/移动</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:7px;color:var(--text)">cp — 复制</div>
+          <div class="body" style="font-size:12.5px;margin-bottom:6px">格式：<code style="font-family:'Space Mono',monospace;background:#f0f2f7;padding:1px 5px;border-radius:3px">cp [-rif] 源 目标</code></div>
+          <div class="terminal">
+            <div class="term-body" style="padding:8px 12px">
+              <span class="prompt">$</span><span class="cmd"> cp 1.txt abc.txt</span><br>
+              <span class="comment"># 复制文件（改名）</span><br>
+              <span class="prompt">$</span><span class="cmd"> cp -r mike tom</span><br>
+              <span class="comment"># 复制目录（必须-r）</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:7px;color:var(--text)">mv — 移动/重命名</div>
+          <div class="body" style="font-size:12.5px;margin-bottom:6px">格式：<code style="font-family:'Space Mono',monospace;background:#f0f2f7;padding:1px 5px;border-radius:3px">mv [-if] 源 目标</code></div>
+          <div class="terminal">
+            <div class="term-body" style="padding:8px 12px">
+              <span class="prompt">$</span><span class="cmd"> mv a.txt mike/</span><br>
+              <span class="comment"># 移动到mike目录</span><br>
+              <span class="prompt">$</span><span class="cmd"> mv tom.txt rock.txt</span><br>
+              <span class="comment"># 重命名文件</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ok"><b>mv 的双重作用：</b>① 目标是目录 → 移动文件；② 目标是新文件名 → 重命名文件</div>
+    </div>
+
+    <!-- cat more grep -->
+    <div class="card">
+      <div class="ct">3.8 查看文件内容 — cat · more · grep</div>
+      <div class="tw"><table class="tbl2">
+        <tr><th>命令</th><th>适用场景</th><th>常用选项</th><th>快捷键</th></tr>
+        <tr><td><code>cat 文件</code></td><td>内容少的文件，全部显示</td><td>-n 显示行号；-b 非空行行号</td><td>—</td></tr>
+        <tr><td><code>more 文件</code></td><td>内容多的文件，分页查看</td><td>—</td><td>空格=下一页；b=上一页；q=退出</td></tr>
+        <tr><td><code>grep '关键字' 文件</code></td><td>搜索文件中包含关键字的行</td><td>-n 显示行号；-i 忽略大小写；-v 反转（不含）</td><td>—</td></tr>
+      </table></div>
+      <div class="terminal">
+        <div class="term-body" style="padding:10px 14px">
+          <span class="prompt">$</span><span class="cmd"> cat -n /etc/hosts</span><span class="comment" style="margin-left:10px"># 带行号查看</span><br>
+          <span class="prompt">$</span><span class="cmd"> more /var/log/messages</span><span class="comment" style="margin-left:10px"># 分页查看大文件</span><br>
+          <span class="prompt">$</span><span class="cmd"> grep -n 'root' /etc/passwd</span><span class="comment" style="margin-left:10px"># 搜索含root的行并显示行号</span><br>
+          <span class="out out-green">1:root:x:0:0:root:/root:/bin/bash</span><br>
+          <span class="prompt">$</span><span class="cmd"> grep -v '#' /etc/hosts</span><span class="comment" style="margin-left:10px"># 排除含#的行</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 重定向 管道 其他 -->
+    <div class="card">
+      <div class="ct">3.9 重定向 > >> · 3.10 ★★ 管道符 | · 3.11 其他命令</div>
+      <div class="tw" style="margin-bottom:12px"><table class="tbl2">
+        <tr><th>符号/命令</th><th>作用</th><th>示例</th></tr>
+        <tr><td><code>&gt;</code></td><td>输出重定向（覆盖写入）</td><td><code>ls -l &gt; result.txt</code></td></tr>
+        <tr><td><code>&gt;&gt;</code></td><td>输出重定向（追加写入）</td><td><code>cat 1.txt &gt;&gt; 2.txt</code></td></tr>
+        <tr><td><code>|</code>（管道）</td><td>将前一个命令的输出作为后一个命令的输入</td><td><code>ls -l | more</code></td></tr>
+        <tr><td><code>pwd</code></td><td>显示当前路径</td><td><code>pwd</code></td></tr>
+        <tr><td><code>clear</code></td><td>清屏（Ctrl+L也可以）</td><td><code>clear</code></td></tr>
+        <tr><td><code>which</code></td><td>查看命令的安装路径</td><td><code>which ls</code></td></tr>
+      </table></div>
+      <div class="terminal">
+        <div class="term-body" style="padding:10px 14px">
+          <span class="prompt">$</span><span class="cmd"> cat 1.txt > 2.txt</span><span class="comment" style="margin-left:10px"># 1.txt内容覆盖写入2.txt</span><br>
+          <span class="prompt">$</span><span class="cmd"> cat 1.txt 2.txt > 3.txt</span><span class="comment" style="margin-left:10px"># 合并1.txt和2.txt到3.txt</span><br>
+          <span class="prompt">$</span><span class="cmd"> ls /usr/bin | more</span><span class="comment" style="margin-left:10px"># 分页查看/usr/bin内容</span><br>
+          <span class="prompt">$</span><span class="cmd"> ls /usr/bin | grep '^au'</span><span class="comment" style="margin-left:10px"># 查找au开头的命令</span><br>
+          <span class="prompt">$</span><span class="cmd"> ls /etc | grep 'conf$'</span><span class="comment" style="margin-left:10px"># /etc下以conf结尾的文件</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(0,null)">← Linux介绍</button>
+    <button class="pb nx" onclick="gp(2,null)">🖥️ 终端练习 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 2 — 终端练习 ════ -->
+<div class="page" id="p2">
+  <div class="sec">
+    <div class="sec-title">模拟终端 — 输入命令练习</div>
+    <div class="card">
+      <div class="ct">交互式Linux终端（支持常用命令）</div>
+      <div class="body" style="margin-bottom:10px;font-size:13px">在下方输入框敲命令，回车执行。支持：ls、cd、pwd、mkdir、touch、rm、cat、cp、mv、grep、clear、echo、whoami 等</div>
+      <div class="iterm">
+        <div class="iterm-bar"><div class="tdot tr"></div><div class="tdot ty"></div><div class="tdot tg"></div><div class="term-title" style="color:#64748b">模拟终端 · CentOS 7</div></div>
+        <div class="iterm-screen" id="termScreen">
+          <div style="color:#4ade80">欢迎来到 Linux 模拟终端！</div>
+          <div style="color:#64748b">提示：这是模拟环境，支持基本文件操作命令。输入 help 查看支持的命令。</div>
+          <div style="color:#64748b">————————————————————————————</div>
+        </div>
+        <div class="iterm-input-row">
+          <span class="iterm-prompt" id="termPrompt">[admin@localhost ~]$</span>
+          <input class="iterm-input" id="termInput" type="text" placeholder="输入命令..." autocomplete="off" spellcheck="false">
+          <button class="iterm-btn" onclick="execCmd()">执行</button>
+          <button class="iterm-btn" onclick="clearTerm()">清屏</button>
+        </div>
+        <div class="shortcut-grid">
+          <span class="sc" onclick="fillCmd('ls -lha')">ls -lha</span>
+          <span class="sc" onclick="fillCmd('ls *.txt')">ls *.txt</span>
+          <span class="sc" onclick="fillCmd('pwd')">pwd</span>
+          <span class="sc" onclick="fillCmd('mkdir testdir')">mkdir testdir</span>
+          <span class="sc" onclick="fillCmd('touch 1.txt 2.txt')">touch 1.txt 2.txt</span>
+          <span class="sc" onclick="fillCmd('cd /etc')">cd /etc</span>
+          <span class="sc" onclick="fillCmd('cd ~')">cd ~</span>
+          <span class="sc" onclick="fillCmd('cd ..')">cd ..</span>
+          <span class="sc" onclick="fillCmd('cat /etc/hosts')">cat /etc/hosts</span>
+          <span class="sc" onclick="fillCmd('grep -n root /etc/passwd')">grep -n root</span>
+          <span class="sc" onclick="fillCmd('ls /etc | grep conf')">ls|grep</span>
+          <span class="sc" onclick="fillCmd('echo Hello Linux')">echo</span>
+          <span class="sc" onclick="fillCmd('whoami')">whoami</span>
+          <span class="sc" onclick="fillCmd('which ls')">which ls</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">实战练习 — Day01作业题解答</div>
+
+    <div class="prac" id="pr0">
+      <div class="prac-hdr" onclick="tp(0)">
+        <div class="prac-n" style="background:var(--day)">P1</div>
+        <div class="prac-t">📁 理论题：作业1-4答案参考</div>
+        <div class="ps ps-todo" id="ps0">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb0">
+        <div style="display:flex;flex-direction:column;gap:10px;margin:12px 0">
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">Q1. 什么是操作系统？</div>
+            <div style="padding:10px 14px;font-size:13px;color:var(--muted)">操作系统（OS）是管理计算机硬件和软件资源的系统软件，为用户和应用程序提供运行环境。它负责进程管理、内存管理、文件系统、设备驱动等核心功能。Linux、Windows、macOS都是常见的操作系统。</div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">Q2. Linux主要应用领域？</div>
+            <div style="padding:10px 14px;font-size:13px;color:var(--muted)">① 应用服务器（Tomcat/Nginx部署）② 数据库服务器（MySQL/Oracle）③ 网络服务器（DNS/DHCP）④ 虚拟化云计算（Docker/Kubernetes基础）</div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">Q3. Linux文件系统结构</div>
+            <div class="tree" style="margin:0;border-radius:0">
+              <span style="color:#fbbf24">/ (根)</span> → /home（用户目录）/root（管理员）/etc（配置）<br>/usr（软件）/bin（命令）/tmp（临时）/var（日志）/opt（第三方）
+            </div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+            <div style="background:#f0f2f7;padding:9px 14px;font-size:12.5px;font-weight:600">Q4. 常用文件及目录命令</div>
+            <div style="padding:10px 14px">
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span class="tag tdk">ls</span><span class="tag tdk">cd</span><span class="tag tdk">pwd</span><span class="tag tdk">touch</span><span class="tag tdk">mkdir</span><span class="tag tdk">rm</span><span class="tag tdk">cp</span><span class="tag tdk">mv</span><span class="tag tdk">cat</span><span class="tag tdk">more</span><span class="tag tdk">grep</span><span class="tag tdk">></span><span class="tag tdk">>></span><span class="tag tdk">|</span><span class="tag tdk">clear</span><span class="tag tdk">which</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:6px">
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我已理解操作系统的定义</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我能列出Linux的4个主要应用领域</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(0)"><span>我能说出/ /home /etc /usr /tmp的作用</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="prac" id="pr1">
+      <div class="prac-hdr" onclick="tp(1)">
+        <div class="prac-n" style="background:var(--green)">P2</div>
+        <div class="prac-t">⌨️ 实操题：作业5-14 命令参考答案</div>
+        <div class="ps ps-todo" id="ps1">未开始</div>
+        <div style="color:var(--dim);font-size:11px;margin-left:4px">▶</div>
+      </div>
+      <div class="prac-body" id="pb1">
+        <div class="terminal" style="margin:12px 0">
+          <div class="term-bar"><div class="tdot tr"></div><div class="tdot ty"></div><div class="tdot tg"></div><div class="term-title">Day01 作业 5-14 参考命令</div></div>
+          <div class="term-body">
+            <span class="comment"># Q5. 查看用户目录下所有文件（含隐藏）详细信息</span><br>
+            <span class="prompt">$</span><span class="cmd"> ls -lha /home/admin</span><span class="comment" style="margin-left:8px"># 绝对路径</span><br>
+            <span class="prompt">$</span><span class="cmd"> ls -lha ~</span><span class="comment" style="margin-left:8px"># 相对路径（~=家目录）</span><br>
+            <br>
+            <span class="comment"># Q6. 在Desktop创建adir目录，adir中包含dir1</span><br>
+            <span class="prompt">$</span><span class="cmd"> mkdir -p ~/桌面/adir/dir1</span><br>
+            <br>
+            <span class="comment"># Q7. 在dir1下创建test.txt</span><br>
+            <span class="prompt">$</span><span class="cmd"> touch ~/桌面/adir/dir1/test.txt</span><br>
+            <br>
+            <span class="comment"># Q8. 在dir1下创建abc.txt和abd.csv</span><br>
+            <span class="prompt">$</span><span class="cmd"> touch ~/桌面/adir/dir1/abc.txt ~/桌面/adir/dir1/abd.csv</span><br>
+            <br>
+            <span class="comment"># Q9. 查看dir1下所有txt文件详细信息并写入test.txt</span><br>
+            <span class="prompt">$</span><span class="cmd"> ls -l ~/桌面/adir/dir1/*.txt > ~/桌面/adir/dir1/test.txt</span><br>
+            <br>
+            <span class="comment"># Q10. 在adir下创建dir2，同时在dir2下创建1.txt和2.txt</span><br>
+            <span class="prompt">$</span><span class="cmd"> mkdir ~/桌面/adir/dir2 && touch ~/桌面/adir/dir2/1.txt ~/桌面/adir/dir2/2.txt</span><br>
+            <br>
+            <span class="comment"># Q11. 将dir2下所有文件复制到dir1</span><br>
+            <span class="prompt">$</span><span class="cmd"> cp ~/桌面/adir/dir2/* ~/桌面/adir/dir1/</span><br>
+            <br>
+            <span class="comment"># Q12. 删除dir2目录及其下文件（一条命令）</span><br>
+            <span class="prompt">$</span><span class="cmd"> rm -rf ~/桌面/adir/dir2</span><br>
+            <br>
+            <span class="comment"># Q13. 管道符查看/etc下以conf结尾的文件</span><br>
+            <span class="prompt">$</span><span class="cmd"> ls /etc | grep 'conf$'</span><br>
+            <br>
+            <span class="comment"># Q14. 查看/etc下文件信息并写入abc.txt</span><br>
+            <span class="prompt">$</span><span class="cmd"> ls /etc > abc.txt</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:6px">
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>Q5-9: 路径操作、touch、ls通配符、重定向</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>Q10-12: mkdir、cp复制、rm -rf删除</span></label>
+          <label class="ci"><input type="checkbox" onchange="cp(1)"><span>Q13-14: 管道符|、grep搜索、>重定向</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button class="pb" onclick="gp(1,null)">← 常用命令</button>
+    <button class="pb nx" onclick="gp(3,null)">💬 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 3 — 面试精讲 ════ -->
+<div class="page" id="p3">
+  <div class="sec">
+    <div class="sec-title">Linux Day01 高频面试题（12题）</div>
+    <div id="iqList"></div>
+  </div>
+  <div class="pnav">
+    <button class="pb" onclick="gp(2,null)">← 终端练习</button>
+    <button class="pb nx" onclick="gp(4,null)">✅ 测验(15题) →</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 4 — 测验 ════ -->
+<div class="page" id="p4">
+  <div class="sec">
+    <div class="sec-title" style="margin-bottom:8px">Linux Day01 随堂测验 — 15道题</div>
+    <div class="body" style="color:var(--muted);margin-bottom:16px;font-size:13px">覆盖Linux介绍、目录结构、命令格式、ls/cd/rm/cp/mv/grep/管道等，正确率≥75%（≥12题）通过。</div>
+    <div class="sa" id="sa"></div>
+    <div id="qList"></div>
+    <div class="q-acts">
+      <button class="bs" onclick="sub()">提交答案</button>
+      <button class="br2" onclick="rst()">↺ 重新作答</button>
+    </div>
+  </div>
+  <div class="pnav" style="margin-top:20px">
+    <button class="pb" onclick="gp(3,null)">← 面试精讲</button>
+    <button class="pb nx" onclick="gp(0,null)">🔄 重新学习</button>
+  </div>
+</div>
+
+<script>
+/* ══ TERMINAL SIMULATOR ══ */
+const FS = {
+  '/': {type:'dir', children:['home','etc','usr','tmp','bin','opt','root','var']},
+  '/home': {type:'dir', children:['admin']},
+  '/home/admin': {type:'dir', children:['公共','桌面','视频','图片','文档','下载','音乐']},
+  '/home/admin/桌面': {type:'dir', children:[]},
+  '/etc': {type:'dir', children:['hosts','passwd','shadow','fstab','hostname','profile','mysql']},
+  '/etc/hosts': {type:'file', content:'127.0.0.1   localhost\n::1         localhost\n192.168.228.134  server1'},
+  '/etc/passwd': {type:'file', content:'root:x:0:0:root:/root:/bin/bash\nbin:x:1:1:bin:/bin:/sbin/nologin\nadmin:x:1000:1000:admin:/home/admin:/bin/bash'},
+  '/usr': {type:'dir', children:['bin','local','lib']},
+  '/usr/bin': {type:'dir', children:['ls','cd','cp','mv','rm','grep','cat','more','mkdir','touch']},
+  '/tmp': {type:'dir', children:[]},
+  '/bin': {type:'dir', children:['bash','ls','cat','grep']},
+  '/root': {type:'dir', children:[]},
+};
+let cwd = '/home/admin';
+let fileSystem = JSON.parse(JSON.stringify(FS));
+
+function resolvePath(p) {
+  if(!p || p==='~' || p==='') return '/home/admin';
+  if(p.startsWith('~/')) return '/home/admin/' + p.slice(2);
+  if(p.startsWith('/')) return normalizePath(p);
+  if(p==='.') return cwd;
+  if(p==='..') return cwd.split('/').slice(0,-1).join('/') || '/';
+  if(p.startsWith('../')) {
+    const parent = cwd.split('/').slice(0,-1).join('/') || '/';
+    return resolvePath(parent + '/' + p.slice(3));
+  }
+  return normalizePath(cwd + '/' + p);
+}
+function normalizePath(p) {
+  const parts = p.split('/').filter(Boolean);
+  const result = [];
+  for(const part of parts) {
+    if(part==='..') result.pop();
+    else if(part!=='.') result.push(part);
+  }
+  return '/' + result.join('/');
+}
+function getNode(p) { return fileSystem[p] || null; }
+function promptStr() {
+  const d = cwd === '/home/admin' ? '~' : cwd;
+  return `[admin@localhost ${d}]$ `;
+}
+
+function execCmd() {
+  const input = document.getElementById('termInput');
+  const cmdStr = input.value.trim();
+  if(!cmdStr) return;
+  const screen = document.getElementById('termScreen');
+  addLine(screen, `<span style="color:#4ade80">${escHtml(promptStr())}</span><span style="color:#fff">${escHtml(cmdStr)}</span>`);
+  const [cmd, ...args] = cmdStr.split(/\s+/);
+  const output = runCmd(cmd, args, cmdStr);
+  if(output) addLine(screen, output);
+  input.value = '';
+  document.getElementById('termPrompt').textContent = promptStr();
+  screen.scrollTop = screen.scrollHeight;
+}
+
+function runCmd(cmd, args, full) {
+  switch(cmd) {
+    case 'help': return `<span style="color:#60a5fa">支持命令：ls cd pwd mkdir touch rm cp mv cat grep echo whoami which clear man</span>`;
+    case 'pwd': return `<span style="color:#94a3b8">${cwd}</span>`;
+    case 'whoami': return `<span style="color:#94a3b8">admin</span>`;
+    case 'clear': document.getElementById('termScreen').innerHTML=''; return '';
+    case 'echo': return `<span style="color:#94a3b8">${escHtml(args.join(' '))}</span>`;
+    case 'which': return `<span style="color:#94a3b8">/usr/bin/${args[0]||'ls'}</span>`;
+    case 'man': return `<span style="color:#fbbf24">man: 模拟环境不支持完整man手册。使用 ${args[0]||'ls'} --help 查看帮助。</span>`;
+    case 'ls': return cmdLs(args);
+    case 'cd': return cmdCd(args);
+    case 'mkdir': return cmdMkdir(args);
+    case 'touch': return cmdTouch(args);
+    case 'rm': return cmdRm(args, full);
+    case 'cp': return cmdCp(args);
+    case 'mv': return cmdMv(args);
+    case 'cat': return cmdCat(args);
+    case 'grep': return cmdGrep(args, full);
+    default: return `<span style="color:#f87171">bash: ${escHtml(cmd)}: command not found</span>`;
+  }
+}
+
+function cmdLs(args) {
+  let showHidden=false, showLong=false, showSize=false;
+  let target = cwd;
+  for(const a of args) {
+    if(a.startsWith('-')) { if(a.includes('a'))showHidden=true; if(a.includes('l'))showLong=true; if(a.includes('h'))showSize=true; }
+    else target = resolvePath(a);
+  }
+  // Handle pipe/grep in args - just show target
+  target = target.split('|')[0].trim();
+  const node = getNode(target);
+  if(!node) return `<span style="color:#f87171">ls: 无法访问'${escHtml(target)}': 没有那个文件或目录</span>`;
+  if(node.type==='file') return `<span style="color:#94a3b8">${target.split('/').pop()}</span>`;
+  let items = (node.children||[]).filter(c=>showHidden||!c.startsWith('.'));
+  if(showHidden) items = ['.','..', ...items];
+  if(showLong) {
+    return items.map(item=>{
+      const fullP = target==='/' ? '/'+item : target+'/'+item;
+      const n = getNode(fullP);
+      const isDir = n&&n.type==='dir';
+      const perm = isDir?'drwxr-xr-x':'--rw-r--r--';
+      const sz = showSize?(isDir?'4.0K':'1.2K'):'';
+      const col = isDir?'color:#60a5fa':'color:#94a3b8';
+      return `<span style="color:#64748b">${perm} 1 admin admin ${sz} 5月 16 2020 </span><span style="${col}">${escHtml(item)}</span>`;
+    }).join('\n') || '<span style="color:#64748b">(空目录)</span>';
+  }
+  const colored = items.map(item=>{
+    const fullP = target==='/' ? '/'+item : target+'/'+item;
+    const n = getNode(fullP);
+    return `<span style="${n&&n.type==='dir'?'color:#60a5fa':'color:#94a3b8'}">${escHtml(item)}</span>`;
+  });
+  return colored.join('  ');
+}
+
+function cmdCd(args) {
+  const target = args[0]||'~';
+  const p = resolvePath(target);
+  const n = getNode(p);
+  if(!n) return `<span style="color:#f87171">bash: cd: ${escHtml(target)}: 没有那个文件或目录</span>`;
+  if(n.type!=='dir') return `<span style="color:#f87171">bash: cd: ${escHtml(target)}: 不是目录</span>`;
+  cwd = p;
+  return '';
+}
+
+function cmdMkdir(args) {
+  let recursive=false, dirs=[];
+  for(const a of args){ if(a==='-p')recursive=true; else dirs.push(a); }
+  const msgs=[];
+  for(const d of dirs){
+    const p=resolvePath(d);
+    if(getNode(p)){ msgs.push(`<span style="color:#f87171">mkdir: 无法创建目录"${escHtml(d)}": 文件已存在</span>`); continue; }
+    if(!recursive){
+      const parent=p.split('/').slice(0,-1).join('/')||'/';
+      if(!getNode(parent)){ msgs.push(`<span style="color:#f87171">mkdir: 无法创建目录"${escHtml(d)}": 没有那个文件或目录（用-p创建多级）</span>`); continue; }
+    }
+    // Create path
+    const parts=p.split('/').filter(Boolean);
+    let cur='/';
+    for(const part of parts){
+      const next=(cur==='/'?'/'+part:cur+'/'+part);
+      if(!getNode(next)) fileSystem[next]={type:'dir',children:[]};
+      const pn=getNode(cur);
+      if(pn&&!pn.children.includes(part)) pn.children.push(part);
+      cur=next;
+    }
+    msgs.push(`<span style="color:#4ade80">目录已创建: ${escHtml(p)}</span>`);
+  }
+  return msgs.join('\n');
+}
+
+function cmdTouch(args) {
+  const msgs=[];
+  for(const a of args){
+    const p=resolvePath(a);
+    if(!getNode(p)){
+      const parent=p.split('/').slice(0,-1).join('/')||'/';
+      const pn=getNode(parent);
+      if(!pn){ msgs.push(`<span style="color:#f87171">touch: 无法创建'${escHtml(a)}': 没有那个文件或目录</span>`); continue; }
+      fileSystem[p]={type:'file',content:''};
+      if(!pn.children.includes(a.split('/').pop())) pn.children.push(a.split('/').pop());
+      msgs.push(`<span style="color:#4ade80">文件已创建: ${escHtml(p)}</span>`);
+    } else { msgs.push(`<span style="color:#64748b">文件已存在，已更新时间戳: ${escHtml(p)}</span>`); }
+  }
+  return msgs.join('\n');
+}
+
+function cmdRm(args, full) {
+  let force=false, recursive=false, targets=[];
+  for(const a of args){ if(a.startsWith('-')){ if(a.includes('f'))force=true; if(a.includes('r'))recursive=true; } else targets.push(a); }
+  const msgs=[];
+  for(const t of targets){
+    const p=resolvePath(t);
+    const n=getNode(p);
+    if(!n){ if(!force) msgs.push(`<span style="color:#f87171">rm: 无法删除'${escHtml(t)}': 没有那个文件或目录</span>`); continue; }
+    if(n.type==='dir'&&!recursive){ msgs.push(`<span style="color:#f87171">rm: 无法删除'${escHtml(t)}': 是一个目录（加-r参数）</span>`); continue; }
+    delete fileSystem[p];
+    const parent=p.split('/').slice(0,-1).join('/')||'/';
+    const pn=getNode(parent);
+    const name=p.split('/').pop();
+    if(pn) pn.children=pn.children.filter(c=>c!==name);
+    msgs.push(`<span style="color:#fbbf24">已删除: ${escHtml(p)}</span>`);
+  }
+  return msgs.join('\n');
+}
+
+function cmdCp(args) {
+  let recursive=false, paths=[];
+  for(const a of args){ if(a.startsWith('-')){ if(a.includes('r'))recursive=true; } else paths.push(a); }
+  if(paths.length<2) return `<span style="color:#f87171">cp: 缺少目标文件</span>`;
+  const src=resolvePath(paths[0]), dst=resolvePath(paths[1]);
+  const sn=getNode(src);
+  if(!sn) return `<span style="color:#f87171">cp: '${escHtml(paths[0])}': 没有那个文件或目录</span>`;
+  if(sn.type==='dir'&&!recursive) return `<span style="color:#f87171">cp: 略过目录'${escHtml(paths[0])}'（加-r）</span>`;
+  fileSystem[dst]={...JSON.parse(JSON.stringify(sn))};
+  const dstParent=dst.split('/').slice(0,-1).join('/')||'/';
+  const dstName=dst.split('/').pop();
+  const dpn=getNode(dstParent);
+  if(dpn&&!dpn.children.includes(dstName)) dpn.children.push(dstName);
+  return `<span style="color:#4ade80">已复制: ${escHtml(src)} → ${escHtml(dst)}</span>`;
+}
+
+function cmdMv(args) {
+  let paths=[];
+  for(const a of args){ if(!a.startsWith('-')) paths.push(a); }
+  if(paths.length<2) return `<span style="color:#f87171">mv: 缺少目标</span>`;
+  const src=resolvePath(paths[0]), dst=resolvePath(paths[1]);
+  const sn=getNode(src);
+  if(!sn) return `<span style="color:#f87171">mv: '${escHtml(paths[0])}': 没有那个文件或目录</span>`;
+  fileSystem[dst]={...JSON.parse(JSON.stringify(sn))};
+  delete fileSystem[src];
+  const sp=src.split('/').slice(0,-1).join('/')||'/'; const sname=src.split('/').pop();
+  const dp=dst.split('/').slice(0,-1).join('/')||'/'; const dname=dst.split('/').pop();
+  const spn=getNode(sp); if(spn) spn.children=spn.children.filter(c=>c!==sname);
+  const dpn=getNode(dp); if(dpn&&!dpn.children.includes(dname)) dpn.children.push(dname);
+  return `<span style="color:#4ade80">已移动: ${escHtml(src)} → ${escHtml(dst)}</span>`;
+}
+
+function cmdCat(args) {
+  const nonFlags=args.filter(a=>!a.startsWith('-'));
+  if(!nonFlags.length) return `<span style="color:#f87171">cat: 请指定文件</span>`;
+  const p=resolvePath(nonFlags[0]); const n=getNode(p);
+  if(!n) return `<span style="color:#f87171">cat: ${escHtml(nonFlags[0])}: 没有那个文件或目录</span>`;
+  if(n.type==='dir') return `<span style="color:#f87171">cat: ${escHtml(nonFlags[0])}: 是一个目录</span>`;
+  const showNum=args.includes('-n')||args.includes('-b');
+  const lines=(n.content||'(空文件)').split('\n');
+  return lines.map((l,i)=>showNum?`<span style="color:#64748b">${String(i+1).padStart(3)}  </span><span style="color:#94a3b8">${escHtml(l)}</span>`:`<span style="color:#94a3b8">${escHtml(l)}</span>`).join('\n');
+}
+
+function cmdGrep(args, full) {
+  const flags=args.filter(a=>a.startsWith('-'));
+  const nonFlags=args.filter(a=>!a.startsWith('-'));
+  if(nonFlags.length<2) return `<span style="color:#f87171">grep: 用法: grep [选项] 关键字 文件</span>`;
+  const keyword=nonFlags[0].replace(/^'|'$/g,'').replace(/^"|"$/g,'');
+  const p=resolvePath(nonFlags[1]); const n=getNode(p);
+  if(!n) return `<span style="color:#f87171">grep: ${escHtml(nonFlags[1])}: 没有那个文件或目录</span>`;
+  const showNum=flags.includes('-n'), ignoreCase=flags.includes('-i'), invert=flags.includes('-v');
+  const lines=(n.content||'').split('\n');
+  const regex=new RegExp(keyword.replace(/\^/,'^').replace(/\$/,'$'), ignoreCase?'i':'');
+  const results=lines.map((l,i)=>({l,i:i+1,m:regex.test(l)}))
+    .filter(x=>invert?!x.m:x.m)
+    .map(x=>showNum?`<span style="color:#64748b">${x.i}:</span><span style="color:#4ade80">${escHtml(x.l)}</span>`:`<span style="color:#4ade80">${escHtml(x.l)}</span>`);
+  return results.length?results.join('\n'):`<span style="color:#64748b">(无匹配结果)</span>`;
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function addLine(screen, html){const d=document.createElement('div');d.innerHTML=html;d.style.lineHeight='1.9';screen.appendChild(d);}
+function fillCmd(cmd){document.getElementById('termInput').value=cmd;document.getElementById('termInput').focus();}
+function clearTerm(){document.getElementById('termScreen').innerHTML='';}
+document.getElementById('termInput').addEventListener('keydown',e=>{if(e.key==='Enter')execCmd();});
+
+/* INTERVIEW */
+const IQS=[
+  {lv:'lv-b',lvt:'🟢 基础',q:'Linux 的主要特点有哪些？',
+   ans:`Linux 4大特点：<br>① <b>开源免费</b>：源代码公开，任何人可以查看和修改<br>② <b>安全稳定</b>：服务器可以连续运行数年不重启<br>③ <b>可移植性好</b>：可以安装在从服务器到嵌入式设备等各种硬件上<br>④ <b>高性能</b>：资源占用少，性能优异，适合服务器部署`,
+   tip:'',trap:''},
+  {lv:'lv-b',lvt:'🟢 基础',q:'Linux 常见目录 /etc、/tmp、/home 分别是做什么的？',
+   ans:`<b>/etc</b>：系统配置文件目录（MySQL、Nginx等的配置文件在这里）<br>
+<b>/tmp</b>：临时文件目录，系统重启后可能清空，不要放重要文件<br>
+<b>/home</b>：普通用户的家目录，每个用户有自己的子目录（如 /home/admin）<br>
+<b>/root</b>：root管理员的专属家目录<br>
+<b>/usr/bin</b>：用户级别的命令程序（ls、grep等都在这里）`,
+   tip:'',trap:''},
+  {lv:'lv-b',lvt:'🟢 基础',q:'ls -l 输出的每列信息分别表示什么？',
+   ans:`<code>drwxr-xr-x. 2 admin admin 6 5月 16 2020 公共</code><br><br>
+① <b>drwxr-xr-x</b>：文件类型（d=目录，-=普通文件）+ 权限（拥有者/组/其他）<br>
+② <b>2</b>：硬链接数<br>
+③ <b>admin</b>：文件拥有者<br>
+④ <b>admin</b>：文件所属组<br>
+⑤ <b>6</b>：文件大小（字节，-h 选项显示人性化大小）<br>
+⑥ <b>5月 16 2020</b>：最后修改时间<br>
+⑦ <b>公共</b>：文件名`,
+   tip:'',trap:''},
+  {lv:'lv-b',lvt:'🟢 基础',q:'rm 命令的 -i、-f、-r 选项分别是什么意思？',
+   ans:`<b>-i</b>：交互式，删除前询问确认（推荐养成习惯）<br>
+<b>-f</b>：强制删除，不询问，忽略不存在的文件<br>
+<b>-r</b>：递归删除，删除目录及其下所有内容（删目录必须加）<br><br>
+常用组合：<code>rm -rf 目录名</code>（强制递归删除）<br>
+⚠️ <b>rm 删除无法恢复！</b>生产环境建议加 -i 参数`,
+   tip:'',trap:'⚠️ 面试时说出"rm删除无法恢复，建议加-i确认"，体现对生产环境的谨慎。'},
+  {lv:'lv-b',lvt:'🟢 基础',q:'绝对路径和相对路径的区别？',
+   ans:`<b>绝对路径：</b>从根目录 / 或家目录 ~ 开始，能唯一确定文件位置<br>
+例：<code>/etc/mysql/my.cnf</code>，<code>~/桌面/test.txt</code><br><br>
+<b>相对路径：</b>从当前所在目录出发，路径结果随当前位置变化<br>
+例：在 /home/admin 下，<code>桌面/test.txt</code> 等价于 <code>/home/admin/桌面/test.txt</code><br><br>
+<b>特殊符号：</b><code>.</code>=当前目录；<code>..</code>=上一级目录；<code>~</code>=家目录`,
+   tip:'',trap:''},
+  {lv:'lv-m',lvt:'🟡 进阶',q:'管道符 | 是什么？举例说明用法。',
+   ans:`管道符 <code>|</code> 将前一个命令的<b>输出</b>作为后一个命令的<b>输入</b>，可以组合多个命令完成复杂操作。<br><br>
+<b>常见用法：</b><br>
+<code>ls -l | more</code>：分页查看目录内容<br>
+<code>ls /etc | grep 'conf$'</code>：查找/etc下以conf结尾的文件<br>
+<code>ps aux | grep mysql</code>：查看mysql相关进程<br>
+<code>cat /etc/passwd | grep root</code>：在passwd中搜索root`,
+   tip:'管道符是Linux命令行的核心思想之一，面试必须能举例并解释原理。',trap:''},
+  {lv:'lv-m',lvt:'🟡 进阶',q:'> 和 >> 有什么区别？',
+   ans:`<b>></b>（覆盖重定向）：将命令输出写入文件，如果文件已存在则<b>覆盖原内容</b><br>
+例：<code>ls -l > result.txt</code>（每次执行都会清空result.txt后重写）<br><br>
+<b>>></b>（追加重定向）：将命令输出<b>追加到文件末尾</b>，不覆盖原内容<br>
+例：<code>echo "新日志" >> app.log</code>（在app.log末尾添加）<br><br>
+<b>实际应用：</b>查看/etc下的文件信息写入abc.txt：<code>ls /etc > abc.txt</code>`,
+   tip:'',trap:'⚠️ 常见错误：混淆>和>>，生产环境用>可能导致日志被清空！'},
+  {lv:'lv-m',lvt:'🟡 进阶',q:'mv 命令有哪两种常见用法？',
+   ans:`<b>mv</b> 命令有两种用法：<br><br>
+① <b>移动文件/目录</b>：目标是已存在的目录<br>
+<code>mv a.txt mike/</code> → 将a.txt移动到mike目录下<br><br>
+② <b>重命名文件/目录</b>：目标是一个新文件名<br>
+<code>mv tom.txt rock.txt</code> → 把tom.txt改名为rock.txt<br>
+<code>mv old_dir new_dir</code> → 重命名目录<br><br>
+区别在于目标是目录还是文件名。`,
+   tip:'',trap:''},
+  {lv:'lv-m',lvt:'🟡 进阶',q:'grep 命令如何搜索文件中的内容？常用选项有哪些？',
+   ans:`<b>grep</b> 搜索文件中包含关键字的行，格式：<code>grep [选项] '关键字' 文件名</code><br><br>
+常用选项：<br>
+<b>-n</b>：显示匹配行的行号<br>
+<b>-i</b>：忽略大小写<br>
+<b>-v</b>：反转，显示<b>不</b>包含关键字的行<br><br>
+正则支持：<code>^root</code>（以root开头）；<code>bash$</code>（以bash结尾）<br><br>
+例：<code>grep -n 'root' /etc/passwd</code>（查找含root的行并显示行号）`,
+   tip:'',trap:''},
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【陷阱题】cp 复制目录时需要注意什么？',
+   ans:`复制目录时必须加 <b>-r</b>（递归）选项！<br><br>
+<code>cp tom mike</code> → 报错：略过目录"tom"<br>
+<code>cp -r tom mike</code> → 正确：将tom目录复制到mike<br><br>
+如果目标目录<b>已存在</b>：tom会作为子目录放入mike（即 mike/tom）<br>
+如果目标目录<b>不存在</b>：mike本身就是tom的副本<br><br>
+<b>区别：</b>rm和cp操作目录时都需要-r；mv不需要（mv可以直接移动/重命名目录）`,
+   tip:'',trap:''},
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】如何通过管道符查看 /etc 目录下以 conf 结尾的文件？',
+   ans:`命令：<code>ls /etc | grep 'conf$'</code><br><br>
+解析：<br>
+① <code>ls /etc</code>：列出/etc下所有文件和目录名<br>
+② <code>|</code>：管道符，将ls的输出传给grep<br>
+③ <code>grep 'conf$'</code>：搜索以conf结尾的行（$表示结尾）<br><br>
+类似的应用：<br>
+<code>ls /etc | grep '^my'</code>：查找以my开头的<br>
+<code>ps aux | grep mysql</code>：查看mysql进程<br>
+<code>netstat -anpt | grep ssh</code>：查看SSH连接`,
+   tip:'管道符组合grep是Linux最常用的操作，面试时必须能流畅写出。',trap:''},
+  {lv:'lv-h',lvt:'🔴 陷阱',q:'【场景题】mkdir -p 有什么作用？不加-p会怎样？',
+   ans:`<b>mkdir -p</b>：递归创建多级目录，<b>即使父目录不存在也能成功</b><br><br>
+<code>mkdir a/b/c</code>（不加-p）：如果a不存在，报错"没有那个文件或目录"<br>
+<code>mkdir -p a/b/c</code>（加-p）：同时创建 a、a/b、a/b/c 三层目录<br><br>
+<b>额外作用：</b>目录已存在时加-p不会报错（不加-p则报错"目录已存在"）<br><br>
+常见用法：<code>mkdir -p /opt/app/logs</code>（一次性创建多级部署目录）`,
+   tip:'',trap:''}
+];
+
+function buildIQ(){
+  document.getElementById('iqList').innerHTML=IQS.map((q,i)=>`
+    <div class="iq" id="iq${i}">
+      <div class="iq-hdr" onclick="tiq(${i})">
+        <span class="iq-lv ${q.lv}">${q.lvt}</span>
+        <span class="iq-q">Q${i+1}. ${q.q}</span>
+        <span class="iq-arr">▶</span>
+      </div>
+      <div class="iq-body">
+        <div class="iq-inner">
+          <div class="iq-ans">${q.ans}</div>
+          ${q.tip?`<div class="iq-tip">💡 <b>面试Tip：</b>${q.tip}</div>`:''}
+          ${q.trap?`<div class="iq-trap">⚠️ <b>注意：</b>${q.trap}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function tiq(i){document.getElementById('iq'+i).classList.toggle('open');}
+buildIQ();
+
+/* QUIZ */
+const QS=[
+  {q:'以下哪个不是Linux操作系统的特点？',
+   opts:['开源免费','需要购买license才能使用（付费）','安全稳定','可移植性好'],
+   ans:1,exp:'Linux的4大特点：开源免费、安全稳定、可移植性好、高性能。"需要购买license"是Windows Server或RedHat Enterprise Linux等商业软件的特点，CentOS/Ubuntu等是免费的。'},
+  {q:'Linux中，/tmp 目录的作用是？',
+   opts:['用户家目录','系统配置文件','临时文件，重启后可能清空','用户程序安装目录'],
+   ans:2,exp:'/tmp是临时文件目录，系统或用户程序在此存放临时文件，重启后可能被清空，不要在/tmp存放重要文件。'},
+  {q:'命令 ls -lha 中，-h 选项的作用是？',
+   opts:['显示隐藏文件','显示详细信息','以人性化格式显示文件大小（如4.0K）','显示帮助'],
+   ans:2,exp:'-l=详细列表；-a=显示所有（含隐藏）；-h=以人性化方式显示大小（如4.0K、1.2M），h必须与l一起用才有效。'},
+  {q:'以下路径中，哪个是绝对路径？',
+   opts:['桌面/test.txt','../etc/hosts','usr/bin','~/Documents/report.txt'],
+   ans:3,exp:'绝对路径必须以 / 或 ~ 开头。~代表家目录，所以~/Documents/report.txt是绝对路径。其他选项都不以/或~开头，是相对路径。'},
+  {q:'要删除目录 mydir 及其所有内容，正确的命令是？',
+   opts:['rm mydir','rm -f mydir','rm -r mydir','del mydir'],
+   ans:2,exp:'删除目录必须加-r（recursive递归）选项，否则rm报错"是一个目录"。rm -r mydir 会删除mydir及其下所有文件和子目录。加-f可以跳过确认提示。'},
+  {q:'mv 命令的两种主要用途是？',
+   opts:['创建文件和删除文件','复制文件和查看文件','移动文件/目录 和 重命名文件/目录','压缩文件和解压文件'],
+   ans:2,exp:'mv有两种用法：①目标是存在的目录→移动文件进去；②目标是新文件名→重命名。例：mv a.txt docs/（移动）；mv old.txt new.txt（重命名）。'},
+  {q:'命令 ls /etc | grep \'conf$\' 的作用是？',
+   opts:['查看/etc目录所有内容，并复制到conf文件','列出/etc目录内容，找出以conf结尾的文件名','删除/etc下所有conf文件','查看conf文件内容'],
+   ans:1,exp:'ls /etc列出/etc下所有内容；|（管道）将输出传给grep；grep \'conf$\'搜索以conf结尾的行（$=结尾）。结果：显示/etc下所有以conf结尾的文件名。'},
+  {q:'> 和 >> 的区别是？',
+   opts:['> 追加写入，>> 覆盖写入','> 覆盖写入（清空原内容），>> 追加写入（保留原内容）','两个效果一样，都是覆盖','> 是读取，>> 是写入'],
+   ans:1,exp:'>（覆盖）：如果目标文件已存在，先清空再写入，原内容丢失；>>（追加）：在文件末尾继续添加内容，原内容保留。生产环境写日志通常用>>。'},
+  {q:'mkdir -p a/b/c 的作用是？',
+   opts:['只创建a目录，b和c需要单独创建','报错，因为b目录不存在','递归创建多层目录：a、a/b、a/b/c','将a/b/c的内容清空'],
+   ans:2,exp:'-p选项让mkdir可以递归创建多层目录，即使父目录不存在。一条命令就能创建a、a/b、a/b/c三层目录。如果不加-p，当a不存在时会报错。'},
+  {q:'touch 命令的作用是？',
+   opts:['查看文件内容','创建文件（文件不存在时），或更新修改时间（文件存在时）','删除文件','复制文件'],
+   ans:1,exp:'touch主要有两个作用：①文件不存在时创建一个空文件；②文件已存在时更新其最后修改时间（文件内容不变）。注意：touch创建的是普通文件，不是目录。'},
+  {q:'grep -v 选项的作用是？',
+   opts:['显示行号','忽略大小写','显示不包含关键字的行（反转匹配）','显示所有隐藏文件'],
+   ans:2,exp:'grep -v（invert）反转匹配，显示所有不包含该关键字的行。例：grep -v "#" /etc/hosts 显示所有非注释行。-n显示行号，-i忽略大小写。'},
+  {q:'cp 复制目录时需要加什么选项？',
+   opts:['不需要任何特殊选项','-f强制复制','-r递归复制（必须加）','-v显示详情'],
+   ans:2,exp:'cp默认只能复制文件，复制目录时必须加-r（recursive递归）选项，否则报错"略过目录"。例：cp -r tom mike（将tom目录复制为mike）。'},
+  {q:'命令 cd - 的作用是？',
+   opts:['返回根目录/','返回家目录~','返回上一次所在的目录','返回上一层目录'],
+   ans:2,exp:'cd -（减号）返回上一次所在的目录，类似浏览器的"后退"。cd ..返回上一层；cd或cd ~返回家目录；cd /返回根目录。'},
+  {q:'which ls 命令的作用是？',
+   opts:['查看ls命令的帮助','查看ls命令的安装路径（程序文件在哪里）','列出所有ls的结果','查看ls的源代码'],
+   ans:1,exp:'which命令用于查看某个命令程序文件的安装路径。which ls 结果通常是 /usr/bin/ls，说明ls程序安装在/usr/bin目录下。'},
+  {q:'SSH 远程连接 Linux 服务器，默认使用哪个端口？',
+   opts:['80','8080','22','3306'],
+   ans:2,exp:'SSH（Secure Shell）远程连接默认端口是22。FinalShell/XShell等工具连接时端口字段默认就是22。其他常见端口：80=HTTP，443=HTTPS，3306=MySQL，8080=Tomcat。'}
+];
+
+/* CORE JS */
+const pages=document.querySelectorAll('.page');
+const tabs=document.querySelectorAll('.t');
+const vis=new Set([0]);
+function initDots(){
+  const d=document.getElementById('dots');d.innerHTML='';
+  pages.forEach((_,i)=>{const dot=document.createElement('div');dot.className='dot'+(i===0?' da':'');dot.onclick=()=>gp(i,null);d.appendChild(dot);});
+}
+function gp(idx,tabEl){
+  pages.forEach(p=>p.classList.remove('vis'));pages[idx].classList.add('vis');
+  tabs.forEach(t=>t.classList.remove('a'));(tabEl||tabs[idx]).classList.add('a');
+  vis.add(idx);
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>{d.className='dot'+(vis.has(i)?i===idx?'dot da':'dot dn2':'dot');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initDots();
+function tp(i){
+  const b=document.getElementById('pb'+i);b.classList.toggle('open');
+  if(b.classList.contains('open')){const p=document.getElementById('ps'+i);if(p.classList.contains('ps-todo')){p.className='ps ps-do';p.textContent='进行中';}}
+}
+function cp(i){
+  const checks=document.querySelectorAll('#pb'+i+' input[type=checkbox]');
+  const done=[...checks].filter(c=>c.checked).length;
+  const ps=document.getElementById('ps'+i);
+  if(done===checks.length){ps.className='ps ps-done';ps.textContent='✅ 完成';}
+  else{ps.className='ps ps-do';ps.textContent=done+'/'+checks.length;}
+}
+let sel={},checked=false;
+function buildQ(){
+  sel={};checked=false;
+  document.getElementById('sa').style.display='none';
+  document.getElementById('qList').innerHTML=QS.map((q,i)=>`
+    <div class="quiz-q">
+      <div class="qt"><span class="qn">Q${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button class="opt" id="o${i}_${j}" onclick="pq(${i},${j})">
+          <span class="ol">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="exp" id="e${i}">${q.exp}</div>
+    </div>`).join('');
+}
+function pq(qi,oi){
+  if(checked)return;
+  const p=sel[qi];if(p!==undefined)document.getElementById('o'+qi+'_'+p).classList.remove('sel');
+  sel[qi]=oi;document.getElementById('o'+qi+'_'+oi).classList.add('sel');
+}
+function sub(){
+  if(checked)return;checked=true;
+  let score=0;
+  QS.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{const b=document.getElementById('o'+i+'_'+j);b.disabled=true;b.classList.remove('sel');});
+    const e=document.getElementById('e'+i);
+    if(sel[i]===q.ans){score++;document.getElementById('o'+i+'_'+q.ans).classList.add('ok');e.className='exp ok-e';}
+    else{document.getElementById('o'+i+'_'+q.ans).classList.add('ok');if(sel[i]!==undefined)document.getElementById('o'+i+'_'+sel[i]).classList.add('no');e.className='exp no-e';}
+  });
+  const pct=Math.round(score/QS.length*100);
+  const sa=document.getElementById('sa');
+  sa.style.cssText='display:flex;border-radius:var(--r);padding:15px 20px;margin-bottom:14px;align-items:center;gap:14px;'+(pct>=75?'background:#f0fdf4;border:1.5px solid #86efac;':'background:#fff1f2;border:1.5px solid #fca5a5;');
+  sa.innerHTML=`<div style="text-align:center"><div style="font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:${pct>=75?'var(--green)':'var(--red)'}">${score}/${QS.length}</div><div style="font-size:11px;color:var(--muted)">得分</div></div>
+    <div><div style="font-size:14px;font-weight:600;margin-bottom:3px">${pct>=75?'🎉 Linux Day01 掌握良好！':pct>=50?'⚠️ 良好，建议复习错题':'❌ 需要重新学习本章'}</div>
+    <div style="font-size:12px;color:var(--muted)">正确率 ${pct}% · 通过：≥75%（≥12题）</div></div>`;
+  // Notify parent index.html to save quiz score
+  try { window.parent.postMessage({type:'qa_quiz_result',score,total:QS.length},'*'); } catch(e){}
+    sa.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rst(){buildQ();}
+buildQ();
+</script>
+</body>
+</html>
