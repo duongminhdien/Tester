@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3 · Web功能测试 Day 04 – 购物车模块测试 & 网络知识</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#0f766e;--day-d:#0d6b63;--day-bg:rgba(15,118,110,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(15,118,110,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(15,118,110,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.teal{background:#f0fdfa;border-color:#0f766e;color:#134e4a}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12px;padding:8px 10px;text-align:left}
+td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.card p,.card ul{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.card ul{padding-left:14px}
+.card li{margin-bottom:3px}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700}
+.bg-green{background:#dcfce7;color:#15803d}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.bg-teal{background:#ccfbf1;color:#134e4a}
+.bg-gray{background:#f1f5f9;color:#475569}
+.bg-purple{background:#ede9fe;color:#6d28d9}
+.p0{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p1{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p2{background:#dbeafe;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+/* HTTP可视化 */
+.http-box{background:#1e2030;border-radius:10px;padding:14px 16px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12.5px;color:#a6accd;overflow-x:auto}
+.http-box .kw{color:#89ddff}
+.http-box .val{color:#c3e88d}
+.http-box .url{color:#f78c6c}
+.http-box .method{color:#c792ea}
+.http-box .status{color:#89ddff;font-size:14px;font-weight:700}
+.http-box .comm{color:#546e7a}
+.url-parts{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.url-part{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-align:center;border:2px solid}
+.up-proto{background:#dbeafe;border-color:#3b82f6;color:#1d4ed8}
+.up-host{background:#dcfce7;border-color:#16a34a;color:#15803d}
+.up-port{background:#fef3c7;border-color:#d97706;color:#92400e}
+.up-path{background:#ede9fe;border-color:#7c3aed;color:#5b21b6}
+.up-param{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+/* 测试点卡片 */
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.tp-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tp-card h5{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed var(--border)}
+.tp-card ul{padding-left:14px;font-size:12.5px;color:var(--ink2)}
+.tp-card li{margin-bottom:3px}
+/* 边界值可视化 */
+.bv-line{position:relative;height:60px;background:#f1f5f9;border-radius:8px;margin:14px 0 8px;display:flex;align-items:center;padding:0 20px}
+.bv-axis{position:absolute;left:10px;right:10px;top:50%;height:3px;background:#cbd5e1;border-radius:2px}
+.bv-points{display:flex;align-items:flex-end;gap:0;width:100%;justify-content:space-around;position:relative;z-index:1}
+.bv-pt{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bv-dot{width:12px;height:12px;border-radius:50%;border:2px solid}
+.bv-ok{background:#dcfce7;border-color:#16a34a}
+.bv-no{background:#fee2e2;border-color:#dc2626}
+.bv-label{font-size:11px;font-family:'Space Mono',monospace;font-weight:700;white-space:nowrap}
+.bv-sub{font-size:10px;color:var(--muted)}
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.8;color:var(--ink2)}
+.pt-ans.s{display:block}
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.case-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.case-table th{background:var(--day-bg);color:var(--day-d);font-weight:700;padding:7px 9px;text-align:left;border:1px solid var(--border)}
+.case-table td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;color:var(--ink2)}
+.case-table tr:hover td{background:#fafbfc}
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .g2,.g3,.tp-grid{grid-template-columns:1fr}
+  table{font-size:11.5px}
+  th,td{padding:6px 8px}
+  .url-parts{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · WEB功能测试 · DAY 04</div>
+  <h1>购物车模块完整测试 &amp; HTTP 网络知识</h1>
+  <p>深入完成购物车4大功能（显示/添加/编辑/删除）的用例设计与执行，掌握 HTTP 请求（URL/方法/参数）和响应（状态码）的核心知识。</p>
+  <div class="hd-stats">
+    <div><b>2</b>核心模块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试精讲</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- 购物车完整模块 -->
+  <div class="sec">
+    <h2><span class="ico">🛒</span>一、购物车模块完整测试（4大功能区）</h2>
+    <div class="box teal">
+      <b>💡 测试原则：</b>先梳理需求 → 设计测试点 → 编写用例（正向+逆向+边界值）→ 执行并记录Bug。<br>
+      标准：<strong>覆盖需求</strong>；<strong>一个缺陷描述一个问题</strong>。
+    </div>
+
+    <h3>1.1 购物车显示（12条用例）</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>👤 未登录状态</h5>
+        <ul>
+          <li>提示去登录，点击可跳转登录页</li>
+          <li>与UI原型图保持一致</li>
+          <li>购物车图标无数量角标</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🛒 已登录-无商品</h5>
+        <ul>
+          <li>显示空购物车提示</li>
+          <li>与UI原型图保持一致</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📋 已登录-有商品</h5>
+        <ul>
+          <li>商品信息与加入前一致</li>
+          <li>按店铺分类显示</li>
+          <li>小计 = 单价 × 数量</li>
+          <li>总价 = 选中商品小计之和</li>
+          <li>已节省 = (原价-活动价)×数量</li>
+          <li>已选N件 = 勾选商品总数量</li>
+          <li>图片/名称点击跳转详情页</li>
+          <li>【去结算】跳转核对订单页</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🏪 多店铺结算</h5>
+        <ul>
+          <li>同时结算多家店铺商品</li>
+          <li>产生对应店铺数量的订单</li>
+          <li>失效商品显示在最底部</li>
+          <li>失效商品可删除/收藏</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>编号</th><th>优先级</th><th>用例标题</th><th>预期结果</th></tr>
+        <tr><td>tp_cart_001</td><td><span class="p1">P1</span></td><td>未登录情况下显示正常</td><td>提示去登录，点击跳转登录页面（与原型图一致）</td></tr>
+        <tr><td>tp_cart_002</td><td><span class="p1">P1</span></td><td>已登录无商品显示正常</td><td>显示正常，与原型图一致</td></tr>
+        <tr><td>tp_cart_003</td><td><span class="p0">P0</span></td><td>已登录有商品显示正常</td><td>商品信息与加入前一致，按店铺分类显示</td></tr>
+        <tr><td>tp_cart_004</td><td><span class="p0">P0</span></td><td>小计=单价*数量</td><td>修改数量后小计实时更新，计算正确</td></tr>
+        <tr><td>tp_cart_005</td><td><span class="p0">P0</span></td><td>总价=已选中商品小计总和</td><td>勾选/取消商品时总价实时正确计算</td></tr>
+        <tr><td>tp_cart_006</td><td><span class="p0">P0</span></td><td>已节省=(原价-活动价)×数量</td><td>勾选抢购商品时已节省金额正确计算</td></tr>
+        <tr><td>tp_cart_007</td><td><span class="p0">P0</span></td><td>已选N件=勾选商品总数量</td><td>勾选/更改数量时N值实时正确更新</td></tr>
+        <tr><td>tp_cart_008</td><td><span class="p1">P1</span></td><td>点击图片跳转商品详情</td><td>跳转到对应商品详情页面</td></tr>
+        <tr><td>tp_cart_009</td><td><span class="p1">P1</span></td><td>点击名称跳转商品详情</td><td>跳转到对应商品详情页面</td></tr>
+        <tr><td>tp_cart_010</td><td><span class="p0">P0</span></td><td>点击去结算跳转核对订单页</td><td>勾选后按钮高亮，点击跳转核对订单页</td></tr>
+        <tr><td>tp_cart_011</td><td><span class="p0">P0</span></td><td>多店铺商品结算产生对应数量订单</td><td>2家店铺商品 → 生成2个订单</td></tr>
+        <tr><td>tp_cart_012</td><td><span class="p1">P1</span></td><td>失效商品展示正常</td><td>显示在最底部，可删除、可收藏</td></tr>
+      </table>
+    </div>
+
+    <h3>1.2 添加商品（边界值核心）</h3>
+    <p><strong>需求规则回顾：</strong>单商品数量 [1, 200] 且 ≤ 库存；购物车种类 ≤ 20种</p>
+
+    <div class="box warn">
+      <b>⚠️ 两种校验时机（需求评审时必须确认）：</b><br>
+      • <strong>输入时校验：</strong>在输入框输入数字时立即给出提示<br>
+      • <strong>点击加入购物车后校验：</strong>提交时才校验<br>
+      需求评审时需要明确是哪种方式，影响用例设计策略！
+    </div>
+
+    <p style="margin-top:10px"><strong>边界值可视化（单商品数量，密码类比）：</strong></p>
+    <div class="bv-line">
+      <div class="bv-axis"></div>
+      <div class="bv-points">
+        <div class="bv-pt"><div class="bv-dot bv-no"></div><div class="bv-label">0件</div><div class="bv-sub">离点</div></div>
+        <div class="bv-pt"><div class="bv-dot bv-ok"></div><div class="bv-label">1件</div><div class="bv-sub">上点✓</div></div>
+        <div class="bv-pt"><div class="bv-dot bv-ok"></div><div class="bv-label">100件</div><div class="bv-sub">内点✓</div></div>
+        <div class="bv-pt"><div class="bv-dot bv-ok"></div><div class="bv-label">200件</div><div class="bv-sub">上点✓</div></div>
+        <div class="bv-pt"><div class="bv-dot bv-no"></div><div class="bv-label">201件</div><div class="bv-sub">离点✗</div></div>
+      </div>
+    </div>
+
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>用例标题</th><th>前置条件</th><th>预期结果</th></tr>
+        <tr><td>1件能添加成功（上点）</td><td>库存≥1</td><td>加入购物车成功；【-】按钮失效</td></tr>
+        <tr><td>200件能添加成功（上点）</td><td>库存>200</td><td>加入购物车成功；【+】按钮失效</td></tr>
+        <tr><td>库存件能添加成功（库存即上限）</td><td>库存=N，N&lt;200</td><td>加入N件成功；【+】按钮失效</td></tr>
+        <tr><td>数量1时【-】号失效</td><td>库存≥1</td><td>【-】按钮置灰不可点击</td></tr>
+        <tr><td>数量200时【+】号失效</td><td>库存>200</td><td>【+】按钮置灰不可点击</td></tr>
+        <tr><td>数量=库存时【+】号失效</td><td>库存&lt;200</td><td>【+】按钮置灰不可点击</td></tr>
+        <tr><td>添加失败（数量201）</td><td>库存>200</td><td>提示数量不合法，不能大于200</td></tr>
+        <tr><td>添加成功（20种商品）</td><td>购物车已有19种</td><td>第20种添加成功</td></tr>
+        <tr><td>添加失败（21种商品）</td><td>购物车已有20种</td><td>提示购物车商品种类不能超过20种</td></tr>
+      </table>
+    </div>
+
+    <h3>1.3 编辑商品购买数量</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>➕➖ 按钮方式编辑</h4>
+        <ul>
+          <li>每次只改变1件</li>
+          <li>数量=1时【-】不可用</li>
+          <li>数量=200或=库存时【+】不可用</li>
+          <li>修改后小计/总价/N件实时更新</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>⌨️ 直接输入编辑</h4>
+        <ul>
+          <li>最小1，最大200</li>
+          <li>小于1或大于200给出提示</li>
+          <li>不能大于库存数量</li>
+          <li>输入非数字/小数/空白的处理</li>
+          <li>输入后总价实时刷新</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>1.4 删除商品</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>🗑️ 单件删除</h5>
+        <ul>
+          <li>点击操作栏"删除"</li>
+          <li>对应商品消失</li>
+          <li>总价/件数实时更新</li>
+          <li>DB tp_cart对应记录删除</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>☑️ 多选删除</h5>
+        <ul>
+          <li>勾选多个商品</li>
+          <li>点击"删除选中商品"</li>
+          <li>选中商品消失，未选中保留</li>
+          <li>总价/件数更新</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🔲 全选删除</h5>
+        <ul>
+          <li>勾选"全选"后所有商品被选中</li>
+          <li>点击"删除选中商品"</li>
+          <li>所有商品消失</li>
+          <li>显示空购物车状态</li>
+          <li>总价归零</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- HTTP知识 -->
+  <div class="sec">
+    <h2><span class="ico">🌐</span>二、网络知识 — HTTP协议</h2>
+    <div class="box teal">
+      <b>🔑 为什么测试工程师要学HTTP？</b><br>
+      ① 定位前后端Bug（看请求/响应判断问题在哪里）<br>
+      ② 使用Fiddler抓包工具的理论基础<br>
+      ③ 接口测试的核心知识
+    </div>
+
+    <h3>2.1 HTTP 请求（3个重点）</h3>
+
+    <p><strong>重点一：URL 组成</strong></p>
+    <div class="http-box">
+      <span class="comm"># URL完整格式：</span><br>
+      <span class="kw">协议</span>://<span class="kw">主机地址</span>:<span class="kw">端口</span>/<span class="kw">路径</span>?<span class="kw">参数名</span>=<span class="kw">参数值</span>&amp;<span class="kw">参数名</span>=<span class="kw">参数值</span><br><br>
+      <span class="comm"># 示例：</span><br>
+      <span class="url">http://www.tpshop.com:80/goods/detail?boardID=5&amp;ID=246</span><br>
+      <span class="comm"># 协议=http  主机=www.tpshop.com  端口=80  路径=/goods/detail  参数=boardID=5,ID=246</span>
+    </div>
+
+    <div class="url-parts" style="margin:10px 0">
+      <div class="url-part up-proto">协议<br><small>http/https</small></div>
+      <div style="display:flex;align-items:center;color:var(--muted);font-weight:700">://</div>
+      <div class="url-part up-host">主机地址<br><small>域名或IP</small></div>
+      <div style="display:flex;align-items:center;color:var(--muted);font-weight:700">:</div>
+      <div class="url-part up-port">端口<br><small>80/443/8080</small></div>
+      <div class="url-part up-path">路径<br><small>/goods/detail</small></div>
+      <div style="display:flex;align-items:center;color:var(--muted);font-weight:700">?</div>
+      <div class="url-part up-param">参数<br><small>key=value&amp;key=value</small></div>
+    </div>
+
+    <div class="tw" style="margin-top:10px">
+      <table>
+        <tr><th>URL部分</th><th>含义</th><th>举例</th><th>常见端口</th></tr>
+        <tr><td><span class="badge bg-blue">协议</span></td><td>数据传输格式</td><td>http / https / ftp</td><td>http=80；https=443</td></tr>
+        <tr><td><span class="badge bg-green">主机地址</span></td><td>服务器地址（域名或IP）</td><td>www.baidu.com / 192.168.1.1</td><td>—</td></tr>
+        <tr><td><span class="badge bg-amber">端口</span></td><td>应用程序对外的唯一标识</td><td>:8080 / :3306</td><td>MySQL=3306</td></tr>
+        <tr><td><span class="badge bg-purple">路径</span></td><td>资源的具体地址</td><td>/api/login / /goods/detail</td><td>—</td></tr>
+        <tr><td><span class="badge bg-red">参数</span></td><td>传递给服务器的数据</td><td>?id=123&amp;page=1</td><td>多参数用&amp;分隔</td></tr>
+      </table>
+    </div>
+
+    <p style="margin-top:16px"><strong>重点二：请求方法（GET vs POST）</strong></p>
+    <div class="tw">
+      <table>
+        <tr><th>维度</th><th>GET</th><th>POST</th></tr>
+        <tr><td>参数位置</td><td>URL中（地址栏可见）</td><td>请求体中（不可见）</td></tr>
+        <tr><td>安全性</td><td>较低（参数明文在URL）</td><td>较高（参数在请求体）</td></tr>
+        <tr><td>长度限制</td><td>有限制（约2KB~8KB）</td><td>无长度限制</td></tr>
+        <tr><td>可缓存</td><td>可以缓存/收藏</td><td>不可缓存</td></tr>
+        <tr><td>适用场景</td><td>查询、搜索（不改变数据）</td><td>登录、注册、提交数据、上传</td></tr>
+        <tr><td>TPShop示例</td><td>搜索商品（?keyword=手机）</td><td>前台/后台登录</td></tr>
+      </table>
+    </div>
+    <div class="box danger">
+      <b>🔴 安全测试要点：</b>登录/注册/支付等含敏感信息的表单，<strong>必须使用POST</strong>。如果发现使用GET传递密码（URL明文可见），这是<strong>S1级安全Bug</strong>。
+    </div>
+
+    <p style="margin-top:12px"><strong>重点三：请求参数格式</strong></p>
+    <div class="http-box">
+      <span class="comm"># GET请求参数在URL中：</span><br>
+      <span class="url">GET /search?keyword=手机&amp;page=1&amp;sort=price HTTP/1.1</span><br><br>
+      <span class="comm"># POST请求参数在请求体：</span><br>
+      <span class="method">POST</span> <span class="url">/api/login HTTP/1.1</span><br>
+      Content-Type: application/x-www-form-urlencoded<br><br>
+      <span class="comm"># 请求体（Body）：</span><br>
+      <span class="val">username=13812345678&amp;password=abc123&amp;captcha=AB12</span>
+    </div>
+
+    <h3>2.2 HTTP 响应（重点：状态码）</h3>
+    <div class="tw">
+      <table>
+        <tr><th>状态码类型</th><th>含义</th><th>常见状态码</th><th>测试中的含义</th></tr>
+        <tr><td><span class="badge bg-green">2XX</span></td><td>请求成功</td><td>200（成功），204（无内容）</td><td>接口正常，功能成功</td></tr>
+        <tr><td><span class="badge bg-blue">3XX</span></td><td>重定向</td><td>301（永久），302（临时），304（缓存）</td><td>页面跳转，通常无问题</td></tr>
+        <tr><td><span class="badge bg-amber">4XX</span></td><td>客户端错误</td><td>400（参数错误），401（未授权），403（禁止），404（找不到）</td><td>前端请求有误</td></tr>
+        <tr><td><span class="badge bg-red">5XX</span></td><td>服务器错误</td><td>500（内部错误），502（网关错误），503（不可用）</td><td>后端服务故障，Bug</td></tr>
+      </table>
+    </div>
+
+    <div class="box info">
+      <b>📌 常见状态码记忆：</b><br>
+      200 = 成功（最常见的正确响应）<br>
+      404 = 找不到资源（URL路径错误/资源不存在）<br>
+      401 = 未授权（未登录就访问需要登录的页面）<br>
+      403 = 禁止访问（无权限）<br>
+      500 = 服务器内部错误（后端Bug，最严重）
+    </div>
+
+    <p><strong>响应体：</strong>服务器返回给客户端的实际数据，常见格式：</p>
+    <div class="http-box">
+      <span class="comm"># 格式一：HTML（前台页面返回的HTML代码）</span><br>
+      <span class="kw">&lt;html&gt;</span><span class="val">&lt;body&gt;页面内容&lt;/body&gt;</span><span class="kw">&lt;/html&gt;</span><br><br>
+      <span class="comm"># 格式二：JSON（API接口常用，易于程序解析）</span><br>
+      {<span class="kw">"code"</span>: <span class="val">200</span>, <span class="kw">"msg"</span>: <span class="val">"登录成功"</span>, <span class="kw">"data"</span>: {<span class="kw">"username"</span>: <span class="val">"张三"</span>}}<br><br>
+      <span class="comm"># 格式三：TXT（纯文本）或 图片等二进制数据</span>
+    </div>
+
+    <h3>HTTP完整通信过程</h3>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--blue)">
+        <h4>① 用户操作（客户端）</h4>
+        <p>输入URL → 浏览器发起HTTP请求<br>包含：方法(GET/POST) + URL + 参数 + 请求头</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green)">
+        <h4>② 服务器处理</h4>
+        <p>接收请求 → 处理业务逻辑 → 查询/更新数据库 → 生成响应数据</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <h4>③ 服务器响应</h4>
+        <p>返回：响应状态码 + 响应头 + 响应体（HTML/JSON/图片）</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--day)">
+        <h4>④ 浏览器渲染</h4>
+        <p>解析响应数据 → 渲染页面 → 展示给用户</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>购物车测试全景矩阵</h2>
+    <div class="tw">
+      <table>
+        <tr><th>功能区</th><th>P0（主路径）</th><th>P1（次路径）</th><th>边界/数据验证</th></tr>
+        <tr><td>显示</td><td>有商品时价格/计算正确</td><td>未登录/空购物车/失效商品</td><td>多店铺多订单</td></tr>
+        <tr><td>添加商品</td><td>1~200件内成功</td><td>超200件/超库存/超20种</td><td>0件/1件/200件/201件/20种/21种</td></tr>
+        <tr><td>编辑数量</td><td>修改后小计/总价更新</td><td>输入非法数字</td><td>1时-失效；200/库存时+失效</td></tr>
+        <tr><td>删除商品</td><td>单删/多删/全删成功</td><td>全删后空购物车状态</td><td>删后价格/件数实时更新</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🌐</span>GET vs POST 核心对比图</h2>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--blue)">
+        <h4 style="color:var(--blue)">GET 请求特征</h4>
+        <ul>
+          <li>参数拼在URL后面（? 分隔）</li>
+          <li>浏览器地址栏可以看到参数</li>
+          <li>URL有长度限制（约2KB）</li>
+          <li>可以被浏览器缓存</li>
+          <li>可以被收藏/分享</li>
+          <li>适合：搜索、查询、翻页</li>
+        </ul>
+        <div class="http-box" style="margin-top:8px;font-size:11px">
+          GET /search?q=手机&page=1 HTTP/1.1
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--red)">
+        <h4 style="color:var(--red)">POST 请求特征</h4>
+        <ul>
+          <li>参数放在请求体（Body）中</li>
+          <li>地址栏看不到参数（需抓包）</li>
+          <li>无长度限制</li>
+          <li>不可缓存</li>
+          <li>相对更安全</li>
+          <li>适合：登录、注册、提交、上传</li>
+        </ul>
+        <div class="http-box" style="margin-top:8px;font-size:11px">
+          POST /api/login HTTP/1.1<br>
+          username=abc&password=123
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>HTTP响应状态码速查</h2>
+    <div class="tw">
+      <table>
+        <tr><th>状态码</th><th>名称</th><th>测试中遇到意味着什么</th><th>常见场景</th></tr>
+        <tr><td><span class="badge bg-green">200</span></td><td>OK - 成功</td><td>接口正常，功能执行成功</td><td>登录成功、页面正常加载</td></tr>
+        <tr><td><span class="badge bg-green">204</span></td><td>No Content</td><td>请求成功但无返回内容</td><td>删除操作成功</td></tr>
+        <tr><td><span class="badge bg-blue">301</span></td><td>永久重定向</td><td>URL永久变更，浏览器自动跳转</td><td>http → https跳转</td></tr>
+        <tr><td><span class="badge bg-blue">302</span></td><td>临时重定向</td><td>临时跳转到另一个URL</td><td>登录后跳转首页</td></tr>
+        <tr><td><span class="badge bg-blue">304</span></td><td>未修改（缓存）</td><td>资源未变，浏览器从缓存读取</td><td>静态文件缓存</td></tr>
+        <tr><td><span class="badge bg-amber">400</span></td><td>Bad Request</td><td>请求参数格式错误（前端Bug）</td><td>表单数据格式不对</td></tr>
+        <tr><td><span class="badge bg-amber">401</span></td><td>Unauthorized</td><td>未认证/未登录（需要登录）</td><td>未登录访问需登录页面</td></tr>
+        <tr><td><span class="badge bg-amber">403</span></td><td>Forbidden</td><td>已认证但无权限</td><td>普通用户访问管理员接口</td></tr>
+        <tr><td><span class="badge bg-amber">404</span></td><td>Not Found</td><td>资源不存在（URL错误/已删除）</td><td>URL路径写错</td></tr>
+        <tr><td><span class="badge bg-red">500</span></td><td>Internal Server Error</td><td>后端代码异常，严重Bug</td><td>服务器空指针/数据库异常</td></tr>
+        <tr><td><span class="badge bg-red">502</span></td><td>Bad Gateway</td><td>网关/代理收到上游无效响应</td><td>Nginx无法连接后端服务</td></tr>
+        <tr><td><span class="badge bg-red">503</span></td><td>Service Unavailable</td><td>服务器不可用（过载/维护）</td><td>高并发时服务崩溃</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🔍</span>用Fiddler抓包定位Bug原理</h2>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--blue)">
+        <h4>前端Bug特征</h4>
+        <ul>
+          <li>❌ 无请求发出（点了没动静）</li>
+          <li>❌ 请求URL/方法/参数有误</li>
+          <li>❌ 请求正确，响应正确，但页面显示错误</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--red)">
+        <h4>后端Bug特征</h4>
+        <ul>
+          <li>❌ 请求正常，但无响应</li>
+          <li>❌ 请求正常，响应状态码错误（5XX）</li>
+          <li>❌ 请求正常，响应数据错误</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box info">
+      <b>📌 判断流程：</b>有请求？→ 请求参数对？→ 有响应？→ 状态码对？→ 响应数据对？→ 页面渲染对？<br>
+      每一步失败，就定位到对应的问题所在（前端/网络/后端/渲染）。
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习（共10题）</h2>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">1. 购物车"总价"的计算规则是什么？需要哪些测试用例来验证？</div>
+    <div class="pt-sub">考察购物车显示功能的核心计算验证</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>总价计算规则：</strong>总价 = 购物车中已勾选商品的小计总和（小计 = 单价 × 数量）<br><br>
+      <strong>验证用例设计：</strong><br>
+      用例1（P0）：勾选单个商品 → 总价 = 该商品单价×数量<br>
+      用例2（P0）：勾选多个商品 → 总价 = 各商品小计之和<br>
+      用例3（P0）：取消勾选一个商品 → 总价减去该商品小计<br>
+      用例4（P0）：修改商品数量 → 总价实时更新<br>
+      用例5（P1）：勾选含抢购商品 → 抢购商品按活动价计算（非原价）<br><br>
+      <strong>验证方式：</strong>手动计算正确值后与页面显示对比，也可用Python验证：assert total == sum(price*qty for each selected item)
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">2. 购物车添加商品，数量为200件时【+】号应该失效。如何设计测试用例验证这个按钮状态？</div>
+    <div class="pt-sub">考察边界值测试和UI交互验证</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>用例一（tp_cart_XXX）【+】号失效（数量=200）：</strong><br>
+      前置：库存>200；购物车有该商品<br>
+      步骤：① 进入购物车 ② 将商品数量调整为200件<br>
+      预期：【+】按钮置灰/不可点击；点击无效<br><br>
+      <strong>用例二（tp_cart_XXX）【+】号失效（数量=库存）：</strong><br>
+      前置：库存=N（N&lt;200）<br>
+      步骤：将数量调整为N件<br>
+      预期：【+】按钮置灰不可点击（库存已到上限）<br><br>
+      <strong>补充用例：验证199时+号仍可用</strong><br>
+      步骤：数量为199时，点击【+】<br>
+      预期：数量变为200，同时【+】按钮失效（内点→上点边界转换）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">3. 为什么需求评审时要确认"输入时校验"还是"提交时校验"？对测试用例有何影响？</div>
+    <div class="pt-sub">考察需求理解的深度和用例设计策略</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>两种校验时机的差异：</strong><br><br>
+      <strong>输入时校验（实时校验）：</strong><br>
+      用户在数量框输入201时立即出现红色提示，无需点击按钮。<br>
+      测试用例步骤：输入框输入201 → 验证立即出现提示<br><br>
+      <strong>点击加入购物车后校验（提交时校验）：</strong><br>
+      输入201后点击"加入购物车"按钮，提交时才给出提示。<br>
+      测试用例步骤：输入框输入201 → 点击加入购物车 → 验证提示<br><br>
+      <strong>影响：</strong><br>
+      如果实现的是"提交时校验"，但测试用例只写"输入时验证提示"，会出现：<br>
+      ① 用例执行Fail但不是真Bug（需求本来就是提交时校验）<br>
+      ② 引发与开发的争论（需求理解不一致）<br><br>
+      <strong>预防：</strong>需求评审时确认校验时机，记录在用例前置条件中。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">4. 解析URL：https://www.tpshop.com:443/goods?id=123&color=red#detail，说明每个部分的含义</div>
+    <div class="pt-sub">考察URL组成结构</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>URL各部分解析：</strong><br><br>
+      • <strong>https</strong> = 协议（加密的HTTP，端口默认443）<br>
+      • <strong>www.tpshop.com</strong> = 主机地址（域名，解析为IP）<br>
+      • <strong>:443</strong> = 端口（https默认443，一般省略不写）<br>
+      • <strong>/goods</strong> = 路径（资源的具体地址）<br>
+      • <strong>?</strong> = 路径与参数的分隔符<br>
+      • <strong>id=123</strong> = 参数1（商品ID为123）<br>
+      • <strong>&amp;</strong> = 多个参数的分隔符<br>
+      • <strong>color=red</strong> = 参数2（颜色为red）<br>
+      • <strong>#detail</strong> = 锚点（页面内跳转位置）<br><br>
+      <strong>常见端口：</strong>HTTP=80，HTTPS=443，MySQL=3306，Nginx=80
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">5. 用Fiddler抓包发现：登录请求正常发出（200响应），但页面提示"登录失败"。这是前端Bug还是后端Bug？</div>
+    <div class="pt-sub">考察前后端Bug定位能力</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>情况分析：</strong>请求正常发出 + 状态码200 + 页面提示"登录失败"<br><br>
+      需要进一步检查响应体（Response Body）的内容：<br><br>
+      <strong>情况A（前端Bug）：</strong><br>
+      响应体中包含"登录成功"的数据（如 {"code":200,"msg":"success"}），但前端错误地显示"登录失败"。<br>
+      → 前端处理响应的JavaScript代码有Bug（解析错误/逻辑错误）<br><br>
+      <strong>情况B（后端Bug）：</strong><br>
+      响应体中包含"登录失败"的数据（如 {"code":400,"msg":"密码错误"}），HTTP状态码却是200。<br>
+      → 后端业务逻辑返回了失败，但HTTP状态码设置为200（不规范但常见）<br>
+      → 此时"登录失败"是后端返回的正确信息，需看是否与输入的数据匹配<br><br>
+      <strong>结论：</strong>必须查看响应体内容，才能准确判断是前端还是后端问题。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">6. 购物车"全选删除"功能完整测试步骤是什么？需要验证哪些内容？</div>
+    <div class="pt-sub">考察删除功能的全面验证</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>用例：全选删除成功</strong><br>
+      前置：已登录，购物车有多件商品（至少2家店铺商品）<br>
+      步骤：<br>
+      1. 打开购物车页面<br>
+      2. 点击"全选"复选框 → 验证所有商品被勾选<br>
+      3. 点击"删除选中商品"按钮<br>
+      4. 确认删除弹窗（如有）<br><br>
+      <strong>验证点（6个）：</strong><br>
+      1. 所有商品从购物车列表消失<br>
+      2. 购物车显示空状态（与原型图一致）<br>
+      3. 总价归零（或消失）<br>
+      4. 已选N件归零（或消失）<br>
+      5. 购物车图标角标变为0或消失<br>
+      6. DB验证：tp_cart表中该用户所有记录被删除
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">7. HTTP状态码500和404的含义，测试时分别意味着什么？</div>
+    <div class="pt-sub">考察HTTP状态码的实际应用</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>404 Not Found：</strong><br>
+      含义：服务器找不到请求的资源（URL错误/资源已删除/服务未启动）<br>
+      测试时意味着：<br>
+      ① 功能测试中：URL路径配置错误，需要排查前端路由或后端接口地址<br>
+      ② 可能是Bug：点击某个链接/按钮后出现404页面<br>
+      ③ 不一定是Bug：输入不存在的商品ID，合理返回404<br><br>
+      <strong>500 Internal Server Error：</strong><br>
+      含义：服务器内部处理出错（代码异常/空指针/数据库连接失败）<br>
+      测试时意味着：<br>
+      ① 通常是严重Bug（S1级）<br>
+      ② 后端代码有未处理的异常<br>
+      ③ 数据库查询出错<br>
+      ④ 配置文件错误<br>
+      Bug报告：附上操作步骤、截图（显示500页面）、服务器日志（如能获取）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">8. 购物车添加了21种商品，前台显示"您的购物车商品种类已满"，但查看数据库发现实际只有19种商品。这是Bug吗？</div>
+    <div class="pt-sub">综合场景题：前端/后端/数据库一致性验证</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>这是Bug！</strong><br><br>
+      <strong>现象：</strong>前台提示"已满20种"，但数据库只有19种<br>
+      <strong>问题：</strong>前端和后端/数据库的数据不一致<br><br>
+      <strong>可能原因：</strong><br>
+      A. 前端本地计数器错误（前端统计的种类数比实际多）<br>
+      B. 数据库中有软删除的记录未正确排除，导致前端读取包含了已删除的商品<br>
+      C. 缓存问题：前端读的是旧缓存，数据库已更新但前端未刷新<br><br>
+      <strong>Bug定位步骤：</strong><br>
+      1. 抓包查看"加入购物车"接口的响应（接口返回的种类数是多少？）<br>
+      2. 比对：接口返回 vs 数据库实际 vs 前端显示<br>
+      3. 确认哪个环节数据不一致 → 定位是前端/后端/数据库问题<br><br>
+      <strong>Bug标题：</strong>「【购物车】购物车中实际商品种类为19种，但系统提示已超过20种限制无法添加」
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">9. GET和POST的区别（至少5个维度），TPShop中哪些功能用GET，哪些用POST？</div>
+    <div class="pt-sub">面试高频题，需要举例说明</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>5个维度对比：</strong><br>
+      1. <strong>参数位置：</strong>GET在URL；POST在请求体（Body）<br>
+      2. <strong>安全性：</strong>GET低（URL明文）；POST高（请求体不可见）<br>
+      3. <strong>长度限制：</strong>GET约2KB；POST无限制<br>
+      4. <strong>可缓存：</strong>GET可以缓存/收藏；POST不可缓存<br>
+      5. <strong>适用场景：</strong>GET用于查询（不改变数据）；POST用于提交数据（登录/注册/上传）<br><br>
+      <strong>TPShop中的使用：</strong><br>
+      GET：搜索商品（?keyword=手机）、查看商品列表、商品详情页<br>
+      POST：前台登录、后台登录、注册、提交订单、添加购物车<br><br>
+      <strong>测试要点：</strong>登录/注册/支付必须用POST，如用GET是S1安全Bug。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">10. 综合题：用HTTP知识分析，用户点击"加入购物车"后无任何反应，如何排查？</div>
+    <div class="pt-sub">综合HTTP知识和Bug定位能力</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>排查步骤（从前到后）：</strong><br><br>
+      <strong>Step 1：检查前端JavaScript</strong><br>
+      F12 → Console → 是否有JS报错（红色Error）<br>
+      如果有JS报错 → 前端Bug（按钮点击事件未绑定/脚本加载失败）<br><br>
+      <strong>Step 2：检查网络请求</strong><br>
+      打开Fiddler或F12 Network面板 → 点击"加入购物车"按钮<br>
+      观察是否有HTTP请求发出<br><br>
+      <strong>情况A：无请求发出</strong><br>
+      → 前端Bug（按钮事件未触发/JS逻辑未执行）<br><br>
+      <strong>情况B：有请求发出</strong><br>
+      继续检查请求内容：<br>
+      ① URL/方法是否正确？<br>
+      ② 参数（商品ID/数量）是否正确？<br>
+      ③ 响应状态码是什么？<br>
+      - 200 → 查响应体，看是否包含成功信息，若有但页面无反应 → 前端渲染Bug<br>
+      - 4XX → 参数/认证问题 → 可能是前端组装参数错误或未登录<br>
+      - 5XX → 后端Bug，服务器处理失败<br><br>
+      <strong>Step 3：提交Bug</strong><br>
+      附上：复现步骤 + Fiddler截图（请求+响应）+ Console截图
+    </div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲（共12题）</h2>
+    <p>涵盖购物车测试、HTTP协议、状态码、GET/POST等高频面试题。</p>
+  </div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div>
+  <div class="iq-q">HTTP请求由哪几部分组成？测试工程师重点关注什么？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>HTTP请求3个部分：</strong></p>
+    <ul>
+      <li><strong>请求行：</strong>请求方法（GET/POST）+ URL + 协议版本</li>
+      <li><strong>请求头（Headers）：</strong>Content-Type、Authorization、Cookie等元数据</li>
+      <li><strong>请求体（Body）：</strong>POST请求的参数数据</li>
+    </ul>
+    <p><strong>测试工程师重点关注（3个）：</strong></p>
+    <ul>
+      <li><strong>URL：</strong>协议+主机+端口+路径+参数</li>
+      <li><strong>请求方法：</strong>GET/POST是否使用正确（敏感操作必须POST）</li>
+      <li><strong>请求参数：</strong>参数名/值是否正确传递（用于验证前端发送的数据）</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div>
+  <div class="iq-q">GET和POST有什么区别？（至少说5个）</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p>5个核心区别：</p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li><strong>参数位置：</strong>GET参数在URL（可见）；POST参数在请求体（不可见）</li>
+      <li><strong>安全性：</strong>GET安全性低；POST相对安全（但非绝对，HTTPS才算真安全）</li>
+      <li><strong>长度限制：</strong>GET约2KB限制；POST无限制</li>
+      <li><strong>可缓存性：</strong>GET可缓存/可收藏；POST不可缓存</li>
+      <li><strong>适用场景：</strong>GET用于查询（幂等）；POST用于提交/修改数据（非幂等）</li>
+    </ol>
+    <div class="box tip"><b>💡 补充：</b>相同点是都可以向服务器发送请求并携带参数。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div>
+  <div class="iq-q">HTTP响应状态码有哪几类？各自含义是什么？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <ul>
+      <li><strong>2XX（成功）：</strong>请求被服务器成功处理。200=OK，204=无内容</li>
+      <li><strong>3XX（重定向）：</strong>请求需要进一步操作。301=永久重定向，302=临时，304=缓存</li>
+      <li><strong>4XX（客户端错误）：</strong>请求有问题。400=参数错，401=未认证，403=禁止，404=不存在</li>
+      <li><strong>5XX（服务器错误）：</strong>服务器处理失败。500=内部错误，502=网关错，503=不可用</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div>
+  <div class="iq-q">URL由哪些部分组成？以 http://api.tpshop.com:8080/login?user=abc 为例解析</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>URL格式：协议://主机地址:端口/路径?参数名=参数值&参数名=参数值</strong></p>
+    <p><strong>解析示例：http://api.tpshop.com:8080/login?user=abc</strong></p>
+    <ul>
+      <li><strong>http</strong> = 协议（传输格式，如http/https/ftp）</li>
+      <li><strong>api.tpshop.com</strong> = 主机地址（域名/IP）</li>
+      <li><strong>8080</strong> = 端口号（http默认80可省略，8080需写明）</li>
+      <li><strong>/login</strong> = 路径（资源的具体地址）</li>
+      <li><strong>?</strong> = 路径与参数的分隔符</li>
+      <li><strong>user=abc</strong> = 参数（键=值，多个参数用&分隔）</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div>
+  <div class="iq-q">购物车小计/总价/已节省的计算公式是什么？如何验证？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>三个计算公式：</strong></p>
+    <ul>
+      <li><strong>小计</strong> = 商品单价 × 购买数量</li>
+      <li><strong>总价</strong> = 所有已勾选商品的小计之和</li>
+      <li><strong>已节省</strong> = Σ（原价 - 活动价）× 数量（仅计算已勾选的活动商品）</li>
+      <li><strong>已选N件</strong> = 已勾选商品的数量总和（非种类数）</li>
+    </ul>
+    <p><strong>验证方法：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li>手动计算期望值（用计算器）</li>
+      <li>与页面显示值对比</li>
+      <li>通过勾选/取消勾选、修改数量，验证各值实时正确更新</li>
+    </ol>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div>
+  <div class="iq-q">测试购物车时，遇到500状态码，你怎么处理？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>500是后端严重Bug，处理步骤：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li><strong>确认可复现：</strong>多次操作，确认稳定出现500</li>
+      <li><strong>记录完整信息：</strong>截图（状态码+请求参数+响应体内容）</li>
+      <li><strong>获取日志（如能访问）：</strong>tail -f /var/log/nginx/error.log 查看服务器报错</li>
+      <li><strong>提交Bug：</strong>S1优先级，包含复现步骤+抓包截图+日志（如有）</li>
+      <li><strong>Bug标题示例：</strong>「【购物车-加入购物车】点击加入购物车返回500，无法加入购物车」</li>
+    </ol>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div>
+  <div class="iq-q">什么是抓包？Fiddler的工作原理是什么？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>抓包（Packet Capture）：</strong>通过工具拦截客户端与服务器交互的数据包，查看HTTP请求和响应的详细内容。</p>
+    <p><strong>Fiddler工作原理：</strong></p>
+    <ul>
+      <li>Fiddler作为<strong>代理服务器</strong>，处于浏览器和服务器之间</li>
+      <li>浏览器将请求发给Fiddler（代理），Fiddler转发给服务器</li>
+      <li>服务器响应返回给Fiddler，Fiddler转发给浏览器并记录</li>
+      <li>Fiddler可以查看、修改、重放所有HTTP通信内容</li>
+    </ul>
+    <p><strong>测试中的3大用途：</strong>① 定位前后端Bug ② 弱网测试 ③ 绕过界面限制测试</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div>
+  <div class="iq-q">【场景题】用户反馈：购物车中商品A的价格与商品详情页的价格不一致。你如何排查和提Bug？</div>
+  <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>排查步骤：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li>记录当前时间和操作环境（账号/浏览器/时间）</li>
+      <li>查看商品详情页价格（截图）</li>
+      <li>查看购物车中同一商品的价格（截图）</li>
+      <li>用Fiddler查看：获取购物车数据的接口返回的价格是多少？</li>
+      <li>查数据库：tp_goods表的price字段 vs tp_cart表的goods_price字段</li>
+    </ol>
+    <p><strong>可能原因：</strong></p>
+    <ul>
+      <li>加入购物车时记录的是活动价，现在活动结束但购物车未更新</li>
+      <li>商品价格被后台修改，但购物车缓存未刷新</li>
+      <li>购物车接口返回的价格字段读取错误（前端Bug）</li>
+    </ul>
+    <p><strong>Bug标题：</strong>「【购物车显示】商品A购物车中显示价格¥X，商品详情页显示¥Y，价格不一致」</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div>
+  <div class="iq-q">购物车删除功能，需要测试哪些场景？（全面列举）</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>删除功能测试场景（6个）：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li><strong>单件删除：</strong>点击单个商品的"删除"按钮 → 该商品消失，其余保留</li>
+      <li><strong>多选删除：</strong>勾选2+个商品 → 点击"删除选中" → 选中商品消失</li>
+      <li><strong>全选删除：</strong>点击"全选" → 删除选中 → 购物车为空</li>
+      <li><strong>删除后计算更新：</strong>删除后总价/件数实时更新正确</li>
+      <li><strong>空购物车状态：</strong>删完后显示空状态（与原型图一致）</li>
+      <li><strong>DB验证：</strong>删除后tp_cart对应记录被删除</li>
+    </ol>
+    <div class="box warn"><b>⚠️ 注意：</b>部分平台有"删除确认弹窗"，需要验证取消/确认两种操作。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div>
+  <div class="iq-q">HTTP响应体常见格式有哪些？测试时如何验证响应体内容？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>常见响应体格式：</strong></p>
+    <ul>
+      <li><strong>HTML：</strong>前台页面内容，浏览器渲染为可视页面</li>
+      <li><strong>JSON：</strong>API接口最常用格式，如 {"code":200,"data":{...}}</li>
+      <li><strong>XML：</strong>旧系统/某些接口使用</li>
+      <li><strong>纯文本（TXT）：</strong>简单文字响应</li>
+      <li><strong>二进制：</strong>图片、文件下载</li>
+    </ul>
+    <p><strong>测试时验证响应体：</strong></p>
+    <ul>
+      <li>在Fiddler中查看Inspectors → JSON/Raw标签页</li>
+      <li>验证：code字段是否表示成功？data字段的数据是否正确？msg字段提示是否合理？</li>
+      <li>对照需求文档：接口应该返回什么数据，实际返回的是否一致</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div>
+  <div class="iq-q">【陷阱题】用户已登录，加入购物车操作返回200状态码，但购物车列表没有新商品。这是前端Bug还是后端Bug？</div>
+  <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>需要看响应体内容才能判断：</strong></p>
+    <p><strong>情况A（后端Bug）：</strong><br>
+    响应体中的code字段是失败码（如 {"code":400,"msg":"库存不足"}），但HTTP状态码写成了200。<br>
+    → 后端没有把商品加入购物车，且HTTP状态码不规范。实际是后端业务逻辑Bug。</p>
+    <p><strong>情况B（前端Bug）：</strong><br>
+    响应体中的code是成功（{"code":200,"msg":"加入成功"}），但前端没有刷新购物车列表。<br>
+    → 后端成功加入了购物车，前端没有更新UI。属于前端渲染/状态更新Bug。</p>
+    <p><strong>情况C（前端Bug）：</strong><br>
+    响应体中的code是成功，但购物车列表查询是另一个接口，该接口没有被重新调用。<br>
+    → 前端没有在加购成功后触发刷新购物车列表的请求。</p>
+    <div class="box tip"><b>💡 结论：</b>200状态码≠功能成功。必须检查响应体中的业务状态码（code字段）和实际数据。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div>
+  <div class="iq-q">购物车编辑数量时，直接在输入框输入"abc"（非数字），预期结果是什么？如何设计测试用例？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>用例设计（需求覆盖角度）：</strong><br>
+    用例标题：编辑数量输入非数字字符的处理<br>
+    测试数据：输入"abc"/"1.5"（小数）/"1e3"（科学计数）/"空白"</p>
+    <p><strong>可能的预期结果（需对照需求文档确认）：</strong></p>
+    <ul>
+      <li>输入非数字时：输入框不接受该字符（输入无效，不显示）</li>
+      <li>或：允许输入但点击确认时给出"请输入有效数量"提示</li>
+      <li>小数：自动取整或给出提示</li>
+      <li>空白：恢复原来的数量或给出提示</li>
+    </ul>
+    <p><strong>若需求未明确：</strong>需求评审时必须澄清，避免开发按照各自理解实现，导致后续争议。</p>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验（共15题）</h2>
+    <p>考察购物车完整测试 + HTTP协议知识。</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>购物车"小计"的正确计算公式是？</div>
+  <label class="opt" data-q="1" data-v="A">A. 小计 = 所有商品总价</label>
+  <label class="opt" data-q="1" data-v="B">B. 小计 = 该商品单价 × 该商品购买数量</label>
+  <label class="opt" data-q="1" data-v="C">C. 小计 = 总价 ÷ 商品种类数</label>
+  <label class="opt" data-q="1" data-v="D">D. 小计 = 原价 × 折扣</label>
+  <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – 小计 = 单价 × 数量（针对单个商品）。总价 = 所有已勾选商品的小计之和。修改某商品数量后，该商品小计和购物车总价都应实时更新。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>购物车"已选N件商品"中，N的含义是？</div>
+  <label class="opt" data-q="2" data-v="A">A. N = 购物车中商品的种类数量</label>
+  <label class="opt" data-q="2" data-v="B">B. N = 已勾选商品的数量总和（如A商品3件+B商品2件=5件）</label>
+  <label class="opt" data-q="2" data-v="C">C. N = 购物车中所有商品的总件数（含未勾选）</label>
+  <label class="opt" data-q="2" data-v="D">D. N = 已付款商品数量</label>
+  <div class="qz-ex" data-q="2"><b>✅ 正确答案：B</b> – N = 已勾选商品的数量总和。如勾选商品A（3件）和商品B（2件）→ N=5。注意是数量之和，不是种类数，也不包含未勾选的商品。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>购物车单个商品数量的上限是多少？超出后如何？</div>
+  <label class="opt" data-q="3" data-v="A">A. 100件，超出自动变为100</label>
+  <label class="opt" data-q="3" data-v="B">B. 200件（或库存数，取小值），超出时给出提示</label>
+  <label class="opt" data-q="3" data-v="C">C. 999件，无限制</label>
+  <label class="opt" data-q="3" data-v="D">D. 50件，超出报错</label>
+  <div class="qz-ex" data-q="3"><b>✅ 正确答案：B</b> – 上限是200件或库存数量，取较小值。超出200或超出库存时，【+】按钮失效。直接输入超过200的数字时应给出提示，不能成功添加。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>购物车商品种类的最大限制是多少种？</div>
+  <label class="opt" data-q="4" data-v="A">A. 10种</label>
+  <label class="opt" data-q="4" data-v="B">B. 50种</label>
+  <label class="opt" data-q="4" data-v="C">C. 20种（超出给出提示，无法继续添加）</label>
+  <label class="opt" data-q="4" data-v="D">D. 不限制</label>
+  <div class="qz-ex" data-q="4"><b>✅ 正确答案：C</b> – 购物车商品种类不能大于20种，超出时给出提示。边界值：第20种成功（上点），第21种应被拒绝（离点）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span>GET和POST的核心区别，哪个描述是错误的？</div>
+  <label class="opt" data-q="5" data-v="A">A. GET参数在URL中可见；POST参数在请求体不可见</label>
+  <label class="opt" data-q="5" data-v="B">B. GET速度更快但安全性低；POST相对安全</label>
+  <label class="opt" data-q="5" data-v="C">C. GET和POST都不能向服务器发送参数</label>
+  <label class="opt" data-q="5" data-v="D">D. GET有URL长度限制；POST无长度限制</label>
+  <div class="qz-ex" data-q="5"><b>✅ 正确答案：C</b> – GET和POST都可以向服务器发送请求并携带参数，这是两者的相同点。GET参数在URL里，POST参数在请求体里。C选项说"都不能发送参数"是错误的。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>URL中多个参数之间用什么符号分隔？路径和参数之间用什么分隔？</div>
+  <label class="opt" data-q="6" data-v="A">A. 多参数用逗号(,)；路径和参数用#</label>
+  <label class="opt" data-q="6" data-v="B">B. 多参数用&amp;符号；路径和参数之间用?</label>
+  <label class="opt" data-q="6" data-v="C">C. 多参数用空格；路径和参数用/</label>
+  <label class="opt" data-q="6" data-v="D">D. 多参数用;；路径和参数用|</label>
+  <div class="qz-ex" data-q="6"><b>✅ 正确答案：B</b> – URL格式：路径?参数名=参数值&参数名=参数值。路径和参数之间用?分隔，多个参数之间用&分隔。例：/search?q=手机&page=1&sort=price。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>HTTP状态码404的含义是？测试时遇到意味着什么？</div>
+  <label class="opt" data-q="7" data-v="A">A. 服务器内部错误</label>
+  <label class="opt" data-q="7" data-v="B">B. 找不到请求的资源（URL错误/资源不存在）</label>
+  <label class="opt" data-q="7" data-v="C">C. 请求成功</label>
+  <label class="opt" data-q="7" data-v="D">D. 未授权，需要登录</label>
+  <div class="qz-ex" data-q="7"><b>✅ 正确答案：B</b> – 404 Not Found：服务器找不到请求的资源。可能是URL路径错误、资源已删除、服务未启动。测试时点击链接/按钮出现404页面，通常是Bug（路由配置错误）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>测试购物车时，发现页面报500错误，正确的处理方式是？</div>
+  <label class="opt" data-q="8" data-v="A">A. 刷新页面等待自动恢复</label>
+  <label class="opt" data-q="8" data-v="B">B. 确认稳定复现后，以S1优先级提Bug，附上操作步骤+抓包截图+日志</label>
+  <label class="opt" data-q="8" data-v="C">C. 500是正常的，不需要处理</label>
+  <label class="opt" data-q="8" data-v="D">D. 只截图不提Bug，等开发自己发现</label>
+  <div class="qz-ex" data-q="8"><b>✅ 正确答案：B</b> – 500是服务器内部错误，通常是严重Bug（S1级）。需要：确认稳定复现 → 提Bug（S1优先级）→ 附操作步骤+Fiddler截图+服务器日志（如能获取）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>购物车"已节省"的计算公式是？</div>
+  <label class="opt" data-q="9" data-v="A">A. 已节省 = 总价 × 折扣率</label>
+  <label class="opt" data-q="9" data-v="B">B. 已节省 = Σ（原价 - 活动价）× 数量（仅计算已勾选的活动商品）</label>
+  <label class="opt" data-q="9" data-v="C">C. 已节省 = 原价 - 总价</label>
+  <label class="opt" data-q="9" data-v="D">D. 已节省 = 总价 × 0.1</label>
+  <div class="qz-ex" data-q="9"><b>✅ 正确答案：B</b> – 已节省 = 所有已勾选活动商品的节省金额之和 = Σ（原价-活动价）× 数量。只计算参与促销活动的商品，普通商品不计入（节省=0）。取消勾选活动商品后已节省金额归零。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>同时选择了A店铺的商品a和B店铺的商品b，点击去结算，会产生几个订单？</div>
+  <label class="opt" data-q="10" data-v="A">A. 1个订单（合并）</label>
+  <label class="opt" data-q="10" data-v="B">B. 2个订单（按店铺分开）</label>
+  <label class="opt" data-q="10" data-v="C">C. 不确定</label>
+  <label class="opt" data-q="10" data-v="D">D. 0个订单</label>
+  <div class="qz-ex" data-q="10"><b>✅ 正确答案：B</b> – 需求规定：同时结算多家店铺商品，会产生对应店铺数量的订单（订单数=店铺数）。2家店铺 → 2个订单。这是测试用例tp_cart_011的验证点。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>HTTP响应中，2XX状态码表示什么？5XX状态码表示什么？</div>
+  <label class="opt" data-q="11" data-v="A">A. 2XX=客户端错误；5XX=重定向</label>
+  <label class="opt" data-q="11" data-v="B">B. 2XX=请求成功；5XX=服务器内部错误</label>
+  <label class="opt" data-q="11" data-v="C">C. 2XX=服务器错误；5XX=请求成功</label>
+  <label class="opt" data-q="11" data-v="D">D. 2XX=重定向；5XX=客户端错误</label>
+  <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – 2XX=成功（200/204），3XX=重定向，4XX=客户端错误（400/401/403/404），5XX=服务器错误（500/502/503）。记忆：4XX是用户的问题，5XX是服务器的问题。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>Fiddler抓包工具的主要作用是什么？</div>
+  <label class="opt" data-q="12" data-v="A">A. 只用于截图</label>
+  <label class="opt" data-q="12" data-v="B">B. 拦截HTTP请求和响应，用于定位前后端Bug、弱网测试、绕过界面限制测试</label>
+  <label class="opt" data-q="12" data-v="C">C. 只用于性能测试</label>
+  <label class="opt" data-q="12" data-v="D">D. 用于编写测试用例</label>
+  <div class="qz-ex" data-q="12"><b>✅ 正确答案：B</b> – Fiddler是HTTP协议调试代理工具，3大用途：① 定位前后端Bug（看请求/响应）② 弱网测试（模拟慢网络）③ 绕过界面限制测试（修改请求参数）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>购物车"失效商品"的正确展示方式是？</div>
+  <label class="opt" data-q="13" data-v="A">A. 显示在购物车最顶部，高亮提醒</label>
+  <label class="opt" data-q="13" data-v="B">B. 显示在购物车最底部，可删除、可收藏</label>
+  <label class="opt" data-q="13" data-v="C">C. 自动删除，不显示</label>
+  <label class="opt" data-q="13" data-v="D">D. 显示在购物车中间，无法删除</label>
+  <div class="qz-ex" data-q="13"><b>✅ 正确答案：B</b> – 失效商品（下架/库存耗尽的商品）展示在购物车最底部，用户可以删除或收藏，但不能结算。这是tp_cart_012测试用例的验证点。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>以下哪个URL格式是正确的？</div>
+  <label class="opt" data-q="14" data-v="A">A. www.tpshop.com/goods#id=123&page=1</label>
+  <label class="opt" data-q="14" data-v="B">B. http://www.tpshop.com/goods?id=123&amp;page=1</label>
+  <label class="opt" data-q="14" data-v="C">C. http://www.tpshop.com/goods,id=123;page=1</label>
+  <label class="opt" data-q="14" data-v="D">D. http//www.tpshop.com:goods?id=123</label>
+  <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – 正确格式：http://主机/路径?参数&参数。A用#是锚点（不是参数），C用逗号/分号分隔参数是错误的，D缺少冒号后的//且端口位置错误。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>【场景题】测试发现用抓包工具看到：登录请求是GET方法，且密码在URL中明文可见。这是什么级别的Bug？</div>
+  <label class="opt" data-q="15" data-v="A">A. S3（微小），UI问题</label>
+  <label class="opt" data-q="15" data-v="B">B. S4（建议），可以忽略</label>
+  <label class="opt" data-q="15" data-v="C">C. S1（严重），密码明文在URL中，是严重安全漏洞</label>
+  <label class="opt" data-q="15" data-v="D">D. 不是Bug，GET和POST都行</label>
+  <div class="qz-ex" data-q="15"><b>✅ 正确答案：C</b> – 密码明文出现在URL中是严重安全漏洞（S1）：① URL会被浏览器历史记录保存 ② URL会出现在服务器日志中 ③ 可被轻易截获。登录/支付等含敏感信息的操作必须使用POST，这是安全规范。</div></div>
+
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">查看各题下方解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const ANSWERS={1:'B',2:'B',3:'B',4:'C',5:'C',6:'B',7:'B',8:'B',9:'B',10:'B',11:'B',12:'B',13:'B',14:'B',15:'C'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  if(done===10)document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ANSWERS[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct)o.classList.add('ok');
+      else if(o.classList.contains('sel'))o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex)ex.classList.add('s');
+    if(sel[q]===correct)score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90)msg='🏆 优秀！购物车和HTTP知识掌握扎实！';
+  else if(pct>=75)msg='✅ 良好！建议复习错题后继续。';
+  else if(pct>=50)msg='📚 还需努力，请重新阅读知识讲解。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12)document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d4'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

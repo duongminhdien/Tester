@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAGE 3 · TESTER DAY 07 - APP专项测试与性能测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --day:#e11d48;
+  --day-d:#be123c;
+  --day-bg:rgba(225,29,72,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:20px 20px 60px}
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(225,29,72,.25)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:800;margin-bottom:6px;line-height:1.3}
+.hd p{font-size:13.5px;opacity:.88;line-height:1.6}
+.hd-stats{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.9}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:18px;display:block;margin-bottom:2px}
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(225,29,72,.25)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* Section */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px;line-height:1.75}
+.sec ul,.sec ol{color:var(--ink2);margin:6px 0 10px 18px;line-height:1.8}
+.sec li{margin-bottom:4px}
+/* Code */
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7}
+.term .k{color:#c792ea}
+.term .s{color:#ffcb6b}
+.term .o{color:#f78c6c}
+.term .n{color:#f78c6c}
+.term .g{color:#676e95;font-style:italic}
+.term .c{color:#c3e88d}
+.term .w{color:#fff;font-weight:600}
+.term .p{color:#82aaff}
+.term .r{color:#f07178}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+/* Table */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+#qr{display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;margin-top:18px;text-align:center}
+#qr h3{font-size:20px;font-weight:800;margin-bottom:8px}
+#qr p{color:var(--ink2);font-size:14px}
+.qbtn{display:inline-block;margin-top:18px;padding:13px 36px;background:var(--day);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(225,29,72,.3)}
+/* Progress */
+.prog-bar{background:#e2e8f0;border-radius:99px;height:8px;margin:10px 0;overflow:hidden}
+.prog-fill{height:100%;background:var(--day);border-radius:99px;transition:width .4s}
+/* Nav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+/* Visual panel extras */
+.flow-box{background:var(--day);color:#fff;padding:12px 18px;border-radius:10px;text-align:center;font-weight:700;font-size:13px}
+.flow-arrow{text-align:center;font-size:20px;color:var(--day);padding:6px 0}
+.metric-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:all .2s}
+.metric-card:hover{border-color:var(--day);transform:translateY(-2px)}
+.metric-card .mv{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--day)}
+.metric-card .ml{font-size:12px;color:var(--muted);margin-top:4px}
+.curve-label{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.curve-normal{background:#dcfce7;color:#15803d}
+.curve-abnormal{background:#fee2e2;color:#991b1b}
+/* Responsive */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .qbtn{padding:11px 18px;font-size:13px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== HEADER ===== -->
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · TESTER DAY 07</div>
+  <h1>APP专项测试与性能测试</h1>
+  <p>掌握APP兼容性、安装卸载升级、干扰测试、Push推送、用户体验等专项测试，以及使用SoloPi和ADB命令进行性能测试与稳定性测试</p>
+  <div class="hd-stats">
+    <div><b>6</b>专项测试</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- Dots -->
+<div id="dots"></div>
+
+<!-- ===== TABS ===== -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 0: 知识讲解 -->
+<!-- ============================================================ -->
+<div class="pan a">
+
+<div class="sec">
+  <h2><span class="ico">1</span>APP专项测试概述</h2>
+  <p>APP专项测试是针对移动应用特有特性进行的测试，涵盖兼容性、安装卸载升级、干扰测试（交叉事件）、Push推送以及用户体验等方面。与Web测试不同，APP测试需要考虑更多硬件、网络和操作系统层面的因素。</p>
+  <div class="box tip">
+    <b>📱 核心目标</b><br>
+    确保APP在不同设备、不同网络环境、不同操作场景下都能稳定运行，提供良好的用户体验。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>兼容性测试</h2>
+  <p>兼容性测试确保APP在不同硬件和软件环境下正常运行。主要从以下几个维度进行：</p>
+
+  <h3>设备兼容性</h3>
+  <ul>
+    <li><b>手机型号：</b>不同品牌商、不同机型（如华为P30、iPhone 15等）</li>
+    <li><b>操作系统版本：</b>安卓（根据在线统计平台数据获取主流版本）、iOS各版本</li>
+    <li><b>分辨率：</b>不同屏幕分辨率下的显示效果</li>
+  </ul>
+
+  <h3>屏幕兼容性</h3>
+  <ul>
+    <li><b>尺寸：</b>5.1寸、5.5寸、4.7寸等主流尺寸</li>
+    <li><b>类型：</b>刘海屏、水滴屏、曲面屏、折叠屏</li>
+  </ul>
+
+  <h3>网络兼容性</h3>
+  <ul>
+    <li>移动数据（4G/5G）</li>
+    <li>WiFi网络</li>
+    <li>弱网环境</li>
+  </ul>
+
+  <h3>其他兼容性</h3>
+  <ul>
+    <li><b>应用兼容性：</b>与其他APP（如后台播放的音乐应用）的兼容</li>
+    <li><b>手机硬件：</b>物理按键（音量键、Home键、电源键）</li>
+    <li><b>外部硬件：</b>蓝牙设备、有线设备</li>
+    <li><b>系统设置：</b>WLAN、时间、定位等设置对APP的影响</li>
+  </ul>
+
+  <div class="box info">
+    <b>💡 实际操作方法</b><br>
+    使用不同的机型打开软件操作，无异常即可。若公司没有太多机型，可参考云测平台或者模拟器进行测试。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>安装、卸载、升级测试</h2>
+
+  <h3>安装测试</h3>
+  <p><b>正常场景：</b></p>
+  <ul>
+    <li>从不同渠道安装（应用商店、官网下载、第三方平台）</li>
+    <li>不同操作系统安装</li>
+    <li>不同安装路径（手机内存/SD卡）</li>
+  </ul>
+  <p><b>异常场景：</b></p>
+  <ul>
+    <li>中断安装（关机、断网），中断之后能否恢复安装</li>
+    <li>存储空间不足时安装</li>
+    <li>安装时手动取消或暂停，恢复后是否能正常安装</li>
+    <li>正在运行时覆盖安装（前台/后台运行：需考虑是否打断用户操作）</li>
+    <li>低版本覆盖高版本</li>
+    <li>卸载后再安装（卸载后是否清除数据）</li>
+  </ul>
+
+  <h3>卸载测试</h3>
+  <ul>
+    <li>正常卸载（手机卸载/使用第三方软件卸载）</li>
+    <li>运行时卸载（后台运行中卸载）</li>
+    <li>取消卸载（第三方软件/二次弹窗确认时取消）</li>
+    <li>中断卸载（关机）</li>
+    <li>卸载后数据残留处理</li>
+  </ul>
+  <div class="box warn">
+    <b>⚠️ 数据残留规则</b><br>
+    如果给用户提示确认，用户同意残留可保留数据，拒绝则不可保留。如果不做任何确认提示，默认需要清空残留数据。
+  </div>
+
+  <h3>升级测试</h3>
+  <ul>
+    <li>从临近版本升级（上一次发布的版本）</li>
+    <li>跨版本升级（如 n-2 升级到 n）</li>
+    <li>从不同渠道升级</li>
+    <li>升级成功提醒（红点提示/消息提示）</li>
+    <li>升级前是否提醒（消息推送提示/强制升级不提醒）</li>
+    <li>自研升级系统 vs 第三方升级（日常升级/强制升级）</li>
+    <li>当前版本是否具有升级能力</li>
+  </ul>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>干扰测试（交叉事件测试）</h2>
+  <p>干扰测试验证APP在被外部事件打断时是否能正确处理并恢复。常见干扰场景包括：</p>
+  <div class="g2">
+    <div class="card">
+      <h4><span class="num">1</span>通信干扰</h4>
+      <p>接打电话、收发短信、音视频电话</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">2</span>通知干扰</h4>
+      <p>查看应用推送（其他软件/当前软件的推送）</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">3</span>设备干扰</h4>
+      <p>连接蓝牙设备、接收文件弹窗提醒</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">4</span>操作干扰</h4>
+      <p>旋转屏幕、切换网络、打开相机/手电筒/计算器</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">5</span>电源干扰</h4>
+      <p>低电提醒、插拔充电器（充电动画）</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>Push推送测试</h2>
+
+  <h3>服务器端</h3>
+  <ul>
+    <li>是否按照规则去推送</li>
+    <li>推送内容是否正确</li>
+    <li>推送时间是否准确</li>
+    <li>推送频率是否合理</li>
+    <li>推送对象是否正确</li>
+  </ul>
+
+  <h3>手机端</h3>
+  <ul>
+    <li><b>不接收消息：</b>将不会收到任何推送</li>
+    <li><b>接收消息：</b>APP在前台/后台/离线时消息的显示方式</li>
+    <li>消息能否正确打开对应页面</li>
+    <li><b>接收但不提醒：</b>手机提醒不会触发</li>
+    <li><b>接收且提醒：</b>结合手机模式（静音/震动/铃声）</li>
+    <li><b>接收但不显示内容：</b>如"微信发来一条消息"</li>
+  </ul>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>用户体验测试</h2>
+  <ul>
+    <li><b>UI界面测试：</b>原型图设计是否合理</li>
+    <li><b>横竖屏测试：</b>内容展示是否异常</li>
+    <li><b>易用性测试：</b>空数据提示、菜单层次是否过深、操作步骤是否过多、按钮位置是否适中</li>
+    <li><b>辅助功能：</b>色盲模式、盲人模式</li>
+    <li><b>真人体验：</b>找目标用户或公司内部未接触过该项目的人进行体验</li>
+  </ul>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>APP性能测试指标</h2>
+  <p>性能指标描述：一定是某种时间内、某种条件下执行某种操作，性能指标如何。性能测试可以考虑和稳定性结合，使用monkey测试时同时使用性能监控工具监控数据。</p>
+
+  <h3>CPU</h3>
+  <ul>
+    <li><b>基线：</b>如果有基线要求，检查CPU曲线图是否存在长期超过基线的现象；如果没有基线，行业默认90%</li>
+    <li><b>CPU过高的问题：</b>手机发烫、页面卡顿、电量消耗严重</li>
+    <li><b>快速恢复：</b>清空后台运行的进程</li>
+  </ul>
+
+  <h3>内存</h3>
+  <ul>
+    <li><b>内存泄露：</b>内存曲线持续增长（增的远比减的多）</li>
+    <li><b>内存溢出：</b>因内存泄露导致，内存持续增加后突然降为0（应用停止运行）</li>
+  </ul>
+  <div class="box danger">
+    <b>🚨 关键关系</b><br>
+    内存溢出一定是因为有内存泄露才会出现。内存泄露不一定导致溢出，但溢出必定由泄露引起。
+  </div>
+
+  <h3>流量</h3>
+  <ul>
+    <li>使用了多长时间，消耗了多少流量</li>
+    <li>优化方法：数据压缩、不同数据格式、控制访问频次、只获取必要数据、缓存机制、不同网络类型设置不同访问策略</li>
+  </ul>
+
+  <h3>电量</h3>
+  <ul>
+    <li>常见高耗电场景：GPS定位、非WiFi网络传输、屏幕亮度、CPU高负载运算、wake_locker锁屏解锁</li>
+    <li>如果有基线要求则检验是否达标，没有基线可与竞品对比测试</li>
+  </ul>
+
+  <h3>启动速度</h3>
+  <ul>
+    <li><b>冷启动：</b>APP离线状态下启动，时间较长</li>
+    <li><b>热启动：</b>APP后台运行状态下启动，时间较短</li>
+  </ul>
+  <div class="term">
+<span class="g">-- 启动速度测试命令</span>
+<span class="w">adb shell am start -W</span> 包名/Activity名
+  </div>
+
+  <h3>流畅度</h3>
+  <ul>
+    <li>帧率（FPS）：每秒切换多少帧</li>
+    <li>60fps为最佳标准</li>
+  </ul>
+
+  <h3>稳定性（Monkey）</h3>
+  <p>使用monkey工具进行随机事件测试，同时注意性能数据监控和日志收集。</p>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>SoloPi工具与ADB命令</h2>
+
+  <h3>SoloPi工具</h3>
+  <p>SoloPi是一款APP性能测试工具，安装在模拟器或真机上，可以监测CPU、内存、响应耗时、帧率、电池、网络等性能指标。</p>
+  <p><b>使用步骤：</b></p>
+  <ol>
+    <li>安装SoloPi.apk到模拟器（拖入即可）</li>
+    <li>启动SoloPi，确认声明并允许权限</li>
+    <li>点击"性能测试"→选择被测APP</li>
+    <li>勾选性能测试指标（CPU、内存、响应耗时等）</li>
+    <li>启动监测→打开被测APP操作→操作完毕后停止</li>
+    <li>查看监测数据图表并导出</li>
+  </ol>
+
+  <h3>ADB环境配置</h3>
+  <p><b>macOS系统：</b>需要先安装JDK，然后安装SDK，配置环境变量：</p>
+  <div class="term">
+<span class="g"># macOS配置环境变量</span>
+<span class="k">cd</span> ~
+<span class="k">open</span> ~ .zprofile
+
+<span class="g"># 添加以下内容</span>
+<span class="g"># Android SDK</span>
+<span class="w">ANDROID_HOME</span>=<span class="s">/Users/用户名/Downloads/android-sdk-macosx</span>
+<span class="w">PATH</span>=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/29.0.3
+<span class="k">export</span> ANDROID_HOME
+
+<span class="g"># 生效配置</span>
+<span class="k">source</span> ~ .zprofile
+  </div>
+  <p><b>Windows系统：</b>如果已安装雷电模拟器，只需在系统环境变量Path中添加雷电模拟器安装路径（如 <code class="inl">D:\leidian\LDPlayer4</code>）。</p>
+
+  <h3>常用ADB命令</h3>
+  <div class="tw">
+    <table>
+      <tr><th>命令</th><th>功能说明</th></tr>
+      <tr><td><code class="inl">adb devices</code></td><td>查看当前接入的移动端设备</td></tr>
+      <tr><td><code class="inl">adb shell</code></td><td>进入当前设备命令行</td></tr>
+      <tr><td><code class="inl">exit</code></td><td>退出当前设备命令行</td></tr>
+      <tr><td><code class="inl">adb shell pm list packages</code></td><td>查看设备已安装的软件包</td></tr>
+      <tr><td><code class="inl">adb shell dumpsys window w | grep mFocusedApp</code></td><td>查看当前打开的APP包名和Activity（macOS）</td></tr>
+      <tr><td><code class="inl">adb shell am start 包名/.Activity名</code></td><td>启动指定APP</td></tr>
+      <tr><td><code class="inl">adb shell am force-stop 包名</code></td><td>强制停用APP</td></tr>
+      <tr><td><code class="inl">adb push 电脑路径 设备路径</code></td><td>复制电脑文件到设备</td></tr>
+      <tr><td><code class="inl">adb pull 设备文件 电脑路径</code></td><td>复制设备文件到电脑</td></tr>
+      <tr><td><code class="inl">adb shell am start -W -n 包名/Activity名</code></td><td>启动速度测试</td></tr>
+    </table>
+  </div>
+
+  <h3>Monkey稳定性测试命令</h3>
+  <div class="term">
+<span class="g">-- Monkey基本命令格式</span>
+<span class="w">adb</span> [-s 设备名] <span class="w">shell monkey</span> \
+  <span class="k">-p</span> 包名 \
+  <span class="k">--ignore-crashes</span> \
+  <span class="k">--ignore-timeouts</span> \
+  <span class="k">--throttle</span> <span class="n">400</span> \
+  <span class="k">-v</span> \
+  <span class="k">-s</span> <span class="n">500</span> \
+  <span class="n">100000</span> > 指定路径存储文件名
+  </div>
+  <div class="tw">
+    <table>
+      <tr><th>参数</th><th>说明</th></tr>
+      <tr><td><code class="inl">-p</code></td><td>指定被测应用的包名</td></tr>
+      <tr><td><code class="inl">--ignore-crashes</code></td><td>忽略闪退，闪退后monkey继续发送事件直到完成</td></tr>
+      <tr><td><code class="inl">--ignore-timeouts</code></td><td>忽略超时，超时后monkey继续发送事件直到完成</td></tr>
+      <tr><td><code class="inl">--throttle 400</code></td><td>随机延迟400ms</td></tr>
+      <tr><td><code class="inl">-v</code></td><td>日志详细程度（-v -v -v 最详细）</td></tr>
+      <tr><td><code class="inl">-s 500</code></td><td>指定伪随机数生成器的seed值为500</td></tr>
+      <tr><td><code class="inl">100000</code></td><td>伪随机的事件次数</td></tr>
+    </table>
+  </div>
+
+  <div class="box tip">
+    <b>🔧 常见异常处理</b><br>
+    • devices offline（设备离线）→ 重启模拟器<br>
+    • devices not found（找不到设备）→ 重启模拟器<br>
+    • more than one devices（多个设备）→ <code class="inl">adb disconnect 手机ip</code> 断开不需要的设备
+  </div>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 1: 图解演示 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">1</span>APP专项测试全景图</h2>
+  <p>APP测试不仅仅是功能测试，还包含以下六大专项维度：</p>
+  <div class="g3">
+    <div class="metric-card">
+      <div class="mv">📱</div>
+      <div class="ml">兼容性测试</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">设备·系统·屏幕·网络</p>
+    </div>
+    <div class="metric-card">
+      <div class="mv">📦</div>
+      <div class="ml">安装卸载升级</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">正常·异常·覆盖·跨版本</p>
+    </div>
+    <div class="metric-card">
+      <div class="mv">🔀</div>
+      <div class="ml">干扰测试</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">电话·短信·蓝牙·网络切换</p>
+    </div>
+    <div class="metric-card">
+      <div class="mv">🔔</div>
+      <div class="ml">Push推送</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">服务端规则·客户端展示</p>
+    </div>
+    <div class="metric-card">
+      <div class="mv">👤</div>
+      <div class="ml">用户体验</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">UI·易用性·辅助功能</p>
+    </div>
+    <div class="metric-card">
+      <div class="mv">⚡</div>
+      <div class="ml">性能测试</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">CPU·内存·流量·电量·FPS</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>SoloPi性能测试流程</h2>
+  <div class="flow-box">① 安装SoloPi.apk到模拟器</div>
+  <div class="flow-arrow">⬇</div>
+  <div class="flow-box">② 启动SoloPi → 确认声明 → 允许权限</div>
+  <div class="flow-arrow">⬇</div>
+  <div class="flow-box">③ 点击"性能测试" → 选择被测APP</div>
+  <div class="flow-arrow">⬇</div>
+  <div class="flow-box">④ 勾选指标（CPU / 内存 / 响应耗时 / 电池 / 网络）</div>
+  <div class="flow-arrow">⬇</div>
+  <div class="flow-box">⑤ 开始监测 → 切换到被测APP操作</div>
+  <div class="flow-arrow">⬇</div>
+  <div class="flow-box">⑥ 停止监测 → 查看数据图表 → 导出数据</div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>内存曲线图分析</h2>
+  <p>通过分析内存曲线，可以判断应用是否存在内存泄露和内存溢出问题：</p>
+
+  <div class="g2">
+    <div class="card" style="padding:18px">
+      <h4>✅ 正常内存曲线</h4>
+      <div style="background:var(--code-bg);border-radius:8px;padding:16px;margin-top:8px;text-align:center">
+        <svg width="100%" viewBox="0 0 300 120" style="max-width:300px">
+          <line x1="30" y1="10" x2="30" y2="100" stroke="#64748b" stroke-width="1"/>
+          <line x1="30" y1="100" x2="290" y2="100" stroke="#64748b" stroke-width="1"/>
+          <text x="10" y="14" fill="#a6accd" font-size="8" font-family="Space Mono">内存</text>
+          <text x="270" y="112" fill="#a6accd" font-size="8" font-family="Space Mono">时间</text>
+          <polyline points="30,70 60,50 80,65 100,45 120,60 150,40 170,55 190,35 210,50 240,40 260,55 280,45" fill="none" stroke="#16a34a" stroke-width="2"/>
+        </svg>
+      </div>
+      <p style="margin-top:8px"><span class="curve-normal">正常</span> 曲线呈锯齿形波动，有升有降，整体平稳</p>
+    </div>
+    <div class="card" style="padding:18px">
+      <h4>❌ 异常内存曲线（泄露+溢出）</h4>
+      <div style="background:var(--code-bg);border-radius:8px;padding:16px;margin-top:8px;text-align:center">
+        <svg width="100%" viewBox="0 0 300 120" style="max-width:300px">
+          <line x1="30" y1="10" x2="30" y2="100" stroke="#64748b" stroke-width="1"/>
+          <line x1="30" y1="100" x2="290" y2="100" stroke="#64748b" stroke-width="1"/>
+          <text x="10" y="14" fill="#a6accd" font-size="8" font-family="Space Mono">内存</text>
+          <text x="270" y="112" fill="#a6accd" font-size="8" font-family="Space Mono">时间</text>
+          <polyline points="30,85 50,75 70,70 90,60 110,55 130,45 150,35 170,25 185,15 200,100 220,80 240,60 260,40 280,20" fill="none" stroke="#dc2626" stroke-width="2"/>
+          <text x="155" y="55" fill="#f78c6c" font-size="7" font-family="Space Mono">泄露</text>
+          <line x1="192" y1="15" x2="192" y2="100" stroke="#ffcb6b" stroke-width="1" stroke-dasharray="3"/>
+          <text x="195" y="60" fill="#ffcb6b" font-size="6" font-family="Space Mono">溢出</text>
+        </svg>
+      </div>
+      <p style="margin-top:8px"><span class="curve-abnormal">异常</span> 曲线持续上升（泄露），突降为0（溢出，应用崩溃）</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>CPU曲线图分析</h2>
+  <div class="g2">
+    <div class="card" style="padding:18px">
+      <h4>✅ 正常CPU曲线</h4>
+      <div style="background:var(--code-bg);border-radius:8px;padding:16px;margin-top:8px;text-align:center">
+        <svg width="100%" viewBox="0 0 300 120" style="max-width:300px">
+          <line x1="30" y1="10" x2="30" y2="100" stroke="#64748b" stroke-width="1"/>
+          <line x1="30" y1="100" x2="290" y2="100" stroke="#64748b" stroke-width="1"/>
+          <line x1="30" y1="25" x2="290" y2="25" stroke="#dc2626" stroke-width="1" stroke-dasharray="4"/>
+          <text x="255" y="22" fill="#dc2626" font-size="7" font-family="Space Mono">90%</text>
+          <polyline points="30,65 50,55 70,60 100,50 120,70 140,55 160,60 180,50 200,65 220,55 250,60 270,65 280,55" fill="none" stroke="#16a34a" stroke-width="2"/>
+        </svg>
+      </div>
+      <p style="margin-top:8px"><span class="curve-normal">正常</span> 曲线始终在基线（90%）以下波动</p>
+    </div>
+    <div class="card" style="padding:18px">
+      <h4>❌ 异常CPU曲线</h4>
+      <div style="background:var(--code-bg);border-radius:8px;padding:16px;margin-top:8px;text-align:center">
+        <svg width="100%" viewBox="0 0 300 120" style="max-width:300px">
+          <line x1="30" y1="10" x2="30" y2="100" stroke="#64748b" stroke-width="1"/>
+          <line x1="30" y1="100" x2="290" y2="100" stroke="#64748b" stroke-width="1"/>
+          <line x1="30" y1="25" x2="290" y2="25" stroke="#dc2626" stroke-width="1" stroke-dasharray="4"/>
+          <text x="255" y="22" fill="#dc2626" font-size="7" font-family="Space Mono">90%</text>
+          <polyline points="30,60 50,30 70,20 100,15 120,35 140,18 160,12 180,30 200,15 220,20 250,28 270,18 280,22" fill="none" stroke="#3b82f6" stroke-width="2"/>
+        </svg>
+      </div>
+      <p style="margin-top:8px"><span class="curve-abnormal">异常</span> 曲线长时间超过基线，导致发烫、卡顿、耗电</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>冷启动 vs 热启动</h2>
+  <div class="g2">
+    <div class="metric-card">
+      <div class="mv" style="font-size:20px">❄️ 冷启动</div>
+      <div class="ml" style="margin-top:10px">APP离线（完全未运行）</div>
+      <p style="font-size:22px;font-weight:800;color:var(--day);margin-top:8px;font-family:'Space Mono',monospace">~576ms</p>
+      <p style="font-size:11px;color:var(--muted)">需要加载所有资源，时间较长</p>
+    </div>
+    <div class="metric-card">
+      <div class="mv" style="font-size:20px">🔥 热启动</div>
+      <div class="ml" style="margin-top:10px">APP在后台运行中</div>
+      <p style="font-size:22px;font-weight:800;color:var(--green);margin-top:8px;font-family:'Space Mono',monospace">~24ms</p>
+      <p style="font-size:11px;color:var(--muted)">资源已在内存中，恢复速度极快</p>
+    </div>
+  </div>
+  <div class="box info" style="margin-top:14px">
+    <b>📐 测试命令</b><br>
+    <code class="inl">adb shell am start -W 包名/Activity名</code>，关注输出结果中的 <code class="inl">TotalTime</code> 字段。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>ADB命令速查图</h2>
+  <div class="g2">
+    <div class="card">
+      <h4>📋 设备管理</h4>
+      <div class="term" style="margin-top:8px">
+<span class="w">adb devices</span>        <span class="g">-- 查看设备</span>
+<span class="w">adb shell</span>          <span class="g">-- 进入设备</span>
+<span class="w">exit</span>               <span class="g">-- 退出设备</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4>📦 应用管理</h4>
+      <div class="term" style="margin-top:8px">
+<span class="w">adb shell pm list packages</span>
+<span class="g">-- 查看已安装的应用包</span>
+<span class="w">adb shell am start</span> 包名/.Activity名
+<span class="g">-- 启动指定APP</span>
+<span class="w">adb shell am force-stop</span> 包名
+<span class="g">-- 强制停止APP</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4>📂 文件传输</h4>
+      <div class="term" style="margin-top:8px">
+<span class="w">adb push</span> 电脑路径 设备路径
+<span class="g">-- 电脑→设备</span>
+<span class="w">adb pull</span> 设备文件 电脑路径
+<span class="g">-- 设备→电脑</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4>🐒 Monkey测试</h4>
+      <div class="term" style="margin-top:8px">
+<span class="w">adb shell monkey</span> \
+  <span class="k">-p</span> 包名 \
+  <span class="k">--ignore-crashes</span> \
+  <span class="k">--throttle</span> <span class="n">400</span> \
+  <span class="k">-v -s</span> <span class="n">500</span> <span class="n">100000</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 2: 实战练习 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">🛠️</span>实战练习</h2>
+  <p>完成以下10道练习题，巩固APP专项测试与性能测试知识。</p>
+  <div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+  <p style="font-size:13px;color:var(--muted)">已完成 <b id="pc" style="color:var(--day);font-family:'Space Mono',monospace">0</b> / 10 题 <span style="float:right;cursor:pointer;color:var(--day);font-weight:600" onclick="mc()">全部完成 ✓</span></p>
+</div>
+
+<!-- P1 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p1">
+  <div class="pt-body">
+    <div class="pt-t">1. 列举APP兼容性测试需要覆盖的5个维度。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+APP兼容性测试5个维度：
+1. 设备兼容性（不同品牌、机型）
+2. 操作系统版本（Android各版本、iOS各版本）
+3. 屏幕兼容性（尺寸、类型：刘海屏/水滴屏/折叠屏）
+4. 网络兼容性（移动数据/WiFi/弱网）
+5. 硬件兼容性（物理按键、蓝牙、外部设备）
+    </div>
+  </div>
+</div>
+
+<!-- P2 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p2">
+  <div class="pt-body">
+    <div class="pt-t">2. 列举安装测试中至少4种异常场景。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+安装测试异常场景：
+1. 中断安装（关机、断网），恢复后能否继续
+2. 存储空间不足时安装
+3. 安装时手动取消/暂停，恢复后能否正常安装
+4. 正在运行时覆盖安装（前台/后台）
+5. 低版本覆盖高版本安装
+6. 卸载后再安装，是否保留旧数据
+    </div>
+  </div>
+</div>
+
+<!-- P3 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p3">
+  <div class="pt-body">
+    <div class="pt-t">3. 列举5种常见的干扰测试（交叉事件测试）场景。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+干扰测试常见场景：
+1. 接打电话（来电中断APP操作）
+2. 收发短信（短信通知弹窗）
+3. 连接蓝牙设备（蓝牙连接/断开）
+4. 旋转屏幕（横竖屏切换）
+5. 切换网络（WiFi和移动数据自动切换）
+6. 低电提醒 / 插拔充电器
+7. 打开手机自带应用（相机、手电筒等）
+    </div>
+  </div>
+</div>
+
+<!-- P4 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p4">
+  <div class="pt-body">
+    <div class="pt-t">4. Push推送测试需要从哪两端进行？分别需要关注什么？</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+Push推送测试从两端进行：
+
+【服务器端】
+- 推送规则是否正确
+- 推送内容、时间、频率、对象是否正确
+
+【手机端】
+- 不接收消息时不应收到推送
+- 接收消息时，前台/后台/离线状态下的显示方式
+- 消息能否正确打开对应页面
+- 接收设置：不提醒/提醒/不显示内容
+- 结合手机模式：静音/震动/铃声
+    </div>
+  </div>
+</div>
+
+<!-- P5 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p5">
+  <div class="pt-body">
+    <div class="pt-t">5. 写出使用ADB查看设备、进入设备、查看已安装包的命令。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="g">-- 查看当前接入的移动端设备</span>
+<span class="w">adb devices</span>
+
+<span class="g">-- 进入当前设备命令行</span>
+<span class="w">adb shell</span>
+
+<span class="g">-- 退出设备命令行</span>
+<span class="w">exit</span>
+
+<span class="g">-- 查看设备已安装的软件包</span>
+<span class="w">adb shell pm list packages</span>
+    </div>
+  </div>
+</div>
+
+<!-- P6 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p6">
+  <div class="pt-body">
+    <div class="pt-t">6. 写出启动TP商城APP和强制停止该APP的ADB命令。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="g">-- 启动TP商城APP</span>
+<span class="w">adb shell am start</span> com.tpshop.malls/.SPMainActivity
+
+<span class="g">-- 强制停止TP商城APP</span>
+<span class="w">adb shell am force-stop</span> com.tpshop.malls
+    </div>
+  </div>
+</div>
+
+<!-- P7 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p7">
+  <div class="pt-body">
+    <div class="pt-t">7. 解释内存泄露和内存溢出的关系，以及如何通过曲线图判断。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+【内存泄露】
+- 曲线表现：内存曲线持续增长，增的远比减的多
+- 原因：申请的内存未被释放
+
+【内存溢出】
+- 曲线表现：内存持续增加后突然降为0（应用崩溃）
+- 原因：一定是因为内存泄露导致
+
+【两者关系】
+内存泄露不一定导致溢出（如果泄露量小）
+内存溢出一定是由内存泄露引起的
+    </div>
+  </div>
+</div>
+
+<!-- P8 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p8">
+  <div class="pt-body">
+    <div class="pt-t">8. 写出测试APP冷启动速度的ADB命令，并说明关注哪个指标。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="g">-- 启动速度测试命令</span>
+<span class="w">adb shell am start -W -n</span> com.tpshop.malls/com.tpshop.malls.SplashActivity
+
+<span class="g">-- 关注输出结果中的 TotalTime 字段</span>
+<span class="g">-- 冷启动：APP完全未运行，TotalTime 较大（如576ms）</span>
+<span class="g">-- 热启动：APP在后台运行，TotalTime 较小（如24ms）</span>
+    </div>
+  </div>
+</div>
+
+<!-- P9 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p9">
+  <div class="pt-body">
+    <div class="pt-t">9. 写出一条完整的Monkey稳定性测试命令（针对TP商城APP，10万次事件）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="w">adb shell monkey</span> \
+  <span class="k">-p</span> com.tpshop.malls \
+  <span class="k">--ignore-crashes</span> \
+  <span class="k">--ignore-timeouts</span> \
+  <span class="k">--throttle</span> <span class="n">400</span> \
+  <span class="k">-v -v -v</span> \
+  <span class="k">-s</span> <span class="n">500</span> \
+  <span class="n">100000</span> > /sdcard/monkey_log.txt
+    </div>
+  </div>
+</div>
+
+<!-- P10 -->
+<div class="pt">
+  <input type="checkbox" class="ci" id="p10">
+  <div class="pt-body">
+    <div class="pt-t">10. 列举SoloPi性能测试工具的使用步骤（从安装到导出数据）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+SoloPi使用步骤：
+1. 将SoloPi.apk拖入模拟器自动安装
+2. 打开SoloPi，确认声明并允许存储权限
+3. 点击"性能测试"
+4. 在下拉框中选择被测APP
+5. 勾选性能指标（CPU/内存/响应耗时/电池/网络等）
+6. 点击"开始监测"，切换到被测APP进行操作
+7. 操作完毕后停止监测，数据自动保存
+8. 返回SoloPi查看监测图表
+9. 进入solopi/records目录导出数据
+    </div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 3: 面试精讲 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">💬</span>面试精讲</h2>
+  <p>共12道面试高频题，涵盖APP专项测试和性能测试核心知识点。点击展开查看详细回答。</p>
+</div>
+
+<!-- Q1 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">APP测试和Web测试有什么区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>APP测试和Web测试主要有以下区别：</p>
+    <p>1. <b>兼容性：</b>APP需要考虑不同手机品牌、型号、操作系统版本、屏幕尺寸和类型（刘海屏/折叠屏等），Web主要考虑浏览器兼容性。</p>
+    <p>2. <b>专项测试：</b>APP需要额外进行安装卸载升级测试、干扰测试、Push推送测试等，Web不需要。</p>
+    <p>3. <b>性能指标：</b>APP需要关注CPU、内存、流量、电量、启动速度、流畅度（FPS），Web主要关注页面加载时间和并发量。</p>
+    <p>4. <b>网络测试：</b>APP需要考虑移动数据/WiFi切换、弱网、断网场景。</p>
+    <p>5. <b>用户体验：</b>APP需要考虑手势操作、横竖屏、辅助功能等。</p>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">APP兼容性测试需要覆盖哪些方面？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>APP兼容性测试主要覆盖：</p>
+    <p>1. <b>设备型号：</b>不同品牌（华为、小米、OPPO、iPhone等）和机型</p>
+    <p>2. <b>操作系统版本：</b>Android不同版本、iOS不同版本</p>
+    <p>3. <b>分辨率和屏幕：</b>不同尺寸（5.1/5.5/4.7寸），不同类型（刘海屏/水滴屏/曲面屏/折叠屏）</p>
+    <p>4. <b>网络环境：</b>移动数据和WiFi</p>
+    <p>5. <b>硬件兼容：</b>手机物理按键、蓝牙设备、有线设备</p>
+    <p>6. <b>系统设置：</b>WLAN、时间、定位等对APP的影响</p>
+    <p>7. <b>应用兼容：</b>与后台播放类APP的兼容</p>
+    <p>如果公司没有大量机型，可以使用云测平台或模拟器进行补充测试。</p>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">什么是干扰测试？请举例说明。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>干扰测试也叫交叉事件测试，指在APP正常使用过程中，被外部事件打断后APP是否能正确处理并恢复。</p>
+    <p><b>常见场景：</b></p>
+    <p>1. 正在使用APP时来电话或短信</p>
+    <p>2. 收到其他应用的推送通知</p>
+    <p>3. 连接或断开蓝牙设备</p>
+    <p>4. 旋转屏幕（横竖屏切换）</p>
+    <p>5. WiFi和移动数据自动切换</p>
+    <p>6. 低电提醒弹窗</p>
+    <p>7. 插拔充电器（充电动画）</p>
+    <p>8. 打开手机自带应用（相机、手电筒）</p>
+    <p>测试重点：被干扰后APP的数据是否丢失、界面是否异常、能否正确恢复到中断前的状态。</p>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">APP升级测试需要关注哪些点？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>APP升级测试需要关注：</p>
+    <p>1. <b>临近版本升级：</b>从上一个版本升级到当前版本</p>
+    <p>2. <b>跨版本升级：</b>从历史版本（如n-2）直接升级到最新版本</p>
+    <p>3. <b>升级渠道：</b>从不同渠道（自研系统/第三方商店）升级</p>
+    <p>4. <b>升级提醒：</b>红点提示、消息推送、强制升级</p>
+    <p>5. <b>升级能力：</b>当前版本是否能正确识别新版本并触发升级</p>
+    <p>6. <b>数据保留：</b>升级后用户数据是否完整保留</p>
+    <p>7. <b>降级处理：</b>低版本覆盖高版本的处理逻辑</p>
+    <p>8. <b>强制升级 vs 日常升级：</b>不同升级策略的行为是否正确</p>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">什么是内存泄露？什么是内存溢出？它们之间有什么关系？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p><b>内存泄露（Memory Leak）：</b>程序申请的内存在使用完后没有被正确释放，导致可用内存越来越少。在曲线图上表现为：内存持续增长，增的远比减的多。</p>
+    <p><b>内存溢出（Out Of Memory）：</b>程序请求的内存超出了系统可用内存的大小，导致应用崩溃。在曲线图上表现为：内存持续增加后突然降为0（应用停止运行）。</p>
+    <p><b>两者关系：</b></p>
+    <p>• 内存溢出一定是因为有内存泄露才会出现</p>
+    <p>• 内存泄露不一定会导致内存溢出（如果泄露量小，长时间运行才可能触发）</p>
+    <p>• 修复内存泄露可以预防内存溢出</p>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">APP性能测试包含哪些关键指标？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>APP性能测试主要包含以下指标：</p>
+    <p>1. <b>CPU：</b>CPU占用率，行业默认不超过90%的基线</p>
+    <p>2. <b>内存：</b>监控是否存在内存泄露和内存溢出</p>
+    <p>3. <b>流量：</b>一定时间内消耗的网络流量</p>
+    <p>4. <b>电量：</b>一定时间内消耗的电量</p>
+    <p>5. <b>启动速度：</b>冷启动和热启动时间</p>
+    <p>6. <b>流畅度（FPS）：</b>帧率，60fps为最佳</p>
+    <p>7. <b>稳定性：</b>长时间运行是否闪退或崩溃</p>
+    <p>性能指标描述需要明确：在某种时间内、某种条件下执行某种操作，性能指标如何。</p>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">冷启动和热启动有什么区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p><b>冷启动：</b>APP处于完全离线（未运行）的状态下启动，需要加载所有资源和初始化，所以启动时间较长。</p>
+    <p><b>热启动：</b>APP在后台运行的状态下被切换到前台，资源已经在内存中，所以恢复速度极快。</p>
+    <p><b>测试方法：</b>使用命令 <code class="inl">adb shell am start -W 包名/Activity名</code>，查看输出结果中的 <code class="inl">TotalTime</code> 字段来获取启动时间。</p>
+    <p><b>区别示例：</b>同一个APP冷启动可能需要500-600ms，而热启动只需要20-30ms。</p>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">什么是Monkey测试？如何使用？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>Monkey是Android系统自带的一个测试工具，用于测试APP的健壮性和稳定性。它会向APP发送伪随机的用户事件流（如点击、滑动、旋转等），模拟用户的随机操作。</p>
+    <p><b>基本命令格式：</b></p>
+    <p><code class="inl">adb shell monkey -p 包名 --ignore-crashes --ignore-timeouts --throttle 400 -v -s 500 100000 > 日志路径</code></p>
+    <p><b>关键参数：</b></p>
+    <p>• <code class="inl">-p</code>：指定被测APP包名</p>
+    <p>• <code class="inl">--ignore-crashes</code>：忽略闪退继续测试</p>
+    <p>• <code class="inl">--ignore-timeouts</code>：忽略超时继续测试</p>
+    <p>• <code class="inl">--throttle</code>：事件间的延迟时间（ms）</p>
+    <p>• <code class="inl">-v</code>：日志详细程度，最多三个-v</p>
+    <p>• <code class="inl">-s</code>：指定随机种子，相同种子可复现测试</p>
+    <p><b>建议：</b>同时使用SoloPi等工具监控性能数据，并收集日志分析问题。</p>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">SoloPi工具能测试哪些性能指标？如何使用？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>SoloPi可以监测以下性能指标：CPU占用、内存使用、响应耗时、帧率、游戏帧率、电池消耗、网络流量、进程状态、启动耗时。</p>
+    <p><b>使用步骤：</b></p>
+    <p>1. 将SoloPi.apk拖入模拟器安装</p>
+    <p>2. 打开SoloPi → 确认声明 → 允许权限</p>
+    <p>3. 进入"性能测试" → 选择被测APP</p>
+    <p>4. 勾选需要的性能指标</p>
+    <p>5. 开始监测 → 操作被测APP → 停止</p>
+    <p>6. 进入"录制数据查看"查看图表</p>
+    <p>7. 数据保存在 /storage/emulated/0/solopi/records/ 目录，可导出分析</p>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">APP流量优化有哪些方法？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>流量优化的常见方法包括：</p>
+    <p>1. <b>数据压缩：</b>对传输数据进行压缩（如Gzip）</p>
+    <p>2. <b>数据格式优化：</b>选择更高效的数据格式（如JSON替代XML）</p>
+    <p>3. <b>控制访问频次：</b>减少不必要的网络请求</p>
+    <p>4. <b>只获取必要数据：</b>按需请求，不加载冗余信息</p>
+    <p>5. <b>缓存机制：</b>合理使用本地缓存，避免重复请求</p>
+    <p>6. <b>网络策略分级：</b>针对不同网络类型（WiFi/4G/5G）设置不同的访问策略，如在移动数据下不自动加载图片</p>
+  </div>
+</div>
+
+<!-- Q11 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">APP卸载后数据残留应该如何处理？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p>APP卸载后的数据残留处理需要分情况：</p>
+    <p>1. <b>有确认提示的情况：</b>如果卸载时给用户弹窗确认，用户同意保留数据则可以保留，用户拒绝保留则必须清空所有残留数据。</p>
+    <p>2. <b>无确认提示的情况：</b>如果没有做任何确认提示，默认需要清空所有残留数据，包括缓存文件、配置文件、数据库等。</p>
+    <p><b>测试关注点：</b></p>
+    <p>• 卸载后重新安装，是否能识别到旧数据</p>
+    <p>• 残留数据是否会影响新安装的APP</p>
+    <p>• 用户隐私数据是否被彻底清除</p>
+  </div>
+</div>
+
+<!-- Q12 -->
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">CPU占用过高时APP会出现哪些问题？如何快速恢复？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参考回答：</b></p>
+    <p><b>CPU过高导致的问题：</b></p>
+    <p>1. <b>手机发烫：</b>CPU高负载产生大量热量</p>
+    <p>2. <b>页面卡顿：</b>CPU资源不足导致UI渲染变慢</p>
+    <p>3. <b>电量消耗严重：</b>高CPU占用直接导致耗电增加</p>
+    <p><b>快速恢复方法：</b>清空后台运行的进程，释放CPU资源。</p>
+    <p><b>测试标准：</b>如果有基线要求（如CPU不超过90%），检查曲线图是否存在长时间超过基线的情况。如果没有基线，行业默认基线为90%。</p>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 4: 测验 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">✅</span>知识测验</h2>
+  <p>共15道选择题，测试你对APP专项测试与性能测试的掌握程度。选择答案后点击底部"提交答案"按钮查看结果。</p>
+</div>
+
+<!-- Q1 -->
+<div class="qz" data-a="1">
+  <div class="qz-q"><span class="qn">1</span>以下哪项不属于APP兼容性测试的范围？</div>
+  <div class="opt" onclick="sel(this)">A. 不同手机品牌和机型</div>
+  <div class="opt" onclick="sel(this)">B. 数据库查询性能</div>
+  <div class="opt" onclick="sel(this)">C. 不同屏幕类型（刘海屏/折叠屏）</div>
+  <div class="opt" onclick="sel(this)">D. 移动数据和WiFi网络</div>
+  <div class="qz-ex"><b>💡 解析：</b>数据库查询性能属于后端性能测试范畴，不属于APP兼容性测试。兼容性测试主要关注设备型号、操作系统、屏幕、网络等维度。</div>
+</div>
+
+<!-- Q2 -->
+<div class="qz" data-a="2">
+  <div class="qz-q"><span class="qn">2</span>安装测试中，以下哪种是异常场景？</div>
+  <div class="opt" onclick="sel(this)">A. 从应用商店安装</div>
+  <div class="opt" onclick="sel(this)">B. 存储空间不足时安装</div>
+  <div class="opt" onclick="sel(this)">C. 不同操作系统安装</div>
+  <div class="opt" onclick="sel(this)">D. 从官网下载安装</div>
+  <div class="qz-ex"><b>💡 解析：</b>存储空间不足是异常场景，需要验证APP能否正确提示用户。其他选项都属于正常安装场景。</div>
+</div>
+
+<!-- Q3 -->
+<div class="qz" data-a="3">
+  <div class="qz-q"><span class="qn">3</span>关于卸载后数据残留，以下说法正确的是？</div>
+  <div class="opt" onclick="sel(this)">A. 卸载后一律保留所有数据</div>
+  <div class="opt" onclick="sel(this)">B. 卸载后一律清空所有数据</div>
+  <div class="opt" onclick="sel(this)">C. 如果没有确认提示，默认需要清空残留数据</div>
+  <div class="opt" onclick="sel(this)">D. 数据残留不影响用户体验</div>
+  <div class="qz-ex"><b>💡 解析：</b>如果有确认提示则按用户选择处理，如果没有做任何确认提示，默认需要清空残留数据。</div>
+</div>
+
+<!-- Q4 -->
+<div class="qz" data-a="1">
+  <div class="qz-q"><span class="qn">4</span>以下哪项不属于干扰测试（交叉事件测试）的场景？</div>
+  <div class="opt" onclick="sel(this)">A. 执行数据库备份</div>
+  <div class="opt" onclick="sel(this)">B. 接打电话</div>
+  <div class="opt" onclick="sel(this)">C. 切换网络</div>
+  <div class="opt" onclick="sel(this)">D. 旋转屏幕</div>
+  <div class="qz-ex"><b>💡 解析：</b>数据库备份是后端操作，不属于APP客户端的干扰测试场景。干扰测试主要关注外部事件对APP使用的打断。</div>
+</div>
+
+<!-- Q5 -->
+<div class="qz" data-a="2">
+  <div class="qz-q"><span class="qn">5</span>Push推送测试中，APP在后台运行时收到消息应该如何显示？</div>
+  <div class="opt" onclick="sel(this)">A. 不显示任何内容</div>
+  <div class="opt" onclick="sel(this)">B. 在通知栏显示推送消息</div>
+  <div class="opt" onclick="sel(this)">C. 直接弹出APP到前台</div>
+  <div class="opt" onclick="sel(this)">D. 自动打开推送内容页面</div>
+  <div class="qz-ex"><b>💡 解析：</b>APP在后台运行时，收到的推送消息通常在通知栏中显示，用户点击后才打开对应页面。不应强制将APP切到前台。</div>
+</div>
+
+<!-- Q6 -->
+<div class="qz" data-a="3">
+  <div class="qz-q"><span class="qn">6</span>关于内存泄露和内存溢出，以下说法正确的是？</div>
+  <div class="opt" onclick="sel(this)">A. 内存溢出不一定由内存泄露导致</div>
+  <div class="opt" onclick="sel(this)">B. 内存泄露一定会导致内存溢出</div>
+  <div class="opt" onclick="sel(this)">C. 内存溢出一定是因为有内存泄露才会出现</div>
+  <div class="opt" onclick="sel(this)">D. 内存泄露和内存溢出没有关系</div>
+  <div class="qz-ex"><b>💡 解析：</b>内存溢出一定是因为有内存泄露才会出现。但内存泄露不一定会导致溢出（如果泄露量小或运行时间短）。</div>
+</div>
+
+<!-- Q7 -->
+<div class="qz" data-a="4">
+  <div class="qz-q"><span class="qn">7</span>CPU占用过高时不会出现以下哪种问题？</div>
+  <div class="opt" onclick="sel(this)">A. 手机发烫</div>
+  <div class="opt" onclick="sel(this)">B. 页面卡顿</div>
+  <div class="opt" onclick="sel(this)">C. 电量消耗严重</div>
+  <div class="opt" onclick="sel(this)">D. 网络流量增加</div>
+  <div class="qz-ex"><b>💡 解析：</b>CPU占用过高会导致发烫、卡顿、耗电，但不会直接导致网络流量增加。网络流量与数据传输相关。</div>
+</div>
+
+<!-- Q8 -->
+<div class="qz" data-a="1">
+  <div class="qz-q"><span class="qn">8</span>冷启动是指？</div>
+  <div class="opt" onclick="sel(this)">A. APP离线状态下启动</div>
+  <div class="opt" onclick="sel(this)">B. APP后台运行状态下启动</div>
+  <div class="opt" onclick="sel(this)">C. APP更新后第一次启动</div>
+  <div class="opt" onclick="sel(this)">D. 低温环境下启动APP</div>
+  <div class="qz-ex"><b>💡 解析：</b>冷启动指APP处于完全离线（未运行）的状态下启动，需要加载所有资源，时间较长。热启动指APP在后台运行状态下恢复。</div>
+</div>
+
+<!-- Q9 -->
+<div class="qz" data-a="2">
+  <div class="qz-q"><span class="qn">9</span>使用ADB测试APP启动速度的命令是？</div>
+  <div class="opt" onclick="sel(this)">A. adb shell am start 包名/Activity名</div>
+  <div class="opt" onclick="sel(this)">B. adb shell am start -W -n 包名/Activity名</div>
+  <div class="opt" onclick="sel(this)">C. adb shell monkey -p 包名</div>
+  <div class="opt" onclick="sel(this)">D. adb shell pm list packages</div>
+  <div class="qz-ex"><b>💡 解析：</b><code class="inl">adb shell am start -W -n 包名/Activity名</code> 中的 -W 参数会输出启动耗时信息（TotalTime），用于测试启动速度。</div>
+</div>
+
+<!-- Q10 -->
+<div class="qz" data-a="3">
+  <div class="qz-q"><span class="qn">10</span>Monkey测试中 --ignore-crashes 参数的作用是？</div>
+  <div class="opt" onclick="sel(this)">A. 忽略超时，继续测试</div>
+  <div class="opt" onclick="sel(this)">B. 忽略网络错误</div>
+  <div class="opt" onclick="sel(this)">C. 忽略闪退，继续发送测试事件</div>
+  <div class="opt" onclick="sel(this)">D. 忽略权限限制</div>
+  <div class="qz-ex"><b>💡 解析：</b>--ignore-crashes 参数的作用是忽略闪退，即APP闪退后Monkey继续发送测试事件直到完成指定次数。--ignore-timeouts 才是忽略超时。</div>
+</div>
+
+<!-- Q11 -->
+<div class="qz" data-a="2">
+  <div class="qz-q"><span class="qn">11</span>APP流畅度的最佳帧率（FPS）标准是？</div>
+  <div class="opt" onclick="sel(this)">A. 30fps</div>
+  <div class="opt" onclick="sel(this)">B. 60fps</div>
+  <div class="opt" onclick="sel(this)">C. 90fps</div>
+  <div class="opt" onclick="sel(this)">D. 120fps</div>
+  <div class="qz-ex"><b>💡 解析：</b>60fps是APP流畅度的最佳标准。每秒60帧可以提供流畅的视觉体验。</div>
+</div>
+
+<!-- Q12 -->
+<div class="qz" data-a="4">
+  <div class="qz-q"><span class="qn">12</span>以下哪项不是常见的高耗电场景？</div>
+  <div class="opt" onclick="sel(this)">A. GPS定位</div>
+  <div class="opt" onclick="sel(this)">B. 非WiFi环境的网络传输</div>
+  <div class="opt" onclick="sel(this)">C. 屏幕亮度</div>
+  <div class="opt" onclick="sel(this)">D. 读取本地缓存数据</div>
+  <div class="qz-ex"><b>💡 解析：</b>读取本地缓存数据对电量消耗很小。GPS定位、非WiFi网络传输、屏幕亮度、CPU高负载运算等才是常见的高耗电场景。</div>
+</div>
+
+<!-- Q13 -->
+<div class="qz" data-a="1">
+  <div class="qz-q"><span class="qn">13</span>查看当前打开的APP包名和Activity（macOS系统）的命令是？</div>
+  <div class="opt" onclick="sel(this)">A. adb shell dumpsys window w | grep mFocusedApp</div>
+  <div class="opt" onclick="sel(this)">B. adb shell pm list packages</div>
+  <div class="opt" onclick="sel(this)">C. adb shell am start -W 包名</div>
+  <div class="opt" onclick="sel(this)">D. adb devices</div>
+  <div class="qz-ex"><b>💡 解析：</b>macOS系统使用 <code class="inl">adb shell dumpsys window w | grep mFocusedApp</code>，Windows系统使用 findstr 替代 grep。</div>
+</div>
+
+<!-- Q14 -->
+<div class="qz" data-a="3">
+  <div class="qz-q"><span class="qn">14</span>以下哪项不是流量优化的方法？</div>
+  <div class="opt" onclick="sel(this)">A. 数据压缩</div>
+  <div class="opt" onclick="sel(this)">B. 缓存机制</div>
+  <div class="opt" onclick="sel(this)">C. 增加请求频次</div>
+  <div class="opt" onclick="sel(this)">D. 只获取必要的数据</div>
+  <div class="qz-ex"><b>💡 解析：</b>增加请求频次会增加流量消耗，应该是控制/减少访问频次。数据压缩、缓存机制、只获取必要数据都是有效的流量优化方法。</div>
+</div>
+
+<!-- Q15 -->
+<div class="qz" data-a="2">
+  <div class="qz-q"><span class="qn">15</span>遇到 "devices offline" 问题时，正确的解决方案是？</div>
+  <div class="opt" onclick="sel(this)">A. 重新安装ADB工具</div>
+  <div class="opt" onclick="sel(this)">B. 重启模拟器</div>
+  <div class="opt" onclick="sel(this)">C. 修改环境变量</div>
+  <div class="opt" onclick="sel(this)">D. 更换USB数据线</div>
+  <div class="qz-ex"><b>💡 解析：</b>devices offline（设备离线）的解决方案是重启模拟器。同样，devices not found（找不到设备）也可以通过重启模拟器解决。</div>
+</div>
+
+<div style="text-align:center;margin-top:24px">
+  <button class="qbtn" onclick="sub()">提交答案</button>
+</div>
+
+<div id="qr">
+  <h3 id="qr-t"></h3>
+  <p id="qr-d"></p>
+</div>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// Navigation
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dots=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dots.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+
+// Practice toggle
+function tr(el){
+  const ans=el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent=ans.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+
+// Interview accordion
+function tq(hdr){
+  const iq=hdr.parentElement;
+  iq.classList.toggle('o');
+}
+
+// Progress tracking
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pf').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked)});
+  if(done===10){document.querySelectorAll('.dot')[2].classList.add('d')}
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+
+// Quiz
+function sel(el){
+  const opts=el.parentElement.querySelectorAll('.opt');
+  opts.forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function sub(){
+  const qzs=document.querySelectorAll('.qz');
+  let score=0;
+  qzs.forEach(qz=>{
+    const a=parseInt(qz.dataset.a);
+    const opts=qz.querySelectorAll('.opt');
+    let picked=-1;
+    opts.forEach((o,i)=>{if(o.classList.contains('sel'))picked=i+1});
+    opts.forEach((o,i)=>{
+      o.classList.remove('sel');
+      if(i+1===a)o.classList.add('ok');
+      else if(i+1===picked&&picked!==a)o.classList.add('no');
+    });
+    if(picked===a)score++;
+    qz.querySelector('.qz-ex').classList.add('s');
+  });
+  const qr=document.getElementById('qr');
+  qr.style.display='block';
+  const pct=Math.round(score/15*100);
+  document.getElementById('qr-t').textContent=score+' / 15（'+pct+'%）';
+  let msg='';
+  if(pct>=90)msg='🎉 非常优秀！你已熟练掌握APP测试知识！';
+  else if(pct>=70)msg='👍 不错！部分知识点需要再巩固一下。';
+  else if(pct>=50)msg='📖 还需要加油，建议回顾知识讲解部分。';
+  else msg='💪 基础薄弱，建议重新学习后再次测试。';
+  document.getElementById('qr-d').textContent=msg;
+  document.querySelectorAll('.dot')[4].classList.add('d');
+  // postMessage
+  try{
+    window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d7'},'*');
+  }catch(e){}
+}
+</script>
+</body>
+</html>

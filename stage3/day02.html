@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3 · Web功能测试 Day 02 – 业务流程测试 & 单模块测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#0891b2;
+  --day-d:#0e7490;
+  --day-bg:rgba(8,145,178,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(8,145,178,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(8,145,178,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.cyan{background:#ecfeff;border-color:#0891b2;color:#155e75}
+
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12px;padding:8px 10px;text-align:left}
+td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card p,.card ul{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.card ul{padding-left:14px}
+.card li{margin-bottom:3px}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700}
+.bg-green{background:#dcfce7;color:#15803d}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.bg-cyan{background:#cffafe;color:#155e75}
+.bg-gray{background:#f1f5f9;color:#475569}
+.bg-purple{background:#ede9fe;color:#6d28d9}
+.bg-orange{background:#ffedd5;color:#9a3412}
+
+.p0{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p1{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p2{background:#dbeafe;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+
+/* 业务流程可视化 */
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.fs{padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:600;border:2px solid;text-align:center;min-width:80px}
+.fs-ok{background:#dbeafe;border-color:#3b82f6;color:#1d4ed8}
+.fs-start{background:#dcfce7;border-color:#16a34a;color:#15803d}
+.fs-end{background:#f1f5f9;border-color:#475569;color:#334155}
+.fs-no{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.fa{color:var(--day);font-weight:700;font-size:16px}
+.fail-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0 4px 12px}
+.fail-label{font-size:11px;color:var(--red);font-weight:700;white-space:nowrap}
+
+/* 单模块测试点卡片 */
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.tp-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tp-card h5{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed var(--border)}
+.tp-card ul{padding-left:14px;font-size:12.5px;color:var(--ink2)}
+.tp-card li{margin-bottom:3px}
+.valid-tag{display:inline-block;font-size:10px;padding:1px 5px;border-radius:4px;font-weight:700;margin-right:2px}
+.valid{background:#dcfce7;color:#15803d}
+.invalid{background:#fee2e2;color:#991b1b}
+
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.8;color:var(--ink2)}
+.pt-ans.s{display:block}
+
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+.case-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.case-table th{background:var(--day-bg);color:var(--day-d);font-weight:700;padding:7px 9px;text-align:left;border:1px solid var(--border)}
+.case-table td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;color:var(--ink2)}
+.case-table tr:hover td{background:#fafbfc}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .g2,.g3,.tp-grid{grid-template-columns:1fr}
+  .flow{flex-direction:column;align-items:flex-start}
+  table{font-size:11.5px}
+  th,td{padding:6px 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · WEB功能测试 · DAY 02</div>
+  <h1>业务流程测试 &amp; 单模块测试</h1>
+  <p>完成退货/换货/订单查询/会员管理/商品管理业务流程测试，并独立完成轮播图、注册、登录三个单功能模块的测试用例设计。</p>
+  <div class="hd-stats">
+    <div><b>8</b>核心模块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试精讲</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- ===== 一、业务流程测试 ===== -->
+  <div class="sec">
+    <h2><span class="ico">一</span>商城项目测试（业务流程）</h2>
+    <div class="box cyan">
+      <b>💡 单模块用例编写原则：先测后台，后测前台。</b><br>
+      业务流程法：从流程图找路径，有多少条路径就有多少条用例（正向成功路径 + 各节点失败路径）。
+    </div>
+
+    <h3>1.1 退货业务（仅退款）</h3>
+    <p><strong>业务流程：</strong>用户登录 → 申请售后（仅退款）→ 填写退款原因 → 提交申请 → 商家登录 → 商家审核 → 商家打款 → 用户确认金额</p>
+
+    <div class="flow">
+      <div class="fs fs-start">用户登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">申请仅退款</div><div class="fa">→</div>
+      <div class="fs fs-ok">填写退款原因</div><div class="fa">→</div>
+      <div class="fs fs-ok">提交申请</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家审核通过</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家打款</div><div class="fa">→</div>
+      <div class="fs fs-start">退款成功 ✅</div>
+    </div>
+
+    <div class="tw" style="margin-top:12px">
+      <table class="case-table">
+        <tr><th>用例编号</th><th>优先级</th><th>用例标题</th><th>预期结果</th></tr>
+        <tr><td>tp_AfterSale_001</td><td><span class="p0">P0</span></td><td>售后成功（所有项都正确）</td><td>现象：① 用户订单状态变为"商家已确认退款" ② 用户账户金额增加</td></tr>
+        <tr><td>tp_AfterSale_002</td><td><span class="p0">P0</span></td><td>售后失败（商家审核不通过）</td><td>现象：订单状态显示"拒绝或未通过"，金额不变</td></tr>
+        <tr><td>tp_AfterSale_003</td><td><span class="p1">P1</span></td><td>售后失败（用户登录失败）</td><td>现象：登录失败，提示"账号或密码错误"</td></tr>
+        <tr><td>tp_AfterSale_004</td><td><span class="p1">P1</span></td><td>售后失败（商家登录失败）</td><td>现象：商家登录失败，提示"账号或密码不正确"</td></tr>
+      </table>
+    </div>
+
+    <h3>1.2 退货退款业务</h3>
+    <p><strong>业务流程：</strong>用户登录 → 申请退货退款 → 填写退货原因 → 商家登录 → 商家审核并确认 → 用户提交退货单 → 商家确认收货 → 商家退款 → 用户确认金额</p>
+
+    <div class="flow">
+      <div class="fs fs-start">用户登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">申请退货退款</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家审核通过</div><div class="fa">→</div>
+      <div class="fs fs-ok">用户退货</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家确认收货</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家打款</div><div class="fa">→</div>
+      <div class="fs fs-start">退货退款成功 ✅</div>
+    </div>
+
+    <div class="tw" style="margin-top:10px">
+      <table class="case-table">
+        <tr><th>用例编号</th><th>优先级</th><th>用例标题</th><th>预期结果</th></tr>
+        <tr><td>tp_AfterSale_005</td><td><span class="p0">P0</span></td><td>退货退款成功（所有项都正确）</td><td>① 用户账户金额增加 ② 订单状态变"商家已收到退款"</td></tr>
+        <tr><td>tp_AfterSale_006</td><td><span class="p0">P0</span></td><td>退货退款失败（商家审核不通过）</td><td>订单状态显示"商家拒绝了你的请求"</td></tr>
+        <tr><td>tp_AfterSale_007</td><td><span class="p1">P1</span></td><td>退货退款失败（用户登录失败）</td><td>登录失败，提示重新登录</td></tr>
+        <tr><td>tp_AfterSale_008</td><td><span class="p1">P1</span></td><td>退货退款失败（商家登录失败）</td><td>商家登录失败，提示重新登录</td></tr>
+      </table>
+    </div>
+
+    <div class="box warn">
+      <b>⚠️ 并列选项陷阱：</b>退货退款失败有多种原因（用户登录失败 / 商家登录失败 / 审核不通过）是<strong>并列关系</strong>，每种失败场景各自独立为一条用例，互相不影响。
+    </div>
+
+    <h3>1.3 换货业务</h3>
+    <p><strong>业务流程：</strong>用户登录 → 申请换货 → 填写换货原因 → 商家审核通过 → 用户退货 → 商家确认收货 → 商家发送新商品 → 换货成功</p>
+    <div class="flow">
+      <div class="fs fs-start">用户登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">申请换货</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家审核通过</div><div class="fa">→</div>
+      <div class="fs fs-ok">用户退货</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家确认收货</div><div class="fa">→</div>
+      <div class="fs fs-ok">商家发新商品</div><div class="fa">→</div>
+      <div class="fs fs-start">换货成功 ✅</div>
+    </div>
+    <div class="box info" style="margin-top:10px">
+      <b>📌 换货失败路径（每条各一个用例）：</b><br>
+      路径2：用户登录失败 → 换货失败<br>
+      路径3：商家审核不通过 → 换货失败<br>
+      路径4：商家登录失败 → 换货失败（商家无法审核）
+    </div>
+
+    <h3>1.4 订单查询业务</h3>
+    <p><strong>业务流程：</strong>前台登录 → 我的订单 → 查看订单状态</p>
+    <div class="flow">
+      <div class="fs fs-start">前台登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">进入"我的订单"</div><div class="fa">→</div>
+      <div class="fs fs-ok">查看订单列表</div><div class="fa">→</div>
+      <div class="fs fs-start">查询成功 ✅</div>
+    </div>
+    <p style="margin-top:8px"><strong>订单状态流转：</strong></p>
+    <div class="flow" style="flex-wrap:wrap">
+      <div class="fs fs-start" style="font-size:11.5px;padding:5px 10px">预订</div><div class="fa">→</div>
+      <div class="fs fs-ok" style="font-size:11.5px;padding:5px 10px">待发货</div><div class="fa">→</div>
+      <div class="fs fs-ok" style="font-size:11.5px;padding:5px 10px">已发货</div><div class="fa">→</div>
+      <div class="fs fs-ok" style="font-size:11.5px;padding:5px 10px">待收货</div><div class="fa">→</div>
+      <div class="fs fs-end" style="font-size:11.5px;padding:5px 10px">已完成</div>
+    </div>
+    <div class="box tip">
+      <b>💡 测试要点：</b>① 登录成功路径（P0）② 登录失败路径（P1）③ 账号下无订单路径（P1）④ 验证各订单状态显示是否正确
+    </div>
+
+    <h3>1.5 会员管理业务</h3>
+    <p><strong>业务流程：</strong>后台登录 → 会员管理 → 增加/编辑/删除会员</p>
+    <div class="flow">
+      <div class="fs fs-start">后台登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">会员管理列表</div><div class="fa">→</div>
+      <div class="fs fs-ok">增加/编辑/删除</div><div class="fa">→</div>
+      <div class="fs fs-start">操作成功 ✅</div>
+    </div>
+    <div class="box info">
+      <b>📌 3条主路径（各对应一条P0用例）：</b><br>
+      路径1：增加会员成功 → 验证：会员列表新增记录 + DB tp_users新增数据<br>
+      路径2：编辑会员成功 → 验证：会员信息已更新<br>
+      路径3：删除会员成功 → 验证：会员列表记录消失 + DB数据删除
+    </div>
+
+    <h3>1.6 商品管理业务</h3>
+    <p><strong>业务流程：</strong>后台登录 → 商品管理 → 增加/编辑/删除商品</p>
+    <div class="flow">
+      <div class="fs fs-start">后台登录</div><div class="fa">→</div>
+      <div class="fs fs-ok">商品管理列表</div><div class="fa">→</div>
+      <div class="fs fs-ok">增加/编辑/删除</div><div class="fa">→</div>
+      <div class="fs fs-start">操作成功 ✅</div>
+    </div>
+  </div>
+
+  <!-- ===== 二、单模块测试 ===== -->
+  <div class="sec">
+    <h2><span class="ico">二</span>商城项目单模块测试</h2>
+    <div class="box cyan">
+      <b>🔑 单功能模块测试步骤：</b>① 熟悉需求（提取规则）→ ② 设计测试点（功能+非功能）→ ③ 编写用例 → ④ 执行用例 → ⑤ 提交缺陷<br>
+      <b>原则：先测后台，后测前台。</b>非功能测试：兼容性（IE/Chrome/Firefox/Safari）+ 显示类（与UI原型一致）。
+    </div>
+
+    <h3>2.1 轮播图（Banner）</h3>
+    <p><strong>位置：</strong>后台 → 页面 → 广告管理 → 广告列表（搜索 index 页面，增加广告位2）<br>
+    <strong>注意：</strong>操作完成后需点击 admin → 更新缓存，前台页面刷新后生效。</p>
+
+    <p><strong>需求（2.3.2 Banner）：</strong></p>
+    <ul>
+      <li>显示 <strong>1–5 张</strong> banner 图片，自动轮播，<strong>3秒</strong>切换一张；只有1张时<strong>不轮播</strong></li>
+      <li>鼠标悬停在图片上时，<strong>停止轮播</strong></li>
+      <li>圆点导航：<strong>实心 = 当前图</strong>，虚心圆可点击跳转；图片本身可点击跳转活动详情页</li>
+      <li>左右箭头可切换，<strong>每次切换一张</strong></li>
+      <li>图片数量范围：<strong>开内闭外，开区间(1,5)，闭区间[1,5]</strong>
+        → 0张不显示；6张效果与5张相同（最多显示5张）</li>
+    </ul>
+
+    <div class="box warn">
+      <b>⚠️ 边界值分析（banner图片张数）：</b><br>
+      上点：1张、5张（边界值本身）；离点：0张（外）、6张（外，效果=5张）；内点：3张
+    </div>
+
+    <p style="margin-top:12px"><strong>测试点拆解：</strong></p>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>📊 图片张数</h5>
+        <ul>
+          <li>0张 → <span class="badge bg-red">不显示</span></li>
+          <li>1张 → 1个圆点，不轮播</li>
+          <li>3张 → 3个圆点，自动轮播3秒</li>
+          <li>5张 → 5个圆点，自动轮播3秒</li>
+          <li>6张 → 效果同5张（最多5张）</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🖱️ 交互行为</h5>
+        <ul>
+          <li>鼠标悬停 → 停止轮播</li>
+          <li>虚心圆点击 → 切换对应图片</li>
+          <li>左箭头 → 向左切换一张</li>
+          <li>右箭头 → 向右切换一张</li>
+          <li>图片点击 → 跳转详情页</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🔧 非功能测试</h5>
+        <ul>
+          <li>兼容性：IE/Chrome/Firefox/Safari</li>
+          <li>显示类：与UI原型图一致</li>
+          <li>后台更新缓存后前台生效</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tw" style="margin-top:12px">
+      <table class="case-table">
+        <tr><th>用例编号</th><th>优先级</th><th>用例标题</th><th>预置条件</th><th>预期结果</th></tr>
+        <tr><td>tp_banner_001</td><td><span class="p1">P1</span></td><td>0张图的显示效果</td><td>后台配置0张图</td><td>0张图不显示，黑色背景占位，参考产品图</td></tr>
+        <tr><td>tp_banner_002</td><td><span class="p1">P1</span></td><td>图片无法显示（0张图）</td><td>后台配置0张</td><td>0张不显示</td></tr>
+        <tr><td>tp_banner_003</td><td><span class="p1">P1</span></td><td>1张图显示正常</td><td>后台配置1张</td><td>1张图、1个圆点、不轮播</td></tr>
+        <tr><td>tp_banner_004</td><td><span class="p1">P1</span></td><td>3张图显示正常</td><td>后台配置3张</td><td>3张图、3个圆点、自动轮播、3秒切换一张</td></tr>
+        <tr><td>tp_banner_005</td><td><span class="p1">P1</span></td><td>5张图显示正常</td><td>后台配置5张</td><td>5张图、5个圆点、自动轮播、3秒切换一张</td></tr>
+        <tr><td>tp_banner_006</td><td><span class="p1">P1</span></td><td>6张图显示正常</td><td>后台配置6张</td><td>5张图、5个圆点、自动轮播、3秒切换一张（效果同5张）</td></tr>
+        <tr><td>tp_banner_007</td><td><span class="p1">P1</span></td><td>鼠标悬停效果正常</td><td>后台配置3张</td><td>鼠标移至图片 → 停止轮播；移开 → 继续轮播</td></tr>
+        <tr><td>tp_banner_008</td><td><span class="p1">P1</span></td><td>虚心圆的点击效果正常</td><td>后台配置3张</td><td>点击虚心圆 → 切换对应图片</td></tr>
+        <tr><td>tp_banner_009</td><td><span class="p1">P1</span></td><td>左箭头的点击效果正常</td><td>后台配置3张</td><td>点击左箭头 → 向左切换一张</td></tr>
+        <tr><td>tp_banner_010</td><td><span class="p1">P1</span></td><td>右箭头的点击效果正常</td><td>后台配置3张</td><td>点击右箭头 → 向右切换一张</td></tr>
+        <tr><td>tp_banner_011</td><td><span class="p1">P1</span></td><td>图片点击效果正常</td><td>后台配置3张</td><td>点击图片 → 跳转对应活动详情页</td></tr>
+      </table>
+    </div>
+
+    <h3>2.2 注册</h3>
+    <p><strong>需求（2.2.2）关键规则：</strong></p>
+
+    <div class="g2">
+      <div class="card">
+        <h4>📱 手机号规则</h4>
+        <ul>
+          <li>必填项</li>
+          <li>第一位为 <strong>1</strong></li>
+          <li>第二位<strong>非大于2</strong>（即≤2）</li>
+          <li><strong>11位</strong>自然数</li>
+          <li>不能重复注册</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📧 邮箱规则</h4>
+        <ul>
+          <li>格式：xxxx@[126/sina/qq].com</li>
+          <li>xxxx 长度 <strong>4~16位</strong></li>
+          <li>类型：数字、字母、下划线组合</li>
+          <li>不能以<strong>下划线开头</strong></li>
+          <li>仅验证邮箱格式是否正确</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🔒 密码规则</h4>
+        <ul>
+          <li>必填项，<strong>6~16位</strong></li>
+          <li>大小写英文字母/数字/符号组合</li>
+          <li>可以是纯字母/数字/符号</li>
+          <li>确认密码必须与密码一致</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🔑 验证码规则</h4>
+        <ul>
+          <li>必填项，大小写不限</li>
+          <li>与图片验证码一致</li>
+          <li>点击刷新按钮可更新</li>
+          <li>推荐人手机：<strong>非必填</strong></li>
+          <li>需勾选"我已阅读并同意"</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="margin-top:12px"><strong>注册成功验证（3个维度）：</strong></p>
+    <div class="flow">
+      <div class="fs fs-ok">前台弹框提示注册成功</div><div class="fa">+</div>
+      <div class="fs fs-ok">后台会员列表新增记录</div><div class="fa">+</div>
+      <div class="fs fs-ok">DB tp_users新增一条数据</div>
+    </div>
+
+    <p style="margin-top:12px"><strong>注册测试点（等价类划分）：</strong></p>
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>序号</th><th>模块</th><th>有效等价类</th><th>无效等价类</th><th>提示语</th></tr>
+        <tr><td>1</td><td>正确注册</td><td>手机/邮箱格式正确，验证码正确，密码6-16位，勾选协议</td><td>—</td><td>跳转至首页</td></tr>
+        <tr><td>2</td><td>重复注册</td><td>—</td><td>手机/邮箱已注册</td><td>账号已存在</td></tr>
+        <tr><td>3</td><td>手机/邮箱验证</td><td>—</td><td>不输入或格式错误</td><td>请用手机号或邮箱注册</td></tr>
+        <tr><td>4</td><td>验证码错误</td><td>—</td><td>输入错误验证码</td><td>验证码错误</td></tr>
+        <tr><td>5</td><td>验证码为空</td><td>—</td><td>不输入验证码</td><td>验证码不能为空</td></tr>
+        <tr><td>6</td><td>密码为空</td><td>—</td><td>不输入密码</td><td>请输入用户名或者密码</td></tr>
+        <tr><td>7</td><td>密码不一致</td><td>—</td><td>两次密码不同</td><td>两次输入密码不一致</td></tr>
+        <tr><td>8</td><td>密码格式错误</td><td>—</td><td>不满足6-16位规则</td><td>密码不符合要求</td></tr>
+        <tr><td>9</td><td>未勾选协议</td><td>—</td><td>未勾选"我已阅读并同意"</td><td>无法点击注册按钮</td></tr>
+      </table>
+    </div>
+    <div class="box info">
+      <b>📌 注册边界值（密码长度）：</b>上点：6位、16位；离点：5位（外）、17位（外）；内点：11位
+    </div>
+
+    <h3>2.3 登录</h3>
+    <p><strong>需求（2.2.1）关键规则：</strong></p>
+    <ul>
+      <li><strong>账户名：</strong>格式正确且已注册的用户账号（手机号或邮箱）</li>
+      <li><strong>密码：</strong>注册成功账号对应密码</li>
+      <li><strong>验证码：</strong>大小写不限，点击图片可更新，不可重用</li>
+      <li><strong>登录成功：</strong>跳转至"我的商城"页面，页面显示用户名</li>
+      <li><strong>登录失败：</strong>更新验证码，显示对应提示</li>
+    </ul>
+
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>序号</th><th>场景</th><th>操作</th><th>预期结果</th></tr>
+        <tr><td>1</td><td>正确登录</td><td>正确手机号/邮箱 + 正确密码 + 正确验证码</td><td>跳转至"我的商城"，显示用户名</td></tr>
+        <tr><td>2</td><td>账号格式错误</td><td>非正确手机号或邮箱格式</td><td>更新验证码（无具体提示）</td></tr>
+        <tr><td>3</td><td>账号未注册</td><td>正确格式但未注册的账号</td><td>更新验证码</td></tr>
+        <tr><td>4</td><td>账号为空</td><td>账号为空，点击登录</td><td>更新验证码</td></tr>
+        <tr><td>5</td><td>密码为空</td><td>账号正确，密码为空</td><td>更新验证码</td></tr>
+        <tr><td>6</td><td>密码错误</td><td>账号正确，密码错误</td><td>更新验证码</td></tr>
+      </table>
+    </div>
+    <div class="box tip">
+      <b>💡 注意：</b>TPShop登录失败时统一更新验证码，不给出具体错误原因（防止账号枚举攻击，这是安全设计）。<br>
+      <b>测试要点：</b>验证码大小写不限（test001 = TEST001 = Test001）、不可重用（登录一次后验证码失效）。
+    </div>
+
+    <div class="box info">
+      <b>📌 单功能模块测试重点：</b><br>
+      功能测试（等价类+边界值）+ 非功能测试（兼容性：IE/Chrome/Firefox/Safari）+ 显示类（与UI原型一致）
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>业务流程对比图</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">三种售后业务的核心区别和流程节点：</p>
+    <div class="g3">
+      <div class="card" style="border-top:3px solid var(--blue)">
+        <h4 style="color:var(--blue)">💰 仅退款（4~8条用例）</h4>
+        <ul>
+          <li>用户发起申请</li>
+          <li>商家审核（通过/拒绝）</li>
+          <li>商家打款</li>
+          <li>✅ 无需退货</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--amber)">
+        <h4 style="color:var(--amber)">📦 退货退款（6~10条用例）</h4>
+        <ul>
+          <li>用户发起申请</li>
+          <li>商家审核通过</li>
+          <li>用户寄回货物</li>
+          <li>商家确认收货</li>
+          <li>商家打款退款</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--red)">
+        <h4 style="color:var(--red)">🔄 换货（6~10条用例）</h4>
+        <ul>
+          <li>用户发起换货申请</li>
+          <li>商家审核通过</li>
+          <li>用户寄回货物</li>
+          <li>商家确认收货</li>
+          <li>商家发送新商品</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🖥️</span>单模块测试设计思路</h2>
+    <div class="tw">
+      <table>
+        <tr><th>模块</th><th>核心测试维度</th><th>关键边界值/等价类</th><th>验证方式</th></tr>
+        <tr><td><span class="badge bg-cyan">轮播图</span></td><td>图片张数边界 / 自动轮播行为 / 圆点/箭头交互 / 跳转</td><td>0张/1张/3张/5张/6张（0和6是离点）</td><td>前台页面目测</td></tr>
+        <tr><td><span class="badge bg-amber">注册</span></td><td>手机号/邮箱格式 / 密码长度 / 验证码 / 协议勾选</td><td>密码：5/6/11/16/17位；手机号：10/11/12位</td><td>前台+后台会员列表+DB tp_users</td></tr>
+        <tr><td><span class="badge bg-green">登录</span></td><td>账号格式 / 密码 / 验证码（大小写/重用）</td><td>账号为空/格式错/未注册；密码为空/错误</td><td>前台页面跳转+用户名显示</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>轮播图测试点全景</h2>
+    <div class="tw">
+      <table>
+        <tr><th>测试点</th><th>测试数据</th><th>预期结果</th><th>方法</th></tr>
+        <tr><td>0张图片</td><td>后台配置0张</td><td>不显示轮播图</td><td>边界值（离点）</td></tr>
+        <tr><td>1张图片</td><td>后台配置1张</td><td>1个圆点，不自动轮播</td><td>边界值（上点）</td></tr>
+        <tr><td>3张图片</td><td>后台配置3张</td><td>3个圆点，3秒自动轮播</td><td>边界值（内点）</td></tr>
+        <tr><td>5张图片</td><td>后台配置5张</td><td>5个圆点，3秒自动轮播</td><td>边界值（上点）</td></tr>
+        <tr><td>6张图片</td><td>后台配置6张</td><td>5个圆点，效果同5张</td><td>边界值（离点）</td></tr>
+        <tr><td>鼠标悬停</td><td>鼠标移至图片上</td><td>停止轮播；移开后继续</td><td>功能测试</td></tr>
+        <tr><td>虚心圆点击</td><td>点击非当前圆点</td><td>切换到对应图片</td><td>功能测试</td></tr>
+        <tr><td>左箭头</td><td>点击左箭头</td><td>向左切换一张</td><td>功能测试</td></tr>
+        <tr><td>右箭头</td><td>点击右箭头</td><td>向右切换一张</td><td>功能测试</td></tr>
+        <tr><td>图片点击</td><td>点击轮播图</td><td>跳转活动详情页</td><td>功能测试</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🔑</span>注册 vs 登录 — 核心区别</h2>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <h4 style="color:var(--amber)">📝 注册特有验证点</h4>
+        <ul>
+          <li>手机号第一位为1、第二位≤2（等价类）</li>
+          <li>密码6~16位（边界值）</li>
+          <li>两次密码必须一致</li>
+          <li>必须勾选"我已阅读并同意"</li>
+          <li>验证码点击刷新可更新</li>
+          <li>推荐人手机：非必填</li>
+          <li>成功验证：前台+后台+DB三维度</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green)">
+        <h4 style="color:var(--green)">🔐 登录特有验证点</h4>
+        <ul>
+          <li>验证码大小写不限（TEST = test）</li>
+          <li>验证码不可重用（登录后失效）</li>
+          <li>失败均更新验证码（安全设计）</li>
+          <li>登录成功跳转"我的商城"</li>
+          <li>页面显示登录用户名</li>
+          <li>支持手机号和邮箱两种账号格式</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习（共10题）</h2>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">1. 退货退款业务有几条路径？请列出所有路径和对应用例标题</div>
+    <div class="pt-sub">根据流程图法，从开始到结束找路径</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>退货退款4条路径（每条 = 1条用例）：</strong><br><br>
+      <strong>路径1（P0）：</strong>退货退款成功（所有项正确）<br>
+      流程：用户登录→申请退货退款→填写原因→商家登录→商家审核通过并确认→用户提交退货单→商家确认收货→商家退款→用户确认金额<br>
+      预期：① 用户账户金额增加 ② 订单状态变"商家已收到退款"<br><br>
+      <strong>路径2（P0）：</strong>退货退款失败（商家审核不通过）<br>
+      预期：订单状态显示"商家拒绝了你的请求"<br><br>
+      <strong>路径3（P1）：</strong>退货退款失败（用户登录失败）<br>
+      预期：登录失败，提示重新登录<br><br>
+      <strong>路径4（P1）：</strong>退货退款失败（商家登录失败）<br>
+      预期：商家登录失败，无法审核
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">2. 说明"并列选项"在业务流程测试中的含义，并举例</div>
+    <div class="pt-sub">这是退款业务中的关键概念</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>并列选项：</strong>业务流程中某个节点存在多种相互独立的失败原因，每种原因对应独立的一条用例，它们是<strong>并列关系</strong>，互不影响。<br><br>
+      <strong>举例（退款业务失败路径）：</strong><br>
+      • 用户登录失败（路径独立）<br>
+      • 商家登录失败（路径独立）<br>
+      • 商家审核不通过（路径独立）<br><br>
+      这3条路径都是"退款失败"的不同原因，不能合并成一条用例，必须分别设计。<br><br>
+      <strong>与串联路径区别：</strong>串联路径是一步接一步（登录→选商品→下单），并列路径是同一节点的多个可能结果（审核通过 or 审核拒绝 or 登录失败）。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">3. 轮播图需求中"开内闭外"如何应用？以banner图片张数为例说明</div>
+    <div class="pt-sub">考察边界值分析在实际需求中的应用</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>需求：</strong>显示1-5张banner图片（区间 [1,5]，闭区间）<br><br>
+      <strong>边界值分析：</strong><br>
+      • 上点（边界值本身）：<strong>1张</strong>（下边界）和 <strong>5张</strong>（上边界）→ 必须测<br>
+      • 内点（范围内代表值）：<strong>3张</strong> → 测一个代表值<br>
+      • 离点（闭区间→选外部）：<strong>0张</strong>（1的外侧）和 <strong>6张</strong>（5的外侧）<br><br>
+      <strong>预期结果：</strong><br>
+      • 0张 → 不显示（不在[1,5]范围内）<br>
+      • 1张 → 1个圆点，不轮播<br>
+      • 3张 → 3个圆点，3秒轮播<br>
+      • 5张 → 5个圆点，3秒轮播<br>
+      • 6张 → 效果同5张（最多显示5张）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">4. 注册功能的手机号字段，如何划分等价类？</div>
+    <div class="pt-sub">依据需求2.2.2的手机号规则进行等价类划分</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>手机号规则：</strong>第一位为1，第二位非大于2（即≤2），11位自然数，不能重复<br><br>
+      <strong>有效等价类（合法手机号）：</strong><br>
+      • 第一位为1，第二位≤2，11位自然数，未注册<br>
+      例：13812345678、12012345678<br><br>
+      <strong>无效等价类（每类取一个代表值）：</strong><br>
+      1. 为空 → 预期：提示请用手机号或邮箱注册<br>
+      2. 非数字（含字母/特殊字符）→ 预期：格式错误提示<br>
+      3. 位数不足（10位）→ 预期：格式错误<br>
+      4. 位数超过（12位）→ 预期：格式错误<br>
+      5. 第一位非1（如2开头）→ 预期：格式错误<br>
+      6. 第二位大于2（如14开头）→ 预期：格式错误<br>
+      7. 已注册的手机号 → 预期：账号已存在
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">5. 注册密码字段（6-16位）如何设计边界值测试用例？</div>
+    <div class="pt-sub">包含上点、内点、离点的完整设计</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>密码规则：</strong>6-16位（闭区间[6,16]）<br><br>
+      <strong>边界值设计（5条用例）：</strong><br>
+      1. <strong>5位</strong>（6的离点，外侧）→ 预期：密码不符合要求（无效）<br>
+      2. <strong>6位</strong>（下边界上点）→ 预期：注册成功（有效）<br>
+      3. <strong>11位</strong>（内点，代表中间值）→ 预期：注册成功（有效）<br>
+      4. <strong>16位</strong>（上边界上点）→ 预期：注册成功（有效）<br>
+      5. <strong>17位</strong>（16的离点，外侧）→ 预期：密码不符合要求（无效）<br><br>
+      <strong>等价类补充：</strong><br>
+      • 纯字母（如：abcdef）→ 有效<br>
+      • 纯数字（如：123456）→ 有效<br>
+      • 含特殊字符（如：abc@123）→ 有效
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">6. 注册成功后，需要验证哪3个维度？分别怎么操作？</div>
+    <div class="pt-sub">全面验证是功能测试的重要原则</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>注册成功的3维度验证：</strong><br><br>
+      <strong>① 前台：</strong><br>
+      弹框提示"注册成功"；跳转到首页；页面显示登录状态（显示用户名）<br><br>
+      <strong>② 后台：</strong><br>
+      登录管理后台 → 会员管理 → 会员列表 → 验证新增了刚注册的会员记录（含手机号/邮箱、注册时间等字段）<br><br>
+      <strong>③ 数据库：</strong><br>
+      SELECT * FROM tp_users WHERE user_id = (SELECT MAX(user_id) FROM tp_users);<br>
+      验证：tp_users 表新增一条记录，手机号/邮箱字段值正确
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">7. 登录功能的验证码有哪些特殊测试点？为什么登录失败都只更新验证码？</div>
+    <div class="pt-sub">考察对产品安全设计的理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>验证码测试点：</strong><br>
+      1. 大小写不限：输入"TEST001"与"test001"与"Test001"结果应相同（有效）<br>
+      2. 不可重用：登录成功一次后，再用同一个验证码登录，应失败（验证码已失效）<br>
+      3. 点击图片更新：点击验证码图片后，验证码刷新（可输入新验证码）<br>
+      4. 验证码为空：不输入验证码点击登录 → 验证码更新（失败）<br>
+      5. 验证码错误：输入错误验证码 → 验证码更新（失败）<br><br>
+      <strong>为什么失败只更新验证码不给具体提示？</strong><br>
+      这是<strong>安全设计</strong>：如果给出"账号不存在"或"密码错误"的明确提示，攻击者可以通过枚举方式判断账号是否存在，从而进行暴力破解。统一更新验证码不给具体原因，提高了安全性。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">8. 单功能模块测试中，"非功能测试"包括哪些内容？</div>
+    <div class="pt-sub">考察测试维度的完整性</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>非功能测试（2大类）：</strong><br><br>
+      <strong>① 兼容性测试（5大浏览器）：</strong><br>
+      在以下浏览器中分别测试功能是否正常、页面是否正确显示：<br>
+      • IE/Edge（微软）<br>
+      • Chrome（谷歌）<br>
+      • Firefox（火狐）<br>
+      • Safari（苹果）<br>
+      • Opera（欧鹏）<br><br>
+      <strong>② 显示类测试：</strong><br>
+      • 页面布局与 UI 设计原型图/设计稿完全一致<br>
+      • 图片与文字准确无误（无错别字、无错位）<br>
+      • 不同屏幕分辨率下显示正常<br><br>
+      <strong>原则：</strong>先做功能测试，后做非功能测试；先测后台，后测前台。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">9. 为"会员管理业务"设计完整的用例（增加/编辑/删除3条主路径）</div>
+    <div class="pt-sub">按用例8要素格式，含预期验证点</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>tp_member_001（P0）增加会员成功：</strong><br>
+      前置：已登录后台，会员管理页面<br>
+      步骤：点击"添加会员" → 填写完整信息（手机号/邮箱/密码）→ 点击保存<br>
+      预期：① 页面提示添加成功 ② 会员列表出现新记录 ③ DB tp_users新增一条数据<br><br>
+      <strong>tp_member_002（P0）编辑会员成功：</strong><br>
+      前置：会员列表存在至少一条记录<br>
+      步骤：选择一条会员 → 点击"编辑" → 修改某字段 → 保存<br>
+      预期：① 提示修改成功 ② 会员列表对应字段已更新 ③ DB数据已更新<br><br>
+      <strong>tp_member_003（P0）删除会员成功：</strong><br>
+      前置：会员列表存在至少一条记录<br>
+      步骤：选择一条会员 → 点击"删除" → 确认删除<br>
+      预期：① 提示删除成功 ② 该会员从列表消失 ③ DB tp_users对应记录删除<br><br>
+      <strong>失败路径（各P1）：</strong>登录失败 / 字段填写不符合规范（如手机号格式错误）→ 操作失败，提示相应错误
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">10. 订单查询业务有哪些测试要点？订单状态流转如何验证？</div>
+    <div class="pt-sub">综合题：考察业务理解和测试覆盖</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>订单查询业务路径（3条用例）：</strong><br>
+      路径1（P0）：订单查询成功 → 用户登录成功，我的订单显示正确<br>
+      路径2（P1）：查询失败（登录失败）→ 无法进入"我的订单"<br>
+      路径3（P1）：查询失败（账号下无订单）→ 订单列表为空<br><br>
+      <strong>订单状态流转验证（4个状态）：</strong><br>
+      预订 → 待发货 → 已发货（待收货）→ 已完成<br><br>
+      <strong>验证方法：</strong><br>
+      ① 用户下单后 → 前台"我的订单"显示"预订"或"待发货"<br>
+      ② 商家后台发货后 → 前台显示"已发货（待收货）"<br>
+      ③ 用户确认收货后 → 状态变"已完成"<br>
+      ④ DB 验证 tp_order 表的 order_status 字段是否正确更新<br><br>
+      <strong>关键测试点：</strong>状态是否按顺序流转（不能跳状态）、取消订单是否正确（退回到预订状态或关闭）
+    </div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲（共12题）</h2>
+    <p>涵盖业务流程测试和单功能模块测试的高频面试题，点击展开查看答案。</p>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div>
+    <div class="iq-q">单功能模块测试的步骤是什么？先测后台还是先测前台？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>单功能模块测试步骤（5步）：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>熟悉需求（提取规则，确保理解无疑虑）</li>
+        <li>设计测试点（功能测试点+非功能测试点）</li>
+        <li>编写测试用例</li>
+        <li>执行测试用例</li>
+        <li>提交缺陷</li>
+      </ol>
+      <p><strong>原则：先测后台，后测前台。</strong></p>
+      <div class="box tip"><b>💡 原因：</b>后台配置决定前台展示。比如轮播图必须先在后台添加图片、更新缓存，前台才能看到效果。如果先测前台，可能因为后台数据不正确而导致误判。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div>
+    <div class="iq-q">轮播图测试中为什么用边界值法？边界是怎么确定的？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>为什么用边界值法：</strong>需求明确规定了banner图片张数范围（1-5张），这是一个典型的"范围限制"问题，属于边界值法的适用场景。</p>
+      <p><strong>边界值确定（[1,5] 闭区间，开内闭外）：</strong></p>
+      <ul>
+        <li><strong>上点：</strong>1张（下边界本身）、5张（上边界本身）— 必须测</li>
+        <li><strong>内点：</strong>3张（范围内代表值）</li>
+        <li><strong>离点（闭外）：</strong>0张（1的外侧）、6张（5的外侧）</li>
+      </ul>
+      <p>共5个测试数据点：0/1/3/5/6张，覆盖了所有边界情况。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div>
+    <div class="iq-q">TPShop 注册手机号的规则是什么？怎么设计等价类？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>手机号规则：</strong>第一位为1，第二位非大于2（即0、1、2），11位自然数，不能重复注册。</p>
+      <p><strong>有效等价类（1个）：</strong>满足上述所有规则的手机号，如 13812345678</p>
+      <p><strong>无效等价类（多个，每类取一个代表值）：</strong></p>
+      <ul>
+        <li>为空 → 必填项，不填提示注册失败</li>
+        <li>非11位（10位或12位）→ 格式错误</li>
+        <li>非数字（含字母/符号）→ 格式错误</li>
+        <li>第一位非1 → 格式错误</li>
+        <li>第二位大于2（如14、15开头）→ 格式错误</li>
+        <li>已注册的手机号 → 账号已存在</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div>
+    <div class="iq-q">注册成功需要验证哪些内容？为什么要验证数据库？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>注册成功3维度验证：</strong></p>
+      <ul>
+        <li><strong>前台：</strong>弹框提示注册成功 → 跳转首页 → 显示登录状态（用户名）</li>
+        <li><strong>后台：</strong>管理后台 → 会员列表 → 新增该用户的记录</li>
+        <li><strong>数据库：</strong>SELECT * FROM tp_users → 新增一条数据，字段值正确</li>
+      </ul>
+      <p><strong>为什么要验证数据库？</strong></p>
+      <p>前台页面显示可能有缓存，后台列表也可能有延迟。只有数据库中实际存储了正确数据，才能证明注册功能真正成功。数据库是最底层的真实数据来源，是功能是否正确执行的最终依据。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div>
+    <div class="iq-q">TPShop 登录失败为什么不给出具体错误提示？这是Bug吗？</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>不是Bug，这是安全设计。</strong></p>
+      <p>TPShop 登录失败时统一只更新验证码，不给出"账号不存在"或"密码错误"的具体提示。这样设计的原因：</p>
+      <ul>
+        <li>如果提示"账号不存在"，攻击者可以通过枚举已知账号列表来判断哪些账号在系统中注册了</li>
+        <li>如果提示"密码错误"，说明账号存在，攻击者可以专门针对该账号暴力破解密码</li>
+        <li>统一的模糊提示（仅更新验证码）大大增加了账号枚举和暴力破解的难度</li>
+      </ul>
+      <div class="box tip"><b>💡 测试技巧：</b>测试时需要区分"功能缺陷"和"安全设计"。对照需求文档确认：需求明确说"更新验证码"，所以这是正确行为。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div>
+    <div class="iq-q">验证码"大小写不限"和"不可重用"应该怎么测试？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>大小写不限测试：</strong></p>
+      <ul>
+        <li>假设验证码图片显示"ABcD"</li>
+        <li>测试用例1：输入"abcd" → 预期：登录成功（正确）</li>
+        <li>测试用例2：输入"ABCD" → 预期：登录成功（正确）</li>
+        <li>测试用例3：输入"AbCd" → 预期：登录成功（正确）</li>
+      </ul>
+      <p><strong>不可重用测试：</strong></p>
+      <ul>
+        <li>步骤1：输入正确账号/密码/验证码，登录成功</li>
+        <li>步骤2：立即退出登录</li>
+        <li>步骤3：用刚才已使用的同一个验证码再次尝试登录</li>
+        <li>预期：登录失败，验证码已失效（更新验证码）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div>
+    <div class="iq-q">退货和换货业务的区别是什么？测试用例数量有何不同？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>核心区别：</strong></p>
+      <div class="tw"><table>
+        <tr><th>维度</th><th>仅退款</th><th>退货退款</th><th>换货</th></tr>
+        <tr><td>结果</td><td>用户拿回钱</td><td>用户退货拿回钱</td><td>用户退货拿到新品</td></tr>
+        <tr><td>流程节点</td><td>申请→审核→打款</td><td>申请→审核→退货→商家收货→打款</td><td>申请→审核→退货→商家收货→发新品</td></tr>
+        <tr><td>流程复杂度</td><td>简单（3-4步）</td><td>复杂（5-7步）</td><td>复杂（5-7步）</td></tr>
+        <tr><td>用例数量</td><td>约4条</td><td>约6-8条</td><td>约6-8条</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div>
+    <div class="iq-q">轮播图后台操作后为什么要"更新缓存"？不更新会怎样？</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>缓存机制：</strong>TPShop为了提高页面加载速度，会将首页轮播图数据缓存（存储在内存/文件中）。前台访问时直接读取缓存，不每次查数据库。</p>
+      <p><strong>必须更新缓存的原因：</strong>后台修改广告数据只改了数据库，但前台读的是缓存，不更新缓存的话前台还是显示旧数据。</p>
+      <p><strong>不更新会怎样：</strong>前台刷新页面后，轮播图显示的还是修改前的内容，造成"后台已改但前台不生效"的现象。</p>
+      <div class="box warn"><b>⚠️ 测试陷阱：</b>如果不知道这个步骤，测试时会误以为"修改无效"提交了Bug。正确操作：后台修改 → 点击admin更新缓存 → 前台刷新页面 → 再验证效果。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div>
+    <div class="iq-q">【场景题】注册时发现：输入符合规则的手机号，提示"账号已存在"，但后台会员列表没有该账号。这是Bug吗？如何定位？</div>
+    <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>这是Bug，需要定位是前端还是后端问题。</strong></p>
+      <p><strong>定位步骤：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>打开抓包工具（Fiddler），过滤TPShop域名</li>
+        <li>点击"同意协议并注册"，观察网络请求</li>
+        <li>查看注册接口的请求参数是否正确（手机号等）</li>
+        <li>查看响应：状态码是否200？响应体中的提示语是什么？</li>
+        <li>直接查数据库：SELECT * FROM tp_users WHERE mobile='该手机号'</li>
+      </ol>
+      <p><strong>可能原因：</strong></p>
+      <ul>
+        <li>数据库实际有该记录但后台列表查询有缓存 → 后端缓存Bug</li>
+        <li>数据库没有记录但接口返回了"已存在"错误 → 后端校验逻辑Bug</li>
+        <li>手机号在其他字段（如历史数据）有残留 → 数据清理问题</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div>
+    <div class="iq-q">商品管理和会员管理的测试用例有什么共同结构？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p>两者都是<strong>CRUD操作</strong>（增删改查），共同结构如下：</p>
+      <div class="tw"><table>
+        <tr><th>操作</th><th>P0路径（成功）</th><th>P1路径（失败）</th><th>验证维度</th></tr>
+        <tr><td>增加</td><td>填写所有必填字段+保存</td><td>登录失败/字段格式错误/必填项为空</td><td>列表新增 + DB新增记录</td></tr>
+        <tr><td>编辑</td><td>修改某字段+保存</td><td>登录失败/修改后字段格式错误</td><td>列表字段更新 + DB更新</td></tr>
+        <tr><td>删除</td><td>选中记录+确认删除</td><td>登录失败/无记录可删</td><td>列表记录消失 + DB删除</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div>
+    <div class="iq-q">【陷阱题】轮播图测试中，配置6张图片时预期结果是"6张图"还是"5张图"？</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>预期结果：5张图，5个圆点，自动轮播3秒（效果与配置5张相同）</strong></p>
+      <p>需求明确说明：显示<strong>1-5张</strong>banner图片。6张时，系统<strong>最多只显示5张</strong>，多余的1张不显示。</p>
+      <p>这属于边界值的"离点"测试：6是5的外侧离点，验证系统在超出上限时的处理是否正确。</p>
+      <div class="box warn"><b>⚠️ 常见误区：</b>有些同学会以为预期结果是"报错"或"显示6张"，但需求说的是"仅可显示5张，效果与5张等同"。测试时一定要对照需求文档而非凭直觉判断。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div>
+    <div class="iq-q">【场景题】你测试登录功能，发现：输入正确账号+密码+正确验证码，但点击登录后页面无任何反应，如何排查？</div>
+    <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>排查步骤（从前端到后端逐步排查）：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li><strong>前端检查：</strong>F12打开开发者工具，查看Console是否有JS报错</li>
+        <li><strong>网络请求：</strong>打开Fiddler/抓包工具，点击登录，看是否有请求发出</li>
+        <li><strong>如果无请求：</strong>前端问题（JS脚本错误、按钮点击事件失效）</li>
+        <li><strong>如果有请求：</strong>查看请求参数是否正确；查看响应状态码和响应体</li>
+        <li><strong>响应正确但页面无反应：</strong>前端渲染/跳转逻辑问题（接收到正确响应但没有执行页面跳转）</li>
+        <li><strong>响应错误：</strong>后端处理问题（接口报500/请求被拦截等）</li>
+      </ol>
+      <p><strong>提交Bug时：</strong>附上截图（页面状态）+ 抓包截图（请求/响应内容）+ 复现步骤，方便开发定位。</p>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验（共15题）</h2>
+    <p>考察内容：业务流程测试（退货/换货/订单查询/会员/商品管理）+ 单功能模块测试（轮播图/注册/登录）。</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>单功能模块测试时，应该先测哪个？</div>
+  <label class="opt" data-q="1" data-v="A">A. 先测前台，再测后台</label>
+  <label class="opt" data-q="1" data-v="B">B. 先测后台，再测前台</label>
+  <label class="opt" data-q="1" data-v="C">C. 前台和后台同时测</label>
+  <label class="opt" data-q="1" data-v="D">D. 只测前台即可</label>
+  <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – 先测后台，后测前台。后台配置决定前台展示。如轮播图必须先在后台添加图片并更新缓存，前台才能验证效果。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>轮播图Banner需求：显示1-5张图，配置6张时预期结果是？</div>
+  <label class="opt" data-q="2" data-v="A">A. 显示6张图，6个圆点</label>
+  <label class="opt" data-q="2" data-v="B">B. 报错，无法显示</label>
+  <label class="opt" data-q="2" data-v="C">C. 显示5张图，5个圆点，效果与5张相同</label>
+  <label class="opt" data-q="2" data-v="D">D. 显示1张图，不轮播</label>
+  <div class="qz-ex" data-q="2"><b>✅ 正确答案：C</b> – 需求明确：最多显示5张，6张时仅显示5张，效果与5张等同。6张是上限5的"离点"（外侧），用于验证超出范围时的处理是否正确。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>轮播图测试：配置1张图时，预期结果是？</div>
+  <label class="opt" data-q="3" data-v="A">A. 1张图，自动轮播</label>
+  <label class="opt" data-q="3" data-v="B">B. 1张图，1个圆点，不轮播</label>
+  <label class="opt" data-q="3" data-v="C">C. 不显示任何图片</label>
+  <label class="opt" data-q="3" data-v="D">D. 1张图，但无圆点导航</label>
+  <div class="qz-ex" data-q="3"><b>✅ 正确答案：B</b> – 需求：只有1张banner时不轮播。但仍然显示1个圆点（实心，表示当前图）。这是边界值上点（1是下限）的测试。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>TPShop注册手机号：下列哪个手机号属于有效等价类？</div>
+  <label class="opt" data-q="4" data-v="A">A. 14912345678（第二位为4，大于2）</label>
+  <label class="opt" data-q="4" data-v="B">B. 1234567890（只有10位）</label>
+  <label class="opt" data-q="4" data-v="C">C. 13812345678（第一位1，第二位3大于2）</label>
+  <label class="opt" data-q="4" data-v="D">D. 12012345678（第一位1，第二位2，11位）</label>
+  <div class="qz-ex" data-q="4"><b>✅ 正确答案：D</b> – 需求：第一位为1，第二位非大于2（即≤2），11位自然数。12012345678满足：第一位1，第二位2（≤2），11位。A选项第二位4>2不合法；B只有10位；C第二位3>2不合法。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span>注册密码规则6-16位，边界值"离点"分别是？</div>
+  <label class="opt" data-q="5" data-v="A">A. 1位和17位</label>
+  <label class="opt" data-q="5" data-v="B">B. 5位和17位（闭区间，离点选外侧）</label>
+  <label class="opt" data-q="5" data-v="C">C. 6位和16位</label>
+  <label class="opt" data-q="5" data-v="D">D. 7位和15位</label>
+  <div class="qz-ex" data-q="5"><b>✅ 正确答案：B</b> – 闭区间[6,16]，"开内闭外"：闭区间离点选外侧。下边界6的离点=5（外），上边界16的离点=17（外）。上点是6和16，内点是11（代表中间值）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>注册成功后，应该验证哪3个维度？</div>
+  <label class="opt" data-q="6" data-v="A">A. 前台弹框 / 后台会员列表新增 / DB tp_users新增记录</label>
+  <label class="opt" data-q="6" data-v="B">B. 只看前台页面提示</label>
+  <label class="opt" data-q="6" data-v="C">C. 前台 / API接口响应 / 日志</label>
+  <label class="opt" data-q="6" data-v="D">D. 前台 / 后台 / 性能测试</label>
+  <div class="qz-ex" data-q="6"><b>✅ 正确答案：A</b> – 注册成功3维度：① 前台：弹框提示成功+跳转首页+显示登录态 ② 后台：会员列表新增记录 ③ 数据库：tp_users表新增一条数据，字段值正确。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>TPShop登录失败时，系统的统一表现是？为什么这样设计？</div>
+  <label class="opt" data-q="7" data-v="A">A. 提示"密码错误，请重新输入"</label>
+  <label class="opt" data-q="7" data-v="B">B. 提示"账号不存在"</label>
+  <label class="opt" data-q="7" data-v="C">C. 统一更新验证码，不给具体错误原因（安全设计，防止账号枚举）</label>
+  <label class="opt" data-q="7" data-v="D">D. 直接跳转到注册页面</label>
+  <div class="qz-ex" data-q="7"><b>✅ 正确答案：C</b> – 登录失败统一只更新验证码，不说明具体原因。这是安全设计：防止攻击者通过不同提示判断账号是否存在，避免账号枚举和暴力破解。测试时这不是Bug，是正确行为。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>登录验证码"大小写不限"如何测试？</div>
+  <label class="opt" data-q="8" data-v="A">A. 只测一种大小写组合</label>
+  <label class="opt" data-q="8" data-v="B">B. 测试全大写/全小写/混合大小写等不同组合，预期都应登录成功</label>
+  <label class="opt" data-q="8" data-v="C">C. 不需要测试，默认正确</label>
+  <label class="opt" data-q="8" data-v="D">D. 只测全大写</label>
+  <div class="qz-ex" data-q="8"><b>✅ 正确答案：B</b> – 大小写不限意味着：图片显示"ABcD"，输入"abcd""ABCD""AbCd"都应登录成功。需要用等价类法测试不同大小写组合。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>退货退款业务（tp_AfterSale_005）成功的预期结果是？</div>
+  <label class="opt" data-q="9" data-v="A">A. 只看页面提示退款成功</label>
+  <label class="opt" data-q="9" data-v="B">B. ① 用户账户金额增加 ② 订单状态变"商家已收到退款"</label>
+  <label class="opt" data-q="9" data-v="C">C. 订单直接消失</label>
+  <label class="opt" data-q="9" data-v="D">D. 只验证数据库</label>
+  <div class="qz-ex" data-q="9"><b>✅ 正确答案：B</b> – 退货退款成功两个验证点：① 用户账户金额增加（退款到账）② 订单状态变为"商家已收到退款"。单一验证点不够全面，容易漏Bug。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>订单状态的正确流转顺序是？</div>
+  <label class="opt" data-q="10" data-v="A">A. 预订 → 已发货 → 待发货 → 已完成</label>
+  <label class="opt" data-q="10" data-v="B">B. 待发货 → 预订 → 已发货 → 已完成</label>
+  <label class="opt" data-q="10" data-v="C">C. 预订 → 待发货 → 已发货（待收货）→ 已完成</label>
+  <label class="opt" data-q="10" data-v="D">D. 预订 → 已完成 → 待发货 → 已发货</label>
+  <div class="qz-ex" data-q="10"><b>✅ 正确答案：C</b> – TPShop订单状态流转：预订 → 待发货 → 已发货/待收货 → 已完成。这是核心业务流程，需要在订单查询测试中验证每个状态是否正确显示。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>会员管理业务的"删除会员成功"用例，应该验证哪些内容？</div>
+  <label class="opt" data-q="11" data-v="A">A. 只看页面提示删除成功</label>
+  <label class="opt" data-q="11" data-v="B">B. ① 页面提示成功 ② 会员列表该记录消失 ③ DB tp_users对应记录被删除</label>
+  <label class="opt" data-q="11" data-v="C">C. 只验证数据库</label>
+  <label class="opt" data-q="11" data-v="D">D. 验证该会员无法再登录即可</label>
+  <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – 删除成功3维度验证：① 页面提示 ② 后台列表记录消失 ③ DB数据删除。单一验证不充分——页面可能有缓存未刷新，只有DB确认删除才是最终确认。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>轮播图后台修改后，为什么前台刷新后无效？需要做什么操作？</div>
+  <label class="opt" data-q="12" data-v="A">A. 需要重启服务器</label>
+  <label class="opt" data-q="12" data-v="B">B. 需要重新部署代码</label>
+  <label class="opt" data-q="12" data-v="C">C. 需要在admin后台点击"更新缓存"，前台刷新后才生效</label>
+  <label class="opt" data-q="12" data-v="D">D. 系统会自动同步，无需额外操作</label>
+  <div class="qz-ex" data-q="12"><b>✅ 正确答案：C</b> – TPShop有缓存机制，前台读取的是缓存数据。后台修改数据库后，必须手动点击admin→更新缓存，清除旧缓存，前台刷新后才能看到新的轮播图。否则会误以为修改无效提交假Bug。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>注册中"推荐人手机"字段应该怎么测试？</div>
+  <label class="opt" data-q="13" data-v="A">A. 不需要测试，可以不填</label>
+  <label class="opt" data-q="13" data-v="B">B. 只测填正确手机号的情况</label>
+  <label class="opt" data-q="13" data-v="C">C. 测试非必填特性（不填可注册成功）+ 填写时验证格式（正确格式/错误格式）</label>
+  <label class="opt" data-q="13" data-v="D">D. 只测试为空的情况</label>
+  <div class="qz-ex" data-q="13"><b>✅ 正确答案：C</b> – 推荐人手机是非必填项，测试要点：① 不填仍可注册成功（非必填验证）② 填写时需要是已注册的正确格式手机号 ③ 填写格式错误时的提示。非必填不代表不用测！</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>业务流程测试中，以下哪条用例应该设为P0优先级？</div>
+  <label class="opt" data-q="14" data-v="A">A. 售后失败（用户登录失败）</label>
+  <label class="opt" data-q="14" data-v="B">B. 售后成功（所有项都正确完成）</label>
+  <label class="opt" data-q="14" data-v="C">C. 验证码大小写不限</label>
+  <label class="opt" data-q="14" data-v="D">D. UI显示与原型图一致</label>
+  <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – P0是核心主流程，必须保证正常运行。"售后成功（所有项正确）"是主路径，设P0。失败路径如"登录失败"设P1，UI和验证码细节设P2。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>【场景题】测试注册功能，发现输入格式正确的手机号，点击注册后，页面无任何提示且刷新后会员后台也没有新增记录。这个Bug最可能是？</div>
+  <label class="opt" data-q="15" data-v="A">A. 前端UI样式问题</label>
+  <label class="opt" data-q="15" data-v="B">B. 后端接口或数据库写入失败（请求到达后端但数据未写入）</label>
+  <label class="opt" data-q="15" data-v="C">C. 验证码错误导致</label>
+  <label class="opt" data-q="15" data-v="D">D. 网络断连问题</label>
+  <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – 页面无提示+后台无记录，说明数据没有落库，属于后端问题。需要用抓包工具确认：① 请求是否发出 ② 响应是否正常 ③ 查DB是否有写入。如果请求正常但DB无数据 → 后端写库逻辑Bug；如果请求本身没发出 → 前端问题。</div></div>
+
+  </div><!-- end quiz-area -->
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">请查看各题下方解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+const ANSWERS={1:'B',2:'C',3:'B',4:'D',5:'B',6:'A',7:'C',8:'B',9:'B',10:'C',11:'B',12:'C',13:'C',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  if(done===10)document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ANSWERS[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct)o.classList.add('ok');
+      else if(o.classList.contains('sel'))o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex)ex.classList.add('s');
+    if(sel[q]===correct)score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90)msg='🏆 优秀！单模块测试和业务流程知识掌握扎实！';
+  else if(pct>=75)msg='✅ 良好！建议复习错题后进入下一节。';
+  else if(pct>=50)msg='📚 还需努力，请重新阅读知识讲解。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12)document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d2'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3 · Web功能测试 Day 05 – Fiddler抓包实战 & 测试报告编写</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#4f46e5;--day-d:#4338ca;--day-bg:rgba(79,70,229,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(79,70,229,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.purple{background:#f5f3ff;border-color:#4f46e5;color:#3730a3}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12px;padding:8px 10px;text-align:left}
+td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.card p,.card ul{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.card ul{padding-left:14px}
+.card li{margin-bottom:3px}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700}
+.bg-green{background:#dcfce7;color:#15803d}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.bg-purple{background:#ede9fe;color:#4f46e5}
+.bg-gray{background:#f1f5f9;color:#475569}
+/* Steps */
+.step-list{counter-reset:step;margin:12px 0}
+.step{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-n{counter-increment:step;width:28px;height:28px;min-width:28px;border-radius:50%;background:var(--day);color:#fff;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step-body h5{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--ink2);margin:0}
+/* 操作路径 */
+.op-path{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-size:13px;margin:8px 0}
+.op-path .step-k{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);background:var(--day-bg);padding:2px 8px;border-radius:4px}
+.op-path .arrow{color:var(--muted);font-size:16px}
+/* 代码块 */
+.code{background:#1e2030;border-radius:8px;padding:12px 14px;font-family:'Space Mono',monospace;font-size:12px;color:#a6accd;overflow-x:auto;margin:10px 0}
+.code .kw{color:#89ddff}
+.code .val{color:#c3e88d}
+.code .comm{color:#546e7a}
+/* 测试报告结构 */
+.report-sec{border:2px solid var(--border);border-radius:10px;margin:10px 0;overflow:hidden}
+.report-hdr{background:var(--day-bg);padding:10px 14px;font-weight:700;font-size:13.5px;color:var(--day-d);display:flex;align-items:center;gap:8px}
+.report-body{padding:12px 14px;font-size:13px;color:var(--ink2);line-height:1.75}
+.report-body ul{padding-left:16px}
+.report-body li{margin-bottom:4px}
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.8;color:var(--ink2)}
+.pt-ans.s{display:block}
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .g2,.g3{grid-template-columns:1fr}
+  table{font-size:11.5px}
+  th,td{padding:6px 8px}
+  .op-path{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · WEB功能测试 · DAY 05</div>
+  <h1>Fiddler 抓包实战 &amp; 测试报告编写</h1>
+  <p>掌握Fiddler抓包工具的3大场景应用（定位Bug/弱网测试/绕过界面限制），以及TPShop测试报告的5大核心章节结构，同时了解APP测试基础知识。</p>
+  <div class="hd-stats">
+    <div><b>3</b>抓包场景</div>
+    <div><b>5</b>报告章节</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试精讲</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- Fiddler -->
+  <div class="sec">
+    <h2><span class="ico">🔍</span>一、Fiddler 抓包工具实战应用</h2>
+
+    <p><strong>Fiddler 定义：</strong>Fiddler 是一个 HTTP 协议调试<strong>代理工具</strong>，能够记录并检查所有客户端与互联网之间的 HTTP 通信。</p>
+    <p><strong>原理：</strong>Fiddler 作为代理服务器，位于浏览器和服务器之间，所有请求和响应都经过 Fiddler 中转，因此可以拦截、查看、修改数据包。</p>
+
+    <h3>Fiddler 基本操作</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>🔽 过滤（Filters）</h4>
+        <p>只看指定域名的请求，避免被其他网站干扰。</p>
+        <div class="op-path">
+          <span class="step-k">Filters</span><span class="arrow">→</span>
+          <span class="step-k">勾选 Use Filters</span><span class="arrow">→</span>
+          <span class="step-k">Show only the following Hosts</span><span class="arrow">→</span>
+          <span class="step-k">输入域名/IP</span><span class="arrow">→</span>
+          <span class="step-k">Actions → Run Filterset Now</span>
+        </div>
+      </div>
+      <div class="card">
+        <h4>🗑️ 删除数据</h4>
+        <p>方式一：点击工具栏 <strong>Remove all</strong>（删除全部）<br>
+        方式二：在底部黑窗口输入 <strong>cls</strong> 回车<br>
+        方式三：选中某条 → 右键 → <strong>Remove</strong></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <h4>🔎 查看数据包内容</h4>
+      <p>选中数据包（或双击）→ 点击 <strong>Inspectors</strong> → 请求内容点击 <strong>Raw</strong>（行\头\体）→ 响应内容点击 <strong>Raw</strong></p>
+    </div>
+
+    <h3>场景1：定位前后端 Bug</h3>
+    <div class="box purple">
+      <b>📌 判断流程：</b>打开Fiddler → 操作功能 → 观察请求和响应 → 判断问题在前端还是后端
+    </div>
+    <div class="tw">
+      <table>
+        <tr><th>Bug位置</th><th>Fiddler中的表现</th><th>举例</th></tr>
+        <tr><td><span class="badge bg-blue">前端Bug</span></td><td>① 无请求发出<br>② 请求URL/方法/参数有误<br>③ 响应正确但页面显示错误</td><td>点击按钮无请求；密码用GET明文传；响应成功但页面提示失败</td></tr>
+        <tr><td><span class="badge bg-red">后端Bug</span></td><td>① 请求正常，无响应<br>② 响应状态码5XX<br>③ 响应数据内容错误</td><td>接口返回500；接口返回的数据字段值错误</td></tr>
+      </table>
+    </div>
+
+    <h3>场景2：弱网测试</h3>
+    <p>模拟弱网（2G/3G/4G）环境，验证应用在低速网络下的稳定性。</p>
+    <div class="box warn">
+      <b>⚠️ 弱网下常见问题：</b>① 上传文件进度卡住不动 ② 登录不上或登录后立即掉线 ③ 响应过程中页面控件可点击导致崩溃 ④ 搜索不响应，多次点击结果总在刷新被替换
+    </div>
+    <div class="step-list">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><h5>设置网络速度（延迟参数）</h5><p>Rules → Customize Rules → Ctrl+F 搜索 "300" → 找到 m_SimulateModem → 修改 request-trickle-delay（上行）和 response-trickle-delay（下行），单位：每KB延迟多少ms</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><h5>开启网络延迟</h5><p>Rules → Performance → <strong>Simulate Modem Speeds</strong>（勾选开启）</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><h5>执行测试</h5><p>在模拟的弱网环境下操作功能，观察并记录异常</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><h5>恢复设置</h5><p>测试完成后，取消勾选 Simulate Modem Speeds，恢复正常网络速度</p></div></div>
+    </div>
+    <div class="box info">
+      <b>📌 课堂弱网参数：</b>上行（request-trickle-delay）= <strong>3000</strong>，下行（response-trickle-delay）= <strong>1500</strong>，单位 ms（每 1KB 数据延迟的毫秒数）<br>
+      <b>延时计算公式：</b>延时(ms) = [1/(速率bps/8)] × 1000。1s = 1000ms，1KB = 1024B = 8192bit
+    </div>
+
+    <h3>场景3：绕过界面限制直接测试服务器</h3>
+    <p>目的：前端对输入有限制（如字数限制、只能选择等），需要测试服务器对非法数据的处理能力。</p>
+    <div class="step-list">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><h5>设置断点（请求之前）</h5><p>Rules → Automatic Breakpoints → <strong>Before Requests</strong>（快捷键 F11）</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><h5>触发请求</h5><p>在页面上正常操作（如点击提交），请求会被 Fiddler 拦截暂停</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><h5>修改请求参数</h5><p>在 Fiddler 的 Inspectors → WebForms 或 Raw 中修改请求体参数，注入非法数据</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><h5>放行请求</h5><p>点击 <strong>Run to Completion</strong>，将修改后的请求发送给服务器</p></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-body"><h5>（可选）设置响应断点</h5><p>Rules → Automatic Breakpoints → <strong>After Responses</strong>（Alt+F11），可修改响应内容再返回浏览器</p></div></div>
+    </div>
+    <div class="box warn">
+      <b>⚠️ 响应修改注意：</b>如果响应体是编码状态，需要先点击 <strong>"Response body is encoded. Click to decode."</strong>，解码后再修改响应数据，最后点击 Run to Completion。
+    </div>
+  </div>
+
+  <!-- 测试报告 -->
+  <div class="sec">
+    <h2><span class="ico">📄</span>二、TPShop 测试报告编写</h2>
+
+    <h3>测试报告的作用</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>🎯 核心作用</h4>
+        <ul>
+          <li>汇总测试过程和结果</li>
+          <li>评估当前产品质量</li>
+          <li>决策：是否可以上线</li>
+          <li>为管理者提供决策依据</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>👥 阅读对象</h4>
+        <ul>
+          <li>产品负责人（决策上线）</li>
+          <li>项目管理者（进度把控）</li>
+          <li>开发人员（了解质量）</li>
+          <li>测试人员（工作记录）</li>
+          <li>质量管理人员（审核）</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>测试报告 5 大章节结构（TPShop V1.0）</h3>
+
+    <div class="report-sec">
+      <div class="report-hdr">📋 第1章 测试项目概述</div>
+      <div class="report-body">
+        <ul>
+          <li><strong>1.1 项目概述：</strong>介绍项目背景（B/S架构、核心功能：登录/购物车/下单/订单管理等）</li>
+          <li><strong>1.2 编写目的：</strong>对开发后的系统进行验证测试，验证是否满足需求规格说明书要求，给出测评结论</li>
+          <li><strong>1.3 参考资料：</strong>GB/T国家标准文档（计算机软件测试规范/软件工程术语等）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-sec">
+      <div class="report-hdr">🔍 第2章 测试回顾</div>
+      <div class="report-body">
+        <ul>
+          <li><strong>2.1 测试环境：</strong>环境类型（预生产/生产）、硬件配置（CPU/内存/硬盘）、软件配置（CentOS7.6/Nginx1.12/MySQL5.5）、网络配置（10M有线/WiFi/4G）</li>
+          <li><strong>2.2 进度回顾：</strong>各测试阶段（单模块/系统级/验收测试）的预计/实际开始结束时间、测试人员、阶段产物</li>
+          <li><strong>2.3 测试统计：</strong>用例总数（功能+非功能）、执行覆盖率100%、Bug总数（含致命/严重/中级/轻微分类）、Bug解决率</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-sec">
+      <div class="report-hdr">🐛 第3章 Bug 统计分析</div>
+      <div class="report-body">
+        <ul>
+          <li><strong>3.1 Bug统计：</strong>Bug模块分布图表（饼图）、按严重程度×模块的统计表（S0/S1/S2/S3）、按版本提交Bug数量统计（V1.0.10→V1.0.14趋势）</li>
+          <li><strong>3.2 Bug分析：</strong>对数据进行分析，判断是否正常（如支付模块Bug占比24%，与功能复杂度一致；某版本Bug数突升需重点排查）</li>
+          <li><strong>3.3 遗留问题清单：</strong>未修复的Bug列表（模块、问题描述、优先级、问题类型、解决对策、预计解决时间、责任人）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-sec">
+      <div class="report-hdr">📊 第4章 测试整体总结</div>
+      <div class="report-body">
+        <ul>
+          <li><strong>4.1 模块评价：</strong>各模块测试结果汇总（如首页模块-主要问题已解决-可发布；XX模块-遗留S1 Bug-不可发布）</li>
+          <li><strong>4.2 测试结果：</strong>勾选结论（□全部通过 ■部分通过 □都不通过），附审核人签名</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-sec">
+      <div class="report-hdr">💡 第5章 总结建议</div>
+      <div class="report-body">
+        <ul>
+          <li><strong>5.1 项目总结（做得好的）：</strong>测试策略（总分总思想：业务→模块→验收）、风险预知与规避、过程复盘</li>
+          <li><strong>5.1 项目总结（需改进的）：</strong>用例编写不严谨/描述有歧义、团队衔接不清楚等</li>
+          <li><strong>5.2 测试过程风险：</strong>人员风险、设备风险、进度风险</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="box purple">
+      <b>💡 测试报告"总分总"思想：</b><br>
+      从整体把控项目（需求分析）→ 细分提取测试点（模块测试）→ 通过用户核心业务整体验证（业务测试） → 达到预期上线要求
+    </div>
+
+    <h3>Bug 统计关键数据说明</h3>
+    <div class="tw">
+      <table>
+        <tr><th>数据项</th><th>TPShop示例值</th><th>说明</th></tr>
+        <tr><td>功能用例总数</td><td>xxxx条</td><td>构成模块测试 + 业务逻辑测试用例之和</td></tr>
+        <tr><td>非功能用例总数</td><td>xxx条</td><td>UI测试 + 兼容性测试用例</td></tr>
+        <tr><td>执行覆盖率</td><td>100%</td><td>所有用例均已执行（无NA/Block未执行）</td></tr>
+        <tr><td>致命Bug（S0）</td><td>31个</td><td>解决率100%，上线前必须全部修复</td></tr>
+        <tr><td>严重Bug（S1）</td><td>64个</td><td>解决率100%，上线前必须全部修复</td></tr>
+        <tr><td>中级Bug（S2）</td><td>90个</td><td>解决率≥95%</td></tr>
+        <tr><td>轻微Bug（S3）</td><td>8个</td><td>可遗留，下版本修复</td></tr>
+        <tr><td>Bug总解决率</td><td>95.85%</td><td>185/193，无致命和严重Bug遗留</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- APP测试基础 -->
+  <div class="sec">
+    <h2><span class="ico">📱</span>三、APP 测试基础知识（Stage 3 结尾 → Stage 4 过渡）</h2>
+
+    <h3>敏捷开发模型与测试</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>⚡ 敏捷工作流程</h4>
+        <ul>
+          <li>产品规划功能列表（Backlog）</li>
+          <li>组织迭代计划会（拆分需求）</li>
+          <li>迭代开发（需求评审→开发→测试）</li>
+          <li>发布评审会（复盘反思）</li>
+          <li>循环迭代（通常2周一个Sprint）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🚀 上线策略（灰度发布）</h4>
+        <ul>
+          <li>预生产环境验证通过后</li>
+          <li>先发布到1~3台生产服务器</li>
+          <li>观察新功能是否正常</li>
+          <li>正常则全量发布</li>
+          <li>异常则快速回滚，损失最小</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>软件包格式 & 发布渠道</h3>
+    <div class="tw">
+      <table>
+        <tr><th>平台</th><th>软件包格式</th><th>给测试的渠道</th><th>上线发布渠道</th></tr>
+        <tr><td>安卓 Android</td><td><span class="badge bg-green">XXX.apk</span></td><td>公共平台（标注版本号，放在可访问地址）</td><td>应用宝、豌豆荚、360手机助手、各品牌应用商城</td></tr>
+        <tr><td>苹果 iOS</td><td><span class="badge bg-blue">XXX.IPA</span></td><td>TestFlight或企业内部分发</td><td>App Store、iTools</td></tr>
+      </table>
+    </div>
+
+    <h3>APP 测试工具基础</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>📱 雷电模拟器（Android测试）</h4>
+        <ul>
+          <li>安装：无中文路径，双击安装</li>
+          <li>安装APK：将APK文件拖动至模拟器内</li>
+          <li>设置机型：模拟器右侧设置→机型设置</li>
+          <li>分辨率：选择手机版（如900×1600）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🔧 ADB（Android调试桥）</h4>
+        <ul>
+          <li>全称：Android Debug Bridge</li>
+          <li>用途：电脑与Android设备通信</li>
+          <li>配置：添加platform-tools路径到系统环境变量Path</li>
+          <li>验证：cmd输入adb，显示版本号则成功</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>http 与 https 的区别（面试必答题）</h3>
+    <div class="tw">
+      <table>
+        <tr><th>维度</th><th>HTTP</th><th>HTTPS</th></tr>
+        <tr><td>共同点</td><td colspan="2">都是协议，都可以用来传输数据</td></tr>
+        <tr><td>加密</td><td>不加密，明文传输，不安全</td><td>加密传输（SSL/TLS），公网使用</td></tr>
+        <tr><td>端口</td><td>默认 80</td><td>默认 443</td></tr>
+        <tr><td>证书</td><td>不需要证书</td><td>需要 SSL 证书</td></tr>
+        <tr><td>使用场景</td><td>内网/开发测试环境</td><td>正式生产环境（尤其含敏感数据）</td></tr>
+        <tr><td>URL前缀</td><td>http://</td><td>https://</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>Fiddler 三大场景使用路径</h2>
+    <div class="tw">
+      <table>
+        <tr><th>场景</th><th>使用路径</th><th>快捷键</th><th>核心操作</th></tr>
+        <tr><td><span class="badge bg-blue">定位Bug</span></td><td>选中请求 → Inspectors → Raw</td><td>—</td><td>查看请求参数和响应内容，判断前后端问题</td></tr>
+        <tr><td><span class="badge bg-amber">弱网测试</span></td><td>Rules → Customize Rules → 修改延迟值 → Performance → Simulate Modem Speeds</td><td>Ctrl+R（打开脚本）</td><td>设置上行/下行延迟，模拟2G/3G网速</td></tr>
+        <tr><td><span class="badge bg-red">绕过界面限制</span></td><td>Rules → Automatic Breakpoints → Before Requests</td><td>F11（请求前）/ Alt+F11（响应后）</td><td>拦截请求 → 修改参数 → Run to Completion</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>测试报告 5 章结构速览</h2>
+    <div class="tw">
+      <table>
+        <tr><th>章节</th><th>核心内容</th><th>目的</th></tr>
+        <tr><td><span class="badge bg-purple">1. 项目概述</span></td><td>项目背景 / 编写目的 / 参考资料</td><td>说明背景，确定报告读者范围</td></tr>
+        <tr><td><span class="badge bg-blue">2. 测试回顾</span></td><td>测试环境 / 进度回顾 / 测试统计数据</td><td>还原测试过程，数据化汇总</td></tr>
+        <tr><td><span class="badge bg-red">3. Bug统计分析</span></td><td>Bug分布图 / 严重度统计 / 遗留问题清单</td><td>质量量化，风险识别</td></tr>
+        <tr><td><span class="badge bg-amber">4. 整体总结</span></td><td>模块评价 / 测试结果（通过/部分通过/不通过）</td><td>结论性判断，决策上线</td></tr>
+        <tr><td><span class="badge bg-green">5. 总结建议</span></td><td>经验总结 / 改进点 / 测试过程风险</td><td>为下次迭代提供参考</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🐛</span>Bug 严重等级与上线标准对照</h2>
+    <div class="tw">
+      <table>
+        <tr><th>Bug等级</th><th>说明</th><th>上线标准解决率</th><th>示例</th></tr>
+        <tr><td><span class="badge bg-red">S0 致命</span></td><td>主流程无法运行，系统崩溃</td><td><strong>100%</strong>（必须全部修复）</td><td>内存泄露/无法登录/系统崩溃</td></tr>
+        <tr><td><span class="badge bg-amber">S1 严重</span></td><td>主要功能缺陷，影响系统功能</td><td><strong>100%</strong>（必须全部修复）</td><td>功能未实现/接口报错</td></tr>
+        <tr><td><span class="badge bg-blue">S2 中级</span></td><td>边界条件下错误，性能问题</td><td><strong>≥95%</strong>（少量可遗留）</td><td>边界值错误/大数据无响应</td></tr>
+        <tr><td><span class="badge bg-gray">S3 轻微</span></td><td>UI/文字/易用性问题</td><td>可遗留，下版本修复</td><td>错别字/排列不整齐/颜色不对</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🔄</span>敏捷发布周期 & 灰度发布</h2>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--day)">
+        <h4>🔄 敏捷迭代流程（Sprint）</h4>
+        <ul>
+          <li>产品规划Backlog（功能需求列表）</li>
+          <li>迭代计划会（拆分成小需求）</li>
+          <li>迭代开发：需求评审→开发→测试</li>
+          <li>发布评审会（复盘反思）</li>
+          <li>通常2周一个迭代</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green)">
+        <h4>🚀 灰度发布流程</h4>
+        <ul>
+          <li>开发环境→测试环境→预生产环境</li>
+          <li>预生产通过后，先上1~3台服务器（灰度）</li>
+          <li>观察新功能是否OK（真实用户少量验证）</li>
+          <li>正常→全量发布到所有服务器</li>
+          <li>异常→快速回滚，影响用户最少</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习（共10题）</h2>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">1. Fiddler的工作原理是什么？与普通浏览器网络面板（F12）的区别？</div>
+    <div class="pt-sub">考察Fiddler的基础理论理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>Fiddler工作原理：</strong>代理服务器模式<br>
+      浏览器 → 发请求到Fiddler（代理）→ Fiddler转发给服务器 → 服务器响应返回Fiddler → Fiddler转发给浏览器。所有HTTP通信经过Fiddler，因此可以查看、修改、重放。<br><br>
+      <strong>与F12 Network的区别：</strong><br>
+      <strong>F12（开发者工具）：</strong>浏览器内置，只能看当前浏览器的请求，无法修改请求，只能查看不能拦截<br>
+      <strong>Fiddler：</strong>系统级代理，可以抓取所有应用的HTTP请求（包括手机APP、桌面应用），可以拦截并修改请求/响应，功能更强大<br><br>
+      <strong>使用场景：</strong>F12适合前端调试；Fiddler适合测试接口、弱网测试、绕过前端限制。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">2. 如何使用Fiddler过滤只显示TPShop的请求？完整操作步骤是什么？</div>
+    <div class="pt-sub">考察Fiddler过滤功能的实际操作</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>完整操作步骤：</strong><br>
+      1. 打开Fiddler，点击菜单栏 <strong>Filters</strong> 标签（非Filters菜单，是右侧面板的标签）<br>
+      2. 勾选 <strong>Use Filters</strong>（启用过滤）<br>
+      3. 第二个下拉框选择 <strong>"Show only the following Hosts"</strong><br>
+      4. 在输入框中输入TPShop的域名或IP地址（如：hmshop-test.itheima.net）<br>
+      5. 点击 <strong>Actions → Run Filterset Now</strong>（立即生效）<br><br>
+      <strong>效果：</strong>Fiddler只显示来自该域名的请求，其他网站的请求被隐藏，方便聚焦测试目标。<br><br>
+      <strong>清除过滤：</strong>取消勾选 Use Filters，或将下拉框改回 "No Zone Filter"。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">3. 弱网测试中，如何设置上行3000ms下行1500ms的延迟？完整步骤？</div>
+    <div class="pt-sub">考察弱网测试操作流程</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>步骤一：设置延迟参数</strong><br>
+      1. Fiddler菜单：Rules → Customize Rules（或按Ctrl+R）<br>
+      2. 打开FiddlerScript编辑器<br>
+      3. 按Ctrl+F搜索"300"，找到 m_SimulateModem 代码块<br>
+      4. 修改两个参数：<br>
+      &nbsp;&nbsp;• request-trickle-delay = <strong>"3000"</strong>（上行延迟：每KB上传需要3000ms）<br>
+      &nbsp;&nbsp;• response-trickle-delay = <strong>"1500"</strong>（下行延迟：每KB下载需要1500ms）<br>
+      5. Ctrl+S 保存脚本<br><br>
+      <strong>步骤二：开启弱网模拟</strong><br>
+      Rules → Performance → <strong>Simulate Modem Speeds</strong>（勾选）<br><br>
+      <strong>步骤三：执行测试</strong><br>
+      在弱网环境下操作功能，观察卡顿/崩溃/异常等问题<br><br>
+      <strong>步骤四：恢复正常</strong><br>
+      测试完成后，取消勾选 Simulate Modem Speeds
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">4. 如何用Fiddler绕过前端限制，测试服务器对非法数量（如201件）的处理？</div>
+    <div class="pt-sub">考察绕过界面限制测试的完整流程</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>完整步骤（以购物车加入201件为例）：</strong><br><br>
+      1. <strong>打开Fiddler并设置过滤</strong>（只显示TPShop请求）<br><br>
+      2. <strong>设置请求断点：</strong>Rules → Automatic Breakpoints → Before Requests（F11）<br><br>
+      3. <strong>在前台操作：</strong>进入商品详情页，选择购买数量1件，点击"加入购物车"（前端不允许输入201，所以用1件触发请求）<br><br>
+      4. <strong>Fiddler拦截：</strong>请求被暂停在Fiddler中<br><br>
+      5. <strong>修改参数：</strong>点击Inspectors → WebForms或Raw，找到数量参数（如 goods_num=1），改为 goods_num=<strong>201</strong><br><br>
+      6. <strong>放行：</strong>点击 <strong>Run to Completion</strong><br><br>
+      7. <strong>验证结果：</strong>查看服务器是否正确拒绝（提示数量不合法）还是接受了201件<br><br>
+      <strong>记得：</strong>测试完成后关闭断点：Rules → Automatic Breakpoints → Disabled
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">5. 测试报告的主要作用和5大章节结构是什么？</div>
+    <div class="pt-sub">考察测试报告的整体理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>测试报告的作用：</strong><br>
+      汇总测试过程和结果 → 评估产品当前质量 → 为管理层提供上线决策依据<br><br>
+      <strong>5大章节：</strong><br>
+      <strong>第1章 测试项目概述：</strong>项目背景 + 编写目的 + 参考资料<br>
+      <strong>第2章 测试回顾：</strong>测试环境（硬件/软件/网络）+ 进度回顾（各轮测试时间/人员/产物）+ 测试统计数据（用例数/执行率/Bug数）<br>
+      <strong>第3章 Bug统计分析：</strong>Bug分布图表 + 严重度统计表 + 遗留问题清单（含解决对策/预计修复时间/责任人）<br>
+      <strong>第4章 测试整体总结：</strong>各模块评价（可/不可发布）+ 最终测试结论（全部通过/部分通过/不通过）<br>
+      <strong>第5章 总结建议：</strong>经验总结（做得好的/需改进的）+ 测试过程风险
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">6. Bug的严重等级S0/S1/S2/S3分别对应什么上线标准？举例说明</div>
+    <div class="pt-sub">考察Bug严重等级与上线判断标准</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>四个等级及上线标准：</strong><br><br>
+      <strong>S0（致命）：</strong>100%必须修复才能上线<br>
+      示例：系统崩溃、内存泄漏、用户无法登录、主流程完全不可用<br><br>
+      <strong>S1（严重）：</strong>100%必须修复才能上线<br>
+      示例：功能未实现、功能接口报错、核心功能存在严重缺陷<br><br>
+      <strong>S2（中级）：</strong>解决率≥95%可以上线（少量可遗留）<br>
+      示例：边界条件下结果错误、大数据量时无响应、进度条缺失<br><br>
+      <strong>S3（轻微/建议）：</strong>可全部遗留，下版本修复<br>
+      示例：错别字、界面颜色不对、文字排列不整齐<br><br>
+      <strong>TPShop报告数据：</strong>S0解决率100%，S1解决率100%，S2/S3解决率95.85%，上线时没有遗留中级及以上Bug。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">7. 灰度发布的定义是什么？为什么要做灰度发布？</div>
+    <div class="pt-sub">考察对上线策略的理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>灰度发布定义：</strong>在正式全量发布生产环境之前，先将新版本部署到1~3台服务器上（占总服务器的少数），让少量真实用户先体验新版本，验证功能是否正常。<br><br>
+      <strong>为什么做灰度发布：</strong><br>
+      1. <strong>降低风险：</strong>新版本问题只影响少量用户，而不是所有用户<br>
+      2. <strong>快速回滚：</strong>如果新功能有问题，只需回滚少数几台服务器，操作简单<br>
+      3. <strong>真实环境验证：</strong>预生产环境再好，真实用户数据/行为可能暴露新问题<br>
+      4. <strong>减少损失：</strong>相比全量上线出问题，灰度发布失败的损失更小<br><br>
+      <strong>流程：</strong>预生产通过 → 灰度发布（1~3台）→ 观察7天 → OK则全量发布 → 有问题则回滚
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">8. http和https的区别是什么？测试中如何判断是否需要使用https？</div>
+    <div class="pt-sub">面试高频题</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>http vs https：</strong><br>
+      共同点：都是协议，都可以传输数据<br><br>
+      不同点：<br>
+      • http：明文传输，不加密，不安全，端口80<br>
+      • https：加密传输（SSL/TLS），安全，端口443，需要SSL证书<br><br>
+      <strong>测试判断标准（何时必须用https）：</strong><br>
+      1. 涉及用户密码的传输（登录/注册/修改密码）<br>
+      2. 涉及支付信息（银行卡号/CVV）<br>
+      3. 涉及个人隐私（身份证/手机号）<br>
+      4. 正式生产环境的所有接口<br><br>
+      <strong>测试要点：</strong>用Fiddler检查登录接口是否使用HTTPS；如果密码通过HTTP明文传输 → S1安全Bug。<br>
+      如果使用HTTPS，Fiddler需要安装证书才能解密查看内容（默认只显示CONNECT隧道）。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">9. 测试报告中的"遗留问题清单"需要包含哪些内容？为什么要有这个清单？</div>
+    <div class="pt-sub">考察测试报告的实用性理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>遗留问题清单必须包含：</strong><br>
+      1. 序号（便于引用）<br>
+      2. 所在模块<br>
+      3. 问题描述（Bug具体表现）<br>
+      4. 问题优先级（S0/S1/S2/S3）<br>
+      5. 问题类型（编码/功能/界面/性能等）<br>
+      6. 解决对策（怎么修复）<br>
+      7. 预计解决时间（下版本/下个迭代）<br>
+      8. 解决对应人员（责任人）<br>
+      9. 备注（特殊说明）<br><br>
+      <strong>为什么需要遗留问题清单：</strong><br>
+      1. 明确哪些问题是"已知遗留"而非"漏测"，避免被追责<br>
+      2. 告知开发/管理层还有哪些待解决的问题及优先级<br>
+      3. 跟踪问题修复进度，下版本验收时有据可查<br>
+      4. 帮助管理层做上线决策（是否可以接受这些遗留问题上线）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">10. 综合题：TPShop Web阶段测试完成后，写测试报告时Bug解决率只有90%（S2）。你认为可以上线吗？怎么处理？</div>
+    <div class="pt-sub">综合场景题，考察判断和处理能力</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>判断：</strong>S2（中级）Bug解决率90% < 95%要求，<strong>暂不建议上线</strong>（不满足准出标准）。<br><br>
+      <strong>处理流程：</strong><br>
+      1. <strong>确认Bug性质：</strong>核查剩余10% S2 Bug的具体内容，是否影响核心功能<br>
+      2. <strong>分类处理：</strong><br>
+      &nbsp;&nbsp;• 如果未解决的S2 Bug实际影响较大 → 要求开发修复后再上线<br>
+      &nbsp;&nbsp;• 如果未解决的S2 Bug实际影响很小（接近S3边界）→ 可以申请变更准出标准，报管理层批准<br>
+      3. <strong>写入遗留清单：</strong>将未修复的S2 Bug都写入遗留问题清单，明确责任人和修复计划<br>
+      4. <strong>出具风险声明：</strong>在测试报告中注明：当前S2 Bug解决率90%，存在X个遗留问题，风险评估为低/中，建议管理层决策是否接受<br>
+      5. <strong>管理层决策：</strong>最终上线决定由产品负责人/项目管理者基于报告信息做出，不是测试工程师单独决定
+    </div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲（共12题）</h2>
+    <p>涵盖Fiddler、测试报告、敏捷测试、APP测试基础的高频面试题。</p>
+  </div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div>
+  <div class="iq-q">Fiddler的工作原理是什么？有哪3大使用场景？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>工作原理：</strong>Fiddler作为代理服务器，位于浏览器和目标服务器之间。浏览器将请求发给Fiddler，Fiddler转发给服务器，服务器响应经过Fiddler再返回浏览器。所有HTTP通信都在Fiddler中留有记录，可以查看、修改、重放。</p>
+    <p><strong>3大使用场景：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li><strong>定位前后端Bug：</strong>通过查看请求和响应内容，判断问题是前端（无请求/参数错/显示错）还是后端（无响应/5XX/数据错）</li>
+      <li><strong>弱网测试：</strong>模拟低速网络环境（2G/3G），验证应用在弱网下的稳定性</li>
+      <li><strong>绕过界面限制测试：</strong>拦截请求修改参数，绕过前端校验，测试后端对非法数据的处理</li>
+    </ol>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div>
+  <div class="iq-q">http和https有什么区别？（高频面试题）</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>共同点：</strong>都是协议，都可以用来传输数据。</p>
+    <p><strong>不同点：</strong></p>
+    <ul>
+      <li><strong>安全性：</strong>HTTP明文不加密，HTTPS使用SSL/TLS加密，更安全</li>
+      <li><strong>端口：</strong>HTTP默认80，HTTPS默认443</li>
+      <li><strong>证书：</strong>HTTPS需要SSL证书，HTTP不需要</li>
+      <li><strong>使用场景：</strong>生产环境（尤其含敏感数据）必须用HTTPS；开发/测试环境可用HTTP</li>
+    </ul>
+    <div class="box danger"><b>🔴 测试要点：</b>登录/支付等涉及敏感数据的接口必须使用HTTPS。如果用HTTP传输密码 → S1安全Bug。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div>
+  <div class="iq-q">测试报告的作用是什么？主要包含哪些内容？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>作用：</strong>汇总测试结果，评估产品质量，为管理层提供上线决策依据。是测试阶段最终的输出产物。</p>
+    <p><strong>5大章节内容：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li>测试项目概述（背景/目的/参考资料）</li>
+      <li>测试回顾（环境/进度/统计）</li>
+      <li>Bug统计分析（分布图/统计表/遗留清单）</li>
+      <li>测试整体总结（模块评价/最终结论）</li>
+      <li>总结建议（经验总结/风险）</li>
+    </ol>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div>
+  <div class="iq-q">弱网测试的目的是什么？常见的弱网问题有哪些？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>目的：</strong>验证应用在低速网络（2G/3G/WiFi信号差）环境下的稳定性和用户体验，发现正常网速下不易暴露的问题。</p>
+    <p><strong>常见弱网问题：</strong></p>
+    <ul>
+      <li>上传文件时进度条卡住不动</li>
+      <li>登录不上或登录后立即掉线</li>
+      <li>响应过程中页面控件已可点击，导致崩溃</li>
+      <li>搜索不响应，多次点击后结果总在刷新被替换</li>
+      <li>图片加载超时，显示默认占位图</li>
+      <li>支付流程超时后，订单状态不确定</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div>
+  <div class="iq-q">如何判断一个Bug是前端问题还是后端问题？（面试高频）</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p>需要借助Fiddler/抓包工具分析HTTP请求和响应：</p>
+    <p><strong>前端Bug的表现：</strong></p>
+    <ul>
+      <li>① 无请求发出（按钮点击但无HTTP请求）</li>
+      <li>② 请求参数错误（URL/方法/参数有误）</li>
+      <li>③ 请求正确+响应正确，但页面显示错误</li>
+    </ul>
+    <p><strong>后端Bug的表现：</strong></p>
+    <ul>
+      <li>① 请求正常发出，但无响应</li>
+      <li>② 响应状态码为5XX（服务器内部错误）</li>
+      <li>③ 响应状态码200但响应体中的业务数据错误</li>
+    </ul>
+    <div class="box tip"><b>💡 判断流程：</b>有请求？→ 请求参数对？→ 有响应？→ 状态码对？→ 响应体数据对？→ 页面渲染对？每步失败对应不同的问题层次。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div>
+  <div class="iq-q">什么是灰度发布？为什么要做灰度发布？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>灰度发布：</strong>在全量发布生产环境前，先将新版本部署到少数服务器（1~3台），让少量真实用户先体验，验证功能正常后再全量发布。</p>
+    <p><strong>原因：</strong>生产服务器通常有多台，一旦新功能有问题，全量发布会影响所有用户，损失巨大。灰度发布先在少数台验证，失败时只需回滚少数台，影响最小。</p>
+    <p><strong>典型流程：</strong>开发环境 → 测试环境 → 预生产环境 → 灰度发布（1~3台生产服务器）→ 观察OK → 全量发布</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div>
+  <div class="iq-q">绕过界面限制测试的目的是什么？何时需要用这种方法？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>目的：</strong>前端界面对用户输入进行了限制（如：数量最多输入200，通过UI无法输入201），但后端服务器是否也有校验是未知的。绕过前端限制，直接测试后端对非法数据的处理能力。</p>
+    <p><strong>何时使用：</strong></p>
+    <ul>
+      <li>数字输入框有最大值限制（如200件）</li>
+      <li>文本框有最大字数限制</li>
+      <li>下拉框只能选择预设值</li>
+      <li>需要测试服务器端校验是否完整</li>
+    </ul>
+    <p><strong>测试价值：</strong>如果后端没有对应校验，攻击者可以通过抓包工具绕过前端限制，直接发送非法请求，导致数据异常或安全漏洞。这类测试非常重要。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div>
+  <div class="iq-q">测试报告中Bug统计分析部分需要分析什么？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>Bug统计分析（3.1 统计 + 3.2 分析）：</strong></p>
+    <p><strong>3.1 统计（客观数据）：</strong></p>
+    <ul>
+      <li>按模块分布（饼图）：各模块Bug数量及占比</li>
+      <li>按严重程度×模块（表格）：S0/S1/S2/S3各模块分布</li>
+      <li>按版本提交数量（柱状图）：各版本Bug数量趋势</li>
+    </ul>
+    <p><strong>3.2 分析（主观评价）：</strong></p>
+    <ul>
+      <li>各模块Bug占比是否与功能复杂度一致？（正常范围判断）</li>
+      <li>是否有版本Bug数量异常？（如V1.0.12突然升高）</li>
+      <li>异常版本的原因分析（修改引入Bug？新功能问题？）</li>
+      <li>给出结论：是否存在潜在风险需要重点关注</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div>
+  <div class="iq-q">敏捷开发和传统瀑布开发对测试工程师的影响？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>瀑布开发（传统）：</strong>需求→设计→开发→测试→发布，各阶段顺序执行，测试在最后才介入，问题发现晚，修复成本高。</p>
+    <p><strong>敏捷开发：</strong>每个Sprint（2周左右）都包含需求评审→开发→测试→发布，小步快跑，持续迭代。</p>
+    <p><strong>对测试工程师的影响：</strong></p>
+    <ul>
+      <li>更紧的时间节奏，需要快速理解需求并设计用例</li>
+      <li>需要参与每个Sprint的需求评审，提前发现疑义</li>
+      <li>测试和开发并行，沟通更频繁</li>
+      <li>回归测试频率高（每个Sprint都要回归），可能需要自动化辅助</li>
+      <li>测试报告变为迭代报告而非项目最终报告</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div>
+  <div class="iq-q">ADB是什么？Android和iOS的软件包格式分别是什么？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>ADB（Android Debug Bridge）：</strong>Android调试桥，是Android SDK提供的命令行工具，用于在PC和Android设备之间进行通信（安装APK、查看日志、传文件等）。</p>
+    <p><strong>软件包格式：</strong></p>
+    <ul>
+      <li><strong>Android：</strong>XXX.apk（Android Package Kit）</li>
+      <li><strong>iOS：</strong>XXX.ipa（iOS App Store Package）</li>
+    </ul>
+    <p><strong>ADB配置验证：</strong>cmd输入 adb → 显示 Android Debug Bridge version X.X → 配置成功</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div>
+  <div class="iq-q">【场景题】用Fiddler发现：某功能点击后，Fiddler里看到有请求（200），但页面提示"操作失败"，是前端还是后端Bug？</div>
+  <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>有请求+状态码200+页面提示失败</strong>，需要进一步检查响应体内容：</p>
+    <p><strong>情况A（后端Bug）：</strong>响应体中的业务码是失败（如 {"code":400, "msg":"操作失败"}），HTTP状态码是200只是HTTP层面成功，但业务层面失败了。→ 后端业务逻辑处理出错。</p>
+    <p><strong>情况B（前端Bug）：</strong>响应体中业务码是成功（{"code":200,"msg":"success"}），但前端解析响应时出错，错误地显示了"操作失败"。→ 前端JS处理响应逻辑有Bug。</p>
+    <div class="box tip"><b>💡 关键原则：</b>HTTP状态码200 ≠ 业务成功。必须同时检查响应体中的业务状态码（code字段）才能准确判断。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div>
+  <div class="iq-q">【场景题】测试报告写好了，但发现S0 Bug还有1个未修复，你怎么处理？可以上线吗？</div>
+  <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>S0 Bug未修复→不满足准出标准→不能上线。</strong></p>
+    <p><strong>处理步骤：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li>在测试报告中明确标注：S0 Bug解决率未达到100%，当前不满足上线标准</li>
+      <li>在遗留问题清单中详细记录该S0 Bug（问题描述/优先级/责任开发人员/预计修复时间）</li>
+      <li>通知项目管理者和产品负责人，由管理层做上线决策</li>
+      <li>如果管理层强制要求上线：测试工程师需要书面记录"由于存在S0 Bug，测试工程师不建议上线，最终由管理层决策"，保留书面证据</li>
+    </ol>
+    <div class="box danger"><b>⚠️ 注意：</b>测试工程师的职责是如实报告质量状况，上线决策由管理层承担。发现问题要报告，不能隐瞒。</div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验（共15题）</h2>
+    <p>考察Fiddler抓包、弱网测试、绕过限制、测试报告、http/https、APP基础知识。</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>Fiddler工作的原理是？</div>
+  <label class="opt" data-q="1" data-v="A">A. 直接读取浏览器内存中的请求数据</label>
+  <label class="opt" data-q="1" data-v="B">B. 作为代理服务器，浏览器的请求经过Fiddler中转后再发往服务器</label>
+  <label class="opt" data-q="1" data-v="C">C. 在浏览器内安装插件监听网络</label>
+  <label class="opt" data-q="1" data-v="D">D. 直接连接服务器数据库查看数据</label>
+  <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – Fiddler作为代理服务器：浏览器→Fiddler→服务器→Fiddler→浏览器。所有HTTP通信都经过Fiddler，所以可以查看、修改、重放数据包。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>Fiddler中，只查看TPShop域名的请求，需要使用哪个功能？</div>
+  <label class="opt" data-q="2" data-v="A">A. Statistics统计</label>
+  <label class="opt" data-q="2" data-v="B">B. Inspectors检查器</label>
+  <label class="opt" data-q="2" data-v="C">C. Filters过滤器（Use Filters + Show only the following Hosts）</label>
+  <label class="opt" data-q="2" data-v="D">D. AutoResponder自动响应</label>
+  <div class="qz-ex" data-q="2"><b>✅ 正确答案：C</b> – Filters → 勾选Use Filters → Show only the following Hosts → 输入域名 → Actions → Run Filterset Now。这样只显示目标域名的请求，避免被其他请求干扰。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>弱网测试中，开启网络延迟模拟的操作路径是？</div>
+  <label class="opt" data-q="3" data-v="A">A. Tools → Fiddler Options → Gateway</label>
+  <label class="opt" data-q="3" data-v="B">B. Rules → Performance → Simulate Modem Speeds</label>
+  <label class="opt" data-q="3" data-v="C">C. Edit → Preferences → Network</label>
+  <label class="opt" data-q="3" data-v="D">D. File → Export Sessions</label>
+  <div class="qz-ex" data-q="3"><b>✅ 正确答案：B</b> – 弱网测试步骤：先Rules→Customize Rules修改延迟参数值，然后Rules→Performance→Simulate Modem Speeds开启。测试结束记得关闭，避免影响后续正常测试。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>绕过界面限制，设置请求断点（请求之前）的操作路径是？</div>
+  <label class="opt" data-q="4" data-v="A">A. Tools → HOSTS</label>
+  <label class="opt" data-q="4" data-v="B">B. Rules → Automatic Breakpoints → Before Requests（或F11）</label>
+  <label class="opt" data-q="4" data-v="C">C. File → Import Sessions</label>
+  <label class="opt" data-q="4" data-v="D">D. View → Filters</label>
+  <div class="qz-ex" data-q="4"><b>✅ 正确答案：B</b> – Before Requests（F11）在请求发出前拦截，可以修改请求参数再放行。After Responses（Alt+F11）在响应返回后拦截，可以修改响应数据。修改后点击Run to Completion放行。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span>用Fiddler定位Bug时，发现点击按钮后Fiddler里没有任何请求，这说明是？</div>
+  <label class="opt" data-q="5" data-v="A">A. 后端Bug（服务器没有响应）</label>
+  <label class="opt" data-q="5" data-v="B">B. 前端Bug（按钮没有触发HTTP请求，JS事件未执行）</label>
+  <label class="opt" data-q="5" data-v="C">C. 网络问题</label>
+  <label class="opt" data-q="5" data-v="D">D. 数据库问题</label>
+  <div class="qz-ex" data-q="5"><b>✅ 正确答案：B</b> – 无请求=前端Bug。请求是从浏览器发出的，如果Fiddler没有捕获到任何请求，说明浏览器根本没有发出HTTP请求，问题在前端（JS事件未绑定/脚本错误/逻辑未执行）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>http和https的主要区别是？</div>
+  <label class="opt" data-q="6" data-v="A">A. http更安全，https速度更快</label>
+  <label class="opt" data-q="6" data-v="B">B. http不加密（端口80），https加密（端口443），https更安全</label>
+  <label class="opt" data-q="6" data-v="C">C. 两者完全相同，只是名字不同</label>
+  <label class="opt" data-q="6" data-v="D">D. http用于手机，https用于电脑</label>
+  <div class="qz-ex" data-q="6"><b>✅ 正确答案：B</b> – http：明文不加密，端口80，不安全；https：SSL/TLS加密，端口443，安全。共同点：都是协议，都能传输数据。生产环境含敏感数据必须使用https。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>测试报告第3章"Bug统计分析"应该包含哪些内容？</div>
+  <label class="opt" data-q="7" data-v="A">A. 只需要说Bug总数</label>
+  <label class="opt" data-q="7" data-v="B">B. Bug模块分布图表 + 严重度统计表 + 遗留问题清单 + 趋势分析</label>
+  <label class="opt" data-q="7" data-v="C">C. 只需要列出所有Bug的标题</label>
+  <label class="opt" data-q="7" data-v="D">D. 只需要分析已修复的Bug</label>
+  <div class="qz-ex" data-q="7"><b>✅ 正确答案：B</b> – 第3章包含：3.1 Bug统计（饼图+表格+版本趋势柱状图）、3.2 Bug分析（判断数据是否正常，异常版本原因分析）、3.3 遗留问题清单（未修复Bug的详细信息）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>S0（致命）Bug的上线标准解决率要求是多少？</div>
+  <label class="opt" data-q="8" data-v="A">A. 90%</label>
+  <label class="opt" data-q="8" data-v="B">B. 95%</label>
+  <label class="opt" data-q="8" data-v="C">C. 100%（必须全部修复才能上线）</label>
+  <label class="opt" data-q="8" data-v="D">D. 80%</label>
+  <div class="qz-ex" data-q="8"><b>✅ 正确答案：C</b> – S0和S1级Bug：上线前必须100%解决；S2级：≥95%；S3级：可全部遗留。S0 Bug留一个不修复就不能上线，这是测试的基本底线。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>灰度发布的核心好处是？</div>
+  <label class="opt" data-q="9" data-v="A">A. 可以不做测试就上线</label>
+  <label class="opt" data-q="9" data-v="B">B. 先发少数服务器验证，有问题快速回滚，减少对用户的影响</label>
+  <label class="opt" data-q="9" data-v="C">C. 可以跳过预生产环境</td></tr></label>
+  <label class="opt" data-q="9" data-v="D">D. 让所有用户同时体验新功能</label>
+  <div class="qz-ex" data-q="9"><b>✅ 正确答案：B</b> – 灰度发布先在1~3台服务器验证，有问题只需回滚少数台，影响少量用户。相比全量发布出问题（影响所有用户），灰度发布损失最小，是稳健的上线策略。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>Android软件安装包的格式是？</div>
+  <label class="opt" data-q="10" data-v="A">A. .ipa</label>
+  <label class="opt" data-q="10" data-v="B">B. .exe</label>
+  <label class="opt" data-q="10" data-v="C">C. .apk</label>
+  <label class="opt" data-q="10" data-v="D">D. .dmg</label>
+  <div class="qz-ex" data-q="10"><b>✅ 正确答案：C</b> – Android = .apk（Android Package Kit）；iOS = .ipa；Windows = .exe；macOS = .dmg。测试时给测试人员的Android包是.apk，可以直接拖入雷电模拟器安装。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>测试报告的"测试回顾"章节需要包含哪3个部分？</div>
+  <label class="opt" data-q="11" data-v="A">A. 需求文档/代码审查/性能测试</label>
+  <label class="opt" data-q="11" data-v="B">B. 测试环境/进度回顾/测试统计</label>
+  <label class="opt" data-q="11" data-v="C">C. Bug统计/遗留问题/上线建议</label>
+  <label class="opt" data-q="11" data-v="D">D. 项目概述/参考资料/编写目的</label>
+  <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – 第2章测试回顾：2.1测试环境（硬件/软件/网络配置）、2.2进度回顾（各阶段时间/人员/产物）、2.3测试统计（用例总数/执行率/Bug数及分类）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>弱网测试中，弱网延迟参数的单位是什么？delay=3000代表什么含义？</div>
+  <label class="opt" data-q="12" data-v="A">A. 秒，每次请求延迟3000秒</label>
+  <label class="opt" data-q="12" data-v="B">B. 毫秒/KB，每上传或下载1KB数据延迟3000毫秒</label>
+  <label class="opt" data-q="12" data-v="C">C. 毫秒，整个请求延迟3000毫秒</label>
+  <label class="opt" data-q="12" data-v="D">D. 千字节，允许通过3000KB数据</label>
+  <div class="qz-ex" data-q="12"><b>✅ 正确答案：B</b> – 单位是毫秒/KB：request-trickle-delay=3000 表示每上传1KB数据延迟3000ms；response-trickle-delay=1500 表示每下载1KB延迟1500ms。文件越大，延迟越明显，模拟弱网效果越真实。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>测试报告的最终结论（4.2测试结果）有哪几个选项？</div>
+  <label class="opt" data-q="13" data-v="A">A. 通过/失败两种</label>
+  <label class="opt" data-q="13" data-v="B">B. 全部通过 / 部分通过 / 都不通过（三种）</label>
+  <label class="opt" data-q="13" data-v="C">C. 优秀/良好/一般/差（四级）</label>
+  <label class="opt" data-q="13" data-v="D">D. 只有一种：可以上线</label>
+  <div class="qz-ex" data-q="13"><b>✅ 正确答案：B</b> – 测试结果三选一：■全部通过（所有用例通过，无遗留Bug）□部分通过（有遗留Bug但满足准出标准）□都不通过（严重问题未解决）。TPShop示例是"■部分通过"。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>ADB（Android Debug Bridge）的主要用途是？</div>
+  <label class="opt" data-q="14" data-v="A">A. 苹果手机开发工具</label>
+  <label class="opt" data-q="14" data-v="B">B. PC与Android设备通信的调试工具（安装APK/查看日志/传文件）</label>
+  <label class="opt" data-q="14" data-v="C">C. Android游戏辅助工具</label>
+  <label class="opt" data-q="14" data-v="D">D. 网页性能分析工具</label>
+  <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – ADB = Android Debug Bridge，是Android SDK的命令行工具，用于PC与Android设备通信：安装/卸载APK、查看logcat日志、传输文件、截图等。配置：将platform-tools路径加入系统Path，cmd输入adb验证。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>【场景题】Fiddler中发现某接口响应状态码是200，但业务数据中code=500，msg="服务器错误"。这是哪类Bug？Bug描述怎么写？</div>
+  <label class="opt" data-q="15" data-v="A">A. 前端Bug，前端发送了错误的请求</label>
+  <label class="opt" data-q="15" data-v="B">B. 后端Bug，后端业务逻辑处理失败，但HTTP状态码设置不规范（应返回5XX而非200）</label>
+  <label class="opt" data-q="15" data-v="C">C. 网络Bug，网速太慢导致</label>
+  <label class="opt" data-q="15" data-v="D">D. 不是Bug，200说明成功了</label>
+  <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – HTTP状态码200表示HTTP层面传输成功，但响应体中code=500表示业务逻辑失败。这是后端Bug：① 业务处理失败本身是Bug ② HTTP状态码应返回5XX而非200（不规范）。Bug标题示例：「【接口名称】接口响应HTTP 200但业务code=500，msg="服务器错误"，功能无法正常使用」。</div></div>
+
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">查看各题下方解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>Stage 3 Web功能测试 完结 🎉</button>
+  </div>
+</div>
+
+</div>
+<script>
+const ANSWERS={1:'B',2:'C',3:'B',4:'B',5:'B',6:'B',7:'B',8:'C',9:'B',10:'C',11:'B',12:'B',13:'B',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  if(done===10)document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ANSWERS[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct)o.classList.add('ok');
+      else if(o.classList.contains('sel'))o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex)ex.classList.add('s');
+    if(sel[q]===correct)score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90)msg='🏆 优秀！Fiddler和测试报告知识全面掌握！Stage 3 完结！';
+  else if(pct>=75)msg='✅ 良好！建议复习错题后进入Stage 4 APP测试！';
+  else if(pct>=50)msg='📚 还需努力，请重新阅读知识讲解。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12)document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d5'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAGE 3 · TESTER DAY 08 - ADB命令实战、抓包与Bug定位</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--day:#7c3aed;
+--day-d:#6d28d9;
+--day-bg:rgba(124,58,237,.08);
+--bg:#f8fafc;
+--card:#fff;
+--ink:#0f172a;
+--ink2:#334155;
+--muted:#64748b;
+--border:#e2e8f0;
+--code-bg:#1e2030;
+--code-ink:#a6accd;
+--green:#16a34a;
+--red:#dc2626;
+--amber:#d97706;
+--blue:#3b82f6
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:20px 20px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(124,58,237,.25)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:800;margin-bottom:6px;line-height:1.3}
+.hd p{font-size:13.5px;opacity:.88;line-height:1.6}
+.hd-stats{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.9}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:18px;display:block;margin-bottom:2px}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.25)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px;line-height:1.75}
+.sec ul,.sec ol{color:var(--ink2);margin:6px 0 10px 18px;line-height:1.8}
+.sec li{margin-bottom:4px}
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7}
+.term .k{color:#c792ea}.term .s{color:#ffcb6b}.term .o{color:#f78c6c}.term .n{color:#f78c6c}.term .g{color:#676e95;font-style:italic}.term .c{color:#c3e88d}.term .w{color:#fff;font-weight:600}.term .p{color:#82aaff}.term .r{color:#f07178}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}.lv-m{background:#fef3c7;color:#92400e}.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+#qr{display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;margin-top:18px;text-align:center}
+#qr h3{font-size:20px;font-weight:800;margin-bottom:8px}
+#qr p{color:var(--ink2);font-size:14px}
+.qbtn{display:inline-block;margin-top:18px;padding:13px 36px;background:var(--day);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(124,58,237,.3)}
+.prog-bar{background:#e2e8f0;border-radius:99px;height:8px;margin:10px 0;overflow:hidden}
+.prog-fill{height:100%;background:var(--day);border-radius:99px;transition:width .4s}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.flow-box{background:var(--day);color:#fff;padding:12px 18px;border-radius:10px;text-align:center;font-weight:700;font-size:13px}
+.flow-arrow{text-align:center;font-size:20px;color:var(--day);padding:6px 0}
+.metric-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:all .2s}
+.metric-card:hover{border-color:var(--day);transform:translateY(-2px)}
+.metric-card .mv{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--day)}
+.metric-card .ml{font-size:12px;color:var(--muted);margin-top:4px}
+@media(max-width:640px){
+.wrap{padding:14px 12px 40px}.hd{padding:20px 18px 16px}.hd h1{font-size:19px}.hd p{font-size:12px}
+.sec{padding:16px 14px}.sec h2{font-size:16px}.sec h3{font-size:14px}
+.t{font-size:11px;padding:8px 6px}.dn{padding:4px}
+.term{font-size:11.5px;padding:10px 12px}.qbtn{padding:11px 18px;font-size:13px}
+.pnav button{font-size:12px;padding:9px 12px}.iq-hdr{padding:12px 12px}.iq-q{font-size:12.5px}
+table{font-size:12px}th,td{padding:7px 9px}.g2,.g3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hd">
+<div class="hd-tag">STAGE 3 · TESTER DAY 08</div>
+<h1>ADB命令实战、抓包与Bug定位</h1>
+<p>掌握17个常用ADB命令、Fiddler/Charles手机抓包、前后端Bug定位方法、弱网测试以及APP发布流程</p>
+<div class="hd-stats">
+<div><b>17</b>ADB命令</div>
+<div><b>10</b>实战练习</div>
+<div><b>12</b>面试题</div>
+<div><b>15</b>测验题</div>
+</div>
+</div>
+
+<div id="dots"></div>
+
+<!-- TABS -->
+<div class="dn"><div class="ts">
+<button class="t a" data-p="0">📖 知识讲解</button>
+<button class="t" data-p="1">🖼️ 图解演示</button>
+<button class="t" data-p="2">🛠️ 实战练习</button>
+<button class="t" data-p="3">💬 面试精讲</button>
+<button class="t" data-p="4">✅ 测验</button>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- PANEL 0: 知识讲解 -->
+<!-- ============================================================ -->
+<div class="pan a">
+
+<div class="sec">
+<h2><span class="ico">1</span>ADB命令大全</h2>
+<p>ADB（Android Debug Bridge）是Android SDK中的命令行工具，用于与Android设备进行通信。以下是17个常用ADB命令的完整说明。</p>
+
+<h3>设备管理命令</h3>
+<div class="tw"><table>
+<tr><th>编号</th><th>命令</th><th>功能说明</th></tr>
+<tr><td>1</td><td><code class="inl">adb devices</code></td><td>查看已连接的设备列表</td></tr>
+<tr><td>2</td><td><code class="inl">adb disconnect 手机ip</code></td><td>断开连接的设备</td></tr>
+<tr><td>3</td><td><code class="inl">adb connect 手机ip</code></td><td>无线连接设备（手机和电脑需在同一网段）</td></tr>
+<tr><td>4</td><td><code class="inl">adb start-server</code></td><td>开启ADB服务</td></tr>
+<tr><td>5</td><td><code class="inl">adb kill-server</code></td><td>关闭ADB服务</td></tr>
+</table></div>
+
+<h3>应用管理命令</h3>
+<div class="tw"><table>
+<tr><th>编号</th><th>命令</th><th>功能说明</th></tr>
+<tr><td>6</td><td><code class="inl">adb install /路径/文件名</code></td><td>安装软件包（-r 保留数据  -t 强制覆盖）</td></tr>
+<tr><td>7</td><td><code class="inl">adb uninstall 包名</code></td><td>卸载软件包</td></tr>
+<tr><td>8</td><td><code class="inl">adb shell pm list packages</code></td><td>获取所有包名（-s 系统应用  -3 第三方应用）</td></tr>
+<tr><td>9</td><td><code class="inl">adb shell dumpsys window | findstr mCurrentFocus</code></td><td>获取当前窗口的包名和Activity名（Windows用findstr，Mac/Linux用grep）</td></tr>
+<tr><td>10</td><td><code class="inl">adb shell pm clear 包名</code></td><td>清除应用缓存</td></tr>
+<tr><td>11a</td><td><code class="inl">adb shell am start 包名/Activity名</code></td><td>启动应用</td></tr>
+<tr><td>11b</td><td><code class="inl">adb shell am force-stop 包名</code></td><td>强制停止应用</td></tr>
+</table></div>
+
+<div class="box info">
+<b>💡 包名 vs Activity名</b><br>
+包名是软件在系统里的唯一标识（如 <code class="inl">com.tpshop.malls</code>），Activity名描述APP的某个具体页面（如 <code class="inl">.SPMainActivity</code>）。
+</div>
+
+<h3>性能与调试命令</h3>
+<div class="tw"><table>
+<tr><th>编号</th><th>命令</th><th>功能说明</th></tr>
+<tr><td>12</td><td><code class="inl">adb logcat > 本地文件</code></td><td>获取手机日志（> 覆盖，>> 追加）</td></tr>
+<tr><td>13</td><td><code class="inl">adb shell am start -W 包名/Activity名</code></td><td>获取启动时间（-S 强停后冷启动  -R 数字 指定次数）</td></tr>
+<tr><td>14</td><td><code class="inl">adb shell dumpsys meminfo 包名</code></td><td>获取内存信息</td></tr>
+<tr><td>15</td><td><code class="inl">adb shell dumpsys cpuinfo</code></td><td>获取CPU占用情况</td></tr>
+</table></div>
+
+<h3>流量获取命令</h3>
+<div class="term">
+<span class="g">-- 第1步：获取应用的userId</span>
+<span class="w">adb shell dumpsys package</span> 包名 | <span class="k">findstr</span> userId
+
+<span class="g">-- 第2步：获取上行流量</span>
+<span class="w">adb shell cat</span> proc/uid_stat/<span class="s">userId</span>/tcp_snd
+
+<span class="g">-- 第3步：获取下行流量</span>
+<span class="w">adb shell cat</span> proc/uid_stat/<span class="s">userId</span>/tcp_rcv
+</div>
+<div class="box warn">
+<b>⚠️ 注意事项</b><br>
+cat后的路径是固定格式；userId中的"I"是大写；dumpsys package 后面不加s。
+</div>
+
+<h3>Monkey稳定性测试</h3>
+<div class="term">
+<span class="g">-- Monkey常用命令</span>
+<span class="w">adb shell monkey</span> <span class="k">-p</span> 包名 <span class="n">10000</span> <span class="k">-v -v -v</span> <span class="k">--throttle</span> <span class="n">500</span> > 本地文件
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">2</span>日志抓取与分析</h2>
+<p>测试期间抓取日志是非常重要的，可以避免因为不确定复现步骤而导致Bug无法复现，被开发拒绝。</p>
+
+<h3>基本日志抓取</h3>
+<div class="term">
+<span class="g">-- 抓取所有日志到文件（覆盖模式）</span>
+<span class="w">adb logcat</span> > C:\Users\用户名\Desktop\log.txt
+
+<span class="g">-- 抓取所有日志到文件（追加模式）</span>
+<span class="w">adb logcat</span> >> C:\Users\用户名\Desktop\log.txt
+
+<span class="g">-- 过滤关键字抓取日志</span>
+<span class="w">adb logcat</span> | <span class="k">findstr</span> 关键字 > 路径/文件名.txt
+</div>
+
+<h3>日志分析关键字</h3>
+<p>拿到日志后，搜索以下关键字来定位问题：</p>
+<ul>
+<li><code class="inl">exception</code> — 异常信息</li>
+<li><code class="inl">crash</code> — 崩溃信息</li>
+<li><code class="inl">ANR</code> — 应用无响应</li>
+<li><code class="inl">error</code> — 错误信息</li>
+</ul>
+<div class="box tip">
+<b>🔧 分析工具</b><br>
+可以使用 Notepad++ 打开日志文件进行搜索分析，开发人员通常使用 Android Studio 查看。
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">3</span>手机抓包（Fiddler）</h2>
+<p>Fiddler是一个HTTP协议调试代理工具，通过设置代理可以抓取手机端的网络请求。</p>
+
+<h3>PC端配置</h3>
+<ol>
+<li><b>配置HTTPS抓取：</b>Tools → Telerik Fiddler Options → HTTPS，勾选 Capture HTTPS CONNECTs，勾选 Decrypt HTTPS traffic 和 Ignore server certificate errors，点击Actions安装证书</li>
+<li><b>允许远程连接：</b>Tools → Telerik Fiddler Options → Connections，勾选 Allow remote computers to connect，默认端口 <code class="inl">8888</code>，配置后重启Fiddler</li>
+</ol>
+
+<h3>手机端配置</h3>
+<ol>
+<li>确保手机和电脑处于<b>同一网络</b></li>
+<li>查看电脑IP地址（cmd输入 <code class="inl">ipconfig</code>）</li>
+<li>手机浏览器输入 <code class="inl">http://电脑IP:8888</code>，下载并安装Fiddler证书</li>
+<li>设置手机密码（安装证书需要）</li>
+<li>修改手机WiFi代理：设置 → 无线网 → 高级 → 代理选择手动 → 输入电脑IP和Fiddler端口号</li>
+</ol>
+</div>
+
+<div class="sec">
+<h2><span class="ico">4</span>手机抓包（Charles）</h2>
+<p>Charles是另一个常用的抓包工具，操作步骤与Fiddler类似。</p>
+
+<h3>Charles端配置</h3>
+<ol>
+<li>确保电脑和手机在同一WiFi下</li>
+<li>Proxy → Proxy Settings → 设置代理端口 <code class="inl">8888</code></li>
+<li>查看电脑IP（cmd输入 <code class="inl">ipconfig</code>）</li>
+<li>设置HTTPS抓包：Proxy → SSL Proxying Settings → Add，添加所有域名和端口</li>
+<li>Help → SSL Proxying → Install Charles Root Certificates on a Mobile Device</li>
+</ol>
+
+<h3>手机端配置</h3>
+<ol>
+<li>连接同一WiFi，设置代理IP和端口（同Fiddler方式）</li>
+<li>手机浏览器访问 <code class="inl">chls.pro/ssl</code>，下载安装证书</li>
+<li>iOS：设置 → 通用 → 关于手机 → 信任证书</li>
+<li>Android：设置 → 安全 → 安装证书</li>
+</ol>
+</div>
+
+<div class="sec">
+<h2><span class="ico">5</span>抓包定位Bug（前端 vs 后端）</h2>
+<p>通过抓包工具可以精准定位Bug属于前端还是后端。核心思路分两步：</p>
+
+<h3>第一步：通过数据库对比</h3>
+<p>查询数据库中的数据，与前端显示进行对比，确认是哪个环节出了问题。</p>
+
+<h3>第二步：通过抓包定位</h3>
+<div class="g2">
+<div class="card">
+<h4>🖥️ 前端问题</h4>
+<p>• 抓不到请求（前端未发送请求）</p>
+<p>• 请求参数出错（前端拼错了参数）</p>
+<p>• 请求正确、响应正确，但前端显示不出来（渲染问题）</p>
+</div>
+<div class="card">
+<h4>⚙️ 后端问题</h4>
+<p>• 无响应（后端未返回数据）</p>
+<p>• 响应出错（后端返回了错误的数据）</p>
+</div>
+</div>
+
+<div class="box danger">
+<b>🔑 核心判断逻辑</b><br>
+如果请求正确但响应错误 → 后端问题；如果请求本身就有问题或响应正确但显示异常 → 前端问题。
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">6</span>弱网测试</h2>
+<p>使用Fiddler可以模拟弱网环境，测试APP在网络不佳时的表现。</p>
+
+<h3>设置方法</h3>
+<ol>
+<li>修改延迟时间：Rules → Customize Rules → 修改延迟时间（每上传或下载1KB文件需要的时间，单位ms）</li>
+<li>开启延时模拟：Rules → Performance → Simulate Modem Speeds</li>
+</ol>
+
+<h3>弱网测试关注点</h3>
+<ul>
+<li>页面加载是否有友好的Loading提示</li>
+<li>请求超时是否有错误提示</li>
+<li>回退和刷新是否会造成二次提交</li>
+<li>断网后恢复网络，APP能否正常恢复</li>
+<li>数据是否丢失或重复</li>
+</ul>
+</div>
+
+<div class="sec">
+<h2><span class="ico">7</span>抓包工具进阶：断点修改数据</h2>
+<p>抓包工具的原理是在数据传输过程中设置代理服务器。通过断点功能可以拦截并修改请求或响应数据。</p>
+
+<h3>Fiddler断点设置</h3>
+<ul>
+<li><b>Before Requests（请求之前）：</b>拦截并修改请求数据后再发送到服务器</li>
+<li><b>After Responses（响应之后）：</b>拦截并修改服务器返回的响应数据后再发送到客户端</li>
+</ul>
+<p>设置路径：Automatic Breakpoint → Before Requests / After Responses</p>
+
+<div class="box info">
+<b>💡 断点的测试用途</b><br>
+可以通过修改请求参数测试后端的校验逻辑，通过修改响应数据测试前端的容错处理能力。
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">8</span>APP发布与开发模型</h2>
+
+<h3>APP发布流程</h3>
+<ul>
+<li><b>测试环境：</b>公共平台标记版本号</li>
+<li><b>线上发布：</b>
+  <ul>
+    <li>Android：应用宝、360手机助手、手机品牌应用商店</li>
+    <li>iOS：App Store、iTools</li>
+  </ul>
+</li>
+<li><b>渠道ID：</b>不同渠道发布后需要进行回归测试</li>
+</ul>
+
+<h3>敏捷开发模型</h3>
+<ul>
+<li><b>迭代周期：</b>2周～4周</li>
+<li><b>工作流程：</b>产品汇总需求产出Backlog → 开迭代计划会 → 迭代开发（需求评审/开发/测试）→ 发布评审（反思会）</li>
+</ul>
+
+<h3>瀑布模型 vs 敏捷模型</h3>
+<div class="g2">
+<div class="card">
+<h4>🏔️ 瀑布模型</h4>
+<p>测试介入时间：开发编码完成以后。阶段划分清晰，适合需求稳定的项目。</p>
+</div>
+<div class="card">
+<h4>🔄 敏捷模型</h4>
+<p>测试早期介入，迭代交付。2-4周一个迭代，快速响应需求变化。</p>
+</div>
+</div>
+</div>
+
+<div class="pnav">
+<button disabled>← 上一节</button>
+<button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 1: 图解演示 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">1</span>ADB命令分类速查</h2>
+<div class="g3">
+<div class="metric-card"><div class="mv">📱</div><div class="ml">设备管理</div><p style="font-size:11px;color:var(--muted);margin-top:6px">devices·connect·disconnect·server</p></div>
+<div class="metric-card"><div class="mv">📦</div><div class="ml">应用管理</div><p style="font-size:11px;color:var(--muted);margin-top:6px">install·uninstall·packages·clear</p></div>
+<div class="metric-card"><div class="mv">🚀</div><div class="ml">启动控制</div><p style="font-size:11px;color:var(--muted);margin-top:6px">start·force-stop·-W启动时间</p></div>
+<div class="metric-card"><div class="mv">📊</div><div class="ml">性能监控</div><p style="font-size:11px;color:var(--muted);margin-top:6px">meminfo·cpuinfo·流量·logcat</p></div>
+<div class="metric-card"><div class="mv">🐒</div><div class="ml">稳定性</div><p style="font-size:11px;color:var(--muted);margin-top:6px">monkey·throttle·ignore-crashes</p></div>
+<div class="metric-card"><div class="mv">🔍</div><div class="ml">窗口信息</div><p style="font-size:11px;color:var(--muted);margin-top:6px">dumpsys window·包名·Activity</p></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">2</span>Fiddler手机抓包流程</h2>
+<div class="flow-box">① PC端：配置HTTPS + 允许远程连接</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">② 确保手机和电脑在同一网络</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">③ 手机浏览器访问 http://电脑IP:8888</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">④ 下载并安装Fiddler根证书</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">⑤ 手机WiFi设置手动代理（电脑IP + 端口8888）</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">⑥ 操作手机APP → Fiddler中查看请求数据</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">3</span>Bug定位决策流程</h2>
+<div class="flow-box" style="background:var(--blue)">发现Bug → 打开抓包工具</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:#64748b">是否能抓到请求？</div>
+<div class="g2" style="margin-top:8px">
+<div class="card" style="border-color:var(--red)">
+<h4 style="color:var(--red)">❌ 抓不到请求</h4>
+<p><b>→ 前端问题</b>（前端未发送请求）</p>
+</div>
+<div class="card" style="border-color:var(--green)">
+<h4 style="color:var(--green)">✅ 能抓到请求</h4>
+<p>→ 继续检查请求参数...</p>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:#64748b">请求参数是否正确？</div>
+<div class="g2" style="margin-top:8px">
+<div class="card" style="border-color:var(--red)">
+<h4 style="color:var(--red)">❌ 请求参数错误</h4>
+<p><b>→ 前端问题</b>（参数拼接错误）</p>
+</div>
+<div class="card" style="border-color:var(--green)">
+<h4 style="color:var(--green)">✅ 请求参数正确</h4>
+<p>→ 继续检查响应...</p>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:#64748b">响应数据是否正确？</div>
+<div class="g2" style="margin-top:8px">
+<div class="card" style="border-color:var(--red)">
+<h4 style="color:var(--red)">❌ 响应数据错误/无响应</h4>
+<p><b>→ 后端问题</b>（服务器逻辑或数据库问题）</p>
+</div>
+<div class="card" style="border-color:var(--amber)">
+<h4 style="color:var(--amber)">✅ 响应正确但显示异常</h4>
+<p><b>→ 前端问题</b>（前端渲染/解析问题）</p>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">4</span>启动时间参数对照</h2>
+<div class="term">
+<span class="g">-- 获取启动时间（含冷启动+多次测试）</span>
+<span class="w">adb shell am start</span> <span class="k">-W -S -R</span> <span class="n">10</span> com.tpshop.malls/com.tpshop.malls.SPMainActivity
+
+<span class="g">-- 参数说明（均为大写，顺序可调，-R后必须是数字）</span>
+<span class="k">-W</span>  获取启动时间（TotalTime）
+<span class="k">-S</span>  启动前强行停止应用（测试冷启动）
+<span class="k">-R</span>  <span class="n">10</span>  启动次数（连续测试10次）
+</div>
+<div class="g3">
+<div class="metric-card"><div class="mv" style="font-size:18px">ThisTime</div><div class="ml" style="margin-top:6px">最后一个Activity的启动时间</div></div>
+<div class="metric-card"><div class="mv" style="font-size:18px;color:var(--red)">TotalTime</div><div class="ml" style="margin-top:6px">所有Activity的启动总时间（重点关注）</div></div>
+<div class="metric-card"><div class="mv" style="font-size:18px">WaitTime</div><div class="ml" style="margin-top:6px">系统等待时间（包含前置处理）</div></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">5</span>敏捷迭代工作流</h2>
+<div class="flow-box">📋 产品汇总需求 → 产出Backlog</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">📅 迭代计划会（Sprint Planning）</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:var(--green)">🔄 迭代开发（2-4周）：需求评审 → 开发 → 测试</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">🎯 发布评审 + 反思会（Retrospective）</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">6</span>流量获取命令实战</h2>
+<div class="term">
+<span class="g">-- 示例：获取TP商城APP流量</span>
+
+<span class="g">-- 1. 获取userId</span>
+<span class="w">adb shell dumpsys package</span> com.tpshop.malls | <span class="k">findstr</span> userId
+<span class="g">-- 输出: userId=10037</span>
+
+<span class="g">-- 2. 获取上行流量（发送）</span>
+<span class="w">adb shell cat</span> proc/uid_stat/<span class="n">10037</span>/tcp_snd
+<span class="g">-- 输出: 201773 (字节)</span>
+
+<span class="g">-- 3. 获取下行流量（接收）</span>
+<span class="w">adb shell cat</span> proc/uid_stat/<span class="n">10037</span>/tcp_rcv
+<span class="g">-- 输出: 5219592 (字节)</span>
+</div>
+</div>
+
+<div class="pnav">
+<button onclick="go(0)">← 知识讲解</button>
+<button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 2: 实战练习 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">🛠️</span>实战练习</h2>
+<p>完成以下10道练习题，巩固ADB命令和抓包相关知识。</p>
+<div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+<p style="font-size:13px;color:var(--muted)">已完成 <b id="pc" style="color:var(--day);font-family:'Space Mono',monospace">0</b> / 10 题 <span style="float:right;cursor:pointer;color:var(--day);font-weight:600" onclick="mc()">全部完成 ✓</span></p>
+</div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">1. 写出安装一个已存在的APK到设备上的完整命令（保留数据并强制覆盖）。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="w">adb install -r -t</span> C:\路径\soubaoShopMobile-release.apk
+<span class="g">-- -r 保留数据覆盖安装</span>
+<span class="g">-- -t 强制覆盖（允许降级安装）</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">2. 写出获取TP商城当前窗口包名和Activity名的命令（Windows和Mac各一条）。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g">-- Windows系统</span>
+<span class="w">adb shell dumpsys window</span> | <span class="k">findstr</span> mCurrentFocus
+
+<span class="g">-- Mac/Linux系统</span>
+<span class="w">adb shell dumpsys window</span> | <span class="k">grep</span> mCurrentFocus
+
+<span class="g">-- 输出示例：</span>
+<span class="g">-- mCurrentFocus=Window{...com.tpshop.malls/com.tpshop.malls.SPMainActivity}</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">3. 写出获取冷启动时间（连续10次）的完整命令。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="w">adb shell am start</span> <span class="k">-W -S -R</span> <span class="n">10</span> com.tpshop.malls/com.tpshop.malls.SPMainActivity
+
+<span class="g">-- -W 获取时间</span>
+<span class="g">-- -S 启动前强行停止应用（冷启动）</span>
+<span class="g">-- -R 10 连续启动10次</span>
+<span class="g">-- 关注输出中的 TotalTime 字段</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">4. 写出获取TP商城APP上行和下行流量的完整步骤命令。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g">-- 步骤1：获取userId</span>
+<span class="w">adb shell dumpsys package</span> com.tpshop.malls | <span class="k">findstr</span> userId
+<span class="g">-- 假设得到 userId=10037</span>
+
+<span class="g">-- 步骤2：获取上行流量</span>
+<span class="w">adb shell cat</span> proc/uid_stat/10037/tcp_snd
+
+<span class="g">-- 步骤3：获取下行流量</span>
+<span class="w">adb shell cat</span> proc/uid_stat/10037/tcp_rcv</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">5. 写出抓取手机日志并过滤crash关键字的命令。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g">-- 过滤crash关键字并保存到桌面</span>
+<span class="w">adb logcat</span> | <span class="k">findstr</span> crash > C:\Users\用户名\Desktop\crash_log.txt
+
+<span class="g">-- 抓取全部日志</span>
+<span class="w">adb logcat</span> > C:\Users\用户名\Desktop\full_log.txt</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">6. 描述Fiddler手机抓包的完整配置步骤（PC端+手机端）。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">【PC端配置】
+1. Tools→Options→HTTPS，勾选Capture HTTPS CONNECTs
+2. 勾选Decrypt HTTPS traffic + Ignore server certificate errors
+3. Tools→Options→Connections，勾选Allow remote computers to connect
+4. 端口默认8888，重启Fiddler
+
+【手机端配置】
+1. 手机和电脑连接同一WiFi
+2. 手机浏览器访问 http://电脑IP:8888
+3. 下载安装Fiddler根证书
+4. 手机WiFi设置→代理→手动→输入电脑IP和端口8888</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">7. 通过抓包发现：请求参数正确，但响应数据中性别字段返回了错误值。这是前端还是后端问题？</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">这是<span class="r">后端问题</span>。
+
+判断依据：
+- 请求参数正确 → 前端发送没问题
+- 响应数据错误 → 后端返回了错误值
+- 问题出在服务器端的逻辑处理或数据库查询
+
+可进一步通过数据库验证：
+查询对应数据表确认数据库中存储的值是否正确</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">8. 如何使用Fiddler进行弱网测试？写出操作步骤。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">Fiddler弱网测试步骤：
+
+1. 修改延迟时间：
+   Rules → Customize Rules
+   修改延迟参数（每上传/下载1KB需要的时间，单位ms）
+
+2. 开启延时模拟：
+   Rules → Performance → Simulate Modem Speeds
+
+3. 测试关注点：
+   - Loading提示是否友好
+   - 超时是否有错误提示
+   - 回退/刷新是否造成二次提交
+   - 断网恢复后APP是否正常</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">9. 列出获取第三方应用包名和系统应用包名的命令。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g">-- 获取所有包名</span>
+<span class="w">adb shell pm list packages</span>
+
+<span class="g">-- 获取系统应用包名</span>
+<span class="w">adb shell pm list packages</span> <span class="k">-s</span>
+
+<span class="g">-- 获取第三方应用包名</span>
+<span class="w">adb shell pm list packages</span> <span class="k">-3</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">10. 描述敏捷开发模型的一个完整迭代流程。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">敏捷迭代流程（2-4周一个迭代）：
+
+1. 产品经理汇总需求，产出Backlog（需求列表）
+2. 召开迭代计划会（Sprint Planning）
+   - 确定本次迭代要完成的需求
+   - 分配任务和估算工时
+3. 迭代开发阶段
+   - 需求评审（明确需求细节）
+   - 开发编码
+   - 测试（边开发边测试）
+4. 发布评审
+   - 演示成果
+   - 召开反思会（Retrospective）总结经验</div>
+</div></div>
+
+<div class="pnav">
+<button onclick="go(1)">← 图解演示</button>
+<button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 3: 面试精讲 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">💬</span>面试精讲</h2>
+<p>共12道面试高频题，涵盖ADB命令、抓包、Bug定位、APP测试等核心知识点。</p>
+</div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div><div class="iq-q">常用的ADB命令有哪些？请写一个Monkey脚本并解释参数含义。</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>常用ADB命令：</b>adb devices、adb install、adb uninstall、adb shell am start 包名/Activity名、adb logcat、adb shell dumpsys meminfo/cpuinfo。</p>
+<p><b>Monkey脚本示例：</b></p>
+<p><code class="inl">adb shell monkey -p com.tpshop.malls --throttle 500 --ignore-crashes --ignore-timeouts -v -v -v 2000 > d:\monkey-test.txt</code></p>
+<p>参数含义：-p 指定包名；--throttle 500 每个操作间隔500ms；--ignore-crashes 忽略崩溃继续；--ignore-timeouts 忽略超时继续；-v -v -v 最详细日志等级；2000 随机事件次数；> 输出到指定文件。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div><div class="iq-q">你用过的HTTP协议调试代理工具有哪些？请说明抓取HTTPS的设置过程。</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>常用工具有Fiddler和Charles。</p>
+<p><b>Fiddler抓取HTTPS设置：</b></p>
+<p>1. 安装证书：Tools → Options → HTTPS，配置允许抓取HTTPS连接</p>
+<p>2. 勾选 Decrypt HTTPS traffic 和 Ignore server certificate errors</p>
+<p>3. 点击Actions安装证书</p>
+<p>4. 在Connections中允许远程连接，端口默认8888</p>
+<p><b>手机端：</b>同一WiFi下，浏览器访问 http://电脑IP:8888 下载证书，设置WiFi代理为电脑IP+端口号。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div><div class="iq-q">如何定位Bug是前端还是后端的？</div><div class="iq-lv lv-h">高频</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>通过两步定位：</p>
+<p><b>第一步：数据库对比</b> — 查询数据库数据与前端显示对比，确认是哪个环节出了问题。</p>
+<p><b>第二步：抓包分析</b></p>
+<p>• 抓不到请求 → 前端问题（未发送请求）</p>
+<p>• 请求参数错误 → 前端问题（参数拼接错误）</p>
+<p>• 请求正确但无响应/响应错误 → 后端问题</p>
+<p>• 请求正确、响应正确但显示异常 → 前端问题（渲染/解析问题）</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div><div class="iq-q">APP测试过程中遇到Crash或ANR，你会怎么处理？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>先抓取日志记录：</p>
+<p>方式一：<code class="inl">adb logcat > 路径/文件名.txt</code>（抓取全部日志）</p>
+<p>方式二：<code class="inl">adb logcat | findstr crash > 路径/文件名.txt</code>（过滤关键字）</p>
+<p>拿到日志后搜索关键字（exception、crash、ANR），查看是哪些方法或异常导致了问题，初步定位原因后交给开发人员深入排查。分析工具可以用Notepad++。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div><div class="iq-q">APP出现Crash的原因有哪些？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>内存管理错误：</b>可用内存过低、内存泄露、非授权内存访问</p>
+<p>2. <b>程序逻辑错误：</b>数组越界、堆栈溢出、并发操作冲突、空指针引用</p>
+<p>3. <b>设备兼容问题：</b>不同设备上表现不同</p>
+<p>4. <b>网络因素：</b>网速慢超时、网络切换导致不稳定</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div><div class="iq-q">APP出现ANR是什么原因导致的？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>ANR（Application Not Responding）的主要原因：</p>
+<p>1. 主线程执行了耗时操作（数据库操作、网络请求）</p>
+<p>2. 其他进程占用CPU导致本进程得不到时间片</p>
+<p>3. 大量数据读写操作</p>
+<p>4. 硬件操作（如Camera调用）</p>
+<p>5. Thread的join()/sleep()/wait()方法等待超时</p>
+<p>6. Service忙导致超时无响应</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div><div class="iq-q">GET和POST的区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>参数位置：</b>GET的请求参数放在URL中，POST的参数放在请求体中</p>
+<p>2. <b>参数大小：</b>GET因为参数在URL中，浏览器对URL有长度限制，所以有大小限制；POST没有</p>
+<p>3. <b>用途：</b>一般用GET获取数据，用POST提交数据</p>
+<p>4. <b>安全性：</b>GET参数在URL中可见，相对不安全；POST参数在请求体中</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div><div class="iq-q">HTTP和HTTPS的区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>安全性：</b>HTTPS是HTTP的安全加强版，通过加密层保护数据传输</p>
+<p>2. <b>端口：</b>HTTP标准端口80，HTTPS标准端口443</p>
+<p>3. <b>证书：</b>HTTP无需证书，HTTPS需要CA机构颁发的SSL证书</p>
+<p>4. <b>工作层：</b>HTTP工作于应用层，HTTPS工作于传输层</p>
+<p>5. <b>表现形式：</b>HTTPS站点地址栏显示小锁图标</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div><div class="iq-q">以前公司的测试流程是什么？</div><div class="iq-lv lv-h">高频</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>需求分析与评审</b> — 理解需求，参与评审</p>
+<p>2. <b>编写测试计划与方案</b> — 范围目标、角色职责、资源进度、风险应对、工具环境</p>
+<p>3. <b>设计测试用例与评审</b> — 使用等价类、边界值、判定表、场景法等方法</p>
+<p>4. <b>执行用例与缺陷跟踪</b> — 执行测试并记录缺陷</p>
+<p>5. <b>编写测试报告</b> — 测试概要、缺陷统计分析、测试结论</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div><div class="iq-q">缺陷被提交后，开发人员认为不是问题，怎么处理？</div><div class="iq-lv lv-h">高频</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. 首先将问题提交到缺陷管理库备案</p>
+<p>2. 确认研发拒绝的原因，获取判断依据：</p>
+<p>  A. 根据需求文档、设计文档确认实际结果与预期是否一致</p>
+<p>  B. 没有文档依据则参考类似软件的一般特性</p>
+<p>  C. 根据用户一般使用习惯判断</p>
+<p>  D. 与设计/开发/客户代表等相关人员探讨确认</p>
+<p>3. 向测试经理客观严谨地说明判断理由</p>
+<p>4. 等待测试经理做出最终决定，如仍有争议可向上级反映</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div><div class="iq-q">APP性能测试需要重点关注哪些方面？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>CPU和内存占用</b> — 使用 dumpsys meminfo/cpuinfo 查看</p>
+<p>2. <b>电量和流量消耗</b> — 关注高耗电场景和流量异常</p>
+<p>3. <b>启动时长</b> — 冷启动和热启动时间</p>
+<p>4. <b>流畅度</b> — 帧率FPS，值越大越流畅，60fps为最佳</p>
+<p>5. <b>长时间稳定性</b> — 使用Monkey进行稳定性测试</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div><div class="iq-q">软件测试的结束标准是什么？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>基于测试用例：</b>功能测试用例通过率100%，非功能性用例95%以上</p>
+<p>2. <b>基于缺陷修复率：</b>严重/主要错误修复率100%，次要/一般错误85%以上</p>
+<p>3. <b>基于缺陷收敛趋势：</b>发现缺陷数量趋近于零</p>
+<p>4. <b>基于覆盖率：</b>测试用例覆盖了全部需求且执行率100%</p>
+<p>5. <b>基于项目计划：</b>与团队达成共识的标准结束点</p>
+<p>6. <b>基于质量/成本/进度：</b>三方面取得平衡</p>
+</div></div>
+
+<div class="pnav">
+<button onclick="go(2)">← 实战练习</button>
+<button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 4: 测验 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">✅</span>知识测验</h2>
+<p>共15道选择题，测试你对ADB命令、抓包和Bug定位的掌握程度。</p>
+</div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">1</span>安装一个已存在的APK并保留数据的正确命令是？</div>
+<div class="opt" onclick="sel(this)">A. adb install 文件名</div>
+<div class="opt" onclick="sel(this)">B. adb install -t 文件名</div>
+<div class="opt" onclick="sel(this)">C. adb install -r -t 文件名</div>
+<div class="opt" onclick="sel(this)">D. adb uninstall 文件名</div>
+<div class="qz-ex"><b>💡 解析：</b>-r 表示保留数据覆盖安装，-t 表示强制覆盖。两者配合使用可以覆盖安装已存在的应用。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">2</span>获取手机上第三方应用包名的命令是？</div>
+<div class="opt" onclick="sel(this)">A. adb shell pm list packages -s</div>
+<div class="opt" onclick="sel(this)">B. adb shell pm list packages -3</div>
+<div class="opt" onclick="sel(this)">C. adb shell pm list packages -a</div>
+<div class="opt" onclick="sel(this)">D. adb shell pm list packages -u</div>
+<div class="qz-ex"><b>💡 解析：</b>-3 获取第三方应用包名，-s 获取系统应用包名，不带参数获取所有包名。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">3</span>获取启动时间命令中，-S参数的作用是？</div>
+<div class="opt" onclick="sel(this)">A. 启动前强行停止应用（测试冷启动）</div>
+<div class="opt" onclick="sel(this)">B. 获取启动时间</div>
+<div class="opt" onclick="sel(this)">C. 指定启动次数</div>
+<div class="opt" onclick="sel(this)">D. 指定设备名称</div>
+<div class="qz-ex"><b>💡 解析：</b>-S 启动前强行停止应用，用于测试冷启动时间。-W 获取时间，-R 指定次数。注意参数均为大写。</div></div>
+
+<div class="qz" data-a="4"><div class="qz-q"><span class="qn">4</span>获取APP流量时，第一步需要获取什么？</div>
+<div class="opt" onclick="sel(this)">A. 包名</div>
+<div class="opt" onclick="sel(this)">B. Activity名</div>
+<div class="opt" onclick="sel(this)">C. 设备名</div>
+<div class="opt" onclick="sel(this)">D. userId</div>
+<div class="qz-ex"><b>💡 解析：</b>获取流量的第一步是通过 <code class="inl">adb shell dumpsys package 包名 | findstr userId</code> 获取userId，然后才能查询上行和下行流量。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">5</span>Fiddler抓取手机HTTPS包时，手机端需要访问的地址格式是？</div>
+<div class="opt" onclick="sel(this)">A. https://电脑IP:8888</div>
+<div class="opt" onclick="sel(this)">B. http://localhost:8888</div>
+<div class="opt" onclick="sel(this)">C. http://电脑IP:8888</div>
+<div class="opt" onclick="sel(this)">D. ftp://电脑IP:8888</div>
+<div class="qz-ex"><b>💡 解析：</b>手机浏览器需要访问 http://电脑IP:端口号 来下载Fiddler根证书，默认端口为8888。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">6</span>通过抓包发现请求正确但服务器无响应，这属于？</div>
+<div class="opt" onclick="sel(this)">A. 前端问题</div>
+<div class="opt" onclick="sel(this)">B. 后端问题</div>
+<div class="opt" onclick="sel(this)">C. 网络问题</div>
+<div class="opt" onclick="sel(this)">D. 数据库问题</div>
+<div class="qz-ex"><b>💡 解析：</b>请求正确说明前端没问题，服务器无响应属于后端问题（可能是接口未实现、服务宕机等）。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">7</span>adb logcat命令中，> 和 >> 的区别是？</div>
+<div class="opt" onclick="sel(this)">A. > 覆盖文件内容，>> 追加到文件末尾</div>
+<div class="opt" onclick="sel(this)">B. > 追加到文件末尾，>> 覆盖文件内容</div>
+<div class="opt" onclick="sel(this)">C. 两者功能相同</div>
+<div class="opt" onclick="sel(this)">D. > 输出到屏幕，>> 输出到文件</div>
+<div class="qz-ex"><b>💡 解析：</b>> 覆盖文件内容（如果文件已存在会清空重写），>> 追加在文件末尾（保留原有内容）。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">8</span>Charles手机抓包时，手机端下载证书的地址是？</div>
+<div class="opt" onclick="sel(this)">A. http://电脑IP:8888</div>
+<div class="opt" onclick="sel(this)">B. https://charles.io/ssl</div>
+<div class="opt" onclick="sel(this)">C. chls.pro/ssl</div>
+<div class="opt" onclick="sel(this)">D. charles.pro/cert</div>
+<div class="qz-ex"><b>💡 解析：</b>Charles手机端下载证书需要在浏览器中访问 chls.pro/ssl，然后安装证书。</div></div>
+
+<div class="qz" data-a="4"><div class="qz-q"><span class="qn">9</span>Fiddler弱网测试通过哪个菜单开启延时模拟？</div>
+<div class="opt" onclick="sel(this)">A. Tools → Performance</div>
+<div class="opt" onclick="sel(this)">B. File → Simulate</div>
+<div class="opt" onclick="sel(this)">C. Edit → Network Speed</div>
+<div class="opt" onclick="sel(this)">D. Rules → Performance → Simulate Modem Speeds</div>
+<div class="qz-ex"><b>💡 解析：</b>Fiddler弱网测试需要先在 Rules → Customize Rules 修改延迟时间，然后通过 Rules → Performance → Simulate Modem Speeds 开启。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">10</span>敏捷开发模型的迭代周期通常是？</div>
+<div class="opt" onclick="sel(this)">A. 1天～3天</div>
+<div class="opt" onclick="sel(this)">B. 2周～4周</div>
+<div class="opt" onclick="sel(this)">C. 2个月～4个月</div>
+<div class="opt" onclick="sel(this)">D. 半年～1年</div>
+<div class="qz-ex"><b>💡 解析：</b>敏捷开发的迭代周期通常为2周到4周，快速交付可用的产品增量。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">11</span>以下哪个不是APP出现Crash的常见原因？</div>
+<div class="opt" onclick="sel(this)">A. 用户手机屏幕亮度过高</div>
+<div class="opt" onclick="sel(this)">B. 内存泄露导致内存溢出</div>
+<div class="opt" onclick="sel(this)">C. 数组越界</div>
+<div class="opt" onclick="sel(this)">D. 空指针引用</div>
+<div class="qz-ex"><b>💡 解析：</b>屏幕亮度不会导致APP崩溃。内存溢出、数组越界、空指针引用都是常见的Crash原因。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">12</span>获取当前窗口信息在Windows系统使用的过滤命令是？</div>
+<div class="opt" onclick="sel(this)">A. grep</div>
+<div class="opt" onclick="sel(this)">B. find</div>
+<div class="opt" onclick="sel(this)">C. findstr</div>
+<div class="opt" onclick="sel(this)">D. search</div>
+<div class="qz-ex"><b>💡 解析：</b>Windows使用 findstr 过滤文本，Mac/Linux使用 grep。注意区分操作系统。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">13</span>HTTP协议的状态码4XX表示？</div>
+<div class="opt" onclick="sel(this)">A. 成功</div>
+<div class="opt" onclick="sel(this)">B. 客户端错误</div>
+<div class="opt" onclick="sel(this)">C. 服务器错误</div>
+<div class="opt" onclick="sel(this)">D. 重定向</div>
+<div class="qz-ex"><b>💡 解析：</b>2XX成功，3XX重定向，4XX客户端错误（如404找不到页面），5XX服务器错误。</div></div>
+
+<div class="qz" data-a="4"><div class="qz-q"><span class="qn">14</span>以下哪个命令用于清除APP缓存？</div>
+<div class="opt" onclick="sel(this)">A. adb shell am clear 包名</div>
+<div class="opt" onclick="sel(this)">B. adb clear 包名</div>
+<div class="opt" onclick="sel(this)">C. adb shell rm 包名</div>
+<div class="opt" onclick="sel(this)">D. adb shell pm clear 包名</div>
+<div class="qz-ex"><b>💡 解析：</b><code class="inl">adb shell pm clear 包名</code> 用于清除指定APP的缓存和数据。注意是 pm（package manager）。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">15</span>手机抓包的前提条件是？</div>
+<div class="opt" onclick="sel(this)">A. 手机和电脑处于同一网络</div>
+<div class="opt" onclick="sel(this)">B. 手机必须Root</div>
+<div class="opt" onclick="sel(this)">C. 电脑必须安装Android SDK</div>
+<div class="opt" onclick="sel(this)">D. 手机必须通过USB连接电脑</div>
+<div class="qz-ex"><b>💡 解析：</b>Fiddler/Charles手机抓包的核心前提是手机和电脑处于同一网络（同一WiFi），不需要Root或USB连接。</div></div>
+
+<div style="text-align:center;margin-top:24px">
+<button class="qbtn" onclick="sub()">提交答案</button>
+</div>
+
+<div id="qr">
+<h3 id="qr-t"></h3>
+<p id="qr-d"></p>
+</div>
+
+<div class="pnav">
+<button onclick="go(3)">← 面试精讲</button>
+<button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const pans=document.querySelectorAll('.pan'),tabs=document.querySelectorAll('.t'),dots=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){const d=document.createElement('span');d.className='dot'+(i===0?' a':'');d.onclick=()=>go(i);dots.appendChild(d)}
+function go(i){tabs.forEach((t,k)=>t.classList.toggle('a',k===i));pans.forEach((p,k)=>p.classList.toggle('a',k===i));document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));window.scrollTo({top:0,behavior:'smooth'})}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+function tr(el){const a=el.nextElementSibling;a.classList.toggle('s');el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›'}
+function tq(h){h.parentElement.classList.toggle('o')}
+const cbs=document.querySelectorAll('.ci');
+function upc(){const d=document.querySelectorAll('.ci:checked').length;document.getElementById('pc').textContent=d;document.getElementById('pf').style.width=(d/10*100)+'%';cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked)});if(d===10)document.querySelectorAll('.dot')[2].classList.add('d')}
+cbs.forEach(cb=>cb.onchange=upc);upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+function sel(el){el.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel')}
+function sub(){const qzs=document.querySelectorAll('.qz');let s=0;qzs.forEach(q=>{const a=parseInt(q.dataset.a),opts=q.querySelectorAll('.opt');let p=-1;opts.forEach((o,i)=>{if(o.classList.contains('sel'))p=i+1});opts.forEach((o,i)=>{o.classList.remove('sel');if(i+1===a)o.classList.add('ok');else if(i+1===p&&p!==a)o.classList.add('no')});if(p===a)s++;q.querySelector('.qz-ex').classList.add('s')});const qr=document.getElementById('qr');qr.style.display='block';const pct=Math.round(s/15*100);document.getElementById('qr-t').textContent=s+' / 15（'+pct+'%）';let m='';if(pct>=90)m='🎉 非常优秀！ADB和抓包知识已熟练掌握！';else if(pct>=70)m='👍 不错！部分知识点需要再巩固。';else if(pct>=50)m='📖 还需加油，建议回顾知识讲解。';else m='💪 基础薄弱，建议重新学习后再测试。';document.getElementById('qr-d').textContent=m;document.querySelectorAll('.dot')[4].classList.add('d');try{window.parent.postMessage({type:'qa_quiz_result',score:s,total:15,day:'s3d8'},'*')}catch(e){}}
+</script>
+</body>
+</html>

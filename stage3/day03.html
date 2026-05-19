@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3 · Web功能测试 Day 03 – 抢购模块测试 & 购物车测试点梳理</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#ea580c;--day-d:#c2410c;--day-bg:rgba(234,88,12,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(234,88,12,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(234,88,12,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.orange{background:#fff7ed;border-color:#ea580c;color:#9a3412}
+
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12px;padding:8px 10px;text-align:left}
+td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.card p,.card ul{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.card ul{padding-left:14px}
+.card li{margin-bottom:3px}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700}
+.bg-green{background:#dcfce7;color:#15803d}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.bg-orange{background:#ffedd5;color:#9a3412}
+.bg-gray{background:#f1f5f9;color:#475569}
+.bg-purple{background:#ede9fe;color:#6d28d9}
+
+.p0{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p1{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p2{background:#dbeafe;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+
+/* 状态流转 */
+.state-flow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:10px 0}
+.state{padding:6px 12px;border-radius:8px;font-size:12.5px;font-weight:700;border:2px solid;text-align:center}
+.s-active{background:#dcfce7;border-color:#16a34a;color:#15803d}
+.s-pending{background:#fef3c7;border-color:#d97706;color:#92400e}
+.s-end{background:#f1f5f9;border-color:#64748b;color:#334155}
+.s-sold{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.s-exp{background:#ede9fe;border-color:#7c3aed;color:#5b21b6}
+.s-arrow{color:var(--day);font-weight:700;font-size:16px}
+
+/* 库存计算 */
+.calc-box{background:#fff7ed;border:2px solid var(--day);border-radius:12px;padding:16px;margin:12px 0;font-family:'Space Mono',monospace}
+.calc-box h4{font-size:14px;font-weight:700;color:var(--day-d);margin-bottom:10px}
+.calc-row{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;font-size:13px;color:var(--ink2)}
+.calc-row .label{min-width:120px;color:var(--muted);font-size:12px}
+.calc-row .val{font-weight:700;color:var(--ink);font-size:14px}
+.calc-row .formula{font-size:12px;color:var(--amber);margin-left:8px}
+
+/* 购物车测试点 */
+.cart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.cart-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.cart-card h5{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:6px}
+.cart-card ul{padding-left:14px;font-size:12.5px;color:var(--ink2)}
+.cart-card li{margin-bottom:3px}
+
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.8;color:var(--ink2)}
+.pt-ans.s{display:block}
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+.case-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.case-table th{background:var(--day-bg);color:var(--day-d);font-weight:700;padding:7px 9px;text-align:left;border:1px solid var(--border)}
+.case-table td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;color:var(--ink2)}
+.case-table tr:hover td{background:#fafbfc}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .g2,.g3,.cart-grid{grid-template-columns:1fr}
+  .state-flow{flex-direction:column;align-items:flex-start}
+  table{font-size:11.5px}
+  th,td{padding:6px 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · WEB功能测试 · DAY 03</div>
+  <h1>抢购模块测试 &amp; 购物车测试点梳理</h1>
+  <p>独立完成抢购模块的后台+前台测试（需求分析→测试点→用例），掌握购物车测试点梳理方法，以及处理"需求与实现不一致"和"开发不认可Bug"的面试必答题。</p>
+  <div class="hd-stats">
+    <div><b>3</b>核心模块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试精讲</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- 面试题先学 -->
+  <div class="sec">
+    <h2><span class="ico">❗</span>Day 03 必学面试题（两道经典面试题）</h2>
+
+    <h3>面试题1：当你发现研发实现的结果与需求不一致时怎么办？</h3>
+    <div class="box orange">
+      <b>🔑 背景：</b>抢购模块中，需求文档描述的某些字段规则与研发实现的实际行为不匹配，这是测试工作中非常常见的情况。
+    </div>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid #ea580c">
+        <h4>📋 需求评审阶段预防</h4>
+        <ul>
+          <li>需求评审时确认：输入类型校验是<strong>针对单个输入框</strong>做的，还是在<strong>最终提交时</strong>统一校验</li>
+          <li>提前发现歧义，避免后续争议</li>
+          <li>所有确认结论必须形成书面记录</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid #ea580c">
+        <h4>🤝 发现问题后的处理</h4>
+        <ul>
+          <li><strong>Step 1：</strong>与产品和研发三方一起确认</li>
+          <li><strong>Step 2A（按需求修）：</strong>研发按需求文档修改 → 提交Bug</li>
+          <li><strong>Step 2B（保留现状）：</strong>产品确认后更改需求文档</li>
+          <li><strong>关键：</strong>所有线下讨论结果必须记录文档！</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box warn">
+      <b>⚠️ 重要原则：</b>测试工程师不能单方面决定"这不是Bug"。所有疑义需要通过正式渠道（产品/研发确认），并留下书面记录，避免后续扯皮。
+    </div>
+
+    <h3>面试题2：如果开发不认可你提的Bug怎么办？</h3>
+    <div class="g3">
+      <div class="card" style="border-left:3px solid var(--blue)">
+        <h4>Step 1 确认拒绝理由</h4>
+        <p>先了解开发拒绝的具体原因，不要立刻反驳，保持沟通姿态。</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <h4>Step 2 对应处理</h4>
+        <p>• Bug描述不清晰 → 我们自己调整重新提交<br>• 需求理解不一致 → 参考需求文档</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--red)">
+        <h4>Step 3 升级处理</h4>
+        <p>测试和研发对需求理解都不一致且需求文档无明确说明 → 引入产品经理裁决</p>
+      </div>
+    </div>
+    <div class="box tip">
+      <b>💡 黄金法则：</b>所有线下讨论的结果，都要<strong>记录文档</strong>（邮件/禅道评论/Confluence等）。口头确认不算数，需要可追溯的书面记录。
+    </div>
+  </div>
+
+  <!-- 抢购模块 -->
+  <div class="sec">
+    <h2><span class="ico">⚡</span>抢购模块测试（先测后台，再测前台）</h2>
+
+    <h3>一、需求分析（2.5 抢购功能）</h3>
+
+    <div class="g2">
+      <div class="card">
+        <h4>🔧 后台功能位置</h4>
+        <ul>
+          <li>后台 → 营销 → 常用促销 → <strong>抢购管理</strong></li>
+          <li>开关位置：后台 → 页面 → 页面管理 → PC端导航栏</li>
+          <li>可添加/编辑/删除抢购活动</li>
+          <li>"已购买" = 已生成订单的商品数量</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📋 添加抢购活动规则</h4>
+        <ul>
+          <li>参加抢购的商品必须指明<strong>具体规格</strong>（如颜色）</li>
+          <li>添加成功后，<strong>不允许修改限购数量</strong></li>
+          <li>活动进行中，已有用户下单后，<strong>不允许再编辑</strong>活动信息</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>抢购活动的5种状态及流转规则</h3>
+    <div class="state-flow">
+      <div class="state s-pending">未开始</div>
+      <div class="s-arrow">→</div>
+      <div class="state s-active">进行中</div>
+      <div class="s-arrow">→</div>
+      <div class="state s-end">已结束</div>
+    </div>
+    <div class="state-flow" style="margin-top:4px">
+      <div class="state s-active">进行中</div>
+      <div class="s-arrow">→</div>
+      <div class="state s-sold">已售罄</div>
+      &nbsp;&nbsp;
+      <div class="state s-exp">已过期</div>
+      <span style="font-size:12px;color:var(--muted);margin-left:6px">（创建时间已过期 → 直接为"已过期"）</span>
+    </div>
+
+    <div class="tw" style="margin-top:12px">
+      <table class="case-table">
+        <tr><th>状态</th><th>触发条件</th><th>测试要点</th></tr>
+        <tr><td><span class="badge bg-amber">未开始</span></td><td>活动创建后，当前时间未到开始时间</td><td>新建活动开始时间在未来，状态应显示"未开始"</td></tr>
+        <tr><td><span class="badge bg-green">进行中</span></td><td>当前时间≥开始时间 且 ≤结束时间</td><td>时间到达后状态自动变为"进行中"</td></tr>
+        <tr><td><span class="badge bg-red">已售罄</span></td><td>参加活动的商品库存售完</td><td>购买库存清零后，状态变"已售罄"</td></tr>
+        <tr><td><span class="badge bg-gray">已结束</span></td><td>当前时间超过结束时间</td><td>时间到达结束时间后，状态从"进行中"变"已结束"</td></tr>
+        <tr><td><span class="badge bg-purple">已过期</span></td><td>创建活动时结束时间早于当前时间</td><td>新建时直接为"已过期"（历史时间）</td></tr>
+      </table>
+    </div>
+
+    <h3>二、拆解测试点</h3>
+
+    <p><strong>后台测试点（先测后台）：</strong></p>
+    <div class="cart-grid">
+      <div class="cart-card">
+        <h5>➕ 添加抢购活动</h5>
+        <ul>
+          <li>所有必填项填写完整 → 添加成功</li>
+          <li>必填项为空 → 提示必填</li>
+          <li>不指定规格 → 不能提交</li>
+          <li>开始/结束时间合理性校验</li>
+          <li>限购数量不能修改（添加后验证）</li>
+        </ul>
+      </div>
+      <div class="cart-card">
+        <h5>✏️ 编辑/删除活动</h5>
+        <ul>
+          <li>活动进行中+有用户下单 → 不允许编辑</li>
+          <li>活动未开始 → 可以编辑</li>
+          <li>删除活动：前台对应功能消失</li>
+          <li>状态5种：正确显示和流转</li>
+        </ul>
+      </div>
+      <div class="cart-card">
+        <h5>📊 抢购活动5种状态</h5>
+        <ul>
+          <li>未开始、进行中、已结束</li>
+          <li>已售罄、已过期</li>
+          <li>每种状态需独立验证</li>
+          <li>时间驱动状态自动流转</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="margin-top:12px"><strong>前台测试点（后测前台）：</strong></p>
+    <div class="cart-grid">
+      <div class="cart-card">
+        <h5>🛒 加入购物车</h5>
+        <ul>
+          <li>必须先<strong>登录</strong>才能加入购物车</li>
+          <li>数量不超过<strong>单用户限购数量</strong></li>
+          <li>数量不超过<strong>抢购库存余量</strong></li>
+          <li>加入购物车时库存<strong>不减少</strong></li>
+          <li>生成订单后库存才减少</li>
+        </ul>
+      </div>
+      <div class="cart-card">
+        <h5>💰 价格与库存显示</h5>
+        <ul>
+          <li>显示抢购价格（非原价）</li>
+          <li>显示抢购活动标题</li>
+          <li>显示抢购库存数量</li>
+          <li>活动结束/售罄 → 恢复原价</li>
+          <li>购物车"共节省"金额计算</li>
+        </ul>
+      </div>
+      <div class="cart-card">
+        <h5>📦 库存变化验证</h5>
+        <ul>
+          <li>下单后 → 库存减少</li>
+          <li>取消订单 → 库存恢复</li>
+          <li>活动结束 → 恢复原有库存</li>
+          <li>见下方库存计算公式</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>🔢 前台库存变化计算分析（重要）</h3>
+    <div class="calc-box">
+      <h4>⚡ 抢购库存计算示例</h4>
+      <div class="calc-row"><span class="label">原有库存：</span><span class="val">100</span></div>
+      <div class="calc-row"><span class="label">参与抢购活动：</span><span class="val">10件</span></div>
+      <div class="calc-row"><span class="label">买了1件后库存：</span><span class="val">9件</span><span class="formula">= 10 - 1 = 9</span></div>
+      <div class="calc-row"><span class="label">取消订单后库存：</span><span class="val">10件</span><span class="formula">恢复（订单取消 = 库存回归）</span></div>
+      <div class="calc-row"><span class="label">活动结束后原库存：</span><span class="val">99件</span><span class="formula">= 100 - 10 + (10 - 1) = 99</span></div>
+      <div style="margin-top:10px;font-size:12px;color:var(--amber)">
+        💡 计算逻辑：活动期间取走10件参与抢购，实际卖出1件，所以还剩9件被"占用"但未售出。活动结束后，9件归还原库存：100 - 1(已卖) = 99件。
+      </div>
+    </div>
+
+    <h3>三、编写用例</h3>
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>用例编号</th><th>优先级</th><th>用例标题</th><th>预置条件</th><th>预期结果</th></tr>
+        <tr><td>tp_panic_001</td><td><span class="p0">P0</span></td><td>后台添加抢购活动成功（所有必填项正确）</td><td>后台已登录，有可参与抢购的商品</td><td>活动列表新增记录，状态显示正确</td></tr>
+        <tr><td>tp_panic_002</td><td><span class="p1">P1</span></td><td>添加失败（必填项为空）</td><td>后台已登录</td><td>提示必填项不能为空，无法提交</td></tr>
+        <tr><td>tp_panic_003</td><td><span class="p1">P1</span></td><td>添加失败（未指定商品规格）</td><td>后台已登录</td><td>提示必须指定具体规格，无法提交</td></tr>
+        <tr><td>tp_panic_004</td><td><span class="p1">P1</span></td><td>添加成功后验证限购数量不可修改</td><td>已存在进行中的抢购活动</td><td>限购数量字段置灰或不可编辑</td></tr>
+        <tr><td>tp_panic_005</td><td><span class="p1">P1</span></td><td>活动进行中且有用户下单后不允许编辑</td><td>存在进行中活动且已有用户下单</td><td>编辑按钮不可用或提示"不可编辑"</td></tr>
+        <tr><td>tp_panic_006</td><td><span class="p0">P0</span></td><td>前台登录后可正常加入抢购商品到购物车</td><td>前台已登录，有进行中的抢购活动</td><td>商品加入购物车成功，库存数量不减少</td></tr>
+        <tr><td>tp_panic_007</td><td><span class="p0">P0</span></td><td>未登录无法加入抢购商品购物车</td><td>前台未登录状态</td><td>点击"加入购物车"提示请先登录</td></tr>
+        <tr><td>tp_panic_008</td><td><span class="p1">P1</span></td><td>购买数量超过单用户限购数量时给出提示</td><td>前台已登录，有进行中活动</td><td>超出限购数量时给出提示，无法加入购物车</td></tr>
+        <tr><td>tp_panic_009</td><td><span class="p1">P1</span></td><td>购买数量超过抢购库存余量时给出提示</td><td>抢购库存余量少于购买数量</td><td>超出库存余量时给出提示</td></tr>
+        <tr><td>tp_panic_010</td><td><span class="p0">P0</span></td><td>生成订单后抢购库存数量减少</td><td>抢购商品已加入购物车</td><td>提交订单后，抢购库存相应减少</td></tr>
+        <tr><td>tp_panic_011</td><td><span class="p1">P1</span></td><td>取消订单后抢购库存恢复</td><td>已有进行中的抢购订单</td><td>订单取消后，库存数量恢复</td></tr>
+        <tr><td>tp_panic_012</td><td><span class="p0">P0</span></td><td>活动结束后商品恢复原价，库存恢复</td><td>抢购活动已结束</td><td>商品页面价格恢复原价，库存按公式计算</td></tr>
+        <tr><td>tp_panic_013</td><td><span class="p1">P1</span></td><td>抢购活动状态：未开始→进行中（时间到达）</td><td>活动开始时间设在几分钟后</td><td>到达开始时间后，状态自动变为"进行中"</td></tr>
+        <tr><td>tp_panic_014</td><td><span class="p1">P1</span></td><td>抢购活动状态：进行中→已售罄</td><td>抢购库存只剩1件</td><td>最后一件卖出后，状态变"已售罄"</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 购物车测试点 -->
+  <div class="sec">
+    <h2><span class="ico">🛒</span>购物车测试点梳理（需求2.4）</h2>
+    <div class="box orange">
+      <b>💡 梳理思路：</b>从购物者使用经验出发，覆盖显示、添加、删除、数量编辑4大功能区，再加非功能测试。
+    </div>
+
+    <h3>2.4.1 购物车显示</h3>
+    <div class="cart-grid">
+      <div class="cart-card">
+        <h5>👤 未登录状态</h5>
+        <ul>
+          <li>提示"暂时没有商品，登录后显示"</li>
+          <li>购物车图标数量为0或不显示</li>
+        </ul>
+      </div>
+      <div class="cart-card">
+        <h5>🛒 已登录-空购物车</h5>
+        <ul>
+          <li>提示"去购物"（引导用户）</li>
+          <li>页面无商品列表显示</li>
+        </ul>
+      </div>
+      <div class="cart-card">
+        <h5>📋 已登录-有商品</h5>
+        <ul>
+          <li>价格与加入时一致（不变）</li>
+          <li>小计 = 单价 × 数量（计算正确）</li>
+          <li>已选n件商品：选中件数之和</li>
+          <li>总价 = 已选中商品总价</li>
+          <li>图片/名称点击跳转商品详情</li>
+          <li>已节省 = 抢购商品优惠金额</li>
+          <li>【去结算】跳转订单核对页</li>
+        </ul>
+      </div>
+    </div>
+    <div class="box info">
+      <b>⚠️ 特别测试点：</b>购物车小图标数量显示 —— 当购物车商品数量为 4000 时能否正常显示？（构造极端数据，验证显示边界）
+    </div>
+
+    <h3>2.4.2 添加商品（重要边界值）</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>📏 数量边界值（单个商品）</h4>
+        <ul>
+          <li>最小值：<strong>1件</strong>（不能小于1）</li>
+          <li>最大值：<strong>200件</strong>（不能大于200）</li>
+          <li>数量 = 1时，<strong>【-】按钮失效</strong></li>
+          <li>数量 = 200或等于库存时，<strong>【+】按钮失效</strong></li>
+          <li>不能大于<strong>商品库存数量</strong></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🛒 种类边界值</h4>
+        <ul>
+          <li>购物车商品种类<strong>不能大于20种</strong></li>
+          <li>超过20种时给出提示</li>
+          <li>边界：19种（内点）、20种（上点）、21种（离点）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tw" style="margin-top:10px">
+      <table class="case-table">
+        <tr><th>测试点</th><th>测试数据</th><th>预期结果</th><th>方法</th></tr>
+        <tr><td>数量最小值</td><td>购买1件</td><td>成功加入，【-】按钮失效</td><td>边界值（上点）</td></tr>
+        <tr><td>数量小于最小值</td><td>手动输入0或负数</td><td>提示数量不合法，不能小于1</td><td>边界值（离点）</td></tr>
+        <tr><td>数量最大值</td><td>购买200件</td><td>成功加入，【+】按钮失效</td><td>边界值（上点）</td></tr>
+        <tr><td>数量超过最大值</td><td>手动输入201</td><td>提示数量不合法，不能大于200</td><td>边界值（离点）</td></tr>
+        <tr><td>数量超过库存</td><td>输入库存数量+1</td><td>提示库存不足</td><td>等价类（无效类）</td></tr>
+        <tr><td>种类20种（上限）</td><td>添加第20种商品</td><td>成功添加</td><td>边界值（上点）</td></tr>
+        <tr><td>种类超过20种</td><td>添加第21种商品</td><td>提示购物车商品种类不能超过20种</td><td>边界值（离点）</td></tr>
+      </table>
+    </div>
+
+    <h3>2.4.3 删除商品</h3>
+    <ul>
+      <li>单件删除：点击操作栏中的"删除"→ 对应商品被删除</li>
+      <li>多选删除：勾选多个商品 → 点击"删除选中商品" → 选中的商品被删除</li>
+      <li>全选删除：勾选"全选" → 点击"删除选中商品" → 所有商品被删除 → 显示空购物车</li>
+      <li>删除后价格/数量统计自动更新</li>
+    </ul>
+
+    <h3>2.4.4 编辑商品购买数量</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>➕➖ 按钮方式</h4>
+        <ul>
+          <li>不能小于1，为1时【-】不可用</li>
+          <li>超过200或达到库存时【+】不可用</li>
+          <li>每次点击+/-只改变1件数量</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>⌨️ 直接输入方式</h4>
+        <ul>
+          <li>最小为1，最大为200</li>
+          <li>小于1或大于200时给出提示</li>
+          <li>不能大于商品库存数量</li>
+          <li>输入非数字如何处理？</li>
+          <li>输入小数如何处理？</li>
+          <li>输入空白如何处理？</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>非功能测试（购物车）</h3>
+    <ul>
+      <li><strong>兼容性：</strong>IE/Chrome/Firefox/Safari 各浏览器购物车功能正常</li>
+      <li><strong>显示类：</strong>与UI设计原型图一致，价格/数量/总价显示正确</li>
+      <li><strong>极端数据：</strong>购物车商品数量为4000时小图标能否正常显示</li>
+      <li><strong>网络异常：</strong>弱网情况下添加购物车是否有重复提交问题</li>
+    </ul>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>抢购活动状态流转全景</h2>
+    <div class="tw">
+      <table>
+        <tr><th>当前状态</th><th>触发条件</th><th>变为状态</th><th>测试方法</th></tr>
+        <tr><td><span class="badge bg-amber">未开始</span></td><td>达到活动开始时间</td><td><span class="badge bg-green">进行中</span></td><td>设置开始时间在几分钟后，等待状态变化</td></tr>
+        <tr><td><span class="badge bg-green">进行中</span></td><td>达到活动结束时间</td><td><span class="badge bg-gray">已结束</span></td><td>设置结束时间在几分钟后，等待变化</td></tr>
+        <tr><td><span class="badge bg-green">进行中</span></td><td>抢购库存售完</td><td><span class="badge bg-red">已售罄</span></td><td>构造数据：库存1件，购买1件</td></tr>
+        <tr><td>（新建时）</td><td>结束时间早于当前时间</td><td><span class="badge bg-purple">已过期</span></td><td>填写过去的结束时间创建活动</td></tr>
+        <tr><td>（新建时）</td><td>开始早于当前，结束晚于当前</td><td><span class="badge bg-green">进行中</span></td><td>填写过去的开始时间和未来的结束时间</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>库存变化逻辑图</h2>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--blue)">
+        <h4 style="color:var(--blue)">📦 抢购库存（前台显示）</h4>
+        <ul>
+          <li>初始：10件（参与抢购数量）</li>
+          <li>加入购物车：<strong>不减少</strong>（仍显示10）</li>
+          <li>生成订单（买1件）：<strong>减少1件</strong>（显示9）</li>
+          <li>取消订单：<strong>恢复1件</strong>（显示10）</li>
+          <li>活动结束：从抢购库存切换回原价库存</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--amber)">
+        <h4 style="color:var(--amber)">🏪 原有库存（商品详情页）</h4>
+        <ul>
+          <li>初始：100件</li>
+          <li>抢购进行中：前台显示抢购库存（10件）</li>
+          <li>活动结束后公式：<strong>100 - 10 + (10-1) = 99件</strong></li>
+          <li>即：原库存 - 参与抢购数 + 未卖出抢购数</li>
+          <li>已卖出1件，所以只有9件被"归还"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🛒</span>购物车核心测试矩阵</h2>
+    <div class="tw">
+      <table>
+        <tr><th>功能区</th><th>正向用例（P0）</th><th>逆向用例（P1）</th><th>边界值（P1/P2）</th></tr>
+        <tr><td>显示</td><td>有商品时正确显示价格/小计/总价</td><td>未登录/空购物车状态</td><td>4000件时图标显示</td></tr>
+        <tr><td>添加商品</td><td>1-200件内成功添加</td><td>超库存/超200件提示</td><td>1件/200件/201件/21种商品</td></tr>
+        <tr><td>删除商品</td><td>单删/多选删/全删成功</td><td>无商品时删除按钮状态</td><td>删最后一件后空购物车</td></tr>
+        <tr><td>编辑数量</td><td>1-200件内修改成功</td><td>输入0/负数/超200提示</td><td>输入1时-失效/200时+失效</td></tr>
+        <tr><td>价格计算</td><td>小计=单价×数量/总价=选中汇总</td><td>数量修改后价格不更新</td><td>抢购商品按活动价计算</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">⚡</span>抢购与普通购物的核心区别</h2>
+    <div class="tw">
+      <table>
+        <tr><th>维度</th><th>普通购物</th><th>抢购购物</th></tr>
+        <tr><td>价格</td><td>原价</td><td>抢购价（活动结束后恢复原价）</td></tr>
+        <tr><td>库存来源</td><td>商品总库存</td><td>参与抢购的专项库存（如10件）</td></tr>
+        <tr><td>加购物车时库存</td><td>不减少</td><td>不减少（相同）</td></tr>
+        <tr><td>下单后库存</td><td>从总库存减少</td><td>从抢购专项库存减少</td></tr>
+        <tr><td>数量限制</td><td>不超过库存/200件</td><td>不超过单用户限购数量/抢购库存</td></tr>
+        <tr><td>登录要求</td><td>可未登录加购物车</td><td>必须先登录才能加入购物车</td></tr>
+        <tr><td>购物车标记</td><td>无特殊标记</td><td>有"促销"标记，显示节省金额</td></tr>
+        <tr><td>活动结束</td><td>无影响</td><td>价格恢复原价，库存归还</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习（共10题）</h2>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">1. 发现需求与实现不一致时，完整的处理流程是什么？</div>
+    <div class="pt-sub">这是Day03面试题1，必须熟记</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>预防阶段（需求评审时）：</strong><br>
+      明确输入类型校验是"逐字段校验"还是"提交时统一校验"，避免需求歧义。<br><br>
+      <strong>发现问题后（三步处理）：</strong><br>
+      Step 1：与产品经理和研发一起三方确认，让研发解释为什么实现与需求不符。<br>
+      Step 2A（若应按需求修改）：提交Bug，要求研发按需求文档修复。<br>
+      Step 2B（若确认保留现状）：由产品经理更改需求文档，以现状为准。<br><br>
+      <strong>关键原则：</strong>所有线下讨论的结果，无论哪种处理方式，都要<strong>记录在文档</strong>中（禅道/邮件/Confluence），避免口头约定无法追溯。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">2. 开发不认可你提的Bug，完整处理步骤是什么？</div>
+    <div class="pt-sub">面试题2，三步法必背</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>三步处理法：</strong><br><br>
+      <strong>Step 1：确认他拒绝的理由</strong><br>
+      不要立刻争辩，先倾听开发为什么认为这不是Bug（可能他有你不知道的信息）。<br><br>
+      <strong>Step 2：根据拒绝原因对应处理</strong><br>
+      • 如果是Bug描述不清晰（步骤不明/截图不足）→ 我们完善Bug报告重新提交<br>
+      • 如果是需求理解不一致 → 对照需求文档指出具体章节，说明预期行为<br><br>
+      <strong>Step 3：升级处理</strong><br>
+      • 如果测试和研发对需求都有不同理解，且需求文档没有明确说明<br>
+      → 引入产品经理介入裁决<br><br>
+      <strong>注意：</strong>所有线下讨论结果必须记录文档，口头约定无效。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">3. 抢购活动有哪5种状态？各自的触发条件是什么？</div>
+    <div class="pt-sub">考察对抢购活动状态机的理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>5种状态及触发条件：</strong><br><br>
+      1. <strong>未开始：</strong>当前时间未到达活动开始时间<br>
+      2. <strong>进行中：</strong>当前时间 ≥ 开始时间 且 ≤ 结束时间（时间区间内）<br>
+      3. <strong>已售罄：</strong>抢购专项库存被买光（库存为0）<br>
+      4. <strong>已结束：</strong>当前时间超过活动结束时间（状态从"进行中"变化）<br>
+      5. <strong>已过期：</strong>创建活动时结束时间已经早于当前时间（创建即过期）<br><br>
+      <strong>特殊规则：</strong>开始时间早于当前 + 结束时间晚于当前 → 新建活动直接为"进行中"
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">4. 抢购库存计算：原库存100，参与10件抢购，卖出1件后取消订单，活动结束后原库存是多少？</div>
+    <div class="pt-sub">核心考点：库存变化逻辑计算</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>分步计算：</strong><br><br>
+      初始状态：原有库存 = 100件<br>
+      参与抢购：10件被划入抢购专项库存<br>
+      用户买了1件：抢购库存 = 10 - 1 = 9件<br>
+      用户取消订单：抢购库存 = 9 + 1 = 10件（恢复）<br>
+      活动结束：原有库存 = 100 - 10 + (10-1) = <strong>99件</strong><br><br>
+      <strong>公式解释：</strong><br>
+      100（原库存）- 10（参与抢购划走）+ 9（活动结束未卖出归还）= 99<br>
+      注：取消了订单，所以卖出是0件，抢购库存实际仍是10件（未有净销售）<br>
+      → 活动结束：100 - 10 + 10 = 100件（无净销售，库存回归100）<br><br>
+      <strong>如果没有取消订单（净销售1件）：</strong><br>
+      100 - 10 + (10-1) = 99件
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">5. 抢购商品加入购物车时，库存会减少吗？什么时候才减少？</div>
+    <div class="pt-sub">考察抢购库存机制的理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>加入购物车时：库存不减少</strong><br>
+      购物车只是"暂存"，不代表完成购买，库存仍保持原数量。<br><br>
+      <strong>生成订单后：库存才减少</strong><br>
+      点击"去结算"→ 提交订单 → 此时抢购专项库存才相应减少（-1件）。<br><br>
+      <strong>取消订单：库存恢复</strong><br>
+      生成订单后取消 → 该订单的商品数量恢复到抢购库存中。<br><br>
+      <strong>测试要点：</strong><br>
+      1. 加入购物车后，前台商品详情页显示的抢购库存数量不变（验证）<br>
+      2. 下单后，库存数量减少（验证）<br>
+      3. 取消订单后，库存恢复（验证）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">6. 购物车添加商品的数量有什么限制？边界值测试数据有哪些？</div>
+    <div class="pt-sub">考察购物车需求2.4.2的边界值应用</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>单个商品数量限制：</strong>[1, 200] 且 ≤库存数量<br><br>
+      <strong>边界值设计（[1,200] 闭区间）：</strong><br>
+      • 上点：1件（下边界）、200件（上边界）→ 两个都需测<br>
+      • 内点：100件（中间值）→ 测一个代表值<br>
+      • 离点（闭区间选外）：0件（1外侧）、201件（200外侧）<br><br>
+      <strong>按钮状态边界：</strong><br>
+      • 数量=1时，【-】按钮失效（无法继续减）<br>
+      • 数量=200或=库存时，【+】按钮失效<br><br>
+      <strong>种类限制边界：</strong><br>
+      • 上点：20种（最大种类）→ 成功<br>
+      • 离点：21种 → 给出提示，无法添加第21种
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">7. 购物车的"全选删除"功能需要验证哪些内容？</div>
+    <div class="pt-sub">考察购物车删除功能的完整测试思路</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>全选删除需要验证的内容：</strong><br><br>
+      1. <strong>全选功能：</strong>点击"全选"后，所有商品复选框都被勾选<br>
+      2. <strong>删除执行：</strong>点击"删除选中商品"后，所有商品从购物车消失<br>
+      3. <strong>删除后状态：</strong>购物车显示空状态（提示"去购物"）<br>
+      4. <strong>价格归零：</strong>总价/已选件数归零或消失<br>
+      5. <strong>取消全选：</strong>再次点击"全选"可取消全选<br>
+      6. <strong>部分勾选：</strong>勾选部分商品删除时，未勾选的商品保留<br>
+      7. <strong>DB验证（可选）：</strong>购物车表中对应记录被删除
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">8. 测试购物车时，"价格显示"有哪些验证点？</div>
+    <div class="pt-sub">考察价格计算的全面性</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>价格显示验证点（4个层次）：</strong><br><br>
+      1. <strong>商品价格：</strong>与加入购物车时的价格一致（不会因为时间变化而变化）<br>
+      2. <strong>小计：</strong>= 单价 × 数量（修改数量时实时更新）<br>
+      3. <strong>总价：</strong>= 所有已勾选商品的小计之和<br>
+      4. <strong>已选n件：</strong>n = 所有已勾选商品的件数总和（数量之和，非种类数）<br>
+      5. <strong>已节省：</strong>= 抢购商品（原价-活动价）×数量的总和<br>
+      6. <strong>抢购商品：</strong>按活动价计算（非原价），购物车有"促销"标记<br>
+      7. <strong>取消勾选：</strong>总价实时更新（减去取消的商品金额）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">9. 抢购模块的"单用户限购数量"字段，应该在什么场景下重点测试？</div>
+    <div class="pt-sub">考察对限购规则的理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>限购数量的测试场景（6个）：</strong><br><br>
+      1. <strong>添加后不可修改：</strong>活动添加成功后，限购数量字段变为不可编辑（灰色或只读）<br>
+      2. <strong>前台加购物车限制：</strong>数量不能超过限购数量，超出时提示<br>
+      3. <strong>购物车编辑数量限制：</strong>修改购物车数量时，不能超过限购数量<br>
+      4. <strong>多次加入累计：</strong>同一用户先加5件，再加6件（限购10件），总共11件是否被阻止<br>
+      5. <strong>不同用户无限制：</strong>用户A买5件，用户B也可以买5件（限购是单用户的）<br>
+      6. <strong>边界值：</strong>购买恰好等于限购数量（成功）、购买超过1件（失败+提示）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">10. 综合题：从测试流程6步骤的角度，描述"购物车功能"的完整测试思路</div>
+    <div class="pt-sub">考察流程化测试思维</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>Step 1 需求分析：</strong><br>
+      熟悉需求文档2.4：购物车显示/添加/删除/编辑数量4大功能，提取所有规则（数量限制/价格计算/状态等）<br><br>
+      <strong>Step 2 设计测试点：</strong><br>
+      功能测试：等价类（登录/未登录状态）+ 边界值（1/200/201件；1/20/21种）<br>
+      非功能：兼容性（IE/Chrome/Firefox/Safari）+ 显示类（与UI原型一致）<br>
+      极端数据：4000件时购物车图标显示<br><br>
+      <strong>Step 3 编写用例：</strong><br>
+      按优先级写用例：P0（主流程成功）→ P1（各失败场景）→ P2（边界/UI）<br><br>
+      <strong>Step 4 执行用例：</strong>按P0→P1→P2顺序执行<br><br>
+      <strong>Step 5 提交缺陷：</strong>发现失败立即提交，含截图/步骤/预期/实际<br><br>
+      <strong>Step 6 回归验证：</strong>开发修复后验证修复是否正确，无副作用
+    </div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲（共12题）</h2>
+    <p>涵盖抢购模块、购物车、需求与实现冲突处理的高频面试题。</p>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div>
+    <div class="iq-q">发现研发实现的结果与需求不一致时，你的完整处理流程是什么？</div>
+    <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>预防（需求评审时）：</strong>需求评审时确认输入类型校验是逐字段校验还是提交时统一校验，提前消除歧义。</p>
+      <p><strong>发现后的处理步骤：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>与产品和研发三方一起确认，了解研发为什么这样实现</li>
+        <li>如果应按需求修改 → 提Bug给研发</li>
+        <li>如果确认保留现状 → 产品更改需求文档</li>
+        <li>所有讨论结果<strong>记录文档</strong>（禅道/邮件/Confluence）</li>
+      </ol>
+      <div class="box warn"><b>⚠️ 核心：</b>测试工程师不能自己决定"这不是Bug"，必须三方确认并留下书面记录。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div>
+    <div class="iq-q">如果开发不认可你提的Bug，你怎么处理？</div>
+    <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>三步处理法：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li><strong>确认拒绝理由：</strong>先倾听开发的理由，不要立刻反驳</li>
+        <li><strong>对应处理：</strong>Bug描述不清晰→我们改进；需求理解不一致→对照需求文档</li>
+        <li><strong>升级：</strong>双方对需求理解都不同且文档无明确说明 → 引入产品经理裁决</li>
+      </ol>
+      <div class="box tip"><b>💡 关键：</b>保持专业态度，以需求文档为最终依据，所有结论留书面记录。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div>
+    <div class="iq-q">抢购模块有哪5种状态？每种如何触发？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p>5种状态：<strong>未开始 / 进行中 / 已售罄 / 已结束 / 已过期</strong></p>
+      <ul>
+        <li><strong>未开始：</strong>活动已创建，当前时间未到开始时间</li>
+        <li><strong>进行中：</strong>开始时间≤当前时间≤结束时间</li>
+        <li><strong>已售罄：</strong>抢购专项库存被买光</li>
+        <li><strong>已结束：</strong>当前时间超过结束时间</li>
+        <li><strong>已过期：</strong>创建时结束时间已过（历史时间），创建即过期</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div>
+    <div class="iq-q">抢购商品加入购物车时库存会减少吗？什么时候才减少？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>加入购物车时：库存不减少。</strong>购物车只是暂存，不代表购买。</p>
+      <p><strong>生成订单后：库存才减少。</strong>提交订单时，抢购专项库存相应减少。</p>
+      <p><strong>取消订单后：库存恢复。</strong>取消的订单中商品数量归还到抢购库存。</p>
+      <div class="box tip"><b>💡 测试方法：</b>① 加购后验证库存不变 ② 下单后验证库存减少 ③ 取消后验证库存恢复，三步分别验证。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div>
+    <div class="iq-q">抢购活动结束后，原库存如何计算？请举例说明。</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>公式：原库存 = 初始库存 - 抢购实际净销售量</strong></p>
+      <p><strong>举例（课堂案例）：</strong></p>
+      <ul>
+        <li>初始原库存：100件</li>
+        <li>划入抢购专项库存：10件</li>
+        <li>买了1件后取消订单：净销售 = 0件</li>
+        <li>活动结束后原库存 = 100件（0净销售）</li>
+      </ul>
+      <p><strong>如果净销售1件（不取消）：</strong>100 - 10 + (10-1) = <strong>99件</strong></p>
+      <p>理解：100原库存 - 10借给抢购 + 9件未卖出归还（卖出1件）= 99</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div>
+    <div class="iq-q">购物车商品数量有哪些限制？对应的边界值是什么？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>单个商品数量：[1, 200] 且 ≤ 库存数量</strong></p>
+      <p><strong>购物车种类：≤ 20种</strong></p>
+      <p><strong>边界值测试数据：</strong></p>
+      <div class="tw"><table>
+        <tr><th>维度</th><th>上点</th><th>内点</th><th>离点（外）</th></tr>
+        <tr><td>单商品数量</td><td>1件、200件</td><td>100件</td><td>0件、201件</td></tr>
+        <tr><td>购物车种类</td><td>20种</td><td>10种</td><td>21种</td></tr>
+      </table></div>
+      <p><strong>按钮状态：</strong>数量=1时【-】失效；数量=200或库存时【+】失效。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div>
+    <div class="iq-q">抢购模块测试中"添加成功后不允许修改限购数量"如何验证？</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>验证步骤：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>在后台添加一个抢购活动，设置限购数量=5</li>
+        <li>活动添加成功后，进入编辑页面</li>
+        <li>验证"限购数量"字段是否为只读状态（输入框灰色/disabled）</li>
+        <li>尝试通过F12开发者工具修改disabled属性，再提交（绕过前端验证）</li>
+        <li>验证后端是否也拒绝修改（真正的安全）</li>
+      </ol>
+      <div class="box warn"><b>⚠️ 注意：</b>前端禁用只是UI限制，还需要验证后端接口层面是否也限制修改（绕过前端测试后端）。这是高级测试技巧。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div>
+    <div class="iq-q">购物车中抢购商品和普通商品有什么不同？需要特别验证什么？</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>主要区别：</strong></p>
+      <ul>
+        <li><strong>价格：</strong>抢购商品按活动价计算（非原价），有"促销"标记</li>
+        <li><strong>节省金额：</strong>显示"共节省"= 原价-活动价之差</li>
+        <li><strong>数量限制：</strong>不能超过单用户限购数量（额外限制）</li>
+        <li><strong>库存来源：</strong>来自抢购专项库存而非总库存</li>
+      </ul>
+      <p><strong>特别验证点：</strong></p>
+      <ul>
+        <li>小计和总价按活动价计算（不是原价）</li>
+        <li>活动结束后购物车中商品价格恢复原价</li>
+        <li>修改数量不能超过限购数量（购物车层面限制）</li>
+        <li>"共节省"金额计算正确</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div>
+    <div class="iq-q">测试时发现：后台配置的抢购活动限购3件，但前台可以加入5件。这是Bug还是需求不一致？如何处理？</div>
+    <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>这是Bug。</strong>需求明确规定：会员抢购商品时，数量不能超过单用户限购数量，超出时页面给出提示。</p>
+      <p><strong>处理步骤：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>确认是否能稳定复现（多次操作均能复现）</li>
+        <li>对照需求文档2.5.4确认这是违反规则的行为</li>
+        <li>按规范提交Bug报告，包含：复现步骤、截图、需求文档引用章节</li>
+        <li>如果开发否认，展示需求文档2.5.4的具体条文作为证据</li>
+      </ol>
+      <div class="box tip"><b>💡 Bug标题示例：</b>「【前台抢购】限购3件的活动，加入购物车5件时未给出提示且成功添加」</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div>
+    <div class="iq-q">购物车的极端测试：商品数量为4000件时，如何测试？</div>
+    <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>测试目的：</strong>验证购物车商品数量图标在极端数量下能否正常显示（UI边界测试）。</p>
+      <p><strong>如何构造4000件：</strong></p>
+      <ul>
+        <li>直接在购物车数量框输入4000（可能被前端限制）</li>
+        <li>用抓包工具（Fiddler）拦截请求，修改数量参数为4000，绕过前端限制</li>
+        <li>直接操作数据库：UPDATE tp_cart SET goods_num=4000 WHERE user_id=1</li>
+      </ul>
+      <p><strong>验证要点：</strong></p>
+      <ul>
+        <li>购物车图标是否显示"4000"还是显示"99+"或截断</li>
+        <li>页面是否正常显示不崩溃</li>
+        <li>总价计算是否正确（单价×4000）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div>
+    <div class="iq-q">【场景题】抢购活动正在进行中，突然库存变为0（已售罄），用户的购物车中已经有该商品怎么办？</div>
+    <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>测试场景：</strong>用户A加入购物车5件，此时库存剩5件；另一用户B立刻购买了5件，库存变0。用户A去结算会发生什么？</p>
+      <p><strong>预期行为（需要测试验证）：</strong></p>
+      <ul>
+        <li>用户A去结算时，系统检测库存不足 → 提示"库存不足，无法下单"</li>
+        <li>购物车中该商品可能标记为"库存不足"或"失效"</li>
+        <li>活动已售罄后，前台商品页面状态变"已售罄"，无法继续加购</li>
+      </ul>
+      <p><strong>这是高并发场景的竞态问题，测试要点：</strong>加入购物车不锁库存（加购时库存不减），下单时才检查库存是否足够。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div>
+    <div class="iq-q">抢购模块测试总结：先测哪些，后测哪些？有什么顺序原则？</div>
+    <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+    <div class="iq-body">
+      <p><strong>顺序原则：先测后台，后测前台。</strong></p>
+      <p><strong>后台优先测试（配置层）：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>添加抢购活动（必填项/规格要求/时间设置）</li>
+        <li>5种状态正确性（未开始/进行中/已售罄/已结束/已过期）</li>
+        <li>编辑限制（进行中+有下单后不可编辑；限购数量不可修改）</li>
+        <li>删除活动（前台对应消失）</li>
+      </ol>
+      <p><strong>前台后续测试（功能层）：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>登录才能加购（未登录跳转登录）</li>
+        <li>限购数量限制（不超过单用户限购）</li>
+        <li>库存显示与变化（加购不减/下单减少/取消恢复）</li>
+        <li>价格显示（抢购价/节省金额/活动结束恢复原价）</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验（共15题）</h2>
+    <p>考察抢购模块、购物车测试点梳理、需求冲突处理。</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>发现研发实现的结果与需求不一致时，下列处理方式哪个正确？</div>
+  <label class="opt" data-q="1" data-v="A">A. 直接提Bug要求修复</label>
+  <label class="opt" data-q="1" data-v="B">B. 认为这不是Bug，忽略不处理</label>
+  <label class="opt" data-q="1" data-v="C">C. 与产品和研发三方确认：按需求修→提Bug；保留现状→产品改需求，并记录文档</label>
+  <label class="opt" data-q="1" data-v="D">D. 让产品经理一个人决定</label>
+  <div class="qz-ex" data-q="1"><b>✅ 正确答案：C</b> – 正确流程：三方确认+两种处理+书面记录。既不能单方面决定"不是Bug"，也不能不管产品直接提Bug。所有线下讨论必须留文档。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>开发拒绝你的Bug，理由是"你描述不清楚"，正确处理方式是？</div>
+  <label class="opt" data-q="2" data-v="A">A. 立刻向上级投诉开发</label>
+  <label class="opt" data-q="2" data-v="B">B. 我们自己完善Bug描述（补充步骤/截图）重新提交</label>
+  <label class="opt" data-q="2" data-v="C">C. 找产品经理介入</label>
+  <label class="opt" data-q="2" data-v="D">D. 放弃这条Bug</label>
+  <div class="qz-ex" data-q="2"><b>✅ 正确答案：B</b> – 如果是我们的问题（描述不清）→ 我们自己调整。如果是需求理解不一致 → 对照需求文档。如果都有分歧且文档不明确 → 才找产品经理。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>抢购活动有几种状态？</div>
+  <label class="opt" data-q="3" data-v="A">A. 3种（未开始/进行中/已结束）</label>
+  <label class="opt" data-q="3" data-v="B">B. 4种（未开始/进行中/已结束/已售罄）</label>
+  <label class="opt" data-q="3" data-v="C">C. 5种（未开始/进行中/已售罄/已结束/已过期）</label>
+  <label class="opt" data-q="3" data-v="D">D. 2种（进行中/已结束）</label>
+  <div class="qz-ex" data-q="3"><b>✅ 正确答案：C</b> – 5种状态：未开始/进行中/已售罄/已结束/已过期。已过期是创建时就过期（历史时间），已售罄是库存归零，不能忘记这两种特殊状态。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>抢购商品"加入购物车"后，前台显示的抢购库存数量会如何变化？</div>
+  <label class="opt" data-q="4" data-v="A">A. 立刻减少1件</label>
+  <label class="opt" data-q="4" data-v="B">B. 不减少，直到生成订单后才减少</label>
+  <label class="opt" data-q="4" data-v="C">C. 减少一半</label>
+  <label class="opt" data-q="4" data-v="D">D. 变为0（售罄）</label>
+  <div class="qz-ex" data-q="4"><b>✅ 正确答案：B</b> – 加入购物车时库存不减少，直到生成订单后库存才减少。取消订单后库存恢复。这是需求2.5.4第4条明确规定。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span>原有库存100件，参与抢购10件，已卖出1件（未取消），活动结束后原有库存是多少？</div>
+  <label class="opt" data-q="5" data-v="A">A. 100件</label>
+  <label class="opt" data-q="5" data-v="B">B. 90件</label>
+  <label class="opt" data-q="5" data-v="C">C. 99件（= 100 - 1件净销售）</label>
+  <label class="opt" data-q="5" data-v="D">D. 91件</label>
+  <div class="qz-ex" data-q="5"><b>✅ 正确答案：C</b> – 计算：100（原库存）- 10（划入抢购）+ 9（未卖出抢购归还）= 99件。净销售1件，所以原库存减少1件 = 99件。公式：100 - 10 + (10-1) = 99。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>抢购活动添加成功后，哪个字段不允许修改？</div>
+  <label class="opt" data-q="6" data-v="A">A. 商品规格</label>
+  <label class="opt" data-q="6" data-v="B">B. 活动时间</label>
+  <label class="opt" data-q="6" data-v="C">C. 限购数量（不允许修改）</label>
+  <label class="opt" data-q="6" data-v="D">D. 抢购价格</label>
+  <div class="qz-ex" data-q="6"><b>✅ 正确答案：C</b> – 需求2.5.2明确：抢购活动添加成功后，不允许修改限购数量。这是一个重要的业务规则，防止商家随意调整已公布的限购规则。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>购物车单个商品的添加数量上限是多少件？</div>
+  <label class="opt" data-q="7" data-v="A">A. 100件</label>
+  <label class="opt" data-q="7" data-v="B">B. 999件</label>
+  <label class="opt" data-q="7" data-v="C">C. 200件（且不超过库存数量）</label>
+  <label class="opt" data-q="7" data-v="D">D. 不限制</label>
+  <div class="qz-ex" data-q="7"><b>✅ 正确答案：C</b> – 需求2.4.2：单个商品添加数量不能大于200，同时不能大于商品库存数量。边界：上点200件，离点201件应被拒绝。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>购物车商品种类最多可以添加多少种？超出后会怎样？</div>
+  <label class="opt" data-q="8" data-v="A">A. 10种，超出后自动删除旧商品</label>
+  <label class="opt" data-q="8" data-v="B">B. 20种，超出后给出提示，无法继续添加</label>
+  <label class="opt" data-q="8" data-v="C">C. 50种，超出后强制结算</label>
+  <label class="opt" data-q="8" data-v="D">D. 不限制种类</label>
+  <div class="qz-ex" data-q="8"><b>✅ 正确答案：B</b> – 需求2.4.2：购物车商品种类不能大于20种，超出时给出提示。边界测试：第20种成功（上点），第21种被拒绝并提示（离点）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>购物车数量编辑时，当数量为1时哪个按钮状态是正确的？</div>
+  <label class="opt" data-q="9" data-v="A">A. 【+】和【-】都正常可用</label>
+  <label class="opt" data-q="9" data-v="B">B. 【-】按钮失效（灰色/不可点击），【+】正常</label>
+  <label class="opt" data-q="9" data-v="C">C. 【+】按钮失效，【-】正常</label>
+  <label class="opt" data-q="9" data-v="D">D. 两个按钮都失效</label>
+  <div class="qz-ex" data-q="9"><b>✅ 正确答案：B</b> – 需求2.4.2：当购买数量为1时，【-】号按钮失效（防止数量变为0）。当数量等于200或等于库存时，【+】号按钮失效。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>抢购模块测试时，为什么必须先测后台再测前台？</div>
+  <label class="opt" data-q="10" data-v="A">A. 后台测试更重要</label>
+  <label class="opt" data-q="10" data-v="B">B. 后台配置决定前台功能；必须先在后台创建抢购活动，前台才有活动可测</label>
+  <label class="opt" data-q="10" data-v="C">C. 后台更简单，先做简单的</label>
+  <label class="opt" data-q="10" data-v="D">D. 规定就是这样，没有原因</label>
+  <div class="qz-ex" data-q="10"><b>✅ 正确答案：B</b> – 后台是数据源头，必须先在后台配置好抢购活动（设置商品/时间/限购数量），前台才有数据可以展示和测试。如先测前台，会因没有活动数据而无法测试。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>以下哪个测试数据可以用来验证"抢购活动→已过期状态"？</div>
+  <label class="opt" data-q="11" data-v="A">A. 设置开始时间为明天</label>
+  <label class="opt" data-q="11" data-v="B">B. 设置开始和结束时间都是昨天（历史时间），提交活动</label>
+  <label class="opt" data-q="11" data-v="C">C. 购买活动内所有商品使其售罄</label>
+  <label class="opt" data-q="11" data-v="D">D. 等待活动自然结束</label>
+  <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – "已过期"状态触发条件：创建活动时结束时间早于当前时间。设置开始和结束时间都在过去（如昨天），提交后活动直接显示"已过期"。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>未登录用户尝试将抢购商品加入购物车，预期结果是？</div>
+  <label class="opt" data-q="12" data-v="A">A. 直接加入购物车成功</label>
+  <label class="opt" data-q="12" data-v="B">B. 提示请先登录账号，无法加入购物车</label>
+  <label class="opt" data-q="12" data-v="C">C. 自动跳转到注册页面</label>
+  <label class="opt" data-q="12" data-v="D">D. 静默失败，无任何提示</label>
+  <div class="qz-ex" data-q="12"><b>✅ 正确答案：B</b> – 需求2.5.4第1条：抢购商品加入购物车时，要求会员必须先登录账号。未登录应提示登录，无法直接加入。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>购物车中抢购商品的"小计"和"总价"应该按什么价格计算？</div>
+  <label class="opt" data-q="13" data-v="A">A. 按商品原价计算</label>
+  <label class="opt" data-q="13" data-v="B">B. 按活动价（抢购价）计算</label>
+  <label class="opt" data-q="13" data-v="C">C. 按原价和活动价的平均值</label>
+  <label class="opt" data-q="13" data-v="D">D. 两种价格都显示</label>
+  <div class="qz-ex" data-q="13"><b>✅ 正确答案：B</b> – 需求2.5.5：【小计】和【总价】都按照活动价（抢购价）计算。同时显示"共节省"= 原价与活动价的差额。这是测试时重要的计算验证点。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>线下讨论确认了Bug的处理方案，为什么一定要"记录文档"？</div>
+  <label class="opt" data-q="14" data-v="A">A. 公司规定必须记录</label>
+  <label class="opt" data-q="14" data-v="B">B. 防止事后扯皮、口说无凭；记录提供可追溯的证据，保护所有参与方</label>
+  <label class="opt" data-q="14" data-v="C">C. 只是养成好习惯</label>
+  <label class="opt" data-q="14" data-v="D">D. 为了让领导看</label>
+  <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – 线下口头讨论容易被遗忘或各方理解不同。书面记录（禅道评论/邮件）提供可追溯证据：确认了什么、谁确认的、什么时候确认的，防止后续扯皮，保护测试工程师不被"背锅"。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>【场景题】购物车商品数量输入框，你输入"-1"后点击确认，预期结果是？</div>
+  <label class="opt" data-q="15" data-v="A">A. 数量变为-1件，总价变为负数</label>
+  <label class="opt" data-q="15" data-v="B">B. 给出提示"数量不合法，不能小于1"，数量不改变</label>
+  <label class="opt" data-q="15" data-v="C">C. 数量自动归零</label>
+  <label class="opt" data-q="15" data-v="D">D. 系统崩溃</label>
+  <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – 需求2.4.4：单个商品数量最小为1，小于1时给出提示。-1小于最小值1，属于无效等价类，应给出提示并保持原数量不变。A（变负数）是Bug，C和D都是错误行为。</div></div>
+
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">查看各题下方解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const ANSWERS={1:'C',2:'B',3:'C',4:'B',5:'C',6:'C',7:'C',8:'B',9:'B',10:'B',11:'B',12:'B',13:'B',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  if(done===10)document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ANSWERS[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct)o.classList.add('ok');
+      else if(o.classList.contains('sel'))o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex)ex.classList.add('s');
+    if(sel[q]===correct)score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90)msg='🏆 优秀！抢购模块和购物车知识掌握扎实！';
+  else if(pct>=75)msg='✅ 良好！建议复习错题后进入下一节。';
+  else if(pct>=50)msg='📚 还需努力，请重新阅读知识讲解。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12)document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d3'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

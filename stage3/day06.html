@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3 · APP功能测试 Day 06 – 熟悉APP项目 & 拼团购/注册/登录功能测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#be185d;--day-d:#9d174d;--day-bg:rgba(190,24,93,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(190,24,93,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(190,24,93,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.rose{background:#fff1f2;border-color:#be185d;color:#9d174d}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12px;padding:8px 10px;text-align:left}
+td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.card p,.card ul{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.card ul{padding-left:14px}
+.card li{margin-bottom:3px}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700}
+.bg-green{background:#dcfce7;color:#15803d}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.bg-rose{background:#ffe4e6;color:#be185d}
+.bg-gray{background:#f1f5f9;color:#475569}
+.bg-purple{background:#ede9fe;color:#6d28d9}
+.p0{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+.p1{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10.5px;font-weight:700}
+/* APP vs Web 对比 */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:12px 0}
+.cmp-hdr{padding:9px 14px;font-weight:700;font-size:13px;text-align:center}
+.cmp-hdr.a{background:var(--day-bg);color:var(--day-d)}
+.cmp-hdr.b{background:#dbeafe;color:#1d4ed8}
+.cmp-row{display:contents}
+.cmp-cell{padding:8px 14px;font-size:12.5px;color:var(--ink2);border-top:1px solid var(--border)}
+.cmp-cell.a{border-right:1px solid var(--border)}
+/* 流程步骤 */
+.flow-steps{display:flex;gap:0;flex-wrap:wrap;margin:12px 0}
+.flow-step{display:flex;align-items:center;gap:0}
+.step-box{padding:9px 14px;background:var(--day-bg);border:2px solid var(--day);border-radius:8px;font-size:12.5px;font-weight:700;color:var(--day-d);text-align:center;min-width:70px}
+.step-arrow{padding:0 6px;color:var(--day);font-size:18px;font-weight:700}
+/* 用例卡片 */
+.case-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.case-table th{background:var(--day-bg);color:var(--day-d);font-weight:700;padding:7px 9px;text-align:left;border:1px solid var(--border)}
+.case-table td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;color:var(--ink2)}
+.case-table tr:hover td{background:#fafbfc}
+/* 专项测试点卡片 */
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.tp-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tp-card h5{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed var(--border)}
+.tp-card ul{padding-left:14px;font-size:12.5px;color:var(--ink2)}
+.tp-card li{margin-bottom:3px}
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.8;color:var(--ink2)}
+.pt-ans.s{display:block}
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .g2,.g3,.tp-grid{grid-template-columns:1fr}
+  .cmp{grid-template-columns:1fr}
+  .flow-steps{flex-direction:column}
+  table{font-size:11.5px}
+  th,td{padding:6px 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · APP功能测试 · DAY 06</div>
+  <h1>熟悉 APP 项目 &amp; APP 功能测试实战</h1>
+  <p>能说出项目上线发布策略和敏捷开发模型，能在APP中独立完成购物流程操作，掌握拼团购、注册、登录等核心模块的测试点设计与用例编写，以及APP专项测试思路。</p>
+  <div class="hd-stats">
+    <div><b>3</b>核心模块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试精讲</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- APP 项目概述 -->
+  <div class="sec">
+    <h2><span class="ico">📱</span>一、熟悉 APP 项目</h2>
+
+    <h3>信息来源</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>🆕 新项目</h4>
+        <ul>
+          <li>需求文档（需求规格说明书）</li>
+          <li>产品经理（面对面沟通）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📂 已存在的项目</h4>
+        <ul>
+          <li>文档：用例/需求文档/用户说明书</li>
+          <li>人：测试老员工/产品经理/开发</li>
+          <li>项目软件：直接操作体验</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>熟悉项目的思路与标准</h3>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--day)">
+        <h4>🎯 核心思路</h4>
+        <p><strong>用户是谁？用户怎么用？</strong><br>从用户视角出发，理解产品的使用场景和核心价值。</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--day)">
+        <h4>📋 熟悉标准</h4>
+        <ul>
+          <li><strong>核心业务：</strong>用户使用的过程（业务流程）</li>
+          <li><strong>核心功能：</strong>功能缺失会导致用户无法使用</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>TPShop APP 核心业务 & 功能</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>🔄 核心业务（6个）</h4>
+        <ul>
+          <li>📦 下单流程（搜索→加购→下单→支付）</li>
+          <li>🔍 订单查询（我的订单→状态查看）</li>
+          <li>↩️ 售后流程（申请退款/退货/换货）</li>
+          <li>⭐ 评价流程（收货后评价）</li>
+          <li>👤 会员管理</li>
+          <li>📦 商品管理</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>⚙️ 核心功能（9个）</h4>
+        <ul>
+          <li>🔑 登录 / 📝 注册</li>
+          <li>🛒 购物车 / 💳 支付</li>
+          <li>⭐ 评论 / ⚡ 抢购</li>
+          <li>🖼️ 轮播图 / 🔍 搜索</li>
+          <li>➕ 添加商品</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP 与 Web 的区别 -->
+  <div class="sec">
+    <h2><span class="ico">🔄</span>二、APP 测试 vs Web 测试的核心区别</h2>
+
+    <div class="box rose">
+      <b>📌 关键差异：</b>APP测试在Web测试基础上新增了<strong>安装/卸载/更新/兼容性/性能/中断/弱网</strong>等专项测试，测试维度更广。
+    </div>
+
+    <div class="cmp">
+      <div class="cmp-hdr a">📱 APP 测试额外关注</div>
+      <div class="cmp-hdr b">🌐 Web 测试重点</div>
+      <div class="cmp-cell a">安装/卸载/更新测试（各平台包格式）</div>
+      <div class="cmp-cell">浏览器兼容性测试（5大浏览器）</div>
+      <div class="cmp-cell a">兼容性（不同机型/系统版本/分辨率）</div>
+      <div class="cmp-cell">响应式布局（不同屏幕分辨率）</div>
+      <div class="cmp-cell a">中断测试（电话/短信/闹钟打断）</div>
+      <div class="cmp-cell">弱网测试（Fiddler模拟）</div>
+      <div class="cmp-cell a">权限测试（相机/位置/存储）</div>
+      <div class="cmp-cell">接口测试（GET/POST/状态码）</div>
+      <div class="cmp-cell a">性能专项（内存/CPU/流量/耗电）</div>
+      <div class="cmp-cell">页面加载性能（响应时间）</div>
+      <div class="cmp-cell a">升级测试（跨版本升级数据迁移）</div>
+      <div class="cmp-cell">版本兼容（不同浏览器版本）</div>
+    </div>
+
+    <h3>APP 专项测试维度（超出Web的部分）</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>📦 安装/卸载/更新</h5>
+        <ul>
+          <li>正常安装成功</li>
+          <li>存储不足时安装</li>
+          <li>正常卸载后数据清理</li>
+          <li>覆盖安装（旧版→新版）</li>
+          <li>降级安装（新版→旧版）</li>
+          <li>跨版本升级</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📱 兼容性测试</h5>
+        <ul>
+          <li>不同手机品牌（华为/小米/OPPO/vivo）</li>
+          <li>不同Android版本（9/10/11/12）</li>
+          <li>不同屏幕分辨率</li>
+          <li>深色/浅色模式</li>
+          <li>横屏/竖屏切换</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>⚡ 中断测试</h5>
+        <ul>
+          <li>来电中断→接听→返回APP</li>
+          <li>短信通知中断</li>
+          <li>闹钟弹窗中断</li>
+          <li>后台运行→前台恢复</li>
+          <li>锁屏→解锁后状态</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🔑 权限测试</h5>
+        <ul>
+          <li>相机权限（拍照上传）</li>
+          <li>相册权限（选择图片）</li>
+          <li>位置权限（定位功能）</li>
+          <li>通知权限（推送消息）</li>
+          <li>存储权限（下载文件）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拼团购测试 -->
+  <div class="sec">
+    <h2><span class="ico">👥</span>三、APP 功能测试 — 拼团购</h2>
+
+    <h3>需求分析（2.5.7 商品拼团活动）</h3>
+    <p><strong>后台功能位置：</strong>营销 → 拼团购</p>
+    <p><strong>后台可以：</strong>添加拼团活动、查看拼团活动、启动/编辑/删除活动、查看拼团订单及状态</p>
+
+    <div class="g2">
+      <div class="card">
+        <h4>📋 添加拼团活动规则</h4>
+        <ul>
+          <li>一个活动只支持添加<strong>一件商品</strong>（指明规格）</li>
+          <li>添加成功后默认是<strong>关闭状态</strong>，手动开启后才能在手机端展示</li>
+          <li>拼团标题：长度限制50个字符</li>
+          <li>必须指明商品规格</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📱 手机端拼团列表</h4>
+        <ul>
+          <li>显示所有拼团信息</li>
+          <li>按添加时间<strong>先后倒序排列</strong>（最新添加的在最上面）</li>
+          <li>展示：分享图片/拼团商品名称/拼团价格/单独购买价格/成团人数要求</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>活动详情页展示规则</h3>
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>状态</th><th>展示内容</th></tr>
+        <tr><td><span class="badge bg-gray">未参团</span></td><td>展示拼团规则（如：X人成团，原价Y元，拼团价Z元）</td></tr>
+        <tr><td><span class="badge bg-amber">已参团但未成团</span></td><td>置顶展示"待成团"，显示距离成团还差几人，展示有效时间</td></tr>
+        <tr><td><span class="badge bg-green">拼团成功</span></td><td>等待商家确认，有效→进入待发货；无效→拼团失败，金额原路退回</td></tr>
+      </table>
+    </div>
+
+    <h3>拼团购测试点拆解</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>📋 列表显示</h5>
+        <ul>
+          <li>活动列表倒序排列（最新在最上面）</li>
+          <li>每条展示5个字段：分享图/名称/拼团价/单购价/成团人数</li>
+          <li>开启状态才展示给用户</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📄 详情页展示</h5>
+        <ul>
+          <li>未参团：显示拼团规则</li>
+          <li>已参团未成团：置顶展示+差人数</li>
+          <li>已成团：成团数量+1</li>
+          <li>响应时间不超过2秒</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🛒 参团流程</h5>
+        <ul>
+          <li>点击一键参团→跳转订单核对页</li>
+          <li>参团成功（开团）：活动页显示新开团信息</li>
+          <li>参团成功（成团）：活动页不再展示该团</li>
+          <li>数据库验证参团记录</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>✅ 商家确认</h5>
+        <ul>
+          <li>商家确认有效→所有参团人员订单变"待发货"</li>
+          <li>商家确认无效→通知参团成员，金额原路退回</li>
+          <li>后台多个参团人发货分开发货</li>
+          <li>参团成员订单分别验证</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📱 专项测试</h5>
+        <ul>
+          <li>兼容性（安卓10/9/华为P30等）</li>
+          <li>响应时间不超过2秒</li>
+          <li>弱网下拼团操作</li>
+          <li>多用户并发参团（并发场景）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tw" style="margin-top:14px">
+      <table class="case-table">
+        <tr><th>编号</th><th>用例标题</th><th>预置条件</th><th>预期结果</th></tr>
+        <tr><td>tp_SpellDeals_001</td><td>手机端拼团活动显示正常</td><td>后台添加5个拼团活动(a~e)并开启</td><td>①活动按时间倒序排列(e→a) ②每个活动展示5个字段</td></tr>
+        <tr><td>tp_SpellDeals_002</td><td>活动详情页展示正常（未参团）</td><td>有开启活动，未参团</td><td>展示拼团规则</td></tr>
+        <tr><td>tp_SpellDeals_003</td><td>活动详情页展示正常（已参团但未成团）</td><td>已参团但未成团</td><td>置顶展示待成团+显示差几人</td></tr>
+        <tr><td>tp_SpellDeals_004</td><td>支持一键参团</td><td>有开启活动</td><td>点击一键参团→跳转订单核对页</td></tr>
+        <tr><td>tp_SpellDeals_005</td><td>参团成功（开团）</td><td>有开启活动</td><td>①活动页显示新开团信息 ②DB验证参团记录</td></tr>
+        <tr><td>tp_SpellDeals_006</td><td>参团成功（拼团成功）</td><td>距离成团差1人</td><td>①活动页不再展示该团 ②成团数量+1 ③通知参团成员</td></tr>
+        <tr><td>tp_SpellDeals_007</td><td>商家确认成团有效</td><td>拼团已成功</td><td>所有参团人订单均显示"待发货"</td></tr>
+        <tr><td>tp_SpellDeals_008</td><td>商家确认成团无效</td><td>拼团已成功</td><td>消息通知参团成员，金额原路退回</td></tr>
+        <tr><td>tp_SpellDeals_009</td><td>兼容性正常</td><td>不同机型列表</td><td>各机型正常显示和操作</td></tr>
+        <tr><td>tp_SpellDeals_010</td><td>响应时间不超过2秒</td><td>正常网络</td><td>所有操作响应时间≤2秒</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 注册登录搜索购物车 -->
+  <div class="sec">
+    <h2><span class="ico">📝</span>四、APP 功能测试 — 注册 / 登录 / 搜索</h2>
+
+    <div class="box rose">
+      <b>📌 APP vs Web功能测试核心区别：</b>APP在Web的功能测试基础上，还要额外测试<strong>兼容性</strong>（不同机型/系统版本）和<strong>响应时间</strong>（建议≤2秒）。
+    </div>
+
+    <h3>注册功能测试点（手机APP）</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>📱 手机号注册</h5>
+        <ul>
+          <li>手机号规则：第一位1，第二位≤2，11位自然数</li>
+          <li>密码：6-16位（字母/数字/符号）</li>
+          <li>验证码：与图片一致（大小写不限）</li>
+          <li>推荐人手机：非必填</li>
+          <li>成功验证：前台+后台+DB三维度</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📧 邮箱注册</h5>
+        <ul>
+          <li>邮箱格式：xxxx@[126/sina/qq].com</li>
+          <li>xxxx：4-16位，字母/数字/下划线</li>
+          <li>不能以下划线开头</li>
+          <li>仅验证邮箱格式</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📱 APP专项测试</h5>
+        <ul>
+          <li>注册成功后自动跳转首页（登录态）</li>
+          <li>键盘弹出/收起时界面不变形</li>
+          <li>手机号/邮箱切换正常</li>
+          <li>粘贴/复制输入兼容</li>
+          <li>不同机型输入法兼容</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>注册提示语（9种场景）</h3>
+    <div class="tw">
+      <table class="case-table">
+        <tr><th>场景</th><th>操作</th><th>提示语</th></tr>
+        <tr><td>正确注册（含推荐人）</td><td>手机号/邮箱+验证码+密码+推荐人+勾选协议</td><td>跳转至首页，显示登录状态</td></tr>
+        <tr><td>正确注册（无推荐人）</td><td>手机号/邮箱+验证码+密码+勾选协议</td><td>跳转至首页</td></tr>
+        <tr><td>重复注册</td><td>已存在的手机号/邮箱</td><td>账号已存在（点确定后账号密码不消失，验证码刷新）</td></tr>
+        <tr><td>手机号/邮箱错误</td><td>不输入或格式错误</td><td>请用手机号或者邮箱注册</td></tr>
+        <tr><td>验证码错误</td><td>输入错误验证码</td><td>验证码错误</td></tr>
+        <tr><td>验证码为空</td><td>不输入验证码</td><td>验证码不能为空</td></tr>
+        <tr><td>密码为空</td><td>未输入密码</td><td>请输入用户名或者密码</td></tr>
+        <tr><td>两次密码不一致</td><td>两次密码不同</td><td>两次输入密码不一致</td></tr>
+        <tr><td>密码格式错误</td><td>密码不满足6-16位规则</td><td>密码不符合要求</td></tr>
+      </table>
+    </div>
+
+    <h3>登录功能测试点（手机APP）</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>🔑 功能测试</h5>
+        <ul>
+          <li>账号：手机号或邮箱</li>
+          <li>密码：正确格式</li>
+          <li>验证码：大小写不限，不可重用</li>
+          <li>登录成功→跳转首页显示用户名</li>
+          <li>失败→统一更新验证码（安全设计）</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📱 APP专项测试</h5>
+        <ul>
+          <li>记住密码/自动登录功能</li>
+          <li>第三方登录（微信/QQ/支付宝）</li>
+          <li>登录态保持（退后台再进）</li>
+          <li>Token过期后的处理</li>
+          <li>多设备登录互踢</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>🔄 中断测试</h5>
+        <ul>
+          <li>登录时来电→接听→返回→登录状态</li>
+          <li>登录中锁屏→解锁→状态</li>
+          <li>弱网下登录的超时处理</li>
+          <li>网络切换（WiFi→4G）</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>搜索功能测试点</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>🔍 搜索功能</h5>
+        <ul>
+          <li>有搜索词：支持模糊搜索</li>
+          <li>无搜索词：提示"请输入内容"（无法搜索）</li>
+          <li>搜索无结果：提示"无任何数据，换个条件试试"</li>
+          <li>历史搜索词：无论成功与否均保存</li>
+          <li>历史记录可清除</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>📱 APP专项测试</h5>
+        <ul>
+          <li>搜索结果列表滑动流畅</li>
+          <li>语音搜索功能（如有）</li>
+          <li>扫码搜索（如有）</li>
+          <li>键盘搜索键直接触发</li>
+          <li>搜索历史在不同会话间保持</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP测试流程 -->
+  <div class="sec">
+    <h2><span class="ico">🔄</span>五、APP 项目测试流程（同 Web 6步）</h2>
+
+    <div class="flow-steps">
+      <div class="flow-step"><div class="step-box">需求评审</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">计划编写</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">用例设计</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">用例执行</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">缺陷管理</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">测试报告</div></div>
+    </div>
+
+    <div class="box tip">
+      <b>💡 APP测试特有关注点：</b><br>
+      ① 用例设计时新增：安装卸载/兼容性/中断/权限/性能专项用例<br>
+      ② 执行时需要多台真机或模拟器（覆盖主流机型）<br>
+      ③ 测试报告增加：兼容性测试结论/性能测试数据
+    </div>
+
+    <h3>APP 下单/支付完整业务流程</h3>
+    <div class="flow-steps" style="flex-wrap:wrap">
+      <div class="flow-step"><div class="step-box">登录</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">搜索商品</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">加购物车</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">去结算</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">确认订单</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">选支付方式</div><div class="step-arrow">→</div></div>
+      <div class="flow-step"><div class="step-box">完成支付</div></div>
+    </div>
+
+    <h3>支付功能测试点</h3>
+    <div class="tp-grid">
+      <div class="tp-card">
+        <h5>💳 支付方式</h5>
+        <ul>
+          <li>微信支付</li>
+          <li>支付宝支付</li>
+          <li>余额支付（账户余额）</li>
+          <li>货到付款</li>
+          <li>组合支付（余额+其他）</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>✅ 支付验证（3维度）</h5>
+        <ul>
+          <li>前台：支付成功页显示</li>
+          <li>订单状态变"待发货"</li>
+          <li>DB：订单表和支付记录更新</li>
+          <li>余额减少</li>
+          <li>库存对应减少</li>
+        </ul>
+      </div>
+      <div class="tp-card">
+        <h5>⚠️ 支付异常</h5>
+        <ul>
+          <li>支付中断（来电/锁屏）后的状态</li>
+          <li>支付超时（15分钟）</li>
+          <li>重复支付（防止二次扣款）</li>
+          <li>弱网下支付超时</li>
+          <li>余额不足时的提示</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>APP 核心业务 vs 核心功能对比图</h2>
+    <div class="tw">
+      <table>
+        <tr><th>分类</th><th>内容</th><th>测试方法</th><th>优先级</th></tr>
+        <tr><td><span class="badge bg-rose">核心业务</span></td><td>下单/订单查询/售后/评价/会员管理/商品管理</td><td>流程图法（从开始到结束找路径）</td><td>P0为主</td></tr>
+        <tr><td><span class="badge bg-blue">核心功能</span></td><td>登录/注册/购物车/支付/评论/抢购/轮播图/搜索/添加商品</td><td>等价类+边界值+场景法</td><td>P0/P1</td></tr>
+        <tr><td><span class="badge bg-amber">APP专项</span></td><td>安装/卸载/更新/兼容/中断/权限/性能/弱网</td><td>专项测试方法</td><td>P1/P2</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">👥</span>拼团购关键流程图</h2>
+    <div class="tw">
+      <table>
+        <tr><th>阶段</th><th>操作</th><th>状态</th><th>验证点</th></tr>
+        <tr><td>后台配置</td><td>添加拼团活动（选商品/设规则）→ 手动开启</td><td>开启状态</td><td>手机端列表显示</td></tr>
+        <tr><td>列表展示</td><td>手机端查看拼团列表</td><td>倒序排列</td><td>最新活动在最上面</td></tr>
+        <tr><td>详情查看</td><td>点击活动进入详情</td><td>未参团/已参团/已成团</td><td>不同状态显示不同内容</td></tr>
+        <tr><td>参团操作</td><td>点击一键参团 → 订单核对 → 支付</td><td>待成团</td><td>DB验证参团记录</td></tr>
+        <tr><td>成团判断</td><td>等待其他用户参团至满足人数</td><td>成团</td><td>通知所有参团成员</td></tr>
+        <tr><td>商家确认</td><td>后台确认成团是否有效</td><td>有效/无效</td><td>有效→待发货；无效→退款</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>注册 vs 登录 — APP额外测试点</h2>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--day)">
+        <h4 style="color:var(--day)">📝 注册 APP额外测试</h4>
+        <ul>
+          <li>键盘弹出不遮挡输入框</li>
+          <li>手机号/邮箱切换Tab正常</li>
+          <li>输入法切换时文字不丢失</li>
+          <li>验证码图片点击刷新</li>
+          <li>成功后自动进入登录态</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--blue)">
+        <h4 style="color:var(--blue)">🔑 登录 APP额外测试</h4>
+        <ul>
+          <li>记住密码功能</li>
+          <li>自动登录（进入APP不需要重新登录）</li>
+          <li>第三方登录（微信/QQ/支付宝）</li>
+          <li>登录中来电中断后恢复</li>
+          <li>多设备同时登录</li>
+          <li>Token过期重新登录</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📱</span>APP 兼容性测试矩阵（参考）</h2>
+    <div class="tw">
+      <table>
+        <tr><th>测试维度</th><th>常见测试覆盖</th><th>测试方法</th></tr>
+        <tr><td>Android版本</td><td>Android 9 / 10 / 11 / 12 / 13</td><td>真机/模拟器各版本安装测试</td></tr>
+        <tr><td>手机品牌</td><td>华为/小米/OPPO/vivo/三星/一加</td><td>主流品牌各取1-2款机型</td></tr>
+        <tr><td>分辨率</td><td>720P / 1080P / 2K</td><td>模拟器设置不同分辨率</td></tr>
+        <tr><td>屏幕尺寸</td><td>5.5寸 / 6.0寸 / 6.5寸</td><td>验证UI布局不错位</td></tr>
+        <tr><td>横竖屏</td><td>竖屏/横屏切换</td><td>旋转手机，验证界面自适应</td></tr>
+        <tr><td>深色模式</td><td>浅色/深色（系统设置）</td><td>切换系统主题验证</td></tr>
+      </table>
+    </div>
+    <div class="box info">
+      <b>📌 课堂兼容性用例示例：</b><br>
+      tp_SpellDeals_009：兼容性正常（安卓10 / 安卓9 / 华为P30 / 兼容列表所有设备）<br>
+      <b>实际工作中：</b>由公司维护一个"兼容设备列表"，测试覆盖列表中所有设备型号。
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习（共10题）</h2>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">1. APP 测试相比 Web 测试，额外需要哪些专项测试？列举至少5个</div>
+    <div class="pt-sub">考察APP测试维度的全面性理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>APP额外专项测试（8个维度）：</strong><br><br>
+      1. <strong>安装/卸载/更新测试：</strong>正常安装、存储不足时安装、覆盖安装（旧版→新版）、降级安装、跨版本升级<br>
+      2. <strong>兼容性测试：</strong>不同手机品牌（华为/小米等）、不同Android版本（9/10/11/12）、不同分辨率<br>
+      3. <strong>中断测试：</strong>来电/短信/闹钟打断，APP能否正常恢复<br>
+      4. <strong>权限测试：</strong>相机/位置/存储/通知权限（授权/拒绝的处理）<br>
+      5. <strong>弱网测试：</strong>2G/3G/WiFi信号差时的功能稳定性<br>
+      6. <strong>性能专项：</strong>内存占用/CPU使用率/流量消耗/耗电量<br>
+      7. <strong>升级测试：</strong>版本升级后历史数据是否正常迁移<br>
+      8. <strong>横竖屏：</strong>屏幕旋转时界面自适应，数据不丢失
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">2. 拼团购的"手机端列表"如何显示顺序？需要设计哪个测试用例来验证？</div>
+    <div class="pt-sub">考察拼团购需求的理解和用例设计</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>需求：</strong>手机端拼团列表按<strong>添加时间先后倒序排列</strong>（最新添加的在最上面）。<br><br>
+      <strong>验证用例（tp_SpellDeals_001）：</strong><br>
+      前置：后台按顺序添加5个拼团活动（依次为a→b→c→d→e），并全部开启<br>
+      步骤：① 打开手机端APP ② 进入拼团活动列表<br>
+      预期结果：① 活动按时间倒序排列（e在最上，依次为d→c→b→a） ② 每个活动展示：分享图片/拼团商品名称/拼团价格/单独购买价格/成团人数要求<br><br>
+      <strong>设计思路：</strong>通过"添加5个再验证顺序"，能同时验证排序逻辑和字段展示是否完整。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">3. 拼团活动详情页在"已参团但未成团"状态下，预期展示什么内容？</div>
+    <div class="pt-sub">考察拼团详情页的状态展示需求</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>已参团但未成团状态，活动详情页展示：</strong><br><br>
+      1. <strong>置顶展示"待成团"：</strong>将用户已参加的这个团置顶显示<br>
+      2. <strong>显示距离成团所差人数：</strong>如"还差2人成团"<br>
+      3. <strong>显示该团的有效时间：</strong>如"还剩23小时59分钟"（拼团超时会失败）<br>
+      4. <strong>参团成员位置：</strong>显示已参团人的头像，未参团位置显示空位<br><br>
+      <strong>测试用例（tp_SpellDeals_003）：</strong><br>
+      前置：已有开启的拼团活动，且用户A已参团但活动未成团<br>
+      步骤：用户A打开APP → 查看拼团活动详情<br>
+      预期：① 置顶展示待成团信息 ② 显示还差X人 ③ 显示有效倒计时 ④ 头像显示已参团用户A
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">4. 商家确认拼团"无效"时，验证哪些内容？</div>
+    <div class="pt-sub">考察拼团失败路径的验证完整性</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>商家确认拼团无效，需要验证（4个维度）：</strong><br><br>
+      1. <strong>消息通知：</strong>所有参团成员收到通知（如推送消息）："您参与的拼团活动XXX已宣告失败"<br>
+      2. <strong>金额退款：</strong>所有参团成员的支付金额原路退回（退回原支付方式：微信/支付宝/余额）<br>
+      3. <strong>订单状态：</strong>所有参团人的订单状态变为"拼团失败"或"已关闭"<br>
+      4. <strong>数据库验证：</strong>检查参团记录状态字段已更新为失败/退款状态<br><br>
+      <strong>注意：</strong>如果是多人参团（如5人成团），必须验证每个参团成员都收到通知且各自退款。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">5. APP注册测试中，"键盘弹出不遮挡输入框"是什么测试类型？如何测试？</div>
+    <div class="pt-sub">考察APP专项测试的理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>测试类型：</strong>APP专项测试（UI/兼容性/交互）<br><br>
+      <strong>问题背景：</strong>在Android设备上，软键盘弹出后会占据屏幕下半部分，如果页面不做适配，输入框可能被键盘遮挡，用户看不到输入内容。<br><br>
+      <strong>测试步骤：</strong><br>
+      1. 打开注册页面<br>
+      2. 点击最下方的输入框（如"推荐人手机"）<br>
+      3. 软键盘弹出<br>
+      4. 验证：当前点击的输入框是否在键盘上方可见<br>
+      5. 滑动页面：验证键盘弹出时页面是否可以上下滚动<br><br>
+      <strong>常见Bug：</strong>输入框被键盘遮挡（界面不自动上移/不可滚动），属于P2级UI问题。<br><br>
+      <strong>兼容性：</strong>不同品牌手机的输入法键盘高度不同，需要在多款机型上验证。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">6. 如何测试APP登录功能的"中断测试"？举例3个场景</div>
+    <div class="pt-sub">考察APP专项测试中中断测试的理解和设计</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>中断测试：</strong>在操作过程中被外部事件打断，验证APP能否正常恢复。<br><br>
+      <strong>场景1：登录时来电中断</strong><br>
+      步骤：输入账号密码 → 在点击"登录"之前，手机来电 → 接听电话 → 挂断 → 返回APP<br>
+      预期：① 返回APP后登录页面仍在 ② 已填写的账号密码保留（不清空）③ 可以继续点击登录<br><br>
+      <strong>场景2：登录请求发出中途锁屏</strong><br>
+      步骤：输入正确账号密码 → 点击登录 → 请求还在处理中时按锁屏键 → 解锁<br>
+      预期：① 解锁后APP已完成登录 ② 跳转首页显示用户名（不重复显示登录页）<br><br>
+      <strong>场景3：弱网下登录超时</strong><br>
+      步骤：设置Fiddler弱网 → 输入正确账号密码 → 点击登录<br>
+      预期：① 加载等待动画 ② 超时后给出提示"网络超时，请重试" ③ 可以重新点击登录
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">7. 熟悉APP项目的思路是什么？和Web项目熟悉思路有何不同？</div>
+    <div class="pt-sub">考察对测试思路的整体理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>熟悉思路（完全相同）：</strong><br>
+      ① 用户是谁？② 用户怎么用？<br>
+      标准：核心业务（用户使用的过程）+ 核心功能（缺失导致无法使用的功能）<br><br>
+      <strong>信息来源相同：</strong>文档（需求文档/用例/用户说明书）+ 人（测试老员工/产品经理/开发）+ 项目软件<br><br>
+      <strong>核心差异（APP额外关注）：</strong><br>
+      • APP有<strong>安装/卸载</strong>这个前置步骤（Web直接打开网页）<br>
+      • APP有<strong>推送通知</strong>、<strong>系统权限</strong>等Web没有的特性<br>
+      • APP需要关注<strong>不同设备的兼容性</strong>（Web关注浏览器兼容性）<br>
+      • APP有<strong>中断场景</strong>（来电/通知）需要额外测试<br>
+      • APP的<strong>更新机制</strong>（应用商店更新/强制更新）需要测试<br><br>
+      <strong>本质：</strong>熟悉项目的思路相同，但测试维度更广。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">8. 响应时间测试：为什么APP需要验证"响应时间不超过2秒"？如何测试？</div>
+    <div class="pt-sub">考察性能测试基础</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>为什么要测试响应时间：</strong><br>
+      响应时间影响用户体验：<br>
+      • ≤1秒：用户感觉即时响应，体验最佳<br>
+      • 1~2秒：用户注意到延迟但可接受<br>
+      • 2~5秒：用户开始不耐烦<br>
+      • >5秒：多数用户会放弃操作（流失率大幅上升）<br><br>
+      <strong>行业标准：</strong>一般要求API接口响应时间≤2秒，页面加载时间≤3秒。<br><br>
+      <strong>测试方法：</strong><br>
+      1. 打开Fiddler（抓包工具）<br>
+      2. 操作APP页面/功能<br>
+      3. 在Fiddler中查看请求的Statistics标签 → Timeline，查看请求耗时<br>
+      4. 也可查看请求从发出到响应完成的时间<br><br>
+      <strong>记录与建议：</strong>如果响应时间无明确需求，测试时记录实际响应时间。若超过5秒，提交"优化建议"类Bug（S3级）。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">9. APP支付功能，"支付中断（来电打断）后状态"如何测试？</div>
+    <div class="pt-sub">考察支付功能的中断测试设计</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>支付中断测试场景：</strong><br><br>
+      <strong>场景1：支付页面调起微信支付时来电</strong><br>
+      步骤：点击"支付" → 调起微信支付密码输入页 → 此时手机来电 → 接听 → 挂断 → 返回APP<br>
+      预期结果（关键验证）：<br>
+      ① 订单状态应为"待支付"（未完成支付）<br>
+      ② 不应出现"已扣款但订单无效"（最严重的Bug）<br>
+      ③ 用户可以重新进入支付<br><br>
+      <strong>场景2：支付中途锁屏</strong><br>
+      步骤：正在支付过程中 → 按锁屏键 → 解锁 → 返回APP<br>
+      预期：支付结果与实际扣款一致，无双扣款或订单错误<br><br>
+      <strong>测试要点：</strong>支付状态的一致性（前台显示的状态、实际扣款记录、订单状态、DB记录四者必须一致）<br><br>
+      <strong>为什么重要：</strong>支付是核心业务，任何状态不一致都可能造成用户损失（S0级Bug）。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">10. 综合题：用6步测试流程针对"APP拼团购功能"描述完整测试思路</div>
+    <div class="pt-sub">考察测试流程的综合应用</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>Step 1 需求评审：</strong>阅读拼团购需求（2.5.7），确认：活动规则/列表排序/详情展示/成团流程/商家确认逻辑/退款机制。提前记录疑问（如：拼团失败退款多久到账？）<br><br>
+      <strong>Step 2 计划编写：</strong>明确测试范围（拼团购后台+手机端）、测试人员（1人/2人）、时间安排（后台1天+手机端2天）、准入标准（后台功能可用）<br><br>
+      <strong>Step 3 用例设计：</strong>先业务用例（开团→参团→成团→商家确认）+ 后单功能用例（列表展示/详情页/一键参团/APP专项：兼容/响应时间）<br><br>
+      <strong>Step 4 用例执行：</strong>按P0→P1顺序执行。需要构造数据（多个测试账号、活动）；多机型执行兼容性用例<br><br>
+      <strong>Step 5 缺陷管理：</strong>发现Bug立即提交（如：成团数量未+1、通知未发送、退款未到账），附上截图+抓包数据<br><br>
+      <strong>Step 6 测试报告：</strong>统计拼团购模块Bug数（严重度分布）、兼容性测试结果（X款机型通过/Y款失败）、性能数据（响应时间平均值）
+    </div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲（共12题）</h2>
+    <p>涵盖APP测试专项、拼团购、注册登录、测试流程在APP中的应用。</p>
+  </div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div>
+  <div class="iq-q">APP测试和Web测试有什么区别？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>相同点：</strong>都需要功能测试（等价类/边界值/场景法）、兼容性测试、性能测试、安全测试。</p>
+    <p><strong>APP额外的专项测试：</strong></p>
+    <ul>
+      <li>安装/卸载/更新测试（包括覆盖安装/降级安装）</li>
+      <li>兼容性：不同手机品牌/Android版本/屏幕分辨率</li>
+      <li>中断测试：来电/短信/闹钟打断后能否正常恢复</li>
+      <li>权限测试：相机/位置/存储权限的授权与拒绝</li>
+      <li>性能专项：内存/CPU/流量/耗电量</li>
+      <li>升级测试：跨版本升级后历史数据迁移</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div>
+  <div class="iq-q">什么是中断测试？APP为什么需要做中断测试？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>中断测试：</strong>在APP操作过程中，被外部事件打断（来电/短信/闹钟/切换应用等），测试APP能否正常处理中断并在恢复后状态正确。</p>
+    <p><strong>为什么需要：</strong>手机是多任务设备，用户随时可能被打断。如果不做中断测试：</p>
+    <ul>
+      <li>支付中途来电 → 退回APP后订单状态混乱</li>
+      <li>填写表单中途锁屏 → 解锁后数据丢失</li>
+      <li>上传图片中途弹通知 → 上传失败且无提示</li>
+    </ul>
+    <p><strong>常见中断测试场景：</strong>来电/短信/微信消息/闹钟弹窗/切换到其他APP/锁屏</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div>
+  <div class="iq-q">APP兼容性测试需要测试哪些维度？如何确定测试机型？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>兼容性测试维度：</strong>手机品牌（华为/小米/OPPO/vivo/三星）+ Android版本（9/10/11/12）+ 屏幕分辨率（720P/1080P/2K）+ 屏幕尺寸 + 横竖屏 + 深色/浅色模式</p>
+    <p><strong>如何确定测试机型：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li>查看产品的用户数据（用户最多使用哪些机型/系统版本）</li>
+      <li>参考应用市场统计（如各Android版本市场占有率）</li>
+      <li>公司维护的"兼容设备列表"（必测机型）</li>
+      <li>覆盖原则：高中低端机型各选几款，覆盖主流品牌</li>
+    </ol>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div>
+  <div class="iq-q">拼团购功能，商家确认"无效"的测试用例怎么写？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>用例：商家确认成团无效（tp_SpellDeals_008）</strong></p>
+    <p><strong>前置条件：</strong>已有拼团活动且活动为开启状态，且拼团已成功（达到成团人数）</p>
+    <p><strong>步骤：</strong>① 打开后台 ② 进入拼团订单 ③ 确认拼团无效</p>
+    <p><strong>预期结果：</strong>① 消息通知参团成员"拼团无效" ② 金额原路退回 ③ 所有参团人员订单状态变为"拼团失败"或"已关闭" ④ DB验证退款记录</p>
+    <p><strong>验证要点：</strong>每个参团成员都要分别验证：收到通知 + 退款到账 + 订单状态正确。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div>
+  <div class="iq-q">APP权限测试需要测试哪些内容？拒绝权限后如何处理？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>常见APP权限：</strong>相机/相册/位置/通知/存储/麦克风/联系人</p>
+    <p><strong>权限测试场景：</strong></p>
+    <ul>
+      <li><strong>首次请求：</strong>使用需要权限的功能时，弹出权限请求弹窗</li>
+      <li><strong>允许：</strong>功能正常使用</li>
+      <li><strong>拒绝：</strong>给出合理提示，引导用户去设置开启权限</li>
+      <li><strong>永久拒绝：</strong>再次使用时直接提示去设置开启（不再弹弹窗）</li>
+    </ul>
+    <p><strong>拒绝权限后正确处理：</strong>不能崩溃，应给出提示"请前往设置开启XXX权限"并引导到设置页面。如果APP崩溃或卡死 → S1级Bug。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div>
+  <div class="iq-q">熟悉APP项目的标准和思路是什么？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>核心思路：用户是谁？用户怎么用？</strong></p>
+    <p><strong>熟悉标准（2个维度）：</strong></p>
+    <ul>
+      <li><strong>核心业务：</strong>用户使用的过程（下单/查询/售后/评价等端到端流程）</li>
+      <li><strong>核心功能：</strong>功能缺失会导致用户无法使用（登录/购物车/支付/搜索等）</li>
+    </ul>
+    <p><strong>信息来源：</strong>文档（需求文档/用例/说明书）+ 人（测试老员工/产品经理/开发）+ 项目软件（直接体验）</p>
+    <p><strong>优先级：</strong>先熟悉核心业务流程，再深入各核心功能模块。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div>
+  <div class="iq-q">APP登录测试除了Web的那些场景，还需要额外测试什么？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>Web已有的（账号密码验证/验证码等）基础上，APP额外测试：</strong></p>
+    <ul>
+      <li><strong>记住密码：</strong>勾选后下次进入自动填写（不需要再次输入）</li>
+      <li><strong>自动登录：</strong>关闭APP再打开，仍保持登录态（不跳登录页）</li>
+      <li><strong>第三方登录：</strong>微信/QQ/支付宝授权登录流程</li>
+      <li><strong>登录态保持：</strong>后台运行再切换回来，仍是登录状态</li>
+      <li><strong>Token过期：</strong>长时间不操作后Token过期，APP给出提示要求重新登录</li>
+      <li><strong>多设备互踢：</strong>同一账号在A手机登录后，在B手机登录，A手机应被踢出</li>
+      <li><strong>中断测试：</strong>登录时来电/锁屏等中断，恢复后状态正确</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div>
+  <div class="iq-q">什么是APP安装测试？需要测试哪些场景？</div>
+  <div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>安装测试场景（7个）：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li><strong>正常安装：</strong>从应用商城或APK安装，安装成功后功能正常</li>
+      <li><strong>存储不足安装：</strong>手机存储空间不足时，给出提示（不崩溃）</li>
+      <li><strong>覆盖安装（升级）：</strong>安装新版本覆盖旧版本，历史数据、账号、设置保留</li>
+      <li><strong>降级安装：</strong>高版本降回低版本，验证数据兼容性</li>
+      <li><strong>卸载后重新安装：</strong>历史数据清理，全新安装成功</li>
+      <li><strong>安装中断：</strong>安装过程中断电/断网，重启后是否能正常处理</li>
+      <li><strong>不同来源安装：</strong>应用商城/APK直装/企业包等各渠道安装</li>
+    </ol>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div>
+  <div class="iq-q">【场景题】拼团成功后，商家确认有效，但参团人员A的订单仍显示"待支付"，这是什么Bug？如何定位？</div>
+  <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>这是Bug。</strong>需求：商家确认成团有效后，所有参团人员订单均应变为"待发货"。用户A仍显示"待支付"说明状态更新不完整。</p>
+    <p><strong>定位步骤：</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li>确认商家后台操作是否正确（截图后台确认成功的截图）</li>
+      <li>用Fiddler查看：商家确认时的接口请求和响应（接口是否成功？返回数据里包含了哪些用户？）</li>
+      <li>查数据库：tp_order表中该拼团的所有订单状态字段</li>
+      <li>比对：是否只有用户A的订单状态未更新（其他人正常？）</li>
+    </ol>
+    <p><strong>可能原因：</strong>① 用户A参团时支付状态异常，被后端逻辑排除 ② 批量更新订单状态时用户A那条更新失败（SQL事务问题）③ 前台缓存未刷新</p>
+    <p><strong>Bug标题：</strong>「【拼团购】商家确认成团有效后，参团成员A订单状态未变更为待发货，仍显示待支付」S1级Bug。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div>
+  <div class="iq-q">APP测试中，"响应时间"测试如何进行？有没有标准？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>测试方法：</strong>使用Fiddler等抓包工具，操作APP，在Fiddler的Statistics→Timeline中查看每个请求的耗时。</p>
+    <p><strong>行业参考标准：</strong></p>
+    <ul>
+      <li>API接口响应：≤1秒（优秀）/ ≤2秒（良好）/ ≤5秒（勉强可用）</li>
+      <li>页面加载：≤2秒（良好）/ ≤5秒（可接受）</li>
+    </ul>
+    <p><strong>测试注意事项：</strong></p>
+    <ul>
+      <li>如果需求文档有明确要求（如≤2秒）→ 超过则提Bug</li>
+      <li>如果无明确要求 → 记录实际响应时间，若>5秒提优化建议（S3级）</li>
+      <li>测试时注意网络环境（WiFi vs 4G，结果会不同）</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div>
+  <div class="iq-q">APP搜索功能有哪些测试要点（与Web搜索相比有何区别）？</div>
+  <div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>共同测试点（Web也有）：</strong>有词搜索（模糊匹配）/ 无词无法搜索 / 无结果提示 / 历史搜索保存 / 历史记录可清除</p>
+    <p><strong>APP额外测试点：</strong></p>
+    <ul>
+      <li><strong>语音搜索：</strong>麦克风权限 → 语音识别 → 识别结果填入搜索框 → 自动搜索</li>
+      <li><strong>扫码搜索：</strong>相机权限 → 扫描条码/二维码 → 自动搜索商品</li>
+      <li><strong>键盘"搜索"键：</strong>手机键盘有专用的搜索键，按下直接触发搜索</li>
+      <li><strong>历史记录跨会话保持：</strong>关闭APP再打开，历史记录仍在</li>
+      <li><strong>搜索结果滑动：</strong>大量结果时，列表滑动流畅不卡顿</li>
+      <li><strong>网络切换时搜索：</strong>WiFi切4G时正在搜索，结果是否正常</li>
+    </ul>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div>
+  <div class="iq-q">【综合题】如果你是一个APP测试工程师，接手一个全新的电商APP，你的第一步会做什么？</div>
+  <div class="iq-lv lv-h">高阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><strong>第一步：熟悉项目（不要急着写用例）</strong></p>
+    <ol style="padding-left:18px;color:var(--ink2)">
+      <li><strong>收集资料：</strong>需求文档/原型图/已有测试用例/竞品APP</li>
+      <li><strong>熟悉核心业务：</strong>安装APP，完整走一遍购物流程（搜索→购物车→下单→支付→查订单）</li>
+      <li><strong>梳理核心功能：</strong>找出所有核心功能（登录/注册/购物车/支付等）</li>
+      <li><strong>了解技术栈：</strong>Android版本要求/最低支持系统/第三方SDK（微信支付/推送等）</li>
+      <li><strong>参加需求评审：</strong>在需求评审会上提问，确认所有规则细节</li>
+      <li><strong>制定测试计划：</strong>测什么/谁来测/怎么测/时间安排/需要哪些测试设备</li>
+    </ol>
+    <div class="box tip"><b>💡 经验：</b>熟悉项目最有效的方法是"从用户角度完整体验一遍"，比单纯看文档理解更深。遇到疑问立即记录，在需求评审时集中确认。</div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验（共15题）</h2>
+    <p>考察APP功能测试基础、拼团购、注册登录、APP专项测试知识。</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>APP测试相比Web测试，额外需要测试哪些内容？（选最全面的）</div>
+  <label class="opt" data-q="1" data-v="A">A. 只需要额外测试兼容性</label>
+  <label class="opt" data-q="1" data-v="B">B. 安装/卸载/更新 + 兼容性 + 中断测试 + 权限测试 + 性能专项</label>
+  <label class="opt" data-q="1" data-v="C">C. 只需要额外测试性能</label>
+  <label class="opt" data-q="1" data-v="D">D. APP和Web测试完全相同</label>
+  <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – APP测试在Web功能测试基础上新增：安装/卸载/更新（覆盖/降级安装）、兼容性（机型/系统版本/分辨率）、中断测试（来电/锁屏）、权限测试（相机/位置等）、性能专项（内存/CPU/流量/耗电）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>TPShop APP拼团购，手机端活动列表的排序方式是？</div>
+  <label class="opt" data-q="2" data-v="A">A. 按价格从低到高排列</label>
+  <label class="opt" data-q="2" data-v="B">B. 按添加时间先后倒序排列（最新添加的在最上面）</label>
+  <label class="opt" data-q="2" data-v="C">C. 按成团人数从少到多排列</label>
+  <label class="opt" data-q="2" data-v="D">D. 随机排列</label>
+  <div class="qz-ex" data-q="2"><b>✅ 正确答案：B</b> – 需求：手机端首页拼团列表显示所有拼团信息，按照添加时间先后倒序排列（最新添加的在最上面）。测试用例：后台按顺序添加a→e，手机端应显示e→a。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>拼团活动详情页，"已参团但未成团"状态下应显示什么？</div>
+  <label class="opt" data-q="3" data-v="A">A. 只显示拼团规则</label>
+  <label class="opt" data-q="3" data-v="B">B. 置顶展示待成团 + 显示距离成团所差人数 + 有效时间</label>
+  <label class="opt" data-q="3" data-v="C">C. 显示已成团，等待发货</label>
+  <label class="opt" data-q="3" data-v="D">D. 什么都不显示</label>
+  <div class="qz-ex" data-q="3"><b>✅ 正确答案：B</b> – 需求：已参团但未成团时，置顶展示"待成团"，并且显示距离成团所差人数，以及该团的有效倒计时时间。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>什么是"中断测试"？以下哪个是中断测试场景？</div>
+  <label class="opt" data-q="4" data-v="A">A. 测试APP安装后能否正常打开</label>
+  <label class="opt" data-q="4" data-v="B">B. 支付中途手机来电，接听后挂断，返回APP验证支付状态</label>
+  <label class="opt" data-q="4" data-v="C">C. 测试APP在弱网下的加载速度</label>
+  <label class="opt" data-q="4" data-v="D">D. 测试不同手机品牌的兼容性</label>
+  <div class="qz-ex" data-q="4"><b>✅ 正确答案：B</b> – 中断测试：在操作过程中被外部事件打断（来电/短信/闹钟等），验证APP能否正常恢复且状态正确。B选项是典型的中断测试场景：支付中途被来电打断，验证支付状态一致性。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span>商家确认拼团无效后，需要验证哪些内容？</div>
+  <label class="opt" data-q="5" data-v="A">A. 只看APP是否崩溃</label>
+  <label class="opt" data-q="5" data-v="B">B. 消息通知参团成员 + 金额原路退回 + 订单状态变更 + DB验证</label>
+  <label class="opt" data-q="5" data-v="C">C. 只看退款是否到账</label>
+  <label class="opt" data-q="5" data-v="D">D. 只看后台操作是否成功</label>
+  <div class="qz-ex" data-q="5"><b>✅ 正确答案：B</b> – 完整验证4个维度：① 消息通知所有参团成员（拼团失败）② 金额原路退回原支付方式 ③ 订单状态变为"拼团失败"或"已关闭" ④ DB验证退款记录和订单状态。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>熟悉APP项目的核心标准是什么？</div>
+  <label class="opt" data-q="6" data-v="A">A. 知道每个页面有多少按钮</label>
+  <label class="opt" data-q="6" data-v="B">B. 熟悉核心业务流程 + 熟悉核心功能模块（思路：用户是谁/用户怎么用）</label>
+  <label class="opt" data-q="6" data-v="C">C. 能背出所有需求文档内容</label>
+  <label class="opt" data-q="6" data-v="D">D. 安装APP成功</label>
+  <div class="qz-ex" data-q="6"><b>✅ 正确答案：B</b> – 熟悉标准：核心业务（用户使用的过程）+ 核心功能（功能缺失导致用户无法使用）。思路：用户是谁+用户怎么用。不是数按钮或背文档，而是理解业务逻辑。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>APP权限测试中，用户"拒绝"相机权限后，APP的正确处理方式是？</div>
+  <label class="opt" data-q="7" data-v="A">A. APP直接崩溃</label>
+  <label class="opt" data-q="7" data-v="B">B. 给出提示"请前往设置开启相机权限"，引导用户去系统设置，不崩溃不卡死</label>
+  <label class="opt" data-q="7" data-v="C">C. 强制要求用户授权才能继续</label>
+  <label class="opt" data-q="7" data-v="D">D. 忽略拒绝，直接尝试使用相机</label>
+  <div class="qz-ex" data-q="7"><b>✅ 正确答案：B</b> – 拒绝权限后正确处理：给出友好提示，告知用户权限的用途，引导去系统设置开启。APP不能崩溃（S1级Bug），不能强制要求（影响体验），不能忽略（功能会异常）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>拼团购列表页展示的信息有哪些？（根据需求2.5.7）</div>
+  <label class="opt" data-q="8" data-v="A">A. 只显示拼团商品名称</label>
+  <label class="opt" data-q="8" data-v="B">B. 分享图片/拼团商品名称/拼团价格/单独购买价格/成团人数要求（5个字段）</label>
+  <label class="opt" data-q="8" data-v="C">C. 拼团价格/库存/评分</label>
+  <label class="opt" data-q="8" data-v="D">D. 商品规格/颜色/尺寸</label>
+  <div class="qz-ex" data-q="8"><b>✅ 正确答案：B</b> – 需求：列表页显示部分商品信息：分享图片、拼团商品名称、拼团价格、单独购买价格以及成团人数要求。共5个字段，全部需要验证。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>APP注册测试中，以下哪个是"APP专项测试点"（Web没有的）？</div>
+  <label class="opt" data-q="9" data-v="A">A. 手机号格式验证</label>
+  <label class="opt" data-q="9" data-v="B">B. 密码6-16位边界值</label>
+  <label class="opt" data-q="9" data-v="C">C. 软键盘弹出时输入框不被遮挡</label>
+  <label class="opt" data-q="9" data-v="D">D. 验证码不能为空</label>
+  <div class="qz-ex" data-q="9"><b>✅ 正确答案：C</b> – 软键盘遮挡问题是APP特有的（Web没有虚拟键盘）。A/B/D都是Web测试也需要的功能验证点。APP还有：手机号/邮箱切换Tab、不同输入法兼容、粘贴输入、登录成功后自动跳转等专项点。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>拼团活动添加成功后，后台的默认状态是什么？用户能在手机端看到吗？</div>
+  <label class="opt" data-q="10" data-v="A">A. 默认开启状态，手机端立即可见</label>
+  <label class="opt" data-q="10" data-v="B">B. 默认关闭状态，需要手动开启后才能在手机端展示</label>
+  <label class="opt" data-q="10" data-v="C">C. 默认进行中状态</label>
+  <label class="opt" data-q="10" data-v="D">D. 需要审核通过才能展示</label>
+  <div class="qz-ex" data-q="10"><b>✅ 正确答案：B</b> – 需求：添加拼团活动成功后默认是关闭状态，手动开启后才能在手机端展示。测试时需要验证：关闭状态手机端不显示；开启后手机端才能看到。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>APP兼容性测试需要覆盖哪些维度？</div>
+  <label class="opt" data-q="11" data-v="A">A. 只测一款主流手机</label>
+  <label class="opt" data-q="11" data-v="B">B. 手机品牌 + Android版本 + 屏幕分辨率 + 屏幕尺寸 + 横竖屏 + 深色/浅色模式</label>
+  <label class="opt" data-q="11" data-v="C">C. 只测Android版本</label>
+  <label class="opt" data-q="11" data-v="D">D. 只测屏幕分辨率</label>
+  <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – 兼容性测试是多维度的：手机品牌（华为/小米/OPPO等）、Android版本（9/10/11/12）、分辨率（720P/1080P/2K）、屏幕尺寸、横竖屏切换、深色/浅色模式。只测一个维度会漏测大量兼容性Bug。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>响应时间测试，如果需求无明确规定，超过5秒应该怎么处理？</div>
+  <label class="opt" data-q="12" data-v="A">A. 不管它，等用户反馈</label>
+  <label class="opt" data-q="12" data-v="B">B. 记录实际响应时间，提交S3级优化建议Bug</label>
+  <label class="opt" data-q="12" data-v="C">C. 作为S0严重Bug提交</label>
+  <label class="opt" data-q="12" data-v="D">D. 直接判定通过</label>
+  <div class="qz-ex" data-q="12"><b>✅ 正确答案：B</b> – 如果需求无明确规定：记录实际响应时间，>5秒提优化建议（S3/S4级）。如果需求有明确规定（如≤2秒）且超过 → 提Bug（S2级）。不能忽视，也不能过度定级（5秒≠S0严重Bug）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>APP下单业务的核心流程是？</div>
+  <label class="opt" data-q="13" data-v="A">A. 登录→注册→支付</label>
+  <label class="opt" data-q="13" data-v="B">B. 登录→搜索商品→加购物车→去结算→确认订单→支付</label>
+  <label class="opt" data-q="13" data-v="C">C. 搜索→浏览→退出</label>
+  <label class="opt" data-q="13" data-v="D">D. 只需支付即可</label>
+  <div class="qz-ex" data-q="13"><b>✅ 正确答案：B</b> – APP下单核心业务流程：登录→搜索商品→加购物车→去结算→确认订单（选地址/优惠券等）→选支付方式→完成支付。与Web购物流程相同，但APP还需要额外测试支付中断等场景。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>APP登录的"多设备互踢"测试场景是什么？</div>
+  <label class="opt" data-q="14" data-v="A">A. 同一设备多次登录</label>
+  <label class="opt" data-q="14" data-v="B">B. 同一账号在手机A登录后，在手机B登录，手机A应被踢出登录态</label>
+  <label class="opt" data-q="14" data-v="C">C. 多个账号同时在一台手机登录</label>
+  <label class="opt" data-q="14" data-v="D">D. 先退出再重新登录</label>
+  <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – 多设备互踢：同一账号在设备A登录 → 再在设备B登录 → 设备A收到"您的账号在其他设备登录"提示，被强制退出。这是常见的账号安全机制，防止账号共享。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>【综合题】测试APP拼团购功能，"支持一键参团（tp_SpellDeals_004）"用例的预期结果是什么？</div>
+  <label class="opt" data-q="15" data-v="A">A. 拼团立即成功，直接进入待发货</label>
+  <label class="opt" data-q="15" data-v="B">B. 点击一键参团后跳转至订单核对页（不是直接完成参团）</label>
+  <label class="opt" data-q="15" data-v="C">C. 直接扣款完成参团</label>
+  <label class="opt" data-q="15" data-v="D">D. 需要等待其他用户同意</label>
+  <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – 需求：点击一键参团后，跳转到订单核对页（用户确认地址/支付方式/金额）。不是直接完成，而是跳转到订单核对页让用户确认后再支付参团。与课堂用例一致：预期现象=跳转到订单核对页。</div></div>
+
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">查看各题下方解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>APP功能测试 Day 06 完结 🎉</button>
+  </div>
+</div>
+
+</div>
+<script>
+const ANSWERS={1:'B',2:'B',3:'B',4:'B',5:'B',6:'B',7:'B',8:'B',9:'C',10:'B',11:'B',12:'B',13:'B',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  if(done===10)document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ANSWERS[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct)o.classList.add('ok');
+      else if(o.classList.contains('sel'))o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex)ex.classList.add('s');
+    if(sel[q]===correct)score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90)msg='🏆 优秀！APP测试基础知识掌握扎实！';
+  else if(pct>=75)msg='✅ 良好！建议复习错题后继续学习。';
+  else if(pct>=50)msg='📚 还需努力，请重新阅读知识讲解。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12)document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d6'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

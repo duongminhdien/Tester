@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3 · Web功能测试 Day 01 – Web项目环境 & 业务流程测试</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#7c3aed;
+  --day-d:#6d28d9;
+  --day-bg:rgba(124,58,237,.09);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(124,58,237,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sections */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box.purple{background:#f5f3ff;border-color:#7c3aed;color:#5b21b6}
+
+/* Tables */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+
+/* Flow steps */
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0}
+.flow-step{padding:9px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;min-width:72px;border:2px solid}
+.flow-arrow{color:var(--day);font-size:20px;font-weight:700;line-height:1}
+
+/* Badge */
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;font-weight:700}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-purple{background:#ede9fe;color:#6d28d9}
+.badge-gray{background:#f1f5f9;color:#475569}
+
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:12px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:6px;font-size:13px;line-height:1.8;color:var(--ink2)}
+.pt-ans.s{display:block}
+
+/* Progress */
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+
+/* Nav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* 用例表格 */
+.case-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.case-table th{background:var(--day-bg);color:var(--day-d);font-weight:700;padding:8px 10px;text-align:left;border:1px solid var(--border)}
+.case-table td{padding:8px 10px;border:1px solid var(--border);vertical-align:top;color:var(--ink2)}
+.case-table tr:hover td{background:#fafbfc}
+.p0{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700}
+.p1{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700}
+
+/* 流程图样式 */
+.biz-flow{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.biz-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.biz-step{padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;border:2px solid;min-width:90px;text-align:center}
+.biz-ok{background:#dbeafe;border-color:#3b82f6;color:#1d4ed8}
+.biz-no{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.biz-start{background:#dcfce7;border-color:#16a34a;color:#15803d}
+.biz-end{background:#f1f5f9;border-color:#475569;color:#334155}
+.biz-arrow{color:var(--day);font-weight:700;font-size:18px}
+.biz-label{font-size:11px;color:var(--muted);padding:2px 6px;background:#f8fafc;border-radius:4px;border:1px dashed var(--border)}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .flow{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Header -->
+<div class="hd">
+  <div class="hd-tag">STAGE 3 · WEB功能测试 · DAY 01</div>
+  <h1>Web项目环境 &amp; 业务流程测试</h1>
+  <p>掌握Web项目环境组成、熟悉TPShop商城核心业务、理解测试流程6个步骤，并能用流程图法独立完成发货业务、评论业务、下单业务的测试用例设计。</p>
+  <div class="hd-stats">
+    <div><b>4</b>核心模块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试精讲</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- Dots -->
+<div id="dots"></div>
+
+<!-- Tabs -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <div class="sec">
+    <h2><span class="ico">1</span>Web项目环境说明</h2>
+
+    <h3>什么是环境？</h3>
+    <p><strong>环境的定义：</strong>项目运行所需要的所有<strong>软件和硬件组合</strong>。</p>
+    <p><strong>服务器（环境）的组成：</strong><span class="badge badge-purple">操作系统</span> + <span class="badge badge-blue">数据库</span> + <span class="badge badge-green">Web应用程序</span> + <span class="badge badge-amber">项目代码</span></p>
+
+    <div class="box purple">
+      <b>🏗️ TPShop项目环境示例：</b><br>
+      • LNMP：<strong>L</strong>inux + <strong>N</strong>ginx + <strong>M</strong>ySQL + <strong>P</strong>HP项目<br>
+      • WAMP：<strong>W</strong>indows + <strong>A</strong>pache + <strong>M</strong>ySQL + <strong>P</strong>HP项目
+    </div>
+
+    <h3>客户端与服务端</h3>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid #3b82f6">
+        <h4>🖥️ 客户端</h4>
+        <p><strong>浏览器</strong> + 操作系统（Windows/Mac）<br>前台：普通用户入口（HTML/CSS/JS）<br>后台：管理员入口（Java/Python/PHP）</p>
+      </div>
+      <div class="card" style="border-left:3px solid #7c3aed">
+        <h4>🖥️ 服务端（服务器）</h4>
+        <p>操作系统（Linux/Windows）<br>+ Web应用服务器（Nginx/Apache/Tomcat）<br>+ 数据库（MySQL/Oracle/Redis）<br>+ 项目代码（前端+后端）</p>
+      </div>
+    </div>
+
+    <h3>访问过程</h3>
+    <div class="flow">
+      <div class="biz-step biz-start">用户浏览器</div>
+      <div class="biz-arrow">→ 请求 →</div>
+      <div class="biz-step biz-ok">Web应用服务器（Nginx）</div>
+      <div class="biz-arrow">→ 请求 →</div>
+      <div class="biz-step biz-ok">数据库服务器（MySQL）</div>
+    </div>
+    <div class="flow">
+      <div class="biz-step biz-start">用户浏览器</div>
+      <div class="biz-arrow">← 响应 ←</div>
+      <div class="biz-step biz-ok">项目代码处理</div>
+      <div class="biz-arrow">← 数据 ←</div>
+      <div class="biz-step biz-ok">数据库查询结果</div>
+    </div>
+
+    <h3>公司有几套环境？（高频面试题）</h3>
+    <div class="tw">
+      <table>
+        <tr><th>环境类型</th><th>使用人员</th><th>说明</th></tr>
+        <tr><td><span class="badge badge-blue">开发环境</span></td><td>开发人员</td><td>开发人员日常开发使用，数据不稳定</td></tr>
+        <tr><td><span class="badge badge-amber">测试环境</span></td><td>测试人员</td><td>专门提供给测试人员使用，最重要</td></tr>
+        <tr><td><span class="badge badge-purple">预生产环境</span></td><td>测试人员</td><td>配置和数据与生产环境一样，上线前最终验证</td></tr>
+        <tr><td><span class="badge badge-green">生产环境</span></td><td>真实用户</td><td>提供给用户使用的正式环境</td></tr>
+      </table>
+    </div>
+    <div class="box info">
+      <b>📌 两种情况：</b><br>
+      • <strong>2套环境</strong>（测试+生产）：通过"开发周"和"测试周"分开，开发新功能时不测试，测试时开发不进新代码。<br>
+      • <strong>3套环境</strong>（开发+测试+生产）：更规范，职责分离清晰。
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">2</span>熟悉商城项目（TPShop）</h2>
+
+    <h3>如何快速熟悉一个项目？</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>📄 信息来源</h4>
+        <p>• 新项目：需求文档 + 产品经理<br>• 已存在项目：文档（需求文档/使用说明书/测试用例）+ 测试老员工 + 项目软件</p>
+      </div>
+      <div class="card">
+        <h4>🎯 熟悉标准</h4>
+        <p>1. 熟悉项目的<strong>核心业务流程</strong><br>2. 熟悉项目的<strong>核心功能模块</strong><br>思路：用户是谁 + 用户如何使用</p>
+      </div>
+    </div>
+
+    <h3>TPShop商城 — 8大核心业务</h3>
+    <div class="tw">
+      <table>
+        <tr><th>业务</th><th>操作路径</th><th>涉及角色</th></tr>
+        <tr><td><span class="badge badge-red">下单业务</span></td><td>前台登录 → 搜索商品 → 添加购物车 → 下单 → 支付</td><td>普通用户</td></tr>
+        <tr><td><span class="badge badge-blue">发货业务</span></td><td>后台登录 → 审核订单 → 填写物流单号 → 发货成功</td><td>商家/管理员</td></tr>
+        <tr><td><span class="badge badge-amber">售后（仅退款）</span></td><td>前台登录 → 我的订单 → 发起申请 → 商家审核 → 退款成功</td><td>用户+商家</td></tr>
+        <tr><td><span class="badge badge-amber">售后（退货退款）</span></td><td>发起申请 → 审核通过 → 用户退货 → 商家确认收货 → 商家打款</td><td>用户+商家</td></tr>
+        <tr><td><span class="badge badge-amber">换货业务</span></td><td>发起换货申请 → 审核通过 → 用户退货 → 换货成功</td><td>用户+商家</td></tr>
+        <tr><td><span class="badge badge-green">订单查询</span></td><td>前台登录 → 我的订单 → 查看订单状态（预订→待发货→已发货→已完成）</td><td>普通用户</td></tr>
+        <tr><td><span class="badge badge-purple">商品管理</span></td><td>后台登录 → 商品管理（添加/编辑/删除商品）</td><td>管理员</td></tr>
+        <tr><td><span class="badge badge-purple">会员管理</span></td><td>后台登录 → 会员管理（添加/编辑/删除会员）</td><td>管理员</td></tr>
+      </table>
+    </div>
+
+    <h3>TPShop商城 — 7大核心功能模块</h3>
+    <div class="g3">
+      <div class="card"><h4>🔐 注册</h4><p>新用户创建账号，含字段校验</p></div>
+      <div class="card"><h4>🔑 登录</h4><p>前台/后台登录，账号密码验证</p></div>
+      <div class="card"><h4>🖼️ 轮播图</h4><p>首页轮播广告展示，后台管理</p></div>
+      <div class="card"><h4>🔍 搜索</h4><p>商品关键词搜索，结果展示</p></div>
+      <div class="card"><h4>🛒 购物车</h4><p>添加/修改/删除，数量计算</p></div>
+      <div class="card"><h4>⚡ 抢购</h4><p>限时秒杀，库存并发控制</p></div>
+      <div class="card"><h4>⭐ 评论</h4><p>订单完成后评价商品</p></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">3</span>测试流程的6个步骤</h2>
+    <p>测试流程的作用：让测试工作<strong>有条不紊地开展</strong>，确保质量。</p>
+
+    <div class="flow" style="justify-content:center;flex-wrap:wrap;gap:4px">
+      <div class="biz-step biz-start" style="font-size:12px;padding:6px 10px">①需求评审</div>
+      <div class="biz-arrow">→</div>
+      <div class="biz-step biz-ok" style="font-size:12px;padding:6px 10px">②计划编写</div>
+      <div class="biz-arrow">→</div>
+      <div class="biz-step biz-ok" style="font-size:12px;padding:6px 10px">③用例设计</div>
+      <div class="biz-arrow">→</div>
+      <div class="biz-step biz-ok" style="font-size:12px;padding:6px 10px">④用例执行</div>
+      <div class="biz-arrow">→</div>
+      <div class="biz-step biz-ok" style="font-size:12px;padding:6px 10px">⑤缺陷管理</div>
+      <div class="biz-arrow">→</div>
+      <div class="biz-step biz-end" style="font-size:12px;padding:6px 10px">⑥测试报告</div>
+    </div>
+
+    <div class="g2" style="margin-top:14px">
+      <div class="card">
+        <h4><span class="num">1</span>需求评审</h4>
+        <p><strong>前提：</strong>提前阅读需求文档，记录疑问点。<br><strong>目的：</strong>各部门对需求理解一致，查漏补缺，明确功能规则。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">2</span>计划编写</h4>
+        <p>核心三问：<strong>测什么（目标范围）/ 谁来测（人员安排）/ 怎么测（策略工具）</strong><br>含准入标准（提测标准）和准出标准（上线标准）。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">3</span>用例设计</h4>
+        <p>先设计<strong>业务流程用例</strong>，后设计<strong>单功能模块用例</strong>。<br>用例需经过评审确保覆盖全面。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">4</span>用例执行</h4>
+        <p>推荐按<strong>优先级执行</strong>（P0→P1→P2→P3）。<br>P0：最高优先级，核心主流程。也可按顺序执行。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">5</span>缺陷管理</h4>
+        <p><strong>提交：</strong>用例执行失败第一时间提交。<br><strong>注意：</strong>唯一性、可复现、注明版本号。<br><strong>验证：</strong>通过→关闭，不通过→Reopen。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">6</span>测试报告</h4>
+        <p>测试阶段最终产出文档，包含：项目概述 / 测试过程回顾 / 统计分析 / 结果确认 / 工作总结与改进。</p>
+      </div>
+    </div>
+
+    <div class="box tip">
+      <b>💡 准入与准出标准：</b><br>
+      • <strong>准入（提测标准）：</strong>业务主流程（P0）能跑通<br>
+      • <strong>准出（上线标准）：</strong>用例执行率100% / S0级Bug解决率100% / S1级100% / S2S3级≥95%
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">4</span>业务流程测试 — 流程图法</h2>
+
+    <h3>什么是业务流程测试？</h3>
+    <p>为达到某一个目的，需要将<strong>多个功能组合起来使用</strong>，这样的操作过程叫<strong>业务流程</strong>。</p>
+    <p><strong>意义：</strong>确保项目的核心业务能正常使用，覆盖最关键的端到端路径。</p>
+
+    <h3>流程图法（场景法）</h3>
+    <p>用流程图描述用户的使用场景，通过<strong>覆盖流程路径</strong>来设计测试用例。</p>
+    <div class="box warn">
+      <b>⚠️ 注意：</b>流程图法不需要深入测试功能内部细节，主要测试流程的<strong>通路是否正常</strong>。每条从开始到结束的路径 = 一条测试用例。
+    </div>
+
+    <h3>流程图法使用步骤</h3>
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--day)">
+        <h4>第一步：找路径</h4>
+        <p>从开始节点到结束节点，<strong>有多少条路径就有多少条用例</strong>。正向路径（成功）+ 逆向路径（各个节点失败）。</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--day)">
+        <h4>第二步：写用例</h4>
+        <p>流程图中一条路径 = 一条测试用例。包含：用例编号、功能模块、优先级、标题、前置条件、执行步骤、预期结果。</p>
+      </div>
+    </div>
+
+    <h3>案例一：发货业务流程（4条路径）</h3>
+    <div class="biz-flow">
+      <div class="biz-row">
+        <div class="biz-step biz-start">开始</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">后台登录</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">审核订单</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">填写物流单号</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-start">发货成功 ✅</div>
+      </div>
+      <div class="biz-row">
+        <span style="color:var(--red);font-size:12px;font-weight:600">路径2→</span>
+        <div class="biz-step biz-no">登录失败</div>
+        <div class="biz-arrow" style="color:var(--red)">→</div>
+        <div class="biz-step biz-no">发货失败 ❌</div>
+      </div>
+      <div class="biz-row">
+        <span style="color:var(--red);font-size:12px;font-weight:600">路径3→</span>
+        <div class="biz-step biz-no">审核不通过</div>
+        <div class="biz-arrow" style="color:var(--red)">→</div>
+        <div class="biz-step biz-no">订单作废 ❌</div>
+      </div>
+      <div class="biz-row">
+        <span style="color:var(--red);font-size:12px;font-weight:600">路径4→</span>
+        <div class="biz-step biz-no">物流单号错误</div>
+        <div class="biz-arrow" style="color:var(--red)">→</div>
+        <div class="biz-step biz-no">发货失败 ❌</div>
+      </div>
+    </div>
+
+    <div class="box info">
+      <b>📌 发货业务用例表（参考）：</b>
+      <div class="tw" style="margin-top:8px">
+        <table class="case-table">
+          <tr><th>用例编号</th><th>优先级</th><th>用例标题</th><th>预期结果</th></tr>
+          <tr><td>tp_shipments_001</td><td><span class="p0">P0</span></td><td>发货成功（所有项都正确）</td><td>现象：页面提示发货成功，用户订单变为"待收货"</td></tr>
+          <tr><td>tp_shipments_002</td><td><span class="p1">P1</span></td><td>发货失败（登录失败）</td><td>现象：登录失败，提示"账号或密码错误"</td></tr>
+          <tr><td>tp_shipments_003</td><td><span class="p1">P1</span></td><td>发货失败（审核不通过）</td><td>现象：订单作废，金额原路返回</td></tr>
+          <tr><td>tp_shipments_004</td><td><span class="p1">P1</span></td><td>发货失败（物流单号错误）</td><td>现象：物流单号与物流公司不匹配，提示错误</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3>案例二：评论业务流程（3条路径）</h3>
+    <div class="biz-flow">
+      <div class="biz-row">
+        <div class="biz-step biz-start">开始</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">前台登录</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">查看已收货订单</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">填写评论内容</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-start">评论成功 ✅</div>
+      </div>
+      <div class="biz-row">
+        <span style="color:var(--red);font-size:12px;font-weight:600">路径2→</span>
+        <div class="biz-step biz-no">登录失败</div>
+        <div class="biz-arrow" style="color:var(--red)">→</div>
+        <div class="biz-step biz-no">评论失败 ❌</div>
+      </div>
+      <div class="biz-row">
+        <span style="color:var(--red);font-size:12px;font-weight:600">路径3→</span>
+        <div class="biz-step biz-no">无已收货订单</div>
+        <div class="biz-arrow" style="color:var(--red)">→</div>
+        <div class="biz-step biz-no">评论失败 ❌</div>
+      </div>
+    </div>
+    <div class="box tip">
+      <b>💡 评论成功后验证5个要素：</b>① 页面提示评论成功 ② "我的评价"显示已评论 ③ 商品评论页展示 ④ 商品评分变化 ⑤ 数据库表数据更新
+    </div>
+
+    <h3>案例三：下单业务流程（多条路径）</h3>
+    <div class="biz-flow">
+      <div class="biz-row">
+        <div class="biz-step biz-start">开始</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">前台登录</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">搜索商品</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">加购物车</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">下单</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-ok">支付</div>
+        <div class="biz-arrow">→</div>
+        <div class="biz-step biz-start">下单成功 ✅</div>
+      </div>
+      <div class="biz-row">
+        <span style="color:var(--red);font-size:12px;font-weight:600">失败路径→</span>
+        <div class="biz-step biz-no">各节点失败</div>
+        <div class="biz-arrow" style="color:var(--red)">→</div>
+        <div class="biz-step biz-no">下单失败 ❌</div>
+      </div>
+    </div>
+
+    <div class="box warn">
+      <b>⚠️ 用例编号规范：</b>格式 = 项目缩写_功能模块_编号，如 <strong>tp_shopping_001</strong>。<br>
+      <b>⚠️ 用例标题规范：</b>= 预期结果（测试点），如"发货成功（所有项都正确）"而非"点击发货按钮"。
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>Web项目架构全景图</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">从用户浏览器到后端数据库，请求和响应的完整链路：</p>
+    <div class="g2">
+      <div class="card" style="border:2px solid #3b82f6">
+        <h4 style="color:#1d4ed8">🖥️ 客户端</h4>
+        <ul style="font-size:12.5px;color:var(--ink2);padding-left:16px">
+          <li>浏览器（Chrome/Firefox/Safari/IE）</li>
+          <li>操作系统（Windows/macOS）</li>
+          <li>发起HTTP请求</li>
+          <li>接收HTML/JSON渲染页面</li>
+        </ul>
+      </div>
+      <div class="card" style="border:2px solid #7c3aed">
+        <h4 style="color:#6d28d9">🖥️ 服务端</h4>
+        <ul style="font-size:12.5px;color:var(--ink2);padding-left:16px">
+          <li>操作系统（Linux/Windows）</li>
+          <li>Web应用服务器（Nginx/Apache）</li>
+          <li>数据库（MySQL/Redis/Oracle）</li>
+          <li>项目代码（前端+后端Java/PHP/Python）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="box purple" style="margin-top:12px">
+      <b>🔄 访问流程：</b>用户输入URL → 浏览器发起请求 → Nginx接收 → 调用后端代码 → 后端访问数据库 → 数据库返回数据 → 后端处理 → 响应给浏览器 → 页面渲染
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🗺️</span>测试流程 6 步骤全景</h2>
+    <div class="tw">
+      <table>
+        <tr><th>步骤</th><th>名称</th><th>核心目标</th><th>关键产出物</th></tr>
+        <tr><td><span class="badge badge-red">①</span></td><td>需求评审</td><td>各部门对需求理解一致</td><td>需求确认文档、疑问清单</td></tr>
+        <tr><td><span class="badge badge-amber">②</span></td><td>计划编写</td><td>明确测什么/谁来测/怎么测</td><td>测试计划（总计划+个人计划）</td></tr>
+        <tr><td><span class="badge badge-blue">③</span></td><td>用例设计</td><td>验证项目是否符合需求的操作文档</td><td>测试用例（Excel）</td></tr>
+        <tr><td><span class="badge badge-purple">④</span></td><td>用例执行</td><td>按优先级执行，记录结果</td><td>执行结果（Pass/Fail/Block/NA）</td></tr>
+        <tr><td><span class="badge badge-red">⑤</span></td><td>缺陷管理</td><td>提交、跟踪、验证、关闭Bug</td><td>Bug报告</td></tr>
+        <tr><td><span class="badge badge-green">⑥</span></td><td>测试报告</td><td>汇总测试结果，评估质量</td><td>测试报告文档</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🏪</span>TPShop 核心业务地图</h2>
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--red)">
+        <h4 style="color:var(--red)">🛒 下单业务（最核心）</h4>
+        <p>登录 → 搜索商品 → 加购物车 → 下单 → 支付<br><strong>用例数：</strong>约5条（1条成功+各节点失败）</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--blue)">
+        <h4 style="color:var(--blue)">📦 发货业务</h4>
+        <p>后台登录 → 审核订单 → 填物流单号 → 发货<br><strong>用例数：</strong>4条（参考课堂用例）</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--amber)">
+        <h4 style="color:var(--amber)">💬 评论业务</h4>
+        <p>登录 → 我的订单 → 评价订单<br><strong>验证：</strong>页面+我的评价+商品评论+评分+DB</p>
+      </div>
+      <div class="card" style="border-left:4px solid #ea580c">
+        <h4 style="color:#ea580c">🔄 售后业务</h4>
+        <p>发起申请 → 商家审核 → 退款/换货<br><strong>类型：</strong>仅退款 / 退货退款 / 换货</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>用例优先级 & 测试结果标准</h2>
+    <div class="g2">
+      <div class="card">
+        <h4>优先级定义</h4>
+        <ul style="font-size:12.5px;padding-left:16px;color:var(--ink2)">
+          <li><strong>P0：</strong>最核心主流程，必须保证正常</li>
+          <li><strong>P1：</strong>次要功能，小功能</li>
+          <li><strong>P2：</strong>UI/边界/错误场景</li>
+          <li><strong>P3：</strong>错误信息/复杂场景/不常用</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>测试结果标识</h4>
+        <ul style="font-size:12.5px;padding-left:16px;color:var(--ink2)">
+          <li><span class="badge badge-green">Pass</span> 用例通过</li>
+          <li><span class="badge badge-red">Fail</span> 用例不通过，发现Bug</li>
+          <li><span class="badge badge-amber">Block</span> 阻塞，无法继续执行</li>
+          <li><span class="badge badge-gray">N/A</span> 用例不适用或已作废</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习 — 业务流程用例设计</h2>
+    <p>完成以下10道练习题，深入理解业务测试的设计思路。</p>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记为已完成</button>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p1">
+    <div class="pt-body">
+      <div class="pt-t">1. 说明"Web项目环境"的完整组成，并举例TPShop使用的是哪套技术栈</div>
+      <div class="pt-sub">考察环境定义和LNMP/WAMP的实际组合</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>环境定义：</strong>项目运行所需要的所有软件和硬件组合。<br><br>
+        <strong>服务端组成：</strong>操作系统 + Web应用服务器 + 数据库 + 项目代码<br><br>
+        <strong>TPShop两套方案：</strong><br>
+        • LNMP：Linux + Nginx + MySQL + PHP项目（线上主流）<br>
+        • WAMP：Windows + Apache + MySQL + PHP项目（本地开发常用）<br><br>
+        <strong>常见Web应用服务器：</strong>Apache、Tomcat、Nginx、IIS
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p2">
+    <div class="pt-body">
+      <div class="pt-t">2. 面试题：你们公司有几套环境？请完整回答（含2种常见情况）</div>
+      <div class="pt-sub">这是面试高频题，需要答出4种环境类型及各自用途</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>标准回答（4种环境）：</strong><br>
+        1. <strong>开发环境</strong>：开发人员使用，代码频繁变更<br>
+        2. <strong>测试环境</strong>：测试人员专用，最重要的测试场所<br>
+        3. <strong>预生产环境</strong>：配置和数据与生产一样，上线前最终验证<br>
+        4. <strong>生产环境</strong>：真实用户使用，数据真实、不允许随意测试<br><br>
+        <strong>2套环境情况：</strong>测试+生产。解决进度冲突：区分"开发周"和"测试周"，开发新功能时不测试，测试阶段开发不进新代码。<br>
+        <strong>3套环境情况：</strong>开发+测试+生产，职责分离更清晰。
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p3">
+    <div class="pt-body">
+      <div class="pt-t">3. 列出TPShop商城的8大核心业务，并说明每条业务的完整操作路径</div>
+      <div class="pt-sub">考察对电商项目核心业务的掌握程度</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        1. <strong>下单业务：</strong>前台登录 → 搜索商品 → 添加购物车 → 下单 → 支付<br>
+        2. <strong>发货业务：</strong>后台登录 → 审核订单 → 填写物流单号 → 发货成功<br>
+        3. <strong>仅退款：</strong>前台登录 → 我的订单 → 发起退款申请 → 商家审核 → 退款成功<br>
+        4. <strong>退货退款：</strong>发起申请 → 审核通过 → 用户退货 → 商家确认收货 → 商家打款<br>
+        5. <strong>换货业务：</strong>发起换货申请 → 审核通过 → 退货 → 换货成功<br>
+        6. <strong>订单查询：</strong>前台登录 → 我的订单 → 查看状态（预订→待发货→已发货→已完成）<br>
+        7. <strong>商品管理：</strong>后台登录 → 商品管理（添加/编辑/删除商品）<br>
+        8. <strong>会员管理：</strong>后台登录 → 会员管理（添加/编辑/删除会员）
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p4">
+    <div class="pt-body">
+      <div class="pt-t">4. 测试流程有哪6个步骤？每步骤的核心作用是什么？</div>
+      <div class="pt-sub">考察测试流程全局认知，面试必答题</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        1. <strong>需求评审：</strong>确保各部门对需求理解一致，查漏补缺<br>
+        2. <strong>计划编写：</strong>明确测什么/谁来测/怎么测（含准入准出标准）<br>
+        3. <strong>用例设计：</strong>根据需求编写验证项目的操作文档（先业务用例，后单功能用例）<br>
+        4. <strong>用例执行：</strong>按优先级（P0→P1→P2→P3）执行用例，记录Pass/Fail/Block/NA<br>
+        5. <strong>缺陷管理：</strong>失败即提交Bug，跟踪验证，验证通过关闭，不通过Reopen<br>
+        6. <strong>测试报告：</strong>汇总测试结果，评估质量，决策是否上线
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p5">
+    <div class="pt-body">
+      <div class="pt-t">5. 流程图法（场景法）的定义是什么？使用步骤是什么？</div>
+      <div class="pt-sub">考察业务测试的核心方法论</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>定义：</strong>流程图法也叫场景法，是用流程图描述用户的使用场景，通过覆盖流程路径来设计测试用例。<br><br>
+        <strong>适用场景：</strong>在业务场景中涉及多功能的组合逻辑（如下单、发货、评论等）。<br><br>
+        <strong>注意：</strong>流程图法不需要深入功能内部详细测试，主要测试流程是否通畅。<br><br>
+        <strong>使用步骤：</strong><br>
+        ① 根据流程图找出路径（从开始节点到结束节点，有多少条路径就有多少条用例）<br>
+        ② 编写测试用例（一条路径 = 一条用例）
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p6">
+    <div class="pt-body">
+      <div class="pt-t">6. 为"评论业务"设计完整测试用例（包含所有路径）</div>
+      <div class="pt-sub">前提：存在已收货的订单。需要找出所有路径并设计对应用例</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>业务流程：</strong>前台登录 → 查看已收货订单 → 填写评论 → 提交评论<br><br>
+        <strong>路径拆分（3条用例）：</strong><br><br>
+        <strong>tp_comment_001（P0）评论成功：</strong><br>
+        前提：存在已收货订单<br>
+        步骤：① 前台登录 ② 查看订单详情 ③ 填写评论内容 ④ 提交<br>
+        预期：① 页面提示评论成功 ② 我的评价显示该订单 ③ 商品评论页展示 ④ 商品评分变化 ⑤ DB数据更新<br><br>
+        <strong>tp_comment_002（P1）评论失败-登录失败：</strong><br>
+        步骤：① 输入错误密码登录<br>
+        预期：登录失败，提示"账号或密码错误，请重新登录"<br><br>
+        <strong>tp_comment_003（P1）评论失败-无已收货订单：</strong><br>
+        前提：账号下无已收货订单<br>
+        步骤：① 前台登录 ② 查看订单<br>
+        预期：订单不存在，无法进入评论
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p7">
+    <div class="pt-body">
+      <div class="pt-t">7. 用例执行的"准入标准"和"准出标准"分别是什么？</div>
+      <div class="pt-sub">这是测试计划的重要组成部分，也是面试常考点</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>准入标准（提测标准）：</strong>研发提交测试的条件<br>
+        • 核心业务主流程（P0用例）能跑通<br>
+        • 测试环境搭建完成，测试数据准备好<br>
+        • 代码已通过Code Review<br><br>
+        <strong>准出标准（上线标准）：</strong>什么时候结束测试<br>
+        • 用例执行率：100%<br>
+        • S0级Bug解决率：100%<br>
+        • S1级Bug解决率：100%<br>
+        • S2/S3级Bug解决率：≥95%<br>
+        • 所有P0用例Pass
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p8">
+    <div class="pt-body">
+      <div class="pt-t">8. 为"下单业务"设计P0用例（发货成功路径）的完整格式</div>
+      <div class="pt-sub">按照用例8要素格式填写，参考课堂用例模板</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>用例编号：</strong>tp_shopping_001<br>
+        <strong>功能模块：</strong>前台购物流程<br>
+        <strong>优先级：</strong>P0<br>
+        <strong>用例标题：</strong>下单成功（登录、搜索、加购、支付所有步骤都正确）<br>
+        <strong>预置条件：</strong>① 有已注册账号 ② 商品有库存 ③ 网络正常 ④ 已打开前台页面<br>
+        <strong>执行步骤：</strong><br>
+        1. 输入正确账号密码登录<br>
+        2. 搜索框输入商品名称，点击搜索<br>
+        3. 选中商品，点击"加入购物车"<br>
+        4. 进入购物车，勾选商品，点击"去结算"<br>
+        5. 填写收货地址，选择支付方式，点击"提交订单"<br>
+        6. 完成支付<br>
+        <strong>测试数据：</strong>账号：已注册手机号；密码：正确密码<br>
+        <strong>预期结果：</strong>下单成功，现象：① 页面跳转至"下单成功"页 ② 我的订单可查到该订单 ③ 商品库存减少 ④ 数据库订单表有新增记录
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p9">
+    <div class="pt-body">
+      <div class="pt-t">9. 缺陷管理的3个注意事项是什么？提交时机是什么？</div>
+      <div class="pt-sub">考察缺陷管理的规范性要求</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>提交时机：</strong>用例执行失败的第一时间提交<br><br>
+        <strong>3个注意事项：</strong><br>
+        1. <strong>唯一性：</strong>一个缺陷报告只描述一个问题，避免合并多个Bug<br>
+        2. <strong>可复现：</strong>明确复现步骤、问题发生时间、日志截图，确保开发能复现<br>
+        3. <strong>注明版本号：</strong>注明发现Bug的测试版本号（如V1.0），验证修复后也要更新版本号<br><br>
+        <strong>缺陷生命周期：</strong><br>
+        提交（New）→ 分派（Assigned）→ 开发修复（Fixed）→ 测试验证（Retest）→ 验证通过关闭（Closed）/ 验证不通过重开（Reopened）
+      </div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p10">
+    <div class="pt-body">
+      <div class="pt-t">10. 如果你是新加入一个已有项目的测试工程师，你会怎么快速熟悉这个项目？</div>
+      <div class="pt-sub">综合题，考察测试工程师的项目熟悉思路和方法</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+        <strong>熟悉项目的思路：用户是谁 + 用户如何使用</strong><br><br>
+        <strong>信息来源（4个渠道）：</strong><br>
+        1. <strong>文档：</strong>需求文档、使用说明书、已有测试用例（了解功能和规则）<br>
+        2. <strong>人：</strong>测试老员工（了解历史Bug和测试重点）、产品经理（了解业务逻辑）、开发（了解技术实现）<br>
+        3. <strong>项目软件：</strong>直接操作软件，从用户角度体验核心业务<br><br>
+        <strong>熟悉标准（2个维度）：</strong><br>
+        1. 核心业务流程：哪些业务是最重要的（下单、支付等）<br>
+        2. 核心功能模块：哪些功能是核心（登录、购物车、搜索等）<br><br>
+        <strong>优先级：</strong>先跑通主业务流程（下单→发货→评论），再深入单功能模块测试
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲 — Web功能测试高频题（共12题）</h2>
+    <p>涵盖Web环境、测试流程、业务测试常考面试题，点击展开查看参考答案。</p>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q1</div>
+      <div class="iq-q">Web项目环境是由什么组成的？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>环境定义：</strong>项目运行所需要的所有软件和硬件组合。</p>
+      <p><strong>服务端组成（4要素）：</strong>操作系统 + Web应用服务器 + 数据库 + 项目代码</p>
+      <p><strong>举例：</strong><br>• LNMP = Linux + Nginx + MySQL + PHP（生产主流）<br>• WAMP = Windows + Apache + MySQL + PHP（本地开发）</p>
+      <div class="box tip"><b>💡 面试亮点：</b>提到Web应用服务器有多种（Nginx/Apache/Tomcat/IIS），数据库有关系型（MySQL/Oracle）和非关系型（Redis/MongoDB），体现技术广度。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q2</div>
+      <div class="iq-q">你们公司有几套环境？（超高频面试题）</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>标准答案应包含4种环境：</p>
+      <ul>
+        <li><strong>开发环境（Dev）：</strong>开发人员使用，代码频繁迭代</li>
+        <li><strong>测试环境（Test）：</strong>测试人员专用，最核心的测试场所</li>
+        <li><strong>预生产环境（Pre/UAT）：</strong>配置和数据与生产相同，上线前终验</li>
+        <li><strong>生产环境（Prod）：</strong>真实用户使用，禁止随意操作</li>
+      </ul>
+      <div class="box info"><b>📌 补充：</b>如果公司只有2套环境（测试+生产），解决进度冲突的方式是区分开发周和测试周，开发期间不测试，测试期间开发不合并新代码。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q3</div>
+      <div class="iq-q">测试流程有哪几个步骤？每一步的作用是什么？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>测试流程共<strong>6步</strong>：</p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li><strong>需求评审：</strong>各部门对需求理解一致，查漏补缺</li>
+        <li><strong>计划编写：</strong>明确测什么/谁来测/怎么测，含准入准出标准</li>
+        <li><strong>用例设计：</strong>先业务用例后单功能用例，覆盖所有测试点</li>
+        <li><strong>用例执行：</strong>按优先级P0→P1→P2→P3执行，记录结果</li>
+        <li><strong>缺陷管理：</strong>提交→跟踪→验证→关闭，不通过则Reopen</li>
+        <li><strong>测试报告：</strong>汇总结果，评估质量，决策是否发布</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q4</div>
+      <div class="iq-q">什么是业务流程测试？为什么要先做业务测试？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>业务流程：</strong>为达到某一目的，需要将多个功能组合使用的操作过程。</p>
+      <p><strong>业务流程测试：</strong>测试核心业务路径是否能跑通（端到端流程验证）。</p>
+      <p><strong>为什么先做业务测试？</strong><br>
+      ① 确保核心主流程可用（阻塞问题最早发现）<br>
+      ② 单功能缺陷在业务测试中也能发现（提高效率）<br>
+      ③ 符合从整体到局部的测试策略<br>
+      ④ 对应准入标准（P0业务能跑通才开始单功能测试）</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q5</div>
+      <div class="iq-q">流程图法是什么？如何使用？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>流程图法（场景法）：</strong>用流程图描述用户的使用场景，通过覆盖流程路径设计测试用例。</p>
+      <p><strong>适用场景：</strong>业务场景中涉及多功能的组合逻辑。</p>
+      <p><strong>使用步骤：</strong><br>① 根据流程图找路径（从开始到结束，有多少条路径=多少条用例）<br>② 编写测试用例（一条路径=一条用例，包含正向和逆向）</p>
+      <div class="box tip"><b>💡 注意：</b>流程图法主要测流程是否通畅，不深入测试功能细节（那是单功能测试的事）。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q6</div>
+      <div class="iq-q">测试用例的优先级如何定义？P0、P1、P2、P3分别代表什么？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>P0：</strong>最高优先级。保证软件最主要、重要的功能，最基本的流程能正常运行（核心主流程）。</p>
+      <p><strong>P1：</strong>次要功能、小功能。</p>
+      <p><strong>P2：</strong>UI、边界、错误场景的设置。</p>
+      <p><strong>P3：</strong>错误信息、较复杂的场景、不常用的场景。</p>
+      <div class="box info"><b>📌 发货业务示例：</b>发货成功（所有项正确）= P0；发货失败（各节点异常）= P1。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q7</div>
+      <div class="iq-q">测试计划包含哪些内容？谁来写？有几份？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>谁来写：</strong>项目测试负责人（测试经理/测试lead）。</p>
+      <p><strong>有几份：</strong>2份——项目总计划 + 个人执行计划。</p>
+      <p><strong>核心内容：</strong></p>
+      <ul>
+        <li><strong>测什么：</strong>测试目标和范围（功能/性能/兼容）</li>
+        <li><strong>谁来测：</strong>人员进度及安排</li>
+        <li><strong>怎么测：</strong>测试策略、测试工具</li>
+        <li><strong>准入标准：</strong>提测标准（主流程P0能跑通）</li>
+        <li><strong>准出标准：</strong>上线标准（用例100%，S0/S1 Bug解决率100%，S2/S3 ≥95%）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q8</div>
+      <div class="iq-q">缺陷提交有哪些注意事项？缺陷的生命周期是什么？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>3个注意事项：</strong><br>
+      ① 唯一性：一个报告只描述一个问题<br>
+      ② 可复现：明确复现步骤、时间、日志截图<br>
+      ③ 注明版本号：发现版本和验证版本都要记录</p>
+      <p><strong>缺陷生命周期：</strong><br>
+      New → Assigned（分派）→ Open（确认是Bug）→ Fixed（开发修复）→ Retest（测试验证）→ Closed（通过）/ Reopened（不通过）</p>
+      <div class="box warn"><b>⚠️ 特殊状态：</b>Postponed（延后处理）/ Rejected（拒绝，非Bug）</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q9</div>
+      <div class="iq-q">如何判断一个Bug是前端问题还是后端问题？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>需要借助<strong>抓包工具（Fiddler/Charles）</strong>分析HTTP请求和响应：</p>
+      <p><strong>前端问题：</strong><br>
+      ① 无请求发出（界面操作没有触发请求）<br>
+      ② 请求参数、请求方法或URL有误<br>
+      ③ 请求正确，响应正确，但界面显示错误</p>
+      <p><strong>后端问题：</strong><br>
+      ① 请求正常发出，但无响应<br>
+      ② 请求正常，响应内容错误（状态码异常/数据错误）</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q10</div>
+      <div class="iq-q">测试报告主要包含哪些内容？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>测试报告的<strong>5大核心内容</strong>：</p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li><strong>测试项目概述：</strong>项目背景、测试范围、测试环境</li>
+        <li><strong>测试过程回顾：</strong>测试时间、执行情况、主要测试活动</li>
+        <li><strong>测试统计分析：</strong>用例总数/通过/失败、Bug数/严重度分布、解决率</li>
+        <li><strong>测试结果确认：</strong>是否满足准出标准，能否发布上线</li>
+        <li><strong>工作总结与改进：</strong>本次测试经验教训，下次改进方向</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q11</div>
+      <div class="iq-q">【场景题】发货成功后，用户的订单状态没有变成"待收货"，这个Bug是前端还是后端？如何定位？</div>
+      <div class="iq-lv lv-h">高阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>分析思路：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li>打开抓包工具（Fiddler），过滤TPShop域名</li>
+        <li>在后台点击发货，观察是否有"发货"请求发出</li>
+        <li>如果有请求：查看响应是否正确（200状态码？响应体中订单状态是否更新？）</li>
+        <li>查数据库：订单表的order_status字段是否已更新为"待收货"</li>
+      </ol>
+      <p><strong>定位结论：</strong><br>
+      • 若DB已更新，前台显示未变 → 前端问题（缓存/渲染逻辑）<br>
+      • 若DB未更新，发货接口响应错误 → 后端问题<br>
+      • 若发货接口无响应 → 后端问题（接口挂了）</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q12</div>
+      <div class="iq-q">【场景题】你需要测试"发货业务"，请完整描述你的测试思路和步骤</div>
+      <div class="iq-lv lv-h">高阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>完整测试思路（按测试流程6步）：</strong></p>
+      <ol style="padding-left:18px;color:var(--ink2)">
+        <li><strong>需求分析：</strong>明确发货业务的规则：后台登录→审核订单→填写物流单号→发货。重点关注物流单号校验规则</li>
+        <li><strong>设计测试点：</strong>
+          <br>• 正向：所有步骤正确 → 发货成功
+          <br>• 逆向：登录失败 / 审核不通过 / 物流单号格式错误 / 物流单号与公司不匹配
+        </li>
+        <li><strong>编写用例：</strong>tp_shipments_001（P0成功）+ 001-004（P1失败场景）</li>
+        <li><strong>执行用例：</strong>先P0再P1，记录Pass/Fail</li>
+        <li><strong>提交缺陷：</strong>发现tp_shipments_004 Fail（物流单号错误但发货成功）→ 提交Bug</li>
+        <li><strong>验证关闭：</strong>开发修复后验证，修复OK则关闭</li>
+      </ol>
+      <div class="box tip"><b>💡 额外验证点：</b>发货成功后用数据库验证 tp_order 表的状态字段是否更新为"待收货"。</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验 — 共15题</h2>
+    <p>考察内容：Web项目环境、测试流程、业务流程测试方法。</p>
+  </div>
+
+  <div id="quiz-area">
+  <div class="qz">
+    <div class="qz-q"><span class="qn">1</span>Web服务端（环境）的正确组成是？</div>
+    <label class="opt" data-q="1" data-v="A">A. 浏览器 + 操作系统 + 数据库</label>
+    <label class="opt" data-q="1" data-v="B">B. 操作系统 + Web应用服务器 + 数据库 + 项目代码</label>
+    <label class="opt" data-q="1" data-v="C">C. Nginx + MySQL + PHP（仅3个）</label>
+    <label class="opt" data-q="1" data-v="D">D. 硬件 + 操作系统 + 浏览器</label>
+    <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – 服务端4要素：操作系统（Linux/Windows）+ Web应用服务器（Nginx/Apache）+ 数据库（MySQL）+ 项目代码（前端+后端）。浏览器是客户端的组成。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">2</span>面试官问"你们公司有几套环境？"，以下哪个回答最完整？</div>
+    <label class="opt" data-q="2" data-v="A">A. 测试环境和生产环境，共2套</label>
+    <label class="opt" data-q="2" data-v="B">B. 开发环境、测试环境、预生产环境、生产环境，根据公司规模可能是2~4套</label>
+    <label class="opt" data-q="2" data-v="C">C. 只有生产环境</label>
+    <label class="opt" data-q="2" data-v="D">D. 开发环境和测试环境，共2套</label>
+    <div class="qz-ex" data-q="2"><b>✅ 正确答案：B</b> – 完整回答应提到4种环境类型，并说明不同公司可能有2~4套。只答2套不够全面，面试官想看你是否了解完整的环境管理知识。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">3</span>TPShop商城项目的LNMP技术栈是指？</div>
+    <label class="opt" data-q="3" data-v="A">A. Linux + Node.js + MySQL + PHP</label>
+    <label class="opt" data-q="3" data-v="B">B. Linux + Nginx + MongoDB + PHP</label>
+    <label class="opt" data-q="3" data-v="C">C. Linux + Nginx + MySQL + PHP</label>
+    <label class="opt" data-q="3" data-v="D">D. Linux + Nginx + MySQL + Python</label>
+    <div class="qz-ex" data-q="3"><b>✅ 正确答案：C</b> – LNMP = Linux（操作系统）+ Nginx（Web服务器）+ MySQL（数据库）+ PHP（后端语言）。是TPShop生产环境主流方案。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">4</span>测试流程的正确顺序是？</div>
+    <label class="opt" data-q="4" data-v="A">A. 计划编写→需求评审→用例设计→用例执行→缺陷管理→测试报告</label>
+    <label class="opt" data-q="4" data-v="B">B. 需求评审→计划编写→用例设计→用例执行→缺陷管理→测试报告</label>
+    <label class="opt" data-q="4" data-v="C">C. 需求评审→用例设计→计划编写→用例执行→缺陷管理→测试报告</label>
+    <label class="opt" data-q="4" data-v="D">D. 需求评审→计划编写→用例执行→用例设计→缺陷管理→测试报告</label>
+    <div class="qz-ex" data-q="4"><b>✅ 正确答案：B</b> – 标准测试流程6步：需求评审 → 计划编写 → 用例设计 → 用例执行 → 缺陷管理 → 测试报告。顺序很重要，面试必背。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">5</span>以下哪个是TPShop商城的核心业务？</div>
+    <label class="opt" data-q="5" data-v="A">A. 代码审查</label>
+    <label class="opt" data-q="5" data-v="B">B. 性能压测</label>
+    <label class="opt" data-q="5" data-v="C">C. 下单业务（登录→搜索→加购物车→下单→支付）</label>
+    <label class="opt" data-q="5" data-v="D">D. 数据库备份</label>
+    <div class="qz-ex" data-q="5"><b>✅ 正确答案：C</b> – 下单业务是电商项目最核心的业务流程。TPShop 8大核心业务：下单、发货、退换货、订单查询、会员管理、商品管理、评论。代码审查和性能测试不属于功能业务。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">6</span>流程图法（场景法）中，有多少条路径就设计多少条用例，这个"路径"是指？</div>
+    <label class="opt" data-q="6" data-v="A">A. 程序代码中的执行路径</label>
+    <label class="opt" data-q="6" data-v="B">B. 从流程图的开始节点到结束节点的完整操作路径（含正向和逆向）</label>
+    <label class="opt" data-q="6" data-v="C">C. 只有成功的路径</label>
+    <label class="opt" data-q="6" data-v="D">D. 只有失败的路径</label>
+    <div class="qz-ex" data-q="6"><b>✅ 正确答案：B</b> – 路径是从开始到结束的完整操作链路，包括成功路径（正向）和各节点失败路径（逆向）。发货业务4条路径 = 4条用例。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">7</span>用例优先级P0代表什么？</div>
+    <label class="opt" data-q="7" data-v="A">A. 最低优先级，可以不测</label>
+    <label class="opt" data-q="7" data-v="B">B. 最高优先级，保证核心主流程正常运行</label>
+    <label class="opt" data-q="7" data-v="C">C. UI类测试</label>
+    <label class="opt" data-q="7" data-v="D">D. 边界值测试</label>
+    <div class="qz-ex" data-q="7"><b>✅ 正确答案：B</b> – P0最高优先级，确保核心主流程能正常运行。P1次要功能，P2 UI/边界/错误场景，P3复杂/不常用场景。发货成功（主路径）= P0。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">8</span>以下哪项不是TPShop商城的核心功能模块？</div>
+    <label class="opt" data-q="8" data-v="A">A. 注册</label>
+    <label class="opt" data-q="8" data-v="B">B. 购物车</label>
+    <label class="opt" data-q="8" data-v="C">C. 代码部署</label>
+    <label class="opt" data-q="8" data-v="D">D. 抢购</label>
+    <div class="qz-ex" data-q="8"><b>✅ 正确答案：C</b> – TPShop 7大核心功能模块：注册/登录/轮播图/搜索/购物车/抢购/评论。代码部署是运维工作，不是功能测试对象。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">9</span>发货业务用例 tp_shipments_001 的优先级应该是？</div>
+    <label class="opt" data-q="9" data-v="A">A. P3（复杂场景）</label>
+    <label class="opt" data-q="9" data-v="B">B. P2（UI类）</label>
+    <label class="opt" data-q="9" data-v="C">C. P0（核心主流程，发货成功）</label>
+    <label class="opt" data-q="9" data-v="D">D. P1（次要功能）</label>
+    <div class="qz-ex" data-q="9"><b>✅ 正确答案：C</b> – 发货成功是核心主流程，必须定为P0。发货失败（各失败场景）定为P1。P0用例是准入标准的核心——提测前要保证P0用例都能跑通。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">10</span>缺陷提交的正确时机是？</div>
+    <label class="opt" data-q="10" data-v="A">A. 项目结束时统一提交</label>
+    <label class="opt" data-q="10" data-v="B">B. 用例执行失败的第一时间提交</label>
+    <label class="opt" data-q="10" data-v="C">C. 等开发修复完再提交</label>
+    <label class="opt" data-q="10" data-v="D">D. 每天下班前统一提交</label>
+    <div class="qz-ex" data-q="10"><b>✅ 正确答案：B</b> – 用例执行失败时立即提交缺陷，不要积累。越早提交开发越早修复，避免影响后续用例执行（Block情况）。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">11</span>评论业务测试中，评论成功后需要验证哪些内容？</div>
+    <label class="opt" data-q="11" data-v="A">A. 只看页面提示是否成功</label>
+    <label class="opt" data-q="11" data-v="B">B. 页面提示+我的评价显示+商品评论页+评分变化+数据库数据更新（5个验证点）</label>
+    <label class="opt" data-q="11" data-v="C">C. 只验证数据库</label>
+    <label class="opt" data-q="11" data-v="D">D. 只需要验证商品评分</label>
+    <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – 完整验证5要素：① 页面提示评论成功 ② 我的评价显示已评论订单 ③ 商品评论页可展示内容 ④ 商品评分有变化 ⑤ 数据库评论表数据更新。单点验证容易漏Bug。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">12</span>测试计划的核心三要素是什么？</div>
+    <label class="opt" data-q="12" data-v="A">A. 时间/地点/人物</label>
+    <label class="opt" data-q="12" data-v="B">B. 测什么/谁来测/怎么测</label>
+    <label class="opt" data-q="12" data-v="C">C. Bug数/用例数/通过率</label>
+    <label class="opt" data-q="12" data-v="D">D. 需求/开发/测试</label>
+    <div class="qz-ex" data-q="12"><b>✅ 正确答案：B</b> – 测试计划核心三问：① 测什么（测试目标和范围）② 谁来测（人员进度安排）③ 怎么测（测试策略和工具）。准入准出标准是测试计划的重点关注项。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">13</span>"用例标题"应该怎么写？</div>
+    <label class="opt" data-q="13" data-v="A">A. 操作步骤描述，如"点击发货按钮"</label>
+    <label class="opt" data-q="13" data-v="B">B. 预期结果（测试点），如"发货成功（所有项都正确）"</label>
+    <label class="opt" data-q="13" data-v="C">C. Bug描述，如"发货功能有Bug"</label>
+    <label class="opt" data-q="13" data-v="D">D. 模块名称，如"发货模块"</label>
+    <div class="qz-ex" data-q="13"><b>✅ 正确答案：B</b> – 用例标题 = 预期结果（测试点），不是操作步骤。这是面试常考陷阱！错误示例："点击登录按钮"（操作）；正确示例："登录成功（手机号、密码正确）"（测试点）。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">14</span>准入标准（提测标准）最核心的要求是？</div>
+    <label class="opt" data-q="14" data-v="A">A. 所有用例都执行完毕</label>
+    <label class="opt" data-q="14" data-v="B">B. 主流程（P0业务）能跑通</label>
+    <label class="opt" data-q="14" data-v="C">C. 所有Bug都修复</label>
+    <label class="opt" data-q="14" data-v="D">D. 测试报告已提交</label>
+    <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – 准入标准（提测标准）：P0主流程业务能跑通，才允许开始测试。否则核心功能都不可用，继续测试也是浪费时间。准出标准才要求用例100%执行。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">15</span>【场景题】测试人员加入一个已存在的项目，最先应该做什么？</div>
+    <label class="opt" data-q="15" data-v="A">A. 直接开始写测试用例</label>
+    <label class="opt" data-q="15" data-v="B">B. 先找需求文档、问测试老员工/产品经理，熟悉核心业务流程和功能模块</label>
+    <label class="opt" data-q="15" data-v="C">C. 先查数据库表结构</label>
+    <label class="opt" data-q="15" data-v="D">D. 先配置测试环境</label>
+    <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – 熟悉项目的思路：用户是谁+用户如何使用。信息来源：文档（需求文档/用例）+ 人（老员工/PM）+ 项目软件。熟悉标准：核心业务流程 + 核心功能模块。先熟悉再写用例，否则用例覆盖不全。</div>
+  </div>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">请查看各题下方的解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+const ans={1:'B',2:'B',3:'C',4:'B',5:'C',6:'B',7:'B',8:'C',9:'C',10:'B',11:'B',12:'B',13:'B',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked)});
+  if(done===10) document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ans[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct) o.classList.add('ok');
+      else if(o.classList.contains('sel')) o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex) ex.classList.add('s');
+    if(sel[q]===correct) score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90) msg='🏆 优秀！Web功能测试基础知识掌握扎实！';
+  else if(pct>=75) msg='✅ 良好！建议复习错题后再进入下一节。';
+  else if(pct>=50) msg='📚 一般，请重新阅读知识讲解并完成实战练习。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12) document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s3d1'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
