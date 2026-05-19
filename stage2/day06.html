@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linux数据库 Day 06 – TPShop部署 & 数据库验证</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#e11d48;
+  --day-d:#be123c;
+  --day-bg:rgba(225,29,72,.09);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.7}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(225,29,72,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(225,29,72,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:4px}
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .r{color:#f07178}
+.term .w{color:#fff;font-weight:600}
+.term .n{color:#f78c6c}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qbtn.rst:hover{background:#e2e8f0}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.qres p{color:var(--ink2);font-size:14px;margin-top:6px}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;font-weight:700}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-purple{background:#ede9fe;color:#6d28d9}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.arch-box{border-radius:12px;padding:16px;border:2px solid}
+.arch-box.client{background:#eff6ff;border-color:#3b82f6}
+.arch-box.server{background:#fef3c7;border-color:#d97706}
+.arch-box h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.arch-box ul{padding-left:16px;font-size:12.5px}
+.arch-box li{margin-bottom:3px}
+.flow-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0}
+.flow-step{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;min-width:80px}
+.flow-arrow{color:var(--day);font-size:22px;font-weight:700}
+.tbl-rel{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tbl-card{background:#f8fafc;border:2px solid var(--border);border-radius:10px;padding:12px;min-width:160px;flex:1}
+.tbl-card h4{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.tbl-card .field{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--ink2);margin-bottom:3px}
+.tbl-card .field.pk{color:#d97706;font-weight:700}
+.tbl-card .field.fk{color:#3b82f6}
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .arch-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 头部 -->
+<div class="hd">
+  <div class="hd-tag">STAGE 2 · LINUX DATABASE DAY 06</div>
+  <h1>TPShop环境部署 &amp; 数据库验证</h1>
+  <p>在Linux（LNMP架构）上部署TPShop项目，对电商数据库进行实战查询练习：商品分类、订单信息、购物车、用户数据修改。</p>
+  <div class="hd-stats">
+    <div><b>3</b>大模块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- 导航点 -->
+<div id="dots"></div>
+
+<!-- 标签栏 -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <div class="sec">
+    <h2><span class="ico">1</span>复习：进阶查询 – 上节课作业讲解</h2>
+    <p>在进入新内容前，先回顾 Day 05 的10条复杂查询（employees + departments + salary 三表）。</p>
+
+    <h3>已学核心技术要点</h3>
+    <div class="g3">
+      <div class="card">
+        <h4><span class="num">1</span>GROUP BY + HAVING</h4>
+        <p>先分组再过滤。HAVING 配合聚合函数（count、avg、sum）使用，不能用 WHERE 替代。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">2</span>多表联查 JOIN</h4>
+        <p>连续 JOIN 多张表，每次 JOIN 都要写 ON 连接条件，缺一不可。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">3</span>子查询 Subquery</h4>
+        <p>嵌套查询：放在 WHERE 中用于比较单值，放在 FROM 中充当临时表。</p>
+      </div>
+    </div>
+
+    <h3>最复杂示例：查询工资低于本部门平均工资的员工</h3>
+    <div class="term"><span class="g">-- 第一步：计算各部门平均工资（子查询作为临时表）</span>
+<span class="k">SELECT</span> emp.deptid, <span class="p">avg</span>(sa.salary) <span class="k">AS</span> avg_salary
+<span class="k">FROM</span> employees <span class="k">AS</span> emp
+<span class="k">INNER JOIN</span> salary <span class="k">AS</span> sa <span class="k">ON</span> sa.empid <span class="o">=</span> emp.empid
+<span class="k">GROUP BY</span> emp.deptid;
+
+<span class="g">-- 第二步：与临时表 JOIN，过滤 salary &lt; avg_salary</span>
+<span class="k">SELECT</span> emp.empname, emp.deptid, sa.salary
+<span class="k">FROM</span> employees <span class="k">AS</span> emp
+<span class="k">INNER JOIN</span> salary <span class="k">AS</span> sa <span class="k">ON</span> sa.empid <span class="o">=</span> emp.empid
+<span class="k">INNER JOIN</span> (
+  <span class="k">SELECT</span> emp.deptid, <span class="p">avg</span>(sa.salary) <span class="k">AS</span> avg_salary
+  <span class="k">FROM</span> employees <span class="k">AS</span> emp
+  <span class="k">INNER JOIN</span> salary <span class="k">AS</span> sa <span class="k">ON</span> sa.empid <span class="o">=</span> emp.empid
+  <span class="k">GROUP BY</span> emp.deptid
+) <span class="k">AS</span> temp <span class="k">ON</span> emp.deptid <span class="o">=</span> temp.deptid
+<span class="k">WHERE</span> sa.salary <span class="o">&lt;</span> temp.avg_salary;</div>
+    <div class="box tip">
+      <b>💡 解题思路：</b>把复杂问题拆成小步骤，分步编写、分步验证，最后嵌套组合。
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">2</span>TPShop 环境部署</h2>
+
+    <h3>环境准备</h3>
+    <p>TPShop 是一个 PHP 电商项目，运行需要 <strong>LNMP</strong> 架构：Linux + Nginx + MySQL + PHP。</p>
+
+    <div class="g2">
+      <div class="card" style="border-left:3px solid #3b82f6">
+        <h4>🖥️ VMware 虚拟机</h4>
+        <p>在 VMware 上运行 CentOS 7。系统出问题时，直接解压镜像重新打开即可，无需重装虚拟机。</p>
+      </div>
+      <div class="card" style="border-left:3px solid #10b981">
+        <h4>🔗 远程连接工具</h4>
+        <p>使用 <strong>FinalShell</strong> 通过 SSH 连接虚拟机。查看IP：<code class="inl">ifconfig</code>，测试连通性：<code class="inl">ping &lt;IP&gt;</code></p>
+      </div>
+    </div>
+
+    <h3>CentOS 三种软件安装方式</h3>
+    <div class="tw">
+      <table>
+        <tr><th>安装方式</th><th>优点</th><th>缺点</th><th>示例</th></tr>
+        <tr><td><span class="badge badge-green">yum</span> 在线安装</td><td>自动解决依赖</td><td>需要联网</td><td><code class="inl">yum install nginx</code></td></tr>
+        <tr><td><span class="badge badge-blue">rpm</span> 包安装</td><td>可离线安装</td><td>需手动处理依赖</td><td><code class="inl">rpm -ivh nginx.rpm</code></td></tr>
+        <tr><td><span class="badge badge-amber">源码编译</span>安装</td><td>高度自定义</td><td>步骤复杂、耗时</td><td>下载 → ./configure → make</td></tr>
+      </table>
+    </div>
+    <div class="box info">
+      <b>📌 实际工作：</b>最常用 yum 安装。实验环境中已配置好的虚拟机，可参考配套资料《TPShop项目部署》直接完成部署。
+    </div>
+
+    <h3>项目技术架构</h3>
+    <p>传统 Web 架构：客户端发请求 → Nginx（Web服务器）→ PHP 项目处理逻辑 → MySQL 数据库 → 返回数据 → 浏览器渲染页面。</p>
+    <div class="box tip">
+      <b>💡 LNMP 各组件职责：</b><br>
+      <strong>L</strong>inux – 服务器操作系统<br>
+      <strong>N</strong>ginx – Web 服务器，处理 HTTP 请求<br>
+      <strong>M</strong>ySQL – 关系型数据库，存储数据<br>
+      <strong>P</strong>HP – 后端开发语言，处理业务逻辑
+    </div>
+
+    <div class="term"><span class="g"># 查看虚拟机 IP 地址</span>
+<span class="w">ifconfig</span>
+<span class="g"># → 找到 inet 地址，例如：192.168.228.134</span>
+
+<span class="g"># 从宿主机测试网络连通性</span>
+<span class="w">ping</span> <span class="s">192.168.228.134</span>
+
+<span class="g"># 部署完成后，浏览器访问：</span>
+<span class="g"># http://192.168.228.134/index.php</span></div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">3</span>TPShop 数据库表结构设计</h2>
+    <p>TPShop 共有数十张表，测试人员重点掌握以下核心表：</p>
+
+    <h3>用户相关表</h3>
+    <div class="tw">
+      <table>
+        <tr><th>表名</th><th>说明</th><th>重要字段</th></tr>
+        <tr><td><code class="inl">tp_users</code></td><td>用户信息表</td><td>user_id、email、password、qq（昵称）、pay_points（积分）、user_money（余额）</td></tr>
+        <tr><td><code class="inl">tp_user_address</code></td><td>用户收货地址表</td><td>address_id、user_id（FK）、consignee（收货人）、province、city、address</td></tr>
+      </table>
+    </div>
+
+    <h3>商品相关表</h3>
+    <div class="tw">
+      <table>
+        <tr><th>表名</th><th>说明</th><th>重要字段</th></tr>
+        <tr><td><code class="inl">tp_goods</code></td><td>商品信息表</td><td>goods_id、cat_id（FK）、goods_sn、goods_name、market_price（市场价）、shop_price（销售价）</td></tr>
+        <tr><td><code class="inl">tp_goods_category</code></td><td>商品分类表（自关联）</td><td>id、name、parent_id（FK→id）、level（层级）、sort_order</td></tr>
+        <tr><td><code class="inl">tp_goods_image</code></td><td>商品图片表</td><td>img_id、goods_id（FK）、image_url</td></tr>
+      </table>
+    </div>
+
+    <h3>订单相关表</h3>
+    <div class="tw">
+      <table>
+        <tr><th>表名</th><th>说明</th><th>重要字段</th></tr>
+        <tr><td><code class="inl">tp_order</code></td><td>订单信息表</td><td>order_id、order_sn（订单编号）、user_id（FK）、order_status（订单状态）、pay_status（支付状态）</td></tr>
+        <tr><td><code class="inl">tp_order_goods</code></td><td>订单商品明细表</td><td>rec_id、order_id（FK）、goods_id（FK）、goods_name、goods_price、buy_count（购买数量）</td></tr>
+        <tr><td><code class="inl">tp_cart</code></td><td>购物车表</td><td>id、user_id（FK）、goods_id（FK）、goods_name、market_price、goods_price、goods_num</td></tr>
+      </table>
+    </div>
+
+    <div class="box tip">
+      <b>💡 重点：</b><code class="inl">tp_goods_category</code> 通过 <code class="inl">parent_id → id</code> 实现<strong>自关联（自连接）</strong>。这是存储多级树形分类的经典设计模式（一级分类 → 二级分类 → 三级分类）。
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">4</span>TPShop 数据库实战查询</h2>
+
+    <h3>2.1 – 查询商品分类信息（自关联）</h3>
+    <div class="term"><span class="g">-- 查看所有分类</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> tp_goods_category;
+
+<span class="g">-- 查看一级分类（parent_id = 0 表示顶级分类）</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> tp_goods_category <span class="k">WHERE</span> parent_id <span class="o">=</span> <span class="n">0</span>;
+
+<span class="g">-- 查询"手机通讯"及其所有子分类（自关联）</span>
+<span class="g">-- 第一步：找到"手机通讯"的 id</span>
+<span class="k">SELECT</span> id, name <span class="k">FROM</span> tp_goods_category <span class="k">WHERE</span> name <span class="o">=</span> <span class="s">'手机通讯'</span>;
+
+<span class="g">-- 第二步：自关联查询父分类 + 子分类</span>
+<span class="k">SELECT</span> parent.name <span class="k">AS</span> 父分类, child.name <span class="k">AS</span> 子分类
+<span class="k">FROM</span> tp_goods_category <span class="k">AS</span> parent
+<span class="k">INNER JOIN</span> tp_goods_category <span class="k">AS</span> child
+  <span class="k">ON</span> child.parent_id <span class="o">=</span> parent.id
+<span class="k">WHERE</span> parent.name <span class="o">=</span> <span class="s">'手机通讯'</span>;</div>
+
+    <h3>2.2 – 查询订单信息</h3>
+    <div class="term"><span class="g">-- 查看所有订单</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> tp_order;
+
+<span class="g">-- 查询 user_id=1 的订单及商品明细（联查两张表）</span>
+<span class="k">SELECT</span>
+  o.order_sn        <span class="k">AS</span> 订单编号,
+  o.order_status    <span class="k">AS</span> 订单状态,
+  og.goods_name     <span class="k">AS</span> 商品名称,
+  og.goods_price    <span class="k">AS</span> 商品单价,
+  og.buy_count      <span class="k">AS</span> 购买数量
+<span class="k">FROM</span> tp_order <span class="k">AS</span> o
+<span class="k">INNER JOIN</span> tp_order_goods <span class="k">AS</span> og <span class="k">ON</span> og.order_id <span class="o">=</span> o.order_id
+<span class="k">WHERE</span> o.user_id <span class="o">=</span> <span class="n">1</span>
+<span class="k">ORDER BY</span> o.order_id <span class="k">DESC</span>;</div>
+
+    <h3>2.3 – 查询购物车信息</h3>
+    <div class="term"><span class="g">-- 查询 user_id=1 的购物车，并计算小计金额</span>
+<span class="k">SELECT</span>
+  c.goods_name                        <span class="k">AS</span> 商品名称,
+  c.market_price                      <span class="k">AS</span> 市场价,
+  c.goods_price                       <span class="k">AS</span> 会员价,
+  c.goods_num                         <span class="k">AS</span> 数量,
+  (c.goods_price <span class="o">*</span> c.goods_num)       <span class="k">AS</span> 小计
+<span class="k">FROM</span> tp_cart <span class="k">AS</span> c
+<span class="k">WHERE</span> c.user_id <span class="o">=</span> <span class="n">1</span>;</div>
+
+    <h3>3.1 + 3.2 – 修改用户数据</h3>
+    <div class="term"><span class="g">-- 修改用户昵称（qq字段）为 'test001'</span>
+<span class="k">UPDATE</span> tp_users
+<span class="k">SET</span> qq <span class="o">=</span> <span class="s">'test001'</span>
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;
+
+<span class="g">-- 修改用户积分（pay_points）为 20000</span>
+<span class="k">UPDATE</span> tp_users
+<span class="k">SET</span> pay_points <span class="o">=</span> <span class="n">20000</span>
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;
+
+<span class="g">-- 验证修改结果</span>
+<span class="k">SELECT</span> user_id, email, qq, pay_points <span class="k">FROM</span> tp_users <span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;</div>
+
+    <div class="box danger">
+      <b>⚠️ 高危警告：</b>执行 UPDATE 时必须加 <code class="inl">WHERE</code> 条件！忘写 WHERE 将会修改<strong>整张表所有记录</strong>。正确姿势：先用 SELECT 确认目标记录，再改写为 UPDATE。
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>LNMP 架构图解</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">浏览器发起请求 → Nginx 接收 → PHP 处理逻辑 → MySQL 返回数据 → PHP 渲染 HTML → Nginx 响应浏览器。</p>
+    <div class="arch-grid">
+      <div class="arch-box client">
+        <h4 style="color:#1d4ed8">🖥️ 客户端</h4>
+        <ul>
+          <li>浏览器（Chrome、Firefox...）</li>
+          <li>发送 HTTP 请求到服务器</li>
+          <li>接收 HTML，渲染页面</li>
+          <li>访问地址：http://192.168.x.x/index.php</li>
+        </ul>
+      </div>
+      <div class="arch-box server">
+        <h4 style="color:#92400e">🖥️ 服务端（虚拟机）</h4>
+        <ul>
+          <li><b>Nginx</b> – 接收 HTTP 请求，路由转发</li>
+          <li><b>PHP</b> – 处理业务逻辑</li>
+          <li><b>MySQL</b> – 数据存储与查询</li>
+          <li>操作系统：<b>CentOS 7</b>（Linux）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="flow-row" style="justify-content:center">
+      <div class="flow-step" style="background:#dbeafe;color:#1d4ed8">浏览器</div>
+      <div class="flow-arrow">⇄</div>
+      <div class="flow-step" style="background:#fef3c7;color:#92400e">Nginx</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#ede9fe;color:#6d28d9">PHP</div>
+      <div class="flow-arrow">⇄</div>
+      <div class="flow-step" style="background:#dcfce7;color:#15803d">MySQL</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🗄️</span>TPShop 核心表关系图（简化 ERD）</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">各核心表的主键（PK）与外键（FK）关系：</p>
+    <div class="tbl-rel">
+      <div class="tbl-card">
+        <h4>tp_users</h4>
+        <div class="field pk">🔑 user_id (PK)</div>
+        <div class="field">email</div>
+        <div class="field">qq（昵称）</div>
+        <div class="field">pay_points（积分）</div>
+        <div class="field">user_money（余额）</div>
+      </div>
+      <div class="tbl-card">
+        <h4>tp_order</h4>
+        <div class="field pk">🔑 order_id (PK)</div>
+        <div class="field fk">🔗 user_id (FK)</div>
+        <div class="field">order_sn（订单号）</div>
+        <div class="field">order_status</div>
+        <div class="field">pay_status</div>
+      </div>
+      <div class="tbl-card">
+        <h4>tp_order_goods</h4>
+        <div class="field pk">🔑 rec_id (PK)</div>
+        <div class="field fk">🔗 order_id (FK)</div>
+        <div class="field fk">🔗 goods_id (FK)</div>
+        <div class="field">goods_name</div>
+        <div class="field">goods_price</div>
+        <div class="field">buy_count</div>
+      </div>
+      <div class="tbl-card">
+        <h4>tp_goods</h4>
+        <div class="field pk">🔑 goods_id (PK)</div>
+        <div class="field fk">🔗 cat_id (FK)</div>
+        <div class="field">goods_name</div>
+        <div class="field">shop_price</div>
+        <div class="field">goods_num</div>
+      </div>
+      <div class="tbl-card">
+        <h4>tp_goods_category</h4>
+        <div class="field pk">🔑 id (PK)</div>
+        <div class="field fk">🔗 parent_id (FK→id)</div>
+        <div class="field">name</div>
+        <div class="field">level（层级）</div>
+        <div class="field" style="color:var(--day-d);font-style:italic">← 自关联！</div>
+      </div>
+      <div class="tbl-card">
+        <h4>tp_cart</h4>
+        <div class="field pk">🔑 id (PK)</div>
+        <div class="field fk">🔗 user_id (FK)</div>
+        <div class="field fk">🔗 goods_id (FK)</div>
+        <div class="field">goods_name</div>
+        <div class="field">goods_num</div>
+        <div class="field">goods_price</div>
+      </div>
+    </div>
+    <div class="box info" style="margin-top:8px">
+      <b>📌 图例说明：</b>🔑 主键（Primary Key）&nbsp;&nbsp;🔗 外键（Foreign Key，指向其他表的主键）
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🔄</span>自关联图解：tp_goods_category 分类树</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">同一张表，通过 parent_id 构建父子关系。parent_id = 0 表示顶级分类。</p>
+    <div class="tw">
+      <table>
+        <tr><th>id</th><th>name</th><th>parent_id</th><th>level</th><th>说明</th></tr>
+        <tr><td>1</td><td>手机通讯</td><td>0</td><td>1</td><td>一级分类（顶级，无父节点）</td></tr>
+        <tr><td>2</td><td>手机</td><td>1</td><td>2</td><td>id=1（手机通讯）的子分类</td></tr>
+        <tr><td>3</td><td>老人手机</td><td>1</td><td>2</td><td>id=1（手机通讯）的子分类</td></tr>
+        <tr><td>5</td><td>女装</td><td>0</td><td>1</td><td>另一个一级分类</td></tr>
+        <tr><td>6</td><td>连衣裙</td><td>5</td><td>2</td><td>id=5（女装）的子分类</td></tr>
+      </table>
+    </div>
+    <div class="term"><span class="g">-- 自关联：同时显示父分类名称和子分类名称</span>
+<span class="k">SELECT</span>
+  parent.name <span class="k">AS</span> 父分类,
+  child.name  <span class="k">AS</span> 子分类,
+  child.level <span class="k">AS</span> 层级
+<span class="k">FROM</span> tp_goods_category <span class="k">AS</span> parent
+<span class="k">INNER JOIN</span> tp_goods_category <span class="k">AS</span> child
+  <span class="k">ON</span> child.parent_id <span class="o">=</span> parent.id
+<span class="k">ORDER BY</span> parent.id, child.id;</div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📊</span>三表联查流程：订单详情</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">要获取完整订单信息（含商品详情），需要 JOIN 三张表：用户 → 订单 → 订单商品。</p>
+    <div class="flow-row">
+      <div class="flow-step" style="background:#dbeafe;color:#1d4ed8;flex:1">tp_users<br><small>user_id=1</small></div>
+      <div class="flow-arrow">→<br><small>1:N</small></div>
+      <div class="flow-step" style="background:#fef3c7;color:#92400e;flex:1">tp_order<br><small>order_id</small></div>
+      <div class="flow-arrow">→<br><small>1:N</small></div>
+      <div class="flow-step" style="background:#ede9fe;color:#6d28d9;flex:1">tp_order_goods<br><small>goods_name</small></div>
+    </div>
+    <div class="term"><span class="k">SELECT</span>
+  u.email         <span class="k">AS</span> 用户邮箱,
+  o.order_sn      <span class="k">AS</span> 订单编号,
+  og.goods_name   <span class="k">AS</span> 商品名称,
+  og.goods_price  <span class="k">AS</span> 单价,
+  og.buy_count    <span class="k">AS</span> 数量
+<span class="k">FROM</span> tp_users <span class="k">AS</span> u
+<span class="k">INNER JOIN</span> tp_order <span class="k">AS</span> o  <span class="k">ON</span> o.user_id <span class="o">=</span> u.user_id
+<span class="k">INNER JOIN</span> tp_order_goods <span class="k">AS</span> og  <span class="k">ON</span> og.order_id <span class="o">=</span> o.order_id
+<span class="k">WHERE</span> u.user_id <span class="o">=</span> <span class="n">1</span>;</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>实战练习 – TPShop 数据库操作</h2>
+    <p>完成以下10道练习题，完成后勾选对应复选框。</p>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记为已完成</button>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p1">
+    <div class="pt-body">
+      <div class="pt-t">1. 查询 TPShop 中所有一级分类（level = 1）</div>
+      <div class="pt-sub">筛选 tp_goods_category 表中 parent_id = 0 的顶级分类</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">SELECT</span> id, name, level
+<span class="k">FROM</span> tp_goods_category
+<span class="k">WHERE</span> parent_id <span class="o">=</span> <span class="n">0</span>
+<span class="k">ORDER BY</span> sort_order;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p2">
+    <div class="pt-body">
+      <div class="pt-t">2. 用自关联查出"手机通讯"下的所有子分类</div>
+      <div class="pt-sub">对 tp_goods_category 表进行自连接（alias：parent 和 child），显示父分类名 + 子分类名</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">SELECT</span>
+  parent.name <span class="k">AS</span> 父分类,
+  child.name  <span class="k">AS</span> 子分类,
+  child.level <span class="k">AS</span> 层级
+<span class="k">FROM</span> tp_goods_category <span class="k">AS</span> parent
+<span class="k">INNER JOIN</span> tp_goods_category <span class="k">AS</span> child
+  <span class="k">ON</span> child.parent_id <span class="o">=</span> parent.id
+<span class="k">WHERE</span> parent.name <span class="o">=</span> <span class="s">'手机通讯'</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p3">
+    <div class="pt-body">
+      <div class="pt-t">3. 查询售价（shop_price）最高的前 10 件商品，并显示所属分类名称</div>
+      <div class="pt-sub">JOIN tp_goods 与 tp_goods_category，按 shop_price 降序排列取前10</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">SELECT</span>
+  g.goods_id,
+  g.goods_name   <span class="k">AS</span> 商品名称,
+  g.shop_price   <span class="k">AS</span> 售价,
+  c.name         <span class="k">AS</span> 分类名称
+<span class="k">FROM</span> tp_goods <span class="k">AS</span> g
+<span class="k">INNER JOIN</span> tp_goods_category <span class="k">AS</span> c
+  <span class="k">ON</span> c.id <span class="o">=</span> g.cat_id
+<span class="k">ORDER BY</span> g.shop_price <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="n">10</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p4">
+    <div class="pt-body">
+      <div class="pt-t">4. 查询 user_id = 1 的所有订单及其状态</div>
+      <div class="pt-sub">从 tp_order 表中查询 order_sn、order_status、pay_status，按 order_id 倒序</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">SELECT</span>
+  order_id,
+  order_sn        <span class="k">AS</span> 订单编号,
+  order_status    <span class="k">AS</span> 订单状态,
+  pay_status      <span class="k">AS</span> 支付状态,
+  shipping_status <span class="k">AS</span> 发货状态
+<span class="k">FROM</span> tp_order
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>
+<span class="k">ORDER BY</span> order_id <span class="k">DESC</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p5">
+    <div class="pt-body">
+      <div class="pt-t">5. 三表联查：查询 user_id = 1 的订单及商品明细</div>
+      <div class="pt-sub">JOIN tp_order → tp_order_goods（通过 order_id），显示 order_sn、goods_name、goods_price、buy_count</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">SELECT</span>
+  o.order_sn      <span class="k">AS</span> 订单编号,
+  og.goods_name   <span class="k">AS</span> 商品名称,
+  og.goods_price  <span class="k">AS</span> 单价,
+  og.buy_count    <span class="k">AS</span> 数量,
+  (og.goods_price <span class="o">*</span> og.buy_count) <span class="k">AS</span> 小计
+<span class="k">FROM</span> tp_order <span class="k">AS</span> o
+<span class="k">INNER JOIN</span> tp_order_goods <span class="k">AS</span> og
+  <span class="k">ON</span> og.order_id <span class="o">=</span> o.order_id
+<span class="k">WHERE</span> o.user_id <span class="o">=</span> <span class="n">1</span>
+<span class="k">ORDER BY</span> o.order_id <span class="k">DESC</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p6">
+    <div class="pt-body">
+      <div class="pt-t">6. 查询 user_id = 1 的购物车内容，并计算购物车总金额</div>
+      <div class="pt-sub">显示商品名、单价、数量、小计，并用 SUM() 计算总金额</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="g">-- 购物车明细</span>
+<span class="k">SELECT</span>
+  goods_name    <span class="k">AS</span> 商品名称,
+  goods_price   <span class="k">AS</span> 单价,
+  goods_num     <span class="k">AS</span> 数量,
+  (goods_price <span class="o">*</span> goods_num) <span class="k">AS</span> 小计
+<span class="k">FROM</span> tp_cart
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;
+
+<span class="g">-- 购物车总金额</span>
+<span class="k">SELECT</span> <span class="p">SUM</span>(goods_price <span class="o">*</span> goods_num) <span class="k">AS</span> 购物车总金额
+<span class="k">FROM</span> tp_cart
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p7">
+    <div class="pt-body">
+      <div class="pt-t">7. 将 user_id = 1 的昵称（qq字段）修改为 'test001'</div>
+      <div class="pt-sub">使用 UPDATE + WHERE，修改前先 SELECT 确认目标记录，修改后再验证</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="g">-- 修改前：查看当前昵称</span>
+<span class="k">SELECT</span> user_id, email, qq <span class="k">FROM</span> tp_users <span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;
+
+<span class="g">-- 执行修改</span>
+<span class="k">UPDATE</span> tp_users
+<span class="k">SET</span> qq <span class="o">=</span> <span class="s">'test001'</span>
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;
+
+<span class="g">-- 修改后：验证结果</span>
+<span class="k">SELECT</span> user_id, email, qq <span class="k">FROM</span> tp_users <span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p8">
+    <div class="pt-body">
+      <div class="pt-t">8. 将 user_id = 1 的积分（pay_points）修改为 20000</div>
+      <div class="pt-sub">UPDATE tp_users，修改后用 SELECT 验证</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">UPDATE</span> tp_users
+<span class="k">SET</span> pay_points <span class="o">=</span> <span class="n">20000</span>
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;
+
+<span class="g">-- 验证</span>
+<span class="k">SELECT</span> user_id, qq, pay_points, user_money
+<span class="k">FROM</span> tp_users
+<span class="k">WHERE</span> user_id <span class="o">=</span> <span class="n">1</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p9">
+    <div class="pt-body">
+      <div class="pt-t">9. 统计各一级分类下的商品数量及平均售价</div>
+      <div class="pt-sub">LEFT JOIN tp_goods_category 与 tp_goods，按分类 GROUP BY，只统计一级分类（parent_id = 0）</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="k">SELECT</span>
+  c.name              <span class="k">AS</span> 分类名称,
+  <span class="p">COUNT</span>(g.goods_id)  <span class="k">AS</span> 商品数量,
+  <span class="p">AVG</span>(g.shop_price)  <span class="k">AS</span> 平均售价
+<span class="k">FROM</span> tp_goods_category <span class="k">AS</span> c
+<span class="k">LEFT JOIN</span> tp_goods <span class="k">AS</span> g
+  <span class="k">ON</span> g.cat_id <span class="o">=</span> c.id
+<span class="k">WHERE</span> c.parent_id <span class="o">=</span> <span class="n">0</span>
+<span class="k">GROUP BY</span> c.id, c.name
+<span class="k">ORDER BY</span> 商品数量 <span class="k">DESC</span>;</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p10">
+    <div class="pt-body">
+      <div class="pt-t">10. 复习 Day 05：查工资低于本部门平均工资的员工 – 逐步解析</div>
+      <div class="pt-sub">重写该查询，并解释为什么要把子查询放在 FROM 中而不是 WHERE 中</div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans"><span class="g">-- 为什么不能用 WHERE avg(salary)?</span>
+<span class="g">-- 因为 WHERE 不能直接使用聚合函数！</span>
+<span class="g">-- avg() 需要先分组才能计算 → 必须先 GROUP BY → 只能用子查询</span>
+
+<span class="g">-- 第一步：计算各部门平均工资</span>
+<span class="k">SELECT</span> deptid, <span class="p">AVG</span>(salary) <span class="k">AS</span> avg_salary
+<span class="k">FROM</span> employees <span class="k">AS</span> e
+<span class="k">JOIN</span> salary <span class="k">AS</span> s <span class="k">ON</span> s.empid <span class="o">=</span> e.empid
+<span class="k">GROUP BY</span> deptid;
+<span class="g">-- → 结果：部门1001均薪3033，部门1002均薪3080...</span>
+
+<span class="g">-- 第二步：将上述结果作为派生表（FROM中的子查询）</span>
+<span class="k">SELECT</span> e.empname, e.deptid, s.salary, temp.avg_salary
+<span class="k">FROM</span> employees <span class="k">AS</span> e
+<span class="k">JOIN</span> salary <span class="k">AS</span> s <span class="k">ON</span> s.empid <span class="o">=</span> e.empid
+<span class="k">JOIN</span> (
+  <span class="k">SELECT</span> deptid, <span class="p">AVG</span>(salary) <span class="k">AS</span> avg_salary
+  <span class="k">FROM</span> employees <span class="k">JOIN</span> salary <span class="k">USING</span>(empid)
+  <span class="k">GROUP BY</span> deptid
+) <span class="k">AS</span> temp <span class="k">ON</span> e.deptid <span class="o">=</span> temp.deptid
+<span class="k">WHERE</span> s.salary <span class="o">&lt;</span> temp.avg_salary;</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>面试精讲 – 数据库设计与 SQL 查询（共12题）</h2>
+    <p>涵盖数据库设计、实战查询技巧及测试人员在项目中的数据验证思路。</p>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q1</div>
+      <div class="iq-q">什么是自关联（自连接）？它的应用场景是什么？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>自关联是指一张表通过两个不同的别名与自身进行 JOIN 操作。适用于同一张表中存在父子层级关系的场景。</p>
+      <p><strong>典型示例：</strong>tp_goods_category 中的 <code class="inl">parent_id</code> 指向同表的 <code class="inl">id</code>，一条记录可以同时扮演父节点和子节点的角色。</p>
+      <div class="box tip"><b>💡 固定写法：</b><code class="inl">FROM table AS parent INNER JOIN table AS child ON child.parent_id = parent.id</code></div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q2</div>
+      <div class="iq-q">内连接、左连接、右连接有什么区别？请举例说明。</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>INNER JOIN（内连接）：</strong>只返回两张表中都有匹配记录的行（取交集）。若左表某行在右表无匹配，则该行被丢弃。</p>
+      <p><strong>LEFT JOIN（左连接）：</strong>返回左表所有行，右表无匹配时用 NULL 填充。适用于"以左表为主，右表数据可选"的场景。</p>
+      <p><strong>RIGHT JOIN（右连接）：</strong>与 LEFT JOIN 相反。实际开发中少用，通常通过调换表顺序改用 LEFT JOIN 替代。</p>
+      <div class="box info"><b>示例：</b>查询商品及其分类时，用 LEFT JOIN 可以保留尚未归类的商品（cat_id 为 NULL 的商品也会出现在结果中）。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q3</div>
+      <div class="iq-q">UPDATE 不加 WHERE 会造成什么后果？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>不加 WHERE 的 UPDATE 会将表中<strong>所有行</strong>的指定字段全部更新，这是非常危险的操作，在生产环境中可能造成数据灾难。</p>
+      <p><strong>示例：</strong><code class="inl">UPDATE tp_users SET pay_points = 0</code>（无 WHERE）→ 所有用户积分清零。</p>
+      <div class="box danger"><b>⚠️ 最佳实践：</b>先写 WHERE 条件，再用 SELECT 验证目标记录是否正确，最后将 SELECT 改写为 UPDATE。生产环境建议配合事务（Transaction）使用。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q4</div>
+      <div class="iq-q">什么是外键（Foreign Key）？项目中一定要用外键约束吗？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>外键是一张表中指向另一张表主键的字段，用于保证引用完整性——不能插入在关联表中不存在的值。</p>
+      <p><strong>一定要用吗？</strong>不是必须的。许多大型互联网公司（如 Facebook、Twitter）为了性能不在数据库层面使用外键，改为在应用层做数据校验。但对于初学者来说，外键是理解数据库关系设计的重要工具。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q5</div>
+      <div class="iq-q">LNMP 架构中各组件分别负责什么？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>L</strong>inux – 服务器操作系统，稳定、安全、在 Web 服务器领域占主流地位。</p>
+      <p><strong>N</strong>ginx（发音 Engine-X）– Web 服务器 / 反向代理，高并发性能优秀，负责处理静态资源和路由转发。</p>
+      <p><strong>M</strong>ySQL – 关系型数据库，存储和查询结构化数据。</p>
+      <p><strong>P</strong>HP – 服务端脚本语言，处理业务逻辑，连接数据库并生成 HTML 返回给客户端。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q6</div>
+      <div class="iq-q">子查询在 FROM 中和在 WHERE 中有什么区别？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>WHERE 中的子查询：</strong>用于返回单一标量值进行比较。例如 <code class="inl">WHERE salary &gt; (SELECT avg(salary) FROM ...)</code>。</p>
+      <p><strong>FROM 中的子查询（派生表）：</strong>返回一个虚拟表，可以继续与其他表进行 JOIN。必须为其指定别名。例如 <code class="inl">FROM (SELECT deptid, avg(salary) AS avg_salary ...) AS temp</code>。</p>
+      <div class="box tip"><b>如何选择？</b>需要单个值做比较 → 放在 WHERE 中。需要多行多列的临时结果集 → 放在 FROM 中作为派生表。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q7</div>
+      <div class="iq-q">测试人员为什么需要掌握 SQL 和数据库结构？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>测试人员使用 SQL 的主要场景：</p>
+      <ul>
+        <li><strong>验证测试数据</strong>：UI 操作完成后，查库确认数据是否正确落库</li>
+        <li><strong>准备测试数据</strong>：通过 SQL 快速构造测试前置条件（Test Data Setup）</li>
+        <li><strong>定位根因</strong>：Bug 出现时，通过查库排查是前端展示问题还是数据层问题</li>
+        <li><strong>数据一致性验证</strong>：确保 UI 展示值与数据库存储值完全一致</li>
+      </ul>
+      <div class="box tip"><b>示例：</b>测试"下单成功"后，查 tp_order 验证订单是否创建、user_id 是否正确、金额是否准确。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q8</div>
+      <div class="iq-q">CentOS 上三种软件安装方式各自的特点是什么？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>yum（在线安装）：</strong>包管理工具，自动下载并解决依赖关系，使用最简便。需联网。示例：<code class="inl">yum install nginx -y</code></p>
+      <p><strong>rpm（离线安装）：</strong>从已下载的 .rpm 文件安装。可离线，但需手动处理依赖（易陷入"依赖地狱"）。</p>
+      <p><strong>源码编译安装：</strong>下载源代码手动编译。灵活性最高，可定制优化，但步骤繁琐，多用于需要自定义版本或特殊配置的场景。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q9</div>
+      <div class="iq-q">如何通过数据库验证"下单"功能是否正确？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>UI + 数据库联合验证步骤：</strong></p>
+      <ol style="padding-left:18px;margin-top:8px">
+        <li>登录 user_id=1 的账号，将商品加入购物车</li>
+        <li>查库验证：<code class="inl">SELECT * FROM tp_cart WHERE user_id=1</code></li>
+        <li>完成下单操作</li>
+        <li>查库验证订单创建：<code class="inl">SELECT * FROM tp_order WHERE user_id=1 ORDER BY order_id DESC LIMIT 1</code></li>
+        <li>验证订单商品明细：<code class="inl">SELECT * FROM tp_order_goods WHERE order_id=?</code></li>
+        <li>验证购物车已清空：<code class="inl">SELECT * FROM tp_cart WHERE user_id=1</code>（应为空）</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q10</div>
+      <div class="iq-q">GROUP BY 与 HAVING 和 WHERE 有什么区别？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>WHERE：</strong>在分组之前过滤行，不能与聚合函数（COUNT、SUM、AVG...）一起使用。</p>
+      <p><strong>GROUP BY：</strong>将具有相同列值的多行归为一组。</p>
+      <p><strong>HAVING：</strong>在分组之后过滤分组，可以使用聚合函数。</p>
+      <div class="box tip"><b>SQL 执行顺序：</b>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q11</div>
+      <div class="iq-q">实际开发中，什么时候用 LEFT JOIN 而不是 INNER JOIN？</div>
+      <div class="iq-lv lv-h">高阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>当需要保留左表的全部记录（即使右表无对应数据）时，使用 LEFT JOIN，未匹配部分以 NULL 填充。</p>
+      <p><strong>实际案例：</strong>统计每位用户的订单数量时，使用 LEFT JOIN 关联 tp_order：没有下过订单的用户也会出现在结果中，订单数显示为 0（配合 COALESCE 使用），而不是从结果集中消失。</p>
+      <div class="box warn"><b>选择依据：</b>只需要两表都有匹配的数据 → INNER JOIN。需要保留主表所有记录、允许关联表为空 → LEFT JOIN。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q12</div>
+      <div class="iq-q">测试"修改用户信息"功能时，应该覆盖哪些测试场景？</div>
+      <div class="iq-lv lv-h">高阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>需覆盖的测试用例：</strong></p>
+      <ul>
+        <li><strong>正常流程：</strong>修改昵称为合法值 → UI 显示正确 + 查库 <code class="inl">SELECT qq FROM tp_users WHERE user_id=?</code> 验证</li>
+        <li><strong>边界值：</strong>昵称最大长度（varchar(20)） → 输入20个字符、21个字符</li>
+        <li><strong>特殊字符：</strong>昵称包含特殊字符、SQL 注入字符串</li>
+        <li><strong>并发修改：</strong>两个用户同时修改是否存在竞争条件（Race Condition）</li>
+        <li><strong>数据一致性：</strong>修改后确认只有目标用户数据发生变化，其他用户不受影响</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验 – 共15题</h2>
+    <p>考察内容：TPShop 环境部署、数据库表设计、进阶 SQL 查询。</p>
+  </div>
+
+  <div id="quiz-area">
+  <div class="qz">
+    <div class="qz-q"><span class="qn">1</span>TPShop 项目所使用的技术架构（LNMP）包含哪些组件？</div>
+    <label class="opt" data-q="1" data-v="A">A. Linux + Apache + MySQL + Python</label>
+    <label class="opt" data-q="1" data-v="B">B. Linux + Nginx + MySQL + PHP</label>
+    <label class="opt" data-q="1" data-v="C">C. Linux + Node.js + MongoDB + PHP</label>
+    <label class="opt" data-q="1" data-v="D">D. Linux + Nginx + MariaDB + Python</label>
+    <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – LNMP = Linux + Nginx + MySQL + PHP。TPShop 是 PHP 项目，使用 Nginx 作为 Web 服务器，MySQL 作为数据库。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">2</span>在 Linux 中，查看本机 IP 地址的命令是？</div>
+    <label class="opt" data-q="2" data-v="A">A. ipconfig</label>
+    <label class="opt" data-q="2" data-v="B">B. ifconfig</label>
+    <label class="opt" data-q="2" data-v="C">C. netstat -i</label>
+    <label class="opt" data-q="2" data-v="D">D. hostname -I</label>
+    <div class="qz-ex" data-q="2"><b>✅ 正确答案：B</b> – <code class="inl">ifconfig</code> 是 CentOS 7 下查看网络接口信息的标准命令。<code class="inl">ipconfig</code> 是 Windows 的命令。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">3</span>tp_goods_category 表中，parent_id 字段指向同表的 id 字段，这种设计叫做什么？</div>
+    <label class="opt" data-q="3" data-v="A">A. 普通外键关联</label>
+    <label class="opt" data-q="3" data-v="B">B. 自引用（自关联），是自连接查询的基础</label>
+    <label class="opt" data-q="3" data-v="C">C. 复合主键</label>
+    <label class="opt" data-q="3" data-v="D">D. 递归主键</label>
+    <div class="qz-ex" data-q="3"><b>✅ 正确答案：B</b> – 自引用外键（Self-referencing FK）：外键指向本表自身的主键。常用于树形结构数据，如多级商品分类。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">4</span>查询 tp_goods_category 中一级分类（无上级节点），以下哪条语句正确？</div>
+    <label class="opt" data-q="4" data-v="A">A. SELECT * FROM tp_goods_category WHERE level = 1</label>
+    <label class="opt" data-q="4" data-v="B">B. SELECT * FROM tp_goods_category WHERE parent_id = 0</label>
+    <label class="opt" data-q="4" data-v="C">C. SELECT * FROM tp_goods_category WHERE id = 0</label>
+    <label class="opt" data-q="4" data-v="D">D. SELECT * FROM tp_goods_category WHERE parent_id IS NULL</label>
+    <div class="qz-ex" data-q="4"><b>✅ 正确答案：B</b> – 根据 TPShop 的表结构设计，一级分类的 parent_id = 0（而非 NULL）。B 是最准确的写法。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">5</span>以下哪条语句能正确联查订单表与订单商品表？</div>
+    <label class="opt" data-q="5" data-v="A">A. FROM tp_order JOIN tp_order_goods ON tp_order.goods_id = tp_order_goods.goods_id</label>
+    <label class="opt" data-q="5" data-v="B">B. FROM tp_order JOIN tp_order_goods ON tp_order_goods.order_id = tp_order.order_id</label>
+    <label class="opt" data-q="5" data-v="C">C. FROM tp_order JOIN tp_order_goods ON tp_order.user_id = tp_order_goods.order_id</label>
+    <label class="opt" data-q="5" data-v="D">D. FROM tp_order CROSS JOIN tp_order_goods</label>
+    <div class="qz-ex" data-q="5"><b>✅ 正确答案：B</b> – tp_order_goods.order_id 是指向 tp_order.order_id 的外键，通过它关联两张表才能获取某订单下的所有商品信息。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">6</span>以下哪条 UPDATE 语句存在严重风险？</div>
+    <label class="opt" data-q="6" data-v="A">A. UPDATE tp_users SET qq = 'test001' WHERE user_id = 1</label>
+    <label class="opt" data-q="6" data-v="B">B. UPDATE tp_users SET pay_points = 20000</label>
+    <label class="opt" data-q="6" data-v="C">C. UPDATE tp_users SET pay_points = 20000 WHERE user_id = 1</label>
+    <label class="opt" data-q="6" data-v="D">D. UPDATE tp_users SET qq = 'test001', pay_points = 20000 WHERE user_id = 1</label>
+    <div class="qz-ex" data-q="6"><b>✅ 正确答案：B</b> – B 缺少 WHERE 条件，会将表中所有用户的 pay_points 都改为 20000！这是最常见也是最危险的 SQL 误操作之一。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">7</span>LEFT JOIN 与 INNER JOIN 的核心区别是什么？</div>
+    <label class="opt" data-q="7" data-v="A">A. LEFT JOIN 执行速度更快</label>
+    <label class="opt" data-q="7" data-v="B">B. LEFT JOIN 保留左表所有行，右表无匹配时用 NULL 填充</label>
+    <label class="opt" data-q="7" data-v="C">C. LEFT JOIN 只返回左表的数据，忽略右表</label>
+    <label class="opt" data-q="7" data-v="D">D. LEFT JOIN 和 INNER JOIN 返回结果完全一样</label>
+    <div class="qz-ex" data-q="7"><b>✅ 正确答案：B</b> – LEFT JOIN = 左表全部行 + 右表匹配行（不匹配则 NULL）。INNER JOIN = 只返回两表均有匹配的行。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">8</span>CentOS 上哪种安装方式需要连接互联网？</div>
+    <label class="opt" data-q="8" data-v="A">A. rpm 包安装</label>
+    <label class="opt" data-q="8" data-v="B">B. 源码编译安装</label>
+    <label class="opt" data-q="8" data-v="C">C. yum 在线安装</label>
+    <label class="opt" data-q="8" data-v="D">D. 三种都需要联网</label>
+    <div class="qz-ex" data-q="8"><b>✅ 正确答案：C</b> – yum 需要从软件仓库（repository）在线下载安装包及其依赖。rpm 和源码编译在有本地文件的情况下可以离线完成。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">9</span>查询 user_id = 1 的购物车总金额，以下哪条语句最准确？</div>
+    <label class="opt" data-q="9" data-v="A">A. SELECT COUNT(*) FROM tp_cart WHERE user_id = 1</label>
+    <label class="opt" data-q="9" data-v="B">B. SELECT SUM(goods_price) FROM tp_cart WHERE user_id = 1</label>
+    <label class="opt" data-q="9" data-v="C">C. SELECT SUM(goods_price * goods_num) AS 总金额 FROM tp_cart WHERE user_id = 1</label>
+    <label class="opt" data-q="9" data-v="D">D. SELECT AVG(goods_price) FROM tp_cart WHERE user_id = 1</label>
+    <div class="qz-ex" data-q="9"><b>✅ 正确答案：C</b> – 总金额 = 每件商品的单价 × 数量，再求和。B 只累加了单价，忽略了数量，结果不正确。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">10</span>SQL 语句的正确执行顺序是？</div>
+    <label class="opt" data-q="10" data-v="A">A. SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY</label>
+    <label class="opt" data-q="10" data-v="B">B. FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY</label>
+    <label class="opt" data-q="10" data-v="C">C. FROM → SELECT → WHERE → GROUP BY → HAVING → ORDER BY</label>
+    <label class="opt" data-q="10" data-v="D">D. WHERE → FROM → GROUP BY → SELECT → HAVING → ORDER BY</label>
+    <div class="qz-ex" data-q="10"><b>✅ 正确答案：B</b> – 执行顺序：FROM（确定数据源）→ WHERE（过滤行）→ GROUP BY（分组）→ HAVING（过滤分组）→ SELECT（选择字段）→ ORDER BY（排序）→ LIMIT（限制行数）。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">11</span>TPShop 中，用户昵称存储在 tp_users 表的哪个字段？</div>
+    <label class="opt" data-q="11" data-v="A">A. username</label>
+    <label class="opt" data-q="11" data-v="B">B. nickname</label>
+    <label class="opt" data-q="11" data-v="C">C. qq</label>
+    <label class="opt" data-q="11" data-v="D">D. display_name</label>
+    <div class="qz-ex" data-q="11"><b>✅ 正确答案：C</b> – 昵称存储在 <code class="inl">qq</code> 字段（TPShop 原版集成了 QQ 登录，故以此命名）。测试人员必须了解 UI 展示字段与数据库字段的对应关系。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">12</span>TPShop 中，用户积分存储在 tp_users 表的哪个字段？</div>
+    <label class="opt" data-q="12" data-v="A">A. points</label>
+    <label class="opt" data-q="12" data-v="B">B. loyalty_points</label>
+    <label class="opt" data-q="12" data-v="C">C. pay_points</label>
+    <label class="opt" data-q="12" data-v="D">D. user_points</label>
+    <div class="qz-ex" data-q="12"><b>✅ 正确答案：C</b> – 积分存储在 <code class="inl">pay_points</code> 字段。本节课实战练习：<code class="inl">UPDATE tp_users SET pay_points = 20000 WHERE user_id = 1</code>。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">13</span>写在 FROM 子句中的子查询（派生表）有什么强制要求？</div>
+    <label class="opt" data-q="13" data-v="A">A. 必须包含 ORDER BY 子句</label>
+    <label class="opt" data-q="13" data-v="B">B. 必须指定别名（alias）</label>
+    <label class="opt" data-q="13" data-v="C">C. 必须包含 WHERE 子句</label>
+    <label class="opt" data-q="13" data-v="D">D. 必须使用 INNER JOIN</label>
+    <div class="qz-ex" data-q="13"><b>✅ 正确答案：B</b> – FROM 中的子查询必须指定别名，否则 MySQL 会报语法错误。正确写法：<code class="inl">FROM (SELECT ...) AS temp_name</code>。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">14</span>执行 UPDATE 后，最恰当的验证方式是？</div>
+    <label class="opt" data-q="14" data-v="A">A. SELECT * FROM tp_users（查全表）</label>
+    <label class="opt" data-q="14" data-v="B">B. SELECT user_id, email, qq FROM tp_users WHERE user_id = 1</label>
+    <label class="opt" data-q="14" data-v="C">C. SELECT COUNT(*) FROM tp_users WHERE qq = 'test001'</label>
+    <label class="opt" data-q="14" data-v="D">D. SHOW COLUMNS FROM tp_users</label>
+    <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – 最佳验证方式：只查需要验证的字段，并通过 WHERE 精确定位目标记录。避免 SELECT * 全表查询——效率低且会暴露密码哈希等敏感信息。</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">15</span>在生产数据库上执行 UPDATE 前，测试人员应该首先做什么？</div>
+    <label class="opt" data-q="15" data-v="A">A. 直接执行 UPDATE，事后再检查</label>
+    <label class="opt" data-q="15" data-v="B">B. 先用 SELECT 加相同的 WHERE 条件确认目标记录，再执行 UPDATE</label>
+    <label class="opt" data-q="15" data-v="C">C. 只需备份数据库，不必 SELECT 确认</label>
+    <label class="opt" data-q="15" data-v="D">D. 先询问开发人员是否可以修改</label>
+    <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – 标准操作流程：先用 <code class="inl">SELECT * FROM table WHERE [条件]</code> 确认目标记录无误 → 将 SELECT 改写为 UPDATE 执行。生产环境还应配合数据库备份（B 选项中的 C 也有价值，但 B 是必做的核心步骤）。</div>
+  </div>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">请查看各题下方的解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+const ans={1:'B',2:'B',3:'B',4:'B',5:'B',6:'B',7:'B',8:'C',9:'C',10:'B',11:'C',12:'C',13:'B',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked)});
+  if(done===10) document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ans[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct) o.classList.add('ok');
+      else if(o.classList.contains('sel')) o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex) ex.classList.add('s');
+    if(sel[q]===correct) score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90) msg='🏆 优秀！TPShop数据库与SQL进阶知识掌握扎实！';
+  else if(pct>=70) msg='✅ 良好！建议复习多表 JOIN 查询相关内容。';
+  else if(pct>=50) msg='📚 一般。请多练习实战题，加深理解。';
+  else msg='💪 需要加油！请重新阅读知识讲解并完成所有实战练习。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12) document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s2d6'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

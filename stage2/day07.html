@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 2 Day 07 · 阶段综合测试 (Linux&数据库 Day 1-6 复习)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+:root{
+  --day:#0f766e;
+  --day-d:#0d6b63;
+  --day-bg:rgba(15,118,110,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6;
+  /* Day color refs */
+  --d1:#3b82f6;
+  --d2:#7c3aed;
+  --d3:#0891b2;
+  --d4:#16a34a;
+  --d5:#ea580c;
+  --d6:#e11d48;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);line-height:1.75;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(15,118,110,.25)}
+.hd-tag{display:inline-block;font-size:11px;background:rgba(255,255,255,.22);padding:4px 10px;border-radius:20px;font-weight:600;letter-spacing:.05em;margin-bottom:10px}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:6px;line-height:1.4}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.92}
+.hd-stats b{font-family:'Space Mono',monospace;font-weight:700;margin-right:4px}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t:hover{background:var(--day-bg);color:var(--day-d)}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(15,118,110,.4)}
+
+/* Panel */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sec card */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{font-size:13.5px;color:var(--ink2);margin-bottom:10px}
+
+/* Intro mode picker */
+.mode-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.mode-card{background:#fff;border:2px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;text-align:center;transition:all .2s}
+.mode-card:hover{transform:translateY(-3px);border-color:var(--day);box-shadow:0 6px 18px rgba(15,118,110,.12)}
+.mode-card.act{border-color:var(--day);background:var(--day-bg)}
+.mode-card .em{font-size:34px;margin-bottom:8px}
+.mode-card .ti{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.mode-card .desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Filter chips */
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;align-items:center}
+.filter-row .lbl{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:4px}
+.chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--ink2);transition:all .15s;font-family:inherit;user-select:none}
+.chip:hover{border-color:var(--day);color:var(--day-d)}
+.chip.act{background:var(--day);color:#fff;border-color:var(--day)}
+.chip[data-d="1"].act{background:var(--d1);border-color:var(--d1)}
+.chip[data-d="2"].act{background:var(--d2);border-color:var(--d2)}
+.chip[data-d="3"].act{background:var(--d3);border-color:var(--d3)}
+.chip[data-d="4"].act{background:var(--d4);border-color:var(--d4)}
+.chip[data-d="5"].act{background:var(--d5);border-color:var(--d5)}
+.chip[data-d="6"].act{background:var(--d6);border-color:var(--d6)}
+
+/* Action buttons */
+.start-btn{display:block;width:100%;background:var(--day);color:#fff;border:none;padding:14px;border-radius:10px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;margin-top:12px;box-shadow:0 4px 12px rgba(15,118,110,.3);transition:all .2s}
+.start-btn:hover{background:var(--day-d);transform:translateY(-1px)}
+.start-btn:disabled{background:#94a3b8;cursor:not-allowed;box-shadow:none}
+
+/* Question card */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;position:relative}
+.qz-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qz-num{font-family:'Space Mono',monospace;font-weight:700;color:#fff;background:var(--day);width:32px;height:32px;line-height:32px;text-align:center;border-radius:50%;font-size:13px}
+.qz-day{font-size:11px;padding:3px 9px;border-radius:12px;font-weight:700;font-family:'Space Mono',monospace;letter-spacing:.03em}
+.qz-day[data-d="1"]{background:#dbeafe;color:#1d4ed8}
+.qz-day[data-d="2"]{background:#ede9fe;color:#5b21b6}
+.qz-day[data-d="3"]{background:#cffafe;color:#155e75}
+.qz-day[data-d="4"]{background:#dcfce7;color:#15803d}
+.qz-day[data-d="5"]{background:#ffedd5;color:#9a3412}
+.qz-day[data-d="6"]{background:#fee2e2;color:#991b1b}
+.qz-cat{font-size:11px;color:var(--muted);background:#f1f5f9;padding:2px 8px;border-radius:10px;font-weight:600}
+.qz-q{font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:14px;line-height:1.65;padding-left:4px}
+.opt{display:flex;gap:10px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.55;align-items:flex-start}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt .letter{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);min-width:18px}
+.opt .ot{flex:1}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.ok .letter{color:var(--green)}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.opt.no .letter{color:var(--red)}
+.qz-ex{display:none;margin-top:10px;padding:11px 14px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.7}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+
+.qz-rev{display:none;margin-top:8px;background:transparent;border:1px dashed var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;font-family:inherit;font-size:12px;cursor:pointer}
+.qz-rev:hover{color:var(--day-d);border-color:var(--day)}
+.qz.practice .qz-rev{display:inline-block}
+
+/* Top toolbar */
+.toolbar{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--border);z-index:10;padding:10px 14px;margin:-22px -22px 14px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.toolbar .timer{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--day-d)}
+.toolbar .timer.warn{color:var(--amber)}
+.toolbar .timer.danger{color:var(--red)}
+.toolbar .progress-info{font-size:12px;color:var(--muted)}
+.toolbar .progress-info b{color:var(--ink);font-family:'Space Mono',monospace}
+.tbar-btn{background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:7px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.tbar-btn:hover{border-color:var(--day);color:var(--day-d)}
+.tbar-btn.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.tbar-btn.pri:hover{background:var(--day-d)}
+.tbar-btn.dang{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* Progress bar */
+.pbar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin:10px 0}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--day),var(--day-d));transition:width .3s ease}
+
+/* Palette */
+.palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;margin:14px 0}
+.pal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:#fff;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;color:var(--ink2);transition:all .15s}
+.pal-cell:hover{border-color:var(--day);transform:scale(1.1)}
+.pal-cell.cur{background:var(--day);color:#fff;border-color:var(--day)}
+.pal-cell.ans{background:#dbeafe;border-color:#3b82f6;color:#1e40af}
+.pal-cell.ok{background:#dcfce7;border-color:var(--green);color:#15803d}
+.pal-cell.no{background:#fee2e2;border-color:var(--red);color:#991b1b}
+.pal-cell.flag{background:#fef3c7;border-color:var(--amber);color:#78350f}
+
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+
+/* Page nav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* Result panel */
+.result{background:linear-gradient(135deg,var(--card),#fafbfc);border:2px solid var(--day);border-radius:14px;padding:24px;margin-bottom:18px;text-align:center}
+.result h2{border:none;font-size:22px;margin-bottom:8px;justify-content:center}
+.result .big-score{font-family:'Space Mono',monospace;font-size:54px;font-weight:700;color:var(--day);margin:14px 0 4px}
+.result .pct{font-size:14px;color:var(--muted);margin-bottom:14px}
+.result .verdict{font-size:16px;font-weight:700;margin:10px 0;padding:8px 16px;display:inline-block;border-radius:8px}
+.result .verdict.pass{background:#dcfce7;color:#15803d}
+.result .verdict.fail{background:#fee2e2;color:#991b1b}
+.result .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:18px;text-align:center}
+.result .stat{padding:12px;border-radius:10px;background:#fff;border:1px solid var(--border)}
+.result .stat .v{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--day)}
+.result .stat .l{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Per-day breakdown */
+.day-stats{margin:14px 0}
+.day-stat-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:13px}
+.day-stat-row .day-tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;font-family:'Space Mono',monospace;min-width:60px;text-align:center}
+.day-stat-row .day-tag[data-d="1"]{background:#dbeafe;color:#1d4ed8}
+.day-stat-row .day-tag[data-d="2"]{background:#ede9fe;color:#5b21b6}
+.day-stat-row .day-tag[data-d="3"]{background:#cffafe;color:#155e75}
+.day-stat-row .day-tag[data-d="4"]{background:#dcfce7;color:#15803d}
+.day-stat-row .day-tag[data-d="5"]{background:#ffedd5;color:#9a3412}
+.day-stat-row .day-tag[data-d="6"]{background:#fee2e2;color:#991b1b}
+.day-stat-row .day-title{flex:1;color:var(--ink2);font-size:12.5px}
+.day-stat-row .day-score{font-family:'Space Mono',monospace;font-weight:700;color:var(--ink)}
+.day-stat-row .day-bar{height:8px;width:100px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.day-stat-row .day-bar-fill{height:100%;background:linear-gradient(90deg,var(--day),var(--day-d))}
+
+/* Flag button */
+.flag-btn{position:absolute;top:14px;right:14px;background:transparent;border:none;font-size:18px;cursor:pointer;color:#cbd5e1;transition:all .2s}
+.flag-btn:hover{color:var(--amber)}
+.flag-btn.on{color:var(--amber)}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-bg.s{display:flex}
+.modal{background:#fff;border-radius:14px;padding:22px;max-width:420px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+.modal h3{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.modal p{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:14px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--ink2);font-family:inherit;font-weight:600;font-size:13px;cursor:pointer}
+.modal-btn.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.modal-btn.dang{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* Done bar */
+.done-bar{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid var(--green);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:18px;flex-wrap:wrap}
+.done-bar .txt{flex:1;font-size:13px;color:#15803d;line-height:1.5;min-width:200px}
+.done-bar button{background:var(--green);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:all .2s}
+.done-bar button:hover{background:#15803d}
+.done-bar button.dn{background:#94a3b8;cursor:default}
+
+/* Knowledge map styles */
+.km-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:14px 0}
+.km-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
+.km-card h4{font-size:14px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid;display:flex;align-items:center;gap:6px}
+.km-card ul{list-style:none;font-size:12.5px;color:var(--ink2)}
+.km-card ul li{padding:3px 0;border-bottom:1px dashed var(--border);display:flex;align-items:flex-start;gap:6px}
+.km-card ul li:last-child{border-bottom:none}
+.km-card ul li::before{content:'›';color:var(--day-d);font-weight:700;flex-shrink:0}
+.tag{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:8px;font-weight:700;font-family:'Space Mono',monospace;margin-right:4px}
+.tag-cmd{background:#dbeafe;color:#1d4ed8}
+.tag-sql{background:#dcfce7;color:#15803d}
+.tag-imp{background:#fee2e2;color:#991b1b}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .qz{padding:16px 14px}
+  .qz-q{font-size:13.5px}
+  .opt{font-size:12.5px;padding:10px 12px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .toolbar{padding:8px 10px;margin:-16px -14px 12px;font-size:11px}
+  .tbar-btn{padding:6px 10px;font-size:11px}
+  .result .big-score{font-size:42px}
+  .palette{grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:4px}
+  .pal-cell{font-size:10px}
+  .km-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 2 · DAY 07 · 综合测试</div>
+  <h1>阶段综合测试 · Linux &amp; 数据库 Day 01–06 复习</h1>
+  <p>覆盖 Stage 2 全部 6 天核心知识点 — Linux 命令、权限、数据库基础、SQL CRUD、聚合分组、多表查询、TPShop 实战</p>
+  <div class="hd-stats">
+    <div><b>120</b>道题</div>
+    <div><b>6</b>个章节</div>
+    <div><b>A/B/C/D</b>单选</div>
+    <div>通过线 <b>≥75%</b></div>
+  </div>
+</div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">🎯 开始测试</button>
+    <button class="t" data-p="1">📝 答题</button>
+    <button class="t" data-p="2">📊 结果与解析</button>
+    <button class="t" data-p="3">📚 知识地图</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 0: START ============ -->
+<div class="pan a" id="p0">
+
+  <div class="sec">
+    <h2><span class="ico">▶</span>选择测试模式</h2>
+    <p>本测试包含 120 道单选题，涵盖 Stage 2 全部 6 天的核心知识。选择适合你的模式：</p>
+    <div class="mode-pick">
+      <div class="mode-card act" data-mode="practice" onclick="setMode('practice')">
+        <div class="em">📖</div>
+        <div class="ti">练习模式</div>
+        <div class="desc">不限时间，每题可立即查看答案和解析。适合复习巩固。</div>
+      </div>
+      <div class="mode-card" data-mode="exam" onclick="setMode('exam')">
+        <div class="em">⏱️</div>
+        <div class="ti">考试模式</div>
+        <div class="desc">90 分钟倒计时，提交后才显示成绩和解析。模拟真实面试笔试。</div>
+      </div>
+      <div class="mode-card" data-mode="quick" onclick="setMode('quick')">
+        <div class="em">⚡</div>
+        <div class="ti">快速模式</div>
+        <div class="desc">随机抽 20 道题，15 分钟内完成。适合考前快速自测。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🔍</span>章节范围 (可选过滤)</h2>
+    <p>默认所有章节都覆盖。如果想只复习某些章节，可以勾选下面的标签：</p>
+    <div class="filter-row">
+      <span class="lbl">章节：</span>
+      <button class="chip act" data-d="all" onclick="toggleDay('all')">全部</button>
+      <button class="chip" data-d="1" onclick="toggleDay(1)">Day 01 · Linux 基础</button>
+      <button class="chip" data-d="2" onclick="toggleDay(2)">Day 02 · 系统/权限/vi</button>
+      <button class="chip" data-d="3" onclick="toggleDay(3)">Day 03 · 数据库基础</button>
+      <button class="chip" data-d="4" onclick="toggleDay(4)">Day 04 · SQL CRUD</button>
+      <button class="chip" data-d="5" onclick="toggleDay(5)">Day 05 · 多表查询</button>
+      <button class="chip" data-d="6" onclick="toggleDay(6)">Day 06 · TPShop 实战</button>
+    </div>
+    <div class="box info">
+      <b>📝 评分规则：</b>每题 1 分，满分按所选题数计算。<br>
+      • <b>≥90%</b> 优秀 — Stage 2 知识扎实<br>
+      • <b>75%–89%</b> 通过 — 可以进入 Stage 3<br>
+      • <b>60%–74%</b> 良好 — 建议复习错题章节<br>
+      • <b>&lt;60%</b> 需要重新学习对应章节
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">📋</span>本次测试预览</h2>
+    <div id="previewBox" style="font-size:13.5px;color:var(--ink2)">
+      <p>📊 已选章节：<b id="prevDays">Day 01-06 全部</b></p>
+      <p>🎯 题目数量：<b id="prevCount">120</b> 道</p>
+      <p>⏱️ 时间设置：<b id="prevTime">不限时（练习模式）</b></p>
+    </div>
+    <button class="start-btn" onclick="startExam()">▶ 开始答题</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 1: EXAM ============ -->
+<div class="pan" id="p1">
+  <div class="sec" id="examSec">
+    <div class="toolbar">
+      <div class="timer" id="timerDisplay">练习模式 · 不限时</div>
+      <div class="progress-info">第 <b id="curNum">1</b> / <b id="totalNum">120</b> 题 · 已答 <b id="answeredCount">0</b></div>
+      <button class="tbar-btn" onclick="showPalette()">📋 题目列表</button>
+      <button class="tbar-btn pri" onclick="confirmSubmit()">提交</button>
+    </div>
+    <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
+    <div id="qContainer"></div>
+    <div class="pnav">
+      <button onclick="navQ(-1)" id="prevBtn">← 上一题</button>
+      <button onclick="flagQ()" id="flagBtn" style="flex:0 1 auto;min-width:90px">⚑ 标记</button>
+      <button class="pri" onclick="navQ(1)" id="nextBtn">下一题 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PANEL 2: RESULTS ============ -->
+<div class="pan" id="p2">
+  <div id="resultsBox"></div>
+  <div class="done-bar" id="doneBarSec" style="display:none">
+    <div class="txt">完成本次测试 — Stage 2 综合复习已结束！点击右侧按钮记录到学习进度。</div>
+    <button id="doneBtn" onclick="markDone()">✓ 标记完成</button>
+  </div>
+  <div class="sec" id="reviewSec" style="display:none">
+    <h2><span class="ico">📖</span>错题解析</h2>
+    <p>下面列出所有<b>答错</b>的题目和解析。
+      <span class="qz-day" data-d="1" style="display:inline-block;margin:0 2px">D1</span>
+      <span class="qz-day" data-d="2" style="display:inline-block;margin:0 2px">D2</span>
+      <span class="qz-day" data-d="3" style="display:inline-block;margin:0 2px">D3</span>
+      <span class="qz-day" data-d="4" style="display:inline-block;margin:0 2px">D4</span>
+      <span class="qz-day" data-d="5" style="display:inline-block;margin:0 2px">D5</span>
+      <span class="qz-day" data-d="6" style="display:inline-block;margin:0 2px">D6</span>
+      标签显示题目对应的章节。</p>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
+<!-- ============ PANEL 3: KNOWLEDGE MAP ============ -->
+<div class="pan" id="p3">
+  <div class="sec">
+    <h2><span class="ico">🗺️</span>Stage 2 知识地图</h2>
+    <p>下面是 Day 01-06 的核心知识点速查表，可作为考前复习清单：</p>
+  </div>
+
+  <div class="km-grid">
+    <div class="km-card">
+      <h4 style="border-color:var(--d1);color:var(--d1)">🐧 Day 01 · Linux 基础与文件操作</h4>
+      <ul>
+        <li><span class="tag tag-cmd">ls</span>查看目录；-l 详细 -a 隐藏 -h 大小</li>
+        <li><span class="tag tag-cmd">cd</span>切换目录；~ 家目录 / 根 .. 上级 - 上次</li>
+        <li><span class="tag tag-cmd">touch/mkdir</span>创建文件/目录；mkdir -p 多层</li>
+        <li><span class="tag tag-cmd">rm -rf</span>强制递归删除；<span class="tag tag-imp">生产禁用 rm -rf /</span></li>
+        <li><span class="tag tag-cmd">cp -r / mv</span>复制目录 / 移动或重命名</li>
+        <li><span class="tag tag-cmd">cat/more/grep</span>查看文件；grep -n -i -v 选项</li>
+        <li><span class="tag tag-cmd">&gt; / &gt;&gt;</span>覆盖重定向 / 追加重定向</li>
+        <li><span class="tag tag-cmd">|</span>管道符；前一命令输出 → 后一命令输入</li>
+        <li>目录结构：/ /home /etc /usr/bin /tmp /opt /var/log</li>
+        <li>SSH：ifconfig 查 IP → ping 测通 → FinalShell 连接</li>
+      </ul>
+    </div>
+    <div class="km-card">
+      <h4 style="border-color:var(--d2);color:var(--d2)">🔧 Day 02 · 系统命令/权限/vi</h4>
+      <ul>
+        <li><span class="tag tag-cmd">ps -aux</span>查看进程；kill -9 PID 强制终止</li>
+        <li><span class="tag tag-cmd">netstat -anptu</span>查端口；lsof -i:端口</li>
+        <li><span class="tag tag-cmd">tail -f</span>实时监控日志；测试排查 Bug 必用</li>
+        <li>权限：r=4 w=2 x=1；755=rwxr-xr-x；644=rw-r--r--</li>
+        <li>chmod 数字法：<span class="tag tag-imp">755 目录默认 / 644 文件默认</span></li>
+        <li>tar：-z gzip .tar.gz；-j bzip2 .tar.bz2；-c 创建 -x 解压</li>
+        <li>vi 三模式：命令 ↔ i插入 ↔ :末行（:wq 保存退出 :q! 不保存）</li>
+        <li>find -name '*.txt'；ln -s 创建软链接</li>
+        <li>yum在线安装（自动依赖）/ rpm离线 / 源码编译</li>
+        <li>kill 与 kill -9 区别：SIGTERM 温柔请求 vs SIGKILL 强制</li>
+      </ul>
+    </div>
+    <div class="km-card">
+      <h4 style="border-color:var(--d3);color:var(--d3)">🗄️ Day 03 · 数据库基础/Navicat/SQL入门</h4>
+      <ul>
+        <li>关系型：MySQL/Oracle/SQLite；NoSQL：Redis/MongoDB</li>
+        <li>数据库=文件、表=Sheet、行=记录、列=字段</li>
+        <li>SQL分类：DQL(select) DML(insert/update/delete) DDL(create/drop/alter)</li>
+        <li>连接：mysql -h IP -P 3306 -u root -p密码</li>
+        <li>数据类型：int / decimal(M,N) / varchar(N) / datetime</li>
+        <li>约束：primary key / auto_increment / not null / unique / default / foreign key</li>
+        <li>CREATE TABLE：字段名 类型 约束；INSERT INTO VALUES</li>
+        <li>备份：mysqldump -uroot -p 库名 > backup.sql</li>
+        <li>show databases / use 库名 / show tables / desc 表名</li>
+        <li><span class="tag tag-imp">字符集建库必须 charset=utf8mb4（支持emoji）</span></li>
+      </ul>
+    </div>
+    <div class="km-card">
+      <h4 style="border-color:var(--d4);color:var(--d4)">📝 Day 04 · SQL CRUD/条件/聚合/分组/分页</h4>
+      <ul>
+        <li>INSERT 多行方式二 VALUES(...),(...)比方式一快 5~10 倍</li>
+        <li><span class="tag tag-imp">UPDATE 必须加 WHERE！否则全表修改（生产事故 #1）</span></li>
+        <li>DELETE（可回滚）/ TRUNCATE（重置ID）/ DROP（删表结构）</li>
+        <li>WHERE 6种：比较 / 逻辑AND OR NOT / LIKE % _ / IN BETWEEN / IS NULL / NOT</li>
+        <li>聚合函数：COUNT(*) MAX MIN SUM AVG；COUNT(字段)不统计NULL</li>
+        <li>GROUP BY + HAVING；HAVING 在分组后过滤，可用聚合函数</li>
+        <li>ORDER BY ASC/DESC；LIMIT 起点, 数量；分页公式 LIMIT (n-1)*m, m</li>
+        <li>执行顺序：FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</li>
+        <li>逻辑删除：is_delete=1 标记，不物理删除（可审计可恢复）</li>
+        <li>DISTINCT 去重；AS 起别名（字段/表）；SELECT * 生产不推荐</li>
+      </ul>
+    </div>
+    <div class="km-card">
+      <h4 style="border-color:var(--d5);color:var(--d5)">🔗 Day 05 · 联表查询/自关联/子查询</h4>
+      <ul>
+        <li>INNER JOIN 取交集；LEFT JOIN 左表全保留；RIGHT JOIN 右表全保留</li>
+        <li>ON 指定连接条件（外键关系）；可连续 JOIN 多张表</li>
+        <li>自关联：同一张表别名不同的 JOIN（省市区、分类树、员工上级）</li>
+        <li>子查询 4 类：标量（单值）/ 列（IN）/ 行（多列）/ 表（FROM临时表）</li>
+        <li>子查询在 FROM 中必须有别名：<code>(SELECT ...)AS temp</code></li>
+        <li>IN vs EXISTS：子查询小→IN；子查询大→EXISTS 短路效率高</li>
+        <li>JOIN 优先于子查询（性能更好，优化器可优化）</li>
+        <li>LEFT JOIN + IS NULL：查找在左表有但右表没有的记录</li>
+        <li>ON 在连接时过滤；WHERE 在连接后过滤；LEFT JOIN 时结果不同</li>
+        <li>ANY（任意一个）/ ALL（所有）/ SOME（=ANY）</li>
+      </ul>
+    </div>
+    <div class="km-card">
+      <h4 style="border-color:var(--d6);color:var(--d6)">🛒 Day 06 · TPShop 部署/数据库验证</h4>
+      <ul>
+        <li>LNMP：Linux + Nginx + MySQL + PHP</li>
+        <li>ifconfig 查IP；ping 测通；FinalShell 远程连接</li>
+        <li>tp_users：user_id/email/qq(昵称)/pay_points(积分)/user_money</li>
+        <li>tp_goods_category：id/name/parent_id(自关联)/level（分类树）</li>
+        <li>tp_order → tp_order_goods（order_id关联）</li>
+        <li>tp_cart：user_id/goods_id/goods_price/goods_num</li>
+        <li>自关联查分类：FROM category AS parent JOIN category AS child ON child.parent_id=parent.id</li>
+        <li>UPDATE qq='test001' WHERE user_id=1；<span class="tag tag-imp">必须加WHERE！</span></li>
+        <li>测试验证：操作UI后 SELECT 数据库验证数据正确落库</li>
+        <li>tester用SQL：验证数据 / 造测试数据 / 排查根因 / 一致性校验</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<!-- ============ MODAL ============ -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">确认提交？</h3>
+    <p id="modalMsg">还有题目未作答，确定要提交吗？</p>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeModal()">取消</button>
+      <button class="modal-btn dang" id="modalConfirm" onclick="confirmYes()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PALETTE MODAL ============ -->
+<div class="modal-bg" id="paletteBg">
+  <div class="modal" style="max-width:520px">
+    <h3>题目导航</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:6px">
+      <span style="display:inline-block;width:14px;height:14px;background:#dbeafe;border:1.5px solid #3b82f6;border-radius:3px;vertical-align:middle"></span> 已答
+      &nbsp;<span style="display:inline-block;width:14px;height:14px;background:#fef3c7;border:1.5px solid var(--amber);border-radius:3px;vertical-align:middle"></span> 标记
+      &nbsp;<span style="display:inline-block;width:14px;height:14px;background:var(--day);border-radius:3px;vertical-align:middle"></span> 当前
+    </p>
+    <div class="palette" id="paletteGrid"></div>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closePalette()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ TAB NAV ============ */
+function go(i){
+  document.querySelectorAll('.t').forEach((t,k)=>t.classList.toggle('a',k===i));
+  document.querySelectorAll('.pan').forEach((p,k)=>p.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.t').forEach((t,i)=>{
+  t.onclick=()=>{
+    if(i===2 && !EXAM_STATE.submitted){ alert('请先完成测试再查看结果'); return; }
+    go(i);
+  };
+});
+
+/* ============ QUESTION BANK ============ */
+const BANK=[
+  /* ===== DAY 1: LINUX 基础 ===== */
+  {day:1,cat:'Linux基础·目录结构',q:'Linux 系统中，存放系统配置文件的目录是？',
+   o:['/tmp','/etc','/usr','/opt'],a:1,
+   exp:'/etc 目录存放系统和软件的配置文件（如 MySQL 配置在 /etc/my.cnf）。/tmp 是临时文件，/usr 是用户软件，/opt 是第三方软件安装目录。'},
+  {day:1,cat:'Linux基础·目录结构',q:'Linux 中 ~ 代表什么目录？',
+   o:['根目录 /','系统目录 /sys','当前用户的家目录 /home/用户名','配置目录 /etc'],a:2,
+   exp:'~ 是当前用户家目录的简写，等价于 /home/用户名（root 用户的家目录是 /root）。'},
+  {day:1,cat:'Linux基础·ls命令',q:'ls 命令中，同时显示隐藏文件、详细信息和文件大小的选项组合是？',
+   o:['ls -l','ls -la','ls -lha','ls -h'],a:2,
+   exp:'ls -lha：-l 详细信息，-h 显示人类可读大小（须与-l合用），-a 显示所有文件（含隐藏文件）。'},
+  {day:1,cat:'Linux基础·cd命令',q:'执行 cd - 命令的效果是？',
+   o:['回到根目录','回到家目录','回到上一层目录','返回上一次所在的目录'],a:3,
+   exp:'cd - 返回上一次所在目录，非常实用。cd .. 是上一层，cd ~ 是家目录，cd / 是根目录。'},
+  {day:1,cat:'Linux基础·绝对路径',q:'以下哪个是绝对路径？',
+   o:['../images/logo.png','./css/style.css','images/logo.png','/var/log/nginx/access.log'],a:3,
+   exp:'绝对路径必须以 / 或 ~ 开头，从根目录出发。相对路径从当前位置出发（./ ../ 或不加前缀）。'},
+  {day:1,cat:'Linux基础·rm命令',q:'rm -rf 命令的含义是？',
+   o:['只删除文件（不含目录）','强制递归删除（不提示确认，删除目录及其下所有内容）','移动文件到回收站','仅删除空目录'],a:1,
+   exp:'-r 递归删除目录，-f 强制不提示。rm -rf 不可恢复！生产环境禁止 rm -rf /，这会删除整个系统。'},
+  {day:1,cat:'Linux基础·mv命令',q:'mv 命令的双重作用是？',
+   o:['只能移动文件','只能重命名文件','目标是目录则移动文件；目标是新文件名则重命名','只能在同一目录操作'],a:2,
+   exp:'mv 的双重作用：① 目标是目录 → 移动文件到该目录；② 目标是新文件名 → 重命名文件。'},
+  {day:1,cat:'Linux基础·grep命令',q:'grep -v 选项的作用是？',
+   o:['显示行号','忽略大小写','取反（显示不包含关键字的行）','显示文件名'],a:2,
+   exp:'grep 常用选项：-n 显示行号，-i 忽略大小写，-v 取反（显示不包含关键字的行）。'},
+  {day:1,cat:'Linux基础·重定向',q:'以下命令的效果是？ echo "" > app.log',
+   o:['向 app.log 追加一行空行','清空 app.log 文件内容','删除 app.log 文件','创建一个新的 app.log 文件'],a:1,
+   exp:'> 是覆盖重定向，会清空目标文件内容后写入。echo "" > app.log 是清空文件的标准用法。追加用 >>。'},
+  {day:1,cat:'Linux基础·管道符',q:'ls /usr/bin | grep \'^au\' 命令的作用是？',
+   o:['列出所有文件','找出 /usr/bin 下以 au 开头的命令','删除 au 开头的文件','移动文件'],a:1,
+   exp:'管道符 | 将前一命令的输出传递给后一命令作输入。grep \'^au\' 利用正则匹配以 au 开头的行。'},
+  {day:1,cat:'Linux基础·SSH连接',q:'在 Linux 中查看本机 IP 地址的命令是？',
+   o:['ipconfig','ip address show（或 ifconfig）','netstat -i','hostname'],a:1,
+   exp:'Linux 查看 IP：ifconfig（旧版/CentOS）或 ip addr（新版）。ipconfig 是 Windows 的命令。'},
+  {day:1,cat:'Linux基础·通配符',q:'ls *.txt 中，* 通配符的含义是？',
+   o:['匹配单个任意字符','匹配0到多个任意字符','只匹配字母','只匹配数字'],a:1,
+   exp:'通配符：* 匹配0到多个任意字符；? 匹配单个任意字符；[abcd] 匹配括号内任一字符。'},
+  {day:1,cat:'Linux基础·文件查看',q:'查看大文件内容并支持分页翻页的命令是？',
+   o:['cat','echo','more','grep'],a:2,
+   exp:'more 用于分页查看内容较多的文件。空格=下一页，b=上一页，q=退出。cat 会一次性全部显示。'},
+  {day:1,cat:'Linux基础·mkdir',q:'创建多层嵌套目录 /a/b/c（不存在时）应该使用？',
+   o:['mkdir /a/b/c','mkdir -p /a/b/c','mkdir -r /a/b/c','mkdir -m /a/b/c'],a:1,
+   exp:'mkdir -p 递归创建多层目录，即使父目录不存在也会一并创建。不加 -p 则父目录必须已存在。'},
+  {day:1,cat:'Linux基础·cp命令',q:'复制目录（及其下所有内容）应该使用哪个命令？',
+   o:['cp source dest','cp -r source dest','cp -f source dest','cp -v source dest'],a:1,
+   exp:'复制目录必须加 -r（recursive 递归）。cp -r mike tom 将 mike 目录连同所有内容复制为 tom。'},
+  {day:1,cat:'Linux基础·目录作用',q:'/opt 目录的主要用途是？',
+   o:['存放临时文件（重启后清空）','存放系统日志','第三方软件安装目录（JDK、MySQL 等）','存放用户命令'],a:2,
+   exp:'/opt（Optional）是第三方软件安装目录，如 JDK、MySQL、Nginx 等手动安装的软件。/tmp 是临时文件。'},
+  {day:1,cat:'Linux基础·which命令',q:'which ls 命令的作用是？',
+   o:['列出所有文件','查看 ls 命令的安装路径','查看 ls 的使用帮助','删除 ls 命令'],a:1,
+   exp:'which 用于查找命令/工具的安装位置。如 which ls 返回 /bin/ls，which python3 返回 Python3 路径。'},
+  {day:1,cat:'Linux基础·cat命令',q:'cat 1.txt 2.txt > 3.txt 命令的作用是？',
+   o:['比较两个文件','将 1.txt 和 2.txt 的内容合并写入 3.txt','删除两个文件','创建空的 3.txt'],a:1,
+   exp:'cat 文件1 文件2 > 文件3 将两个文件的内容合并输出，再通过 > 重定向覆盖写入 3.txt。'},
+  {day:1,cat:'Linux基础·命令格式',q:'Linux 命令的基本格式是？',
+   o:['参数 命令 选项','命令 [-选项] [参数]','选项 参数 命令','命令 参数 选项'],a:1,
+   exp:'Linux 命令格式：command [-options] [parameter]。命令必须有，选项和参数可选。'},
+  {day:1,cat:'Linux基础·SSH步骤',q:'远程 SSH 连接 Linux 的正确步骤是？',
+   o:['直接打开终端连接','① ifconfig 查 IP → ② ping 测试连通 → ③ 客户端填 IP/端口/用户名/密码 → ④ 连接','只需知道 IP 就行','先安装 MySQL 再连接'],a:1,
+   exp:'SSH 连接 4 步：① Linux 上 ifconfig 查 IP ② ping 测连通 ③ FinalShell/XShell 填 IP+端口22+用户名+密码 ④ 连接。'},
+
+  /* ===== DAY 2: 系统命令/权限/vi ===== */
+  {day:2,cat:'系统命令·ps',q:'查看 MySQL 进程是否在运行，正确的命令是？',
+   o:['ls | grep mysql','ps -aux | grep mysql','find -name mysql','cat /proc/mysql'],a:1,
+   exp:'ps -aux 列出所有用户的所有进程（含详细状态），配合 | grep mysql 过滤出 MySQL 进程。'},
+  {day:2,cat:'系统命令·kill',q:'kill -9 PID 与 kill PID 的区别是？',
+   o:['没有区别','kill 发送 SIGTERM（温柔请求进程自己退出）；kill -9 发送 SIGKILL（内核强制终止，不给进程清理机会）','kill -9 更安全','kill 更快'],a:1,
+   exp:'kill（SIGTERM 15）：温柔请求，允许进程清理资源后退出。kill -9（SIGKILL）：强制终止，可能导致数据损坏。优先用 kill，无响应再用 -9。'},
+  {day:2,cat:'系统命令·netstat',q:'查看 3306 端口是否被占用，正确的命令是？',
+   o:['ls /proc | grep 3306','netstat -anptu | grep 3306','cat /port/3306','ps -aux 3306'],a:1,
+   exp:'netstat -anptu | grep 3306：-a 所有端口，-n 数字显示，-p 显示 PID，-tu TCP/UDP 协议。lsof -i:3306 也可以。'},
+  {day:2,cat:'系统命令·tail',q:'tail -f /var/log/app.log 命令的作用是？',
+   o:['显示日志前 10 行','实时追踪并显示日志文件的新增内容（按 Ctrl+C 退出）','删除日志文件','压缩日志文件'],a:1,
+   exp:'tail -f 实时追踪日志新增内容（follow 模式）。测试中排查 Bug 标准流程：tail -f 盯日志 + 前端复现操作。'},
+  {day:2,cat:'权限·chmod数字法',q:'文件权限 rwxr-xr-x 用数字法表示是？',
+   o:['644','755','777','711'],a:1,
+   exp:'rwx=4+2+1=7，r-x=4+0+1=5，r-x=4+0+1=5，所以是 755。755 是目录和可执行文件的默认权限。'},
+  {day:2,cat:'权限·chmod含义',q:'chmod 644 file.txt 的权限是？',
+   o:['所有人都可以读写执行','拥有者可读写，用户组和其他人只可读（rw-r--r--）','拥有者可读写执行，其他人无权限','所有人只可读'],a:1,
+   exp:'644：6=rw-（拥有者读写），4=r--（用户组只读），4=r--（其他人只读）。644 是普通文件的默认权限。'},
+  {day:2,cat:'权限·chmod字母法',q:'chmod g-x file.txt 的含义是？',
+   o:['给拥有者撤销执行权限','给用户组撤销执行权限','给其他人增加执行权限','给所有人撤销执行权限'],a:1,
+   exp:'字母法：u=拥有者，g=用户组，o=其他人，a=所有人；+=增加，-=撤销，==设置。g-x 即撤销用户组的执行权限。'},
+  {day:2,cat:'权限·权限数字',q:'Linux 文件权限中，r、w、x 对应的数字分别是？',
+   o:['r=1 w=2 x=4','r=4 w=2 x=1','r=2 w=4 x=1','r=4 w=1 x=2'],a:1,
+   exp:'r（read）=4，w（write）=2，x（execute）=1。三位权限组（u/g/o）各自相加，如 rwx=7，r-x=5，rw-=6。'},
+  {day:2,cat:'打包压缩·tar',q:'将目录 logs/ 打包并用 gzip 压缩为 logs.tar.gz 的命令是？',
+   o:['tar -xvf logs.tar.gz logs/','tar -zcvf logs.tar.gz logs/','tar -jcvf logs.tar.gz logs/','zip logs.tar.gz logs/'],a:1,
+   exp:'tar -zcvf：z=gzip 压缩，c=创建，v=显示过程，f=指定文件名。j 是 bzip2 压缩（.tar.bz2）。f 必须放最后。'},
+  {day:2,cat:'打包压缩·tar解压',q:'将 backup.tar.gz 解压到 /home/admin 目录下的命令是？',
+   o:['tar -zcvf backup.tar.gz -C /home/admin','tar -zxvf backup.tar.gz -C /home/admin','unzip backup.tar.gz /home/admin','tar -xvf backup.tar.gz /home/admin'],a:1,
+   exp:'tar -zxvf：z=gzip，x=解压，v=显示，f=文件。-C（大写）指定解压到哪个目录。记忆：c=create，x=extract。'},
+  {day:2,cat:'vi编辑器·模式',q:'vi 编辑器三种模式的正确切换方式是？',
+   o:['命令模式 → Tab → 插入模式','命令模式 → i/a → 插入模式 → ESC → 命令模式 → : → 末行模式','插入模式 → : → 末行模式','末行模式 → i → 命令模式'],a:1,
+   exp:'vi 三模式：①命令模式（默认）→ i/a → ②插入模式（编辑文字）→ ESC → 回命令模式 → Shift+: → ③末行模式（:wq/:q!）。'},
+  {day:2,cat:'vi编辑器·退出',q:'在 vi 中强制退出且不保存更改，应该输入？',
+   o:[':wq',':w',':q!',':exit'],a:2,
+   exp:':q!（冒号+q+感叹号）强制退出不保存。:wq 保存并退出。:w 仅保存不退出。任何时候按 ESC 都能回到命令模式。'},
+  {day:2,cat:'系统命令·find',q:'在 /etc 目录下查找所有以 .conf 结尾的文件，命令是？',
+   o:["find /etc -name conf","find /etc -name '*.conf'","ls /etc | grep conf","cat /etc/*.conf"],a:1,
+   exp:'find [路径] -name \'文件名\'。通配符必须加引号（否则 shell 先展开）。find /etc -name \'*.conf\'。'},
+  {day:2,cat:'系统命令·日志',q:'测试发现 Bug 后，查看实时错误日志的标准流程是？',
+   o:['直接重启服务器','tail -f /var/log/app/error.log → 复现 Bug → 查看滚出的报错信息','cat /var/log/app/error.log','grep error /var/log/app/error.log'],a:1,
+   exp:'测试排查 Bug 流程：① tail -f 日志文件 ② 去前端复现 Bug ③ 看 SSH 窗口滚出的报错 ④ 截图报错信息附在 Bug 单上。'},
+  {day:2,cat:'权限·普通用户',q:'普通用户能否 kill -9 root 启动的进程？',
+   o:['可以，kill -9 权限最大','不可以，普通用户只能关闭自己启动的进程，需要 root 权限才能杀其他用户的进程','可以，不限制','取决于进程类型'],a:1,
+   exp:'Linux 进程权限隔离：普通用户只能杀自己启动的进程。要杀 root 进程需要 sudo kill -9 PID。防止误杀系统服务。'},
+  {day:2,cat:'vi编辑器·操作',q:'在 vi 命令模式下，yy 和 dd 分别是什么操作？',
+   o:['yy=删除行 dd=复制行','yy=复制当前行 dd=剪切当前行（不粘贴就是删除）','yy=撤销 dd=重做','yy=保存 dd=退出'],a:1,
+   exp:'vi 命令模式快捷键：yy 复制当前行，dd 剪切（不粘贴=删除），p 粘贴，u 撤销。快捷键只在命令模式生效。'},
+  {day:2,cat:'系统命令·lsof',q:'lsof -i:8080 命令的作用是？',
+   o:['查看文件列表','查看占用 8080 端口的进程','关闭 8080 端口','打开 8080 端口'],a:1,
+   exp:'lsof（list open files）-i:端口号：查看占用该端口的进程 PID 和进程名。配合 kill -9 PID 释放端口。'},
+  {day:2,cat:'打包压缩·格式区别',q:'tar -zcvf 和 tar -jcvf 的区别是？',
+   o:['完全相同','z 使用 gzip 压缩（.tar.gz）；j 使用 bzip2 压缩（.tar.bz2，压缩比更高但更慢）','z 比 j 慢','j 不常用'],a:1,
+   exp:'z=gzip 压缩（.tar.gz），速度快；j=bzip2 压缩（.tar.bz2），压缩比更高但速度慢。其余选项（x/v/f）含义相同。'},
+  {day:2,cat:'权限·软链接',q:'Linux 软链接（ln -s）的特点是？',
+   o:['类似 Windows 快捷方式，源文件删除则链接失效，可链接目录','源文件删除链接仍然有效','只能链接普通文件，不能链接目录','大小与源文件相同'],a:0,
+   exp:'软链接（符号链接）：类似 Windows 快捷方式，可以链接目录，可跨文件系统，源文件删除则链接失效。硬链接：源文件删除链接仍有效。'},
+  {day:2,cat:'系统命令·权限场景',q:'执行某服务启动脚本报错 Permission denied，最可能的原因和解决方案？',
+   o:['文件不存在','脚本没有执行权限，需要 chmod +x 脚本名 或 chmod 755 脚本名','端口被占用','内存不足'],a:1,
+   exp:'Permission denied 表示权限不足。脚本文件需要执行权限（x）。chmod +x 脚本名 给拥有者加执行权限；或 chmod 755 设置完整权限。'},
+
+  /* ===== DAY 3: 数据库基础 ===== */
+  {day:3,cat:'数据库基础·分类',q:'以下哪个数据库属于非关系型数据库（NoSQL）？',
+   o:['MySQL','Oracle','Redis','SQL Server'],a:2,
+   exp:'Redis 是 NoSQL（键值对内存数据库）。MySQL、Oracle、SQL Server 都是关系型数据库，用表格存储数据。'},
+  {day:3,cat:'数据库基础·概念',q:'关系型数据库中，\"数据行\"对应 Excel 中的什么？',
+   o:['一个 Excel 文件','一个 Sheet','一行记录（Row）','一个单元格'],a:2,
+   exp:'类比 Excel：数据库=整个文件，数据表=Sheet，数据行（Row）=一行记录，数据列（Column）=字段（表头）。'},
+  {day:3,cat:'数据库基础·SQL分类',q:'INSERT、UPDATE、DELETE 属于 SQL 的哪个分类？',
+   o:['DQL（数据查询语言）','DML（数据操作语言）','DDL（数据定义语言）','DCL（数据控制语言）'],a:1,
+   exp:'DML（Data Manipulation Language）：insert（增）/ update（改）/ delete（删）。DQL：select（查）。DDL：create/drop/alter（结构）。'},
+  {day:3,cat:'数据库基础·连接',q:'从本机连接 MySQL 数据库，可以省略哪些参数？',
+   o:['用户名和密码','数据库名称','-h 主机（默认 localhost）和 -P 端口（默认 3306）','不能省略任何参数'],a:2,
+   exp:'mysql -uroot -p123456：省略了 -h（默认 localhost）和 -P（默认 3306）。完整格式：mysql -h IP -P 3306 -u root -p密码。'},
+  {day:3,cat:'数据库基础·数据类型',q:'存储价格（如 99.99）应该使用哪种数据类型？',
+   o:['int','varchar(10)','decimal(5,2)','datetime'],a:2,
+   exp:'decimal(M,N)：M=总位数，N=小数位数。decimal(5,2) 可存 999.99。int 是整数，varchar 是字符串，不适合精确小数。'},
+  {day:3,cat:'数据库基础·约束',q:'以下哪个约束能保证字段值唯一且不为空，且一个表只能有一个？',
+   o:['unique','not null','primary key','foreign key'],a:2,
+   exp:'primary key（主键）：唯一+非空，一个表只能有一个主键。unique（唯一）：可以为 NULL，一个表可以有多个。'},
+  {day:3,cat:'数据库基础·约束',q:'auto_increment 约束通常与哪个约束配合使用？',
+   o:['not null','unique','foreign key','primary key'],a:3,
+   exp:'auto_increment（自动自增）通常配合 primary key 使用，让主键 id 从 1 开始自动递增，无需手动输入。'},
+  {day:3,cat:'数据库基础·DDL',q:'DROP TABLE students 和 TRUNCATE TABLE students 的区别是？',
+   o:['完全相同','DROP 删除整张表（结构+数据），TRUNCATE 只清空数据（保留表结构，且自增 ID 重置为 1）','TRUNCATE 更安全','DROP 可以回滚'],a:1,
+   exp:'DROP：表结构和数据全删，不可回滚。TRUNCATE：清空数据，保留结构，自增 ID 重置，不可回滚。DELETE：可加 WHERE 删行，事务内可回滚。'},
+  {day:3,cat:'数据库基础·字符集',q:'为什么建库时要使用 charset=utf8mb4 而不是 utf8？',
+   o:['utf8 已被废弃','utf8mb4 支持 4 字节 emoji 表情和生僻汉字；MySQL 的 utf8 实际上是 3 字节，不支持 emoji','utf8mb4 速度更快','两者完全相同'],a:1,
+   exp:'MySQL 的 utf8 实际是 3 字节（不完整的 UTF-8），不支持 emoji（😀）等 4 字节字符。utf8mb4 才是真正的 UTF-8，新项目应使用 utf8mb4。'},
+  {day:3,cat:'数据库基础·建表',q:'创建学生表，id 为主键自增、name 不能为空、height 保留 2 位小数，正确建表语句是？',
+   o:['CREATE TABLE students (id int, name varchar(20), height float)',
+      'CREATE TABLE students (id int unsigned primary key auto_increment, name varchar(20) not null, height decimal(5,2))',
+      'CREATE TABLE students (id primary key, name unique, height decimal)',
+      'CREATE students (id auto_increment, name not null, height number)'],a:1,
+   exp:'正确语法：id int unsigned primary key auto_increment，name varchar(20) not null，height decimal(5,2)。'},
+  {day:3,cat:'数据库基础·查看结构',q:'查看 students 表的字段结构（字段名、类型、约束等）应使用？',
+   o:['show tables','desc students','show create table students','select * from students'],a:1,
+   exp:'desc（describe）students 显示表的字段结构（字段名、类型、是否 NULL、默认值等）。show create table 显示完整建表语句。'},
+  {day:3,cat:'数据库基础·NULL',q:'关于 NULL 和空字符串，以下描述正确的是？',
+   o:['NULL 等于 \'\'（空字符串）','NULL 表示未知/不存在；\'\'表示填了但内容为空。NULL 参与运算结果仍为 NULL','NULL 和 \'\' 可以互换','COUNT(*) 不统计 NULL'],a:1,
+   exp:'NULL（未知/不存在）≠ \'\'（空字符串）。NULL+1=NULL，NULL=NULL 返回 NULL 而非 true。查 NULL 必须用 IS NULL，不能用 = NULL。'},
+  {day:3,cat:'数据库基础·备份',q:'MySQL 命令行备份数据库的命令是？',
+   o:['mysql -uroot -p 库名 > backup.sql','mysqldump -uroot -p 库名 > backup.sql','backup -uroot 库名 backup.sql','export 库名 > backup.sql'],a:1,
+   exp:'备份：mysqldump -uroot -p 库名 > backup.sql。还原：mysql -uroot -p 库名 < backup.sql（库需提前存在）。'},
+  {day:3,cat:'数据库基础·客户端',q:'Navicat 和 MySQL 谁是客户端，谁是服务端？',
+   o:['Navicat 是服务端，MySQL 是客户端','Navicat 是客户端（需要服务的一方），MySQL Server 是服务端（提供服务+存储数据）','两者都是服务端','两者都是客户端'],a:1,
+   exp:'MySQL Server：存储数据，监听 3306 端口，解析执行 SQL，是服务端（提供服务）。Navicat：连接 MySQL，发送 SQL 展示结果，是客户端（需要服务）。'},
+  {day:3,cat:'数据库基础·foreign key',q:'外键（foreign key）的作用是？',
+   o:['加速查询','维护两张表的关联关系，保证引用完整性（不能插入在关联表中不存在的值）','允许字段为空','自动自增'],a:1,
+   exp:'外键：字段值必须在关联表的主键中存在（引用完整性）。如 tp_order.user_id 必须是 tp_users.user_id 中存在的值。'},
+
+  /* ===== DAY 4: SQL CRUD ===== */
+  {day:4,cat:'SQL CRUD·INSERT',q:'一次 INSERT 插入多行数据（方式二）与多条 INSERT（方式一）相比，性能如何？',
+   o:['差不多','方式二快 5~10 倍（只走一次解析和一次事务提交）','方式一更快','性能相同'],a:1,
+   exp:'方式二（一条 INSERT 多个 VALUES）比方式一（多条 INSERT）快 5~10 倍：只解析一次 SQL，只提交一次事务。'},
+  {day:4,cat:'SQL CRUD·UPDATE',q:'以下关于 UPDATE 语句，哪条描述是正确的？',
+   o:['UPDATE 可以不加 WHERE','UPDATE 不加 WHERE 将修改表中所有行，是生产事故 #1','UPDATE 只能修改一行','UPDATE 速度比 INSERT 快'],a:1,
+   exp:'UPDATE 不加 WHERE = 全表修改！这是新手最常犯的错误。正确做法：先 SELECT 确认目标记录，再执行 UPDATE WHERE 条件。'},
+  {day:4,cat:'SQL CRUD·DELETE区别',q:'DELETE FROM 与 TRUNCATE TABLE 的主要区别是？',
+   o:['两者完全相同','DELETE 可加 WHERE 删部分行，事务内可回滚，自增 ID 不重置；TRUNCATE 清空整表，不可回滚，自增 ID 重置为 1','TRUNCATE 可以回滚','DELETE 更快'],a:1,
+   exp:'DELETE：DML，可回滚，可加 WHERE，自增 ID 不重置。TRUNCATE：DDL，不可回滚，不能加 WHERE，自增 ID 重置为 1。'},
+  {day:4,cat:'SQL CRUD·WHERE',q:'查询名字中含有"约"字的学生，正确的 LIKE 语法是？',
+   o:["WHERE name LIKE '约'","WHERE name LIKE '%约%'","WHERE name LIKE '_约'","WHERE name = '%约%'"],a:1,
+   exp:'"%" 匹配 0 到多个任意字符。\'%约%\' 表示前后都可以有任意字符，即名字中含有"约"。\'孙%\' = 孙开头，\'%乔\' = 乔结尾。'},
+  {day:4,cat:'SQL CRUD·NULL判断',q:'以下哪条 SQL 能正确查出 card 字段为 NULL 的学生？',
+   o:["SELECT * FROM students WHERE card = NULL","SELECT * FROM students WHERE card IS NULL","SELECT * FROM students WHERE card == NULL","SELECT * FROM students WHERE card = ''"],a:1,
+   exp:'NULL 不等于任何值！必须用 IS NULL 或 IS NOT NULL。WHERE card = NULL 永远返回 0 行（经典陷阱）。'},
+  {day:4,cat:'SQL CRUD·聚合函数',q:'COUNT(*) 和 COUNT(字段名) 的区别是？',
+   o:['完全相同','COUNT(*) 统计所有行（包含 NULL）；COUNT(字段) 统计该字段不为 NULL 的行数','COUNT(字段) 更准确','都不统计 NULL'],a:1,
+   exp:'COUNT(*)：统计所有行，包括含 NULL 的行。COUNT(字段)：跳过 NULL 值，只统计有值的行。如 100 用户 10 个 phone 为 NULL，COUNT(phone)=90。'},
+  {day:4,cat:'SQL CRUD·HAVING',q:'以下哪条 SQL 是正确的？',
+   o:['SELECT class, COUNT(*) FROM students WHERE COUNT(*) > 3 GROUP BY class',
+      'SELECT class, COUNT(*) FROM students GROUP BY class HAVING COUNT(*) > 3',
+      'SELECT class FROM students GROUP BY class WHERE COUNT(*) > 3',
+      'SELECT class, COUNT(*) FROM students HAVING COUNT(*) > 3'],a:1,
+   exp:'HAVING 在 GROUP BY 之后过滤分组，可以使用聚合函数。WHERE 在 GROUP BY 之前过滤原始数据，不能用聚合函数。'},
+  {day:4,cat:'SQL CRUD·LIMIT分页',q:'查询第 3 页数据（每页 5 条），正确的 LIMIT 写法是？',
+   o:['LIMIT 3, 5','LIMIT 10, 5','LIMIT 15, 5','LIMIT 5, 3'],a:1,
+   exp:'分页公式：LIMIT (n-1)*m, m。第 3 页，每页 5 条：LIMIT (3-1)*5, 5 = LIMIT 10, 5。起点是跳过的行数。'},
+  {day:4,cat:'SQL CRUD·SQL执行顺序',q:'SQL 语句的执行顺序是？',
+   o:['SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT',
+      'FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT',
+      'WHERE → FROM → GROUP BY → SELECT → HAVING → ORDER BY',
+      'FROM → SELECT → WHERE → GROUP BY → HAVING → ORDER BY'],a:1,
+   exp:'执行顺序：FROM → WHERE（行过滤）→ GROUP BY → HAVING（分组过滤）→ SELECT（选字段）→ ORDER BY → LIMIT。这解释了为什么 WHERE 不能用别名和聚合函数。'},
+  {day:4,cat:'SQL CRUD·DISTINCT',q:'SELECT DISTINCT hometown FROM students 的作用是？',
+   o:['查询所有学生信息','查询学生来自哪些不同的省份（去重）','删除重复记录','只查询一条记录'],a:1,
+   exp:'DISTINCT 去重：相同值的行只显示一次。SELECT DISTINCT hometown 显示所有不重复的省份，可以了解学生来自哪些地方。'},
+  {day:4,cat:'SQL CRUD·逻辑删除',q:'实际项目中为什么很少用物理删除（DELETE），而用逻辑删除？',
+   o:['DELETE 太慢','逻辑删除（is_delete=1 标记）可恢复数据、支持审计追溯；物理删除不可恢复','DELETE 会报错','逻辑删除更快'],a:1,
+   exp:'逻辑删除：用 is_delete=1/0 字段标记是否删除。优势：①数据可恢复 ②支持审计（谁删的何时删的）③符合法规要求。物理删除不可逆。'},
+  {day:4,cat:'SQL CRUD·ORDER BY',q:'SELECT * FROM students ORDER BY age DESC, studentNo ASC 的含义是？',
+   o:['按年龄升序排列','先按年龄降序，年龄相同时再按学号升序','只按学号排序','随机排列'],a:1,
+   exp:'多字段排序：先按 age DESC 降序（从大到小），当 age 相同时，再按 studentNo ASC 升序（从小到大）。'},
+  {day:4,cat:'SQL CRUD·BETWEEN',q:'WHERE age BETWEEN 18 AND 25 包含 18 和 25 吗？',
+   o:['不包含','包含两端（闭区间），等价于 age >= 18 AND age <= 25','只包含 18','只包含 25'],a:1,
+   exp:'BETWEEN...AND 是闭区间，包含两端。BETWEEN 18 AND 25 等价于 age >= 18 AND age <= 25。新手常忘记包含端点。'},
+  {day:4,cat:'SQL CRUD·IN',q:'WHERE hometown IN (\'北京\', \'上海\', \'广州\') 等价于？',
+   o:["WHERE hometown = '北京' AND hometown = '上海' AND hometown = '广州'",
+      "WHERE hometown = '北京' OR hometown = '上海' OR hometown = '广州'",
+      "WHERE hometown NOT IN ('北京', '上海', '广州')",
+      "WHERE hometown BETWEEN '北京' AND '广州'"],a:1,
+   exp:'IN 等价于多个 OR 的组合。适合非连续的枚举值，比多个 OR 更简洁。BETWEEN 适合连续范围。'},
+  {day:4,cat:'SQL CRUD·别名',q:'以下关于 AS 别名的描述，哪个是错误的？',
+   o:['可以给表起别名','可以给字段起别名，AS 可以省略','ORDER BY 可以使用别名','WHERE 可以直接使用字段别名'],a:3,
+   exp:'WHERE 不能使用别名！执行顺序：WHERE 在 SELECT 之前执行，此时别名还未定义。ORDER BY 在 SELECT 之后，可以使用别名。'},
+  {day:4,cat:'SQL CRUD·聚合场景',q:'统计每个班级的学生人数，并只显示人数大于 3 的班级，正确 SQL 是？',
+   o:['SELECT class, COUNT(*) FROM students WHERE COUNT(*) > 3 GROUP BY class',
+      'SELECT class, COUNT(*) cnt FROM students GROUP BY class HAVING COUNT(*) > 3',
+      'SELECT class FROM students HAVING COUNT(*) > 3',
+      'SELECT class, COUNT(*) FROM students GROUP BY class WHERE COUNT(*) > 3'],a:1,
+   exp:'GROUP BY class 按班级分组，HAVING COUNT(*) > 3 过滤分组结果（人数 > 3 的班级）。WHERE 不能用聚合函数，必须用 HAVING。'},
+
+  /* ===== DAY 5: 多表查询 ===== */
+  {day:5,cat:'多表查询·INNER JOIN',q:'INNER JOIN 返回的数据是？',
+   o:['左表的所有记录','右表的所有记录','两张表都满足连接条件的记录（交集）','两张表的所有记录（并集）'],a:2,
+   exp:'INNER JOIN 内连接：只返回两张表中满足 ON 条件的记录（两表交集）。如果某行在一个表有但另一个表没有匹配，该行不出现在结果中。'},
+  {day:5,cat:'多表查询·LEFT JOIN',q:'LEFT JOIN 返回的数据是？',
+   o:['只有左表的记录','左表所有记录 + 右表中有匹配的记录（右表无匹配时字段填 NULL）','只有右表的记录','两表的交集'],a:1,
+   exp:'LEFT JOIN 左连接：左表全部保留，右表只保留有匹配的部分，无匹配的字段填 NULL。统计所有用户订单数时用 LEFT JOIN，无订单的用户 order_count 显示 0 而非消失。'},
+  {day:5,cat:'多表查询·自关联',q:'自关联查询的使用场景是？',
+   o:['两张不同的表之间','同一张表中存在层级关系（省市区、分类树、员工上级），需要用不同别名两次引用自身','只用于删除','用于加快查询'],a:1,
+   exp:'自关联：同一张表与自身 JOIN，必须用别名区分两个角色（如 parent 和 child）。省市区 areas 表中 pid 指向同表 aid，就是典型自关联。'},
+  {day:5,cat:'多表查询·子查询类型',q:'子查询按返回结果可分为哪几类？',
+   o:['正向子查询和逆向子查询','标量（单值）/ 列（一列多行）/ 行（一行多列）/ 表（多行多列）','只有一种','内层和外层'],a:1,
+   exp:'子查询 4 类：①标量：返回单个值（如 MAX/AVG），用于比较；②列：返回一列，配合 IN；③行：返回一行多列；④表：返回多行多列，放在 FROM 作临时表。'},
+  {day:5,cat:'多表查询·子查询别名',q:'子查询放在 FROM 中有什么强制要求？',
+   o:['必须有 WHERE 子句','必须指定别名（alias），否则 MySQL 报错','必须有 ORDER BY','不能使用聚合函数'],a:1,
+   exp:'FROM 中的子查询（派生表）必须有别名：FROM (SELECT ...) AS temp_name。没有别名 MySQL 直接报语法错误。'},
+  {day:5,cat:'多表查询·IN vs EXISTS',q:'子查询数据量很大时，优先使用 IN 还是 EXISTS？',
+   o:['IN，因为语法更简单','EXISTS，因为逐行判断找到即停止（短路机制），子查询大时性能远好于 IN','两者相同','使用 NOT IN'],a:1,
+   exp:'IN：先执行完整子查询得到结果集再比较。EXISTS：逐行检查，找到匹配立即停止。子查询数据量大时 EXISTS 性能更好。子查询小时两者差距不大。'},
+  {day:5,cat:'多表查询·ON vs WHERE',q:'在 LEFT JOIN 中，ON 和 WHERE 的区别是？',
+   o:['完全相同','ON 在连接时过滤（先过滤再连接），WHERE 在连接后过滤（先连接再过滤）；LEFT JOIN 时两者结果不同','WHERE 更推荐','ON 只能用等号'],a:1,
+   exp:'LEFT JOIN 时：ON 条件影响右表（不满足时右表字段为 NULL，左表记录仍保留）；WHERE 过滤连接结果（不满足时整行被过滤，左表记录消失）。INNER JOIN 时两者效果相同。'},
+  {day:5,cat:'多表查询·RIGHT JOIN转LEFT',q:'RIGHT JOIN 可以改写成 LEFT JOIN 吗？',
+   o:['不可以','可以，只需交换两张表的位置即可','不能，语义完全不同','需要修改 ON 条件'],a:1,
+   exp:'A RIGHT JOIN B = B LEFT JOIN A。开发中推荐统一使用 LEFT JOIN，代码可读性更好。'},
+  {day:5,cat:'多表查询·JOIN优化',q:'以下描述中，关于 JOIN 和子查询的性能对比，正确的是？',
+   o:['子查询总是更快','JOIN 通常比子查询性能更好（优化器可以优化执行计划），应优先使用 JOIN','子查询不能被优化','两者性能完全相同'],a:1,
+   exp:'JOIN 通常优于子查询，因为 MySQL 查询优化器对 JOIN 有专门优化。相关子查询（在 WHERE 中每行执行一次）性能最差，应尽量避免。'},
+  {day:5,cat:'多表查询·三表JOIN',q:'学生表(students)、成绩表(scores)、课程表(courses) 三表联查，查询所有学生的姓名和课程名，正确的 SQL 结构是？',
+   o:['SELECT stu.name, co.name FROM students stu, scores sc, courses co',
+      'SELECT stu.name, co.name FROM students stu INNER JOIN scores sc ON sc.sno=stu.sno INNER JOIN courses co ON co.cno=sc.cno',
+      'SELECT * FROM students JOIN courses',
+      'SELECT stu.name FROM students INNER JOIN courses ON students.id=courses.id'],a:1,
+   exp:'三表联查：students INNER JOIN scores（通过学号 sno 连接）INNER JOIN courses（通过课程号 cno 连接）。每次 JOIN 都要指定 ON 连接条件。'},
+  {day:5,cat:'多表查询·自关联SQL',q:'自关联查询\"河北省下的所有城市\"，areas(aid, atitle, pid)，正确的 SQL 是？',
+   o:["SELECT a2.atitle FROM areas WHERE pid='130000'",
+      "SELECT a2.atitle FROM areas a1 INNER JOIN areas a2 ON a1.aid=a2.pid WHERE a1.atitle='河北省'",
+      "SELECT * FROM areas WHERE atitle LIKE '%市%'",
+      "SELECT * FROM areas a1 JOIN areas a2 WHERE a1.atitle='河北省'"],a:1,
+   exp:'自关联：FROM areas a1（省）INNER JOIN areas a2（市）ON a1.aid=a2.pid WHERE a1.atitle=\'河北省\'。必须用别名区分父节点和子节点。'},
+  {day:5,cat:'多表查询·NULL查找',q:'如何找出没有成绩的学生（左表有但右表没有）？',
+   o:['INNER JOIN 即可','LEFT JOIN scores ON ... WHERE scores.sno IS NULL（查右表为 NULL 的记录）','RIGHT JOIN','NOT EXISTS 是唯一方法'],a:1,
+   exp:'LEFT JOIN + IS NULL：students LEFT JOIN scores ON ... WHERE scores.sno IS NULL。左连接保留所有学生，没有成绩的学生 scores 字段为 NULL，再用 IS NULL 过滤即可找到没有成绩的学生。'},
+  {day:5,cat:'多表查询·UNION区别',q:'JOIN 和 UNION 的核心区别是？',
+   o:['完全相同','JOIN 横向合并（增加列）；UNION 纵向合并（增加行，且列数必须相同，UNION 去重，UNION ALL 不去重）','UNION 比 JOIN 快','JOIN 不能用于两张表'],a:1,
+   exp:'JOIN：多表横向合并，增加列（字段）。UNION：多个查询纵向合并，增加行，要求列数和类型一致。UNION 去重，UNION ALL 保留重复行，速度更快。'},
+  {day:5,cat:'多表查询·子查询作为临时表',q:'子查询作为 FROM 中的临时表（派生表），以下哪种写法是正确的？',
+   o:['FROM SELECT * FROM courses WHERE name=\'数据库\' AS sub',
+      'FROM (SELECT * FROM courses WHERE name=\'数据库\') AS sub',
+      'FROM (SELECT * FROM courses WHERE name=\'数据库\')',
+      'FROM [SELECT * FROM courses WHERE name=\'数据库\'] sub'],a:1,
+   exp:'派生表语法：FROM (子查询) AS 别名。括号必须包裹整个子查询，别名必须有，否则报错。'},
+  {day:5,cat:'多表查询·AVG子查询',q:'查询成绩高于所有科目平均分的学生（子查询），正确的 SQL 结构是？',
+   o:['SELECT * FROM scores WHERE score > AVG(score)',
+      'SELECT * FROM scores WHERE score > (SELECT AVG(score) FROM scores)',
+      'SELECT * FROM scores HAVING score > AVG(score)',
+      'SELECT * FROM scores WHERE score > ALL(AVG(score))'],a:1,
+   exp:'标量子查询：WHERE score > (SELECT AVG(score) FROM scores)。子查询返回平均分（单值），代入主查询比较。不能在 WHERE 直接用 AVG，因为 WHERE 不能用聚合函数。'},
+  {day:5,cat:'多表查询·面试题',q:'查询每门课平均分，需要 JOIN courses 和 scores 两张表，正确的 GROUP BY 字段是？',
+   o:['GROUP BY score.cno','GROUP BY co.cno, co.cname','GROUP BY AVG(degree)','GROUP BY co.cno ORDER BY co.cname'],a:1,
+   exp:'多字段 GROUP BY：GROUP BY co.cno, co.cname（课程号和课程名）。SELECT 中出现的非聚合字段必须在 GROUP BY 中出现，否则在严格模式（ONLY_FULL_GROUP_BY）下报错。'},
+
+  /* ===== DAY 6: TPShop实战 ===== */
+  {day:6,cat:'TPShop·LNMP',q:'TPShop 项目的 LNMP 技术栈中，Nginx 的职责是？',
+   o:['存储数据','处理业务逻辑','接收 HTTP 请求并路由转发（Web 服务器/反向代理）','提供操作系统'],a:2,
+   exp:'LNMP：L=Linux（OS）/N=Nginx（Web服务器，接收HTTP请求，路由转发，处理静态资源）/M=MySQL（数据库）/P=PHP（业务逻辑）。'},
+  {day:6,cat:'TPShop·表结构',q:'tp_goods_category 表的 parent_id 字段指向同表的 id 字段，这种设计模式是？',
+   o:['外键关联','自引用（自关联）设计，用于存储树形结构的多级商品分类','复合主键','唯一约束'],a:1,
+   exp:'自引用（Self-referencing）：外键指向本表自身的主键，用于树形结构（分类树、省市区、组织架构）。parent_id=0 表示一级分类（根节点）。'},
+  {day:6,cat:'TPShop·表关系',q:'tp_order_goods 表通过哪个字段与 tp_order 表关联？',
+   o:['user_id','goods_id','order_id','rec_id'],a:2,
+   exp:'tp_order_goods.order_id（FK）→ tp_order.order_id（PK）。查询订单详情需要 JOIN 这两张表：ON og.order_id = o.order_id。'},
+  {day:6,cat:'TPShop·用户字段',q:'TPShop 中，用户昵称存储在 tp_users 表的哪个字段？',
+   o:['username','nickname','qq','display_name'],a:2,
+   exp:'TPShop 用 qq 字段存储昵称（因为原版集成了 QQ 登录）。测试人员必须了解 UI 展示字段与数据库字段的对应关系，避免验证时查错字段。'},
+  {day:6,cat:'TPShop·积分字段',q:'TPShop 中，用户积分存储在 tp_users 表的哪个字段？',
+   o:['points','loyalty_points','pay_points','score'],a:2,
+   exp:'tp_users.pay_points 存储用户积分（可用积分）。测试时：UPDATE tp_users SET pay_points = 20000 WHERE user_id = 1。'},
+  {day:6,cat:'TPShop·UPDATE陷阱',q:'将用户 user_id=1 的昵称改为 test001，以下哪条 SQL 有严重风险？',
+   o:["UPDATE tp_users SET qq = 'test001' WHERE user_id = 1",
+      "UPDATE tp_users SET qq = 'test001'",
+      "UPDATE tp_users SET qq = 'test001' WHERE email LIKE '%@%'",
+      "UPDATE tp_users SET qq = 'test001', pay_points = 0 WHERE user_id = 1"],a:1,
+   exp:'B 没有 WHERE 条件，会将所有用户的昵称改为 test001！永远不要在没有 WHERE 的情况下执行 UPDATE/DELETE。'},
+  {day:6,cat:'TPShop·自关联查询',q:'查询"手机通讯"下的所有子分类，使用自关联，正确的 SQL 是？',
+   o:["SELECT child.name FROM tp_goods_category WHERE parent_id > 0",
+      "SELECT parent.name, child.name FROM tp_goods_category AS parent INNER JOIN tp_goods_category AS child ON child.parent_id = parent.id WHERE parent.name = '手机通讯'",
+      "SELECT * FROM tp_goods_category WHERE name LIKE '%手机%'",
+      "SELECT * FROM tp_goods_category AS child WHERE child.parent_id = '手机通讯'"],a:1,
+   exp:'自关联：FROM tp_goods_category AS parent INNER JOIN tp_goods_category AS child ON child.parent_id = parent.id WHERE parent.name = \'手机通讯\'。必须给两个角色不同别名。'},
+  {day:6,cat:'TPShop·购物车总价',q:'计算 user_id=1 的购物车总金额，正确的 SQL 是？',
+   o:['SELECT COUNT(*) FROM tp_cart WHERE user_id = 1',
+      'SELECT SUM(goods_price) FROM tp_cart WHERE user_id = 1',
+      'SELECT SUM(goods_price * goods_num) AS 总金额 FROM tp_cart WHERE user_id = 1',
+      'SELECT AVG(goods_price) FROM tp_cart WHERE user_id = 1'],a:2,
+   exp:'总金额 = 单价 × 数量的总和：SUM(goods_price * goods_num)。只用 SUM(goods_price) 忽略了数量，结果错误。'},
+  {day:6,cat:'TPShop·验证顺序',q:'执行 UPDATE 修改数据库前，测试人员应该先做什么？',
+   o:['直接执行 UPDATE，出错再说',
+      '先用 SELECT 加相同 WHERE 条件确认目标记录正确，再执行 UPDATE',
+      '先备份整个数据库',
+      '先问开发确认'],a:1,
+   exp:'标准操作：先 SELECT * FROM tp_users WHERE user_id=1 确认查到的是目标记录 → 再改写为 UPDATE 执行。这能防止 WHERE 条件写错导致修改错误数据。'},
+  {day:6,cat:'TPShop·测试SQL用途',q:'测试人员在测试中使用 SQL 的主要场景包括？',
+   o:['只用于备份数据库',
+      '验证数据落库是否正确 / 构造测试数据 / 查找 Bug 根因 / 验证数据一致性',
+      '只用于查看表结构',
+      '只用于创建表'],a:1,
+   exp:'测试 SQL 4 大用途：①操作 UI 后 SELECT 验证数据是否正确落库 ②INSERT 构造测试数据 ③发现 Bug 后查库定位根因 ④验证前端显示与数据库数据一致性。'},
+  {day:6,cat:'TPShop·三表JOIN',q:'查询 user_id=1 的订单及所有订单中的商品名称，需要 JOIN 哪几张表？',
+   o:['只需 tp_order','tp_order + tp_order_goods（通过 order_id 连接）','tp_order + tp_users','tp_goods + tp_order'],a:1,
+   exp:'订单详情需要：tp_order（订单）INNER JOIN tp_order_goods（商品明细）ON og.order_id = o.order_id WHERE o.user_id=1。如还需商品图片等信息，再 JOIN tp_goods。'},
+  {day:6,cat:'TPShop·远程连接',q:'部署 TPShop 后，如何验证 MySQL 服务是否正常运行？',
+   o:['直接访问网页','在 Linux 上执行 netstat -anptu | grep 3306，有 LISTEN 状态说明服务正常','重启服务器','查看 CPU 使用率'],a:1,
+   exp:'netstat -anptu | grep 3306：输出中看到 LISTEN 状态说明 MySQL 正在监听 3306 端口，服务正常。也可以用 mysql -uroot -p 尝试连接。'},
+  {day:6,cat:'TPShop·三种安装方式',q:'CentOS 上哪种安装方式需要联网且能自动解决依赖问题？',
+   o:['rpm 包安装','yum 在线安装','源码编译安装','pip 安装'],a:1,
+   exp:'yum 在线安装：需要联网，自动从软件仓库下载并解决依赖关系，最简便。rpm：离线，需手动处理依赖。源码编译：最灵活，步骤最复杂。'},
+  {day:6,cat:'TPShop·数据库验证思路',q:'测试"修改用户昵称"功能，数据库验证的完整步骤是？',
+   o:['直接看 UI 显示就行',
+      '① UI 操作修改昵称 ② SELECT user_id, qq FROM tp_users WHERE user_id=1 验证 qq 字段已更新 ③ 确认其他用户 qq 字段未被影响',
+      '只需查是否有报错',
+      '只需备份数据库'],a:1,
+   exp:'完整验证：①UI 操作 ②SELECT 查目标记录 qq 字段是否更新 ③验证其他用户数据未受影响（数据一致性）④验证 UI 展示与 DB 数据一致。'},
+  {day:6,cat:'TPShop·parent_id含义',q:'在 tp_goods_category 表中，parent_id = 0 表示什么？',
+   o:['已被删除的分类','有父分类的子节点','一级分类（顶级分类，没有父节点）','分类已禁用'],a:2,
+   exp:'TPShop 设计：parent_id=0 表示一级分类（根节点，无父节点）。非零 parent_id 指向父分类的 id，形成树形结构。'}
+];
+
+/* ============ EXAM STATE ============ */
+const EXAM_STATE={
+  mode:'practice',
+  selectedDays:'all',
+  questions:[],
+  answers:{},
+  flagged:new Set(),
+  current:0,
+  startTime:0,
+  timeLimit:0,
+  timerHandle:null,
+  submitted:false
+};
+
+const DAY_TITLES={
+  1:'Day 01 · Linux 基础',
+  2:'Day 02 · 系统/权限/vi',
+  3:'Day 03 · 数据库基础',
+  4:'Day 04 · SQL CRUD',
+  5:'Day 05 · 多表查询',
+  6:'Day 06 · TPShop 实战'
+};
+
+/* ============ MODE PICKER ============ */
+function setMode(m){
+  EXAM_STATE.mode=m;
+  document.querySelectorAll('.mode-card').forEach(c=>{
+    c.classList.toggle('act',c.dataset.mode===m);
+  });
+  updatePreview();
+}
+
+/* ============ DAY FILTER ============ */
+function toggleDay(d){
+  if(d==='all'){
+    EXAM_STATE.selectedDays='all';
+    document.querySelectorAll('.chip').forEach(c=>{
+      c.classList.toggle('act',c.dataset.d==='all');
+    });
+  }else{
+    document.querySelector('.chip[data-d="all"]').classList.remove('act');
+    if(EXAM_STATE.selectedDays==='all')EXAM_STATE.selectedDays=new Set();
+    const chip=document.querySelector(`.chip[data-d="${d}"]`);
+    if(EXAM_STATE.selectedDays.has(d)){
+      EXAM_STATE.selectedDays.delete(d);
+      chip.classList.remove('act');
+    }else{
+      EXAM_STATE.selectedDays.add(d);
+      chip.classList.add('act');
+    }
+    if(EXAM_STATE.selectedDays.size===0){
+      EXAM_STATE.selectedDays='all';
+      document.querySelector('.chip[data-d="all"]').classList.add('act');
+    }
+  }
+  updatePreview();
+}
+
+function getFilteredQuestions(){
+  if(EXAM_STATE.selectedDays==='all')return BANK.slice();
+  return BANK.filter(q=>EXAM_STATE.selectedDays.has(q.day));
+}
+
+function updatePreview(){
+  const qs=getFilteredQuestions();
+  let count=qs.length;
+  if(EXAM_STATE.mode==='quick')count=Math.min(20,qs.length);
+  const dayLabel=(EXAM_STATE.selectedDays==='all')
+    ?'Day 01-06 全部'
+    :Array.from(EXAM_STATE.selectedDays).sort().map(d=>'Day 0'+d).join(' · ');
+  const timeLabel={
+    practice:'不限时（练习模式，可立即看解析）',
+    exam:'90 分钟倒计时（考试模式）',
+    quick:'15 分钟倒计时（快速模式）'
+  }[EXAM_STATE.mode];
+  document.getElementById('prevDays').textContent=dayLabel;
+  document.getElementById('prevCount').textContent=count;
+  document.getElementById('prevTime').textContent=timeLabel;
+}
+
+/* ============ START EXAM ============ */
+function startExam(){
+  let qs=getFilteredQuestions();
+  if(qs.length===0){alert('请至少选择一个章节');return;}
+  function shuffle(arr){
+    const a=arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+  if(EXAM_STATE.mode==='quick'){
+    qs=shuffle(qs).slice(0,Math.min(20,qs.length));
+  }
+  qs=qs.map(q=>{
+    const indices=shuffle([0,1,2,3]);
+    const newOpts=indices.map(i=>q.o[i]);
+    const newAns=indices.indexOf(q.a);
+    return {...q,o:newOpts,a:newAns};
+  });
+  EXAM_STATE.questions=qs;
+  EXAM_STATE.answers={};
+  EXAM_STATE.flagged=new Set();
+  EXAM_STATE.current=0;
+  EXAM_STATE.submitted=false;
+  EXAM_STATE.startTime=Date.now();
+  if(EXAM_STATE.mode==='exam')EXAM_STATE.timeLimit=90*60*1000;
+  else if(EXAM_STATE.mode==='quick')EXAM_STATE.timeLimit=15*60*1000;
+  else EXAM_STATE.timeLimit=0;
+  document.getElementById('totalNum').textContent=qs.length;
+  if(EXAM_STATE.timeLimit>0)startTimer();
+  else document.getElementById('timerDisplay').textContent='练习模式 · 不限时';
+  renderCurrent();
+  go(1);
+}
+
+/* ============ TIMER ============ */
+function startTimer(){
+  if(EXAM_STATE.timerHandle)clearInterval(EXAM_STATE.timerHandle);
+  EXAM_STATE.timerHandle=setInterval(()=>{
+    const elapsed=Date.now()-EXAM_STATE.startTime;
+    const left=EXAM_STATE.timeLimit-elapsed;
+    const disp=document.getElementById('timerDisplay');
+    if(left<=0){
+      clearInterval(EXAM_STATE.timerHandle);
+      disp.textContent='⏱️ 时间到，自动提交';
+      submit();
+      return;
+    }
+    const mins=Math.floor(left/60000);
+    const secs=Math.floor((left%60000)/1000);
+    disp.textContent=`⏱️ ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    if(left<60000)disp.className='timer danger';
+    else if(left<300000)disp.className='timer warn';
+    else disp.className='timer';
+  },500);
+}
+
+/* ============ RENDER QUESTION ============ */
+function renderCurrent(){
+  const i=EXAM_STATE.current;
+  const q=EXAM_STATE.questions[i];
+  const total=EXAM_STATE.questions.length;
+  const cont=document.getElementById('qContainer');
+  const isPractice=EXAM_STATE.mode==='practice';
+  const answered=EXAM_STATE.answers[i];
+  const showAns=isPractice && answered!==undefined;
+
+  const opts=q.o.map((o,j)=>{
+    let cls='opt';
+    if(answered===j)cls+=' sel';
+    if(showAns){
+      if(j===q.a)cls='opt ok';
+      else if(answered===j)cls='opt no';
+      else cls='opt';
+    }
+    const L=String.fromCharCode(65+j);
+    return `<div class="${cls}" onclick="pickOpt(${j})"><span class="letter">${L}.</span><span class="ot">${o}</span></div>`;
+  }).join('');
+
+  const flagOn=EXAM_STATE.flagged.has(i)?'on':'';
+  const exClass=showAns?'qz-ex s':'qz-ex';
+
+  cont.innerHTML=`
+    <div class="qz ${isPractice?'practice':''}">
+      <button class="flag-btn ${flagOn}" onclick="flagQ()" title="标记此题">⚑</button>
+      <div class="qz-top">
+        <span class="qz-num">${i+1}</span>
+        <span class="qz-day" data-d="${q.day}">Day 0${q.day}</span>
+        <span class="qz-cat">${q.cat}</span>
+      </div>
+      <div class="qz-q">${q.q}</div>
+      ${opts}
+      ${isPractice&&answered===undefined?'<button class="qz-rev" onclick="showExp()">查看答案与解析</button>':''}
+      <div class="${exClass}"><b>正确答案：${String.fromCharCode(65+q.a)}</b> · ${q.exp}</div>
+    </div>
+  `;
+
+  document.getElementById('curNum').textContent=i+1;
+  document.getElementById('answeredCount').textContent=Object.keys(EXAM_STATE.answers).length;
+  document.getElementById('pbarFill').style.width=((i+1)/total*100)+'%';
+  document.getElementById('prevBtn').disabled=(i===0);
+  document.getElementById('nextBtn').disabled=(i===total-1);
+  document.getElementById('flagBtn').textContent=EXAM_STATE.flagged.has(i)?'⚑ 已标记':'⚑ 标记';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pickOpt(j){
+  if(EXAM_STATE.submitted)return;
+  const i=EXAM_STATE.current;
+  EXAM_STATE.answers[i]=j;
+  renderCurrent();
+}
+
+function showExp(){
+  const i=EXAM_STATE.current;
+  if(EXAM_STATE.answers[i]===undefined){EXAM_STATE.answers[i]=-1;}
+  renderCurrent();
+}
+
+function navQ(d){
+  const i=EXAM_STATE.current+d;
+  if(i<0||i>=EXAM_STATE.questions.length)return;
+  EXAM_STATE.current=i;
+  renderCurrent();
+}
+
+function flagQ(){
+  const i=EXAM_STATE.current;
+  if(EXAM_STATE.flagged.has(i))EXAM_STATE.flagged.delete(i);
+  else EXAM_STATE.flagged.add(i);
+  renderCurrent();
+}
+
+/* ============ PALETTE ============ */
+function showPalette(){
+  const grid=document.getElementById('paletteGrid');
+  const total=EXAM_STATE.questions.length;
+  let h='';
+  for(let i=0;i<total;i++){
+    let cls='pal-cell';
+    if(i===EXAM_STATE.current)cls+=' cur';
+    else if(EXAM_STATE.flagged.has(i))cls+=' flag';
+    else if(EXAM_STATE.answers[i]!==undefined && EXAM_STATE.answers[i]!==-1)cls+=' ans';
+    h+=`<div class="${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
+  }
+  grid.innerHTML=h;
+  document.getElementById('paletteBg').classList.add('s');
+}
+function closePalette(){document.getElementById('paletteBg').classList.remove('s');}
+function jumpTo(i){EXAM_STATE.current=i;renderCurrent();closePalette();}
+
+/* ============ SUBMIT ============ */
+function confirmSubmit(){
+  const total=EXAM_STATE.questions.length;
+  const answered=Object.keys(EXAM_STATE.answers).filter(k=>EXAM_STATE.answers[k]!==undefined&&EXAM_STATE.answers[k]!==-1).length;
+  if(answered<total){
+    showModal('还有题目未作答',`共 ${total} 题，已答 <b>${answered}</b> 题，未答 <b>${total-answered}</b> 题。<br>未答题目将记为答错。确定提交吗？`,submit);
+  }else{
+    showModal('确认提交','所有题目已作答完毕。确定提交并查看结果吗？',submit);
+  }
+}
+
+function showModal(title,msg,onYes){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalMsg').innerHTML=msg;
+  document.getElementById('modalConfirm').onclick=()=>{closeModal();onYes();};
+  document.getElementById('modalBg').classList.add('s');
+}
+function closeModal(){document.getElementById('modalBg').classList.remove('s');}
+function confirmYes(){closeModal();}
+
+function submit(){
+  if(EXAM_STATE.submitted)return;
+  EXAM_STATE.submitted=true;
+  if(EXAM_STATE.timerHandle)clearInterval(EXAM_STATE.timerHandle);
+  renderResults();
+  go(2);
+}
+
+/* ============ RESULTS ============ */
+function renderResults(){
+  const qs=EXAM_STATE.questions;
+  const ans=EXAM_STATE.answers;
+  let correct=0,wrong=0,blank=0;
+  const perDay={1:{t:0,c:0},2:{t:0,c:0},3:{t:0,c:0},4:{t:0,c:0},5:{t:0,c:0},6:{t:0,c:0}};
+  qs.forEach((q,i)=>{
+    perDay[q.day].t++;
+    const a=ans[i];
+    if(a===undefined||a===-1)blank++;
+    else if(a===q.a){correct++;perDay[q.day].c++;}
+    else wrong++;
+  });
+  const total=qs.length;
+  const pct=Math.round(correct/total*100);
+  const verdict=pct>=90?'🏆 优秀':pct>=75?'✅ 通过':pct>=60?'⚠️ 良好':'❌ 需要重新学习';
+  const verdictCls=pct>=75?'pass':'fail';
+  const elapsedMin=Math.max(1,Math.round((Date.now()-EXAM_STATE.startTime)/60000));
+
+  let dayStatsHtml='';
+  Object.keys(perDay).forEach(d=>{
+    if(perDay[d].t===0)return;
+    const dp=Math.round(perDay[d].c/perDay[d].t*100);
+    dayStatsHtml+=`
+      <div class="day-stat-row">
+        <span class="day-tag" data-d="${d}">Day 0${d}</span>
+        <span class="day-title">${DAY_TITLES[d].split(' · ')[1]||''}</span>
+        <span class="day-score">${perDay[d].c}/${perDay[d].t}</span>
+        <span class="day-bar"><span class="day-bar-fill" style="width:${dp}%"></span></span>
+      </div>
+    `;
+  });
+
+  document.getElementById('resultsBox').innerHTML=`
+    <div class="result">
+      <h2><span class="ico">🎯</span>测试完成</h2>
+      <div class="big-score">${correct} / ${total}</div>
+      <div class="pct">正确率 ${pct}% · 用时约 ${elapsedMin} 分钟</div>
+      <div class="verdict ${verdictCls}">${verdict}</div>
+      <div class="stat-row">
+        <div class="stat"><div class="v" style="color:var(--green)">${correct}</div><div class="l">答对</div></div>
+        <div class="stat"><div class="v" style="color:var(--red)">${wrong}</div><div class="l">答错</div></div>
+        <div class="stat"><div class="v" style="color:var(--muted)">${blank}</div><div class="l">未答</div></div>
+        <div class="stat"><div class="v">${EXAM_STATE.flagged.size}</div><div class="l">标记</div></div>
+      </div>
+    </div>
+    <div class="sec">
+      <h2><span class="ico">📊</span>分章节得分</h2>
+      <div class="day-stats">${dayStatsHtml}</div>
+      <div class="box info"><b>📌 学习建议：</b>正确率低于 60% 的章节建议重新学习对应的 Day。错题列表见下方。</div>
+    </div>
+  `;
+
+  let reviewHtml='';
+  qs.forEach((q,i)=>{
+    const a=ans[i];
+    if(a===q.a)return;
+    const userAnsTxt=(a===undefined||a===-1)?'<i style="color:var(--muted)">未答</i>':String.fromCharCode(65+a)+'. '+q.o[a];
+    reviewHtml+=`
+      <div class="qz">
+        <div class="qz-top">
+          <span class="qz-num">${i+1}</span>
+          <span class="qz-day" data-d="${q.day}">Day 0${q.day}</span>
+          <span class="qz-cat">${q.cat}</span>
+        </div>
+        <div class="qz-q">${q.q}</div>
+        <div style="font-size:13px;color:var(--ink2);margin-bottom:8px"><b>你的选择：</b><span style="color:var(--red)">${userAnsTxt}</span></div>
+        <div style="font-size:13px;color:var(--ink2);margin-bottom:8px"><b>正确答案：</b><span style="color:var(--green)">${String.fromCharCode(65+q.a)}. ${q.o[q.a]}</span></div>
+        <div class="qz-ex s"><b>解析：</b>${q.exp}</div>
+      </div>
+    `;
+  });
+  if(reviewHtml){
+    document.getElementById('reviewList').innerHTML=reviewHtml;
+    document.getElementById('reviewSec').style.display='block';
+  }else{
+    document.getElementById('reviewSec').style.display='none';
+  }
+  document.getElementById('doneBarSec').style.display='flex';
+  try{
+    window.parent.postMessage({type:'qa_quiz_result',score:correct,total:total},'*');
+  }catch(e){}
+}
+
+/* ============ MARK DONE ============ */
+function markDone(){
+  const btn=document.getElementById('doneBtn');
+  if(btn.classList.contains('dn'))return;
+  const min=Math.max(1,Math.round((Date.now()-EXAM_STATE.startTime)/60000));
+  const correct=EXAM_STATE.questions.filter((q,i)=>EXAM_STATE.answers[i]===q.a).length;
+  const total=EXAM_STATE.questions.length;
+  try{
+    window.parent.postMessage({
+      type:'qa_lesson_complete',
+      id:'s2d7',
+      timeSpentMin:min,
+      quizScore:correct,
+      quizTotal:total
+    },'*');
+  }catch(err){}
+  btn.classList.add('dn');
+  btn.textContent='✓ 已完成';
+  btn.parentElement.querySelector('.txt').innerHTML=`🎉 Stage 2 综合测试已记录！得分 <b>${correct}/${total}</b>，用时 <b>${min}</b> 分钟。`;
+}
+
+/* ============ INIT ============ */
+updatePreview();
+</script>
+</body>
+</html>

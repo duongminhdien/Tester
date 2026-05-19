@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tester Day 01 – Kiến thức nền tảng QA/Testing</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#6366f1;
+  --day-d:#4f46e5;
+  --day-bg:rgba(99,102,241,.09);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.7}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(99,102,241,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(99,102,241,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sections */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:4px}
+
+/* Code */
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .r{color:#f07178}
+.term .w{color:#fff;font-weight:600}
+.term .n{color:#f78c6c}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+
+/* Tables */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+
+/* Progress bar */
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.sub:hover{background:var(--day-d)}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qbtn.rst:hover{background:#e2e8f0}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.qres p{color:var(--ink2);font-size:14px;margin-top:6px}
+
+/* Navigation */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* Mark all btn */
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+
+/* Vis panel styles */
+.vis-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.vis-card h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.cycle{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:12px 0}
+.cycle-step{background:var(--day-bg);border:2px solid var(--day);color:var(--day-d);border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;text-align:center;min-width:90px}
+.cycle-arrow{color:var(--day);font-size:22px;padding:0 6px;font-weight:700}
+.pyramid{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px 0}
+.pyr-row{border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;padding:10px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;font-weight:700}
+.badge-purple{background:#ede9fe;color:#6d28d9}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .cycle{flex-direction:column;align-items:flex-start}
+  .cycle-arrow{transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Header -->
+<div class="hd">
+  <div class="hd-tag">TESTER STAGE 1 · DAY 01</div>
+  <h1>Kiến thức nền tảng QA/Testing</h1>
+  <p>Hiểu rõ Testing là gì, tại sao cần test, vòng đời kiểm thử phần mềm và các loại testing cơ bản. Nền tảng bắt buộc cho mọi tester.</p>
+  <div class="hd-stats">
+    <div><b>5</b>Khái niệm cốt lõi</div>
+    <div><b>10</b>Bài thực hành</div>
+    <div><b>12</b>Câu phỏng vấn</div>
+    <div><b>15</b>Câu quiz</div>
+  </div>
+</div>
+
+<!-- Dots -->
+<div id="dots"></div>
+
+<!-- Tabs -->
+<div class="dn">
+  <div class="ts" style="display:flex;gap:4px;width:100%">
+    <button class="t a" data-p="0">📖 Lý thuyết</button>
+    <button class="t" data-p="1">🖼️ Hình minh hoạ</button>
+    <button class="t" data-p="2">🛠️ Thực hành</button>
+    <button class="t" data-p="3">💬 Phỏng vấn</button>
+    <button class="t" data-p="4">✅ Quiz</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: LÝ THUYẾT ===== -->
+<div class="pan a">
+
+  <div class="sec">
+    <h2><span class="ico">1</span>Testing là gì? Tại sao cần test?</h2>
+    <p><strong>Software Testing</strong> là quá trình thực thi phần mềm với mục đích tìm lỗi (defects/bugs), xác minh phần mềm hoạt động đúng theo yêu cầu, và đảm bảo chất lượng sản phẩm trước khi phát hành.</p>
+
+    <h3>Mục tiêu của Testing</h3>
+    <ul>
+      <li><strong>Tìm lỗi sớm</strong> – Chi phí sửa lỗi ở giai đoạn requirements thấp hơn 100× so với sau khi release</li>
+      <li><strong>Xác minh (Verification)</strong> – "Chúng ta có đang xây dựng sản phẩm đúng cách không?" (so với spec)</li>
+      <li><strong>Thẩm định (Validation)</strong> – "Chúng ta có đang xây dựng đúng sản phẩm không?" (so với nhu cầu thực)</li>
+      <li><strong>Tăng niềm tin</strong> – Cung cấp thông tin để stakeholder ra quyết định release</li>
+    </ul>
+
+    <div class="box tip">
+      <b>💡 Rule of thumb:</b><br>
+      Lỗi tìm ra ở giai đoạn <strong>Requirements</strong> → chi phí sửa: $1<br>
+      Lỗi tìm ra ở giai đoạn <strong>Development</strong> → chi phí sửa: $10<br>
+      Lỗi tìm ra ở giai đoạn <strong>Production</strong> → chi phí sửa: $100+
+    </div>
+
+    <h3>Sự khác biệt: Bug vs Defect vs Error vs Failure</h3>
+    <div class="tw">
+      <table>
+        <tr><th>Thuật ngữ</th><th>Định nghĩa</th><th>Ví dụ</th></tr>
+        <tr><td><span class="badge badge-red">Error</span></td><td>Sai lầm của con người (developer/analyst)</td><td>Nhầm logic khi viết code</td></tr>
+        <tr><td><span class="badge badge-amber">Defect/Bug</span></td><td>Kết quả của Error trong code/tài liệu</td><td>Code tính sai công thức VAT</td></tr>
+        <tr><td><span class="badge badge-purple">Failure</span></td><td>Hệ thống không thực hiện đúng khi chạy</td><td>Chương trình crash khi nhập số âm</td></tr>
+        <tr><td><span class="badge badge-blue">Fault</span></td><td>Nguyên nhân gốc rễ trong code gây Failure</td><td>Thiếu điều kiện kiểm tra input</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">2</span>7 Nguyên tắc Testing (ISTQB)</h2>
+    <div class="g2">
+      <div class="card">
+        <h4><span class="num">1</span>Testing cho thấy sự hiện diện của lỗi</h4>
+        <p>Testing có thể chứng minh có lỗi, nhưng <em>không thể</em> chứng minh phần mềm không có lỗi.</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">2</span>Exhaustive testing là không thể</h4>
+        <p>Không thể test hết mọi tổ hợp. Phải dùng risk-based testing và kỹ thuật phân tích để ưu tiên.</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">3</span>Test sớm (Early testing)</h4>
+        <p>Bắt đầu test từ giai đoạn requirements, không chờ đến khi có code hoàn chỉnh.</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">4</span>Defect Clustering</h4>
+        <p>Khoảng 80% lỗi thường tập trung ở 20% module. Ưu tiên test các khu vực rủi ro cao.</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">5</span>Pesticide Paradox</h4>
+        <p>Chạy đi chạy lại cùng một test case sẽ không tìm thêm lỗi mới. Cần cập nhật test cases thường xuyên.</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">6</span>Testing phụ thuộc ngữ cảnh</h4>
+        <p>Testing e-commerce khác testing hệ thống y tế. Áp dụng phương pháp phù hợp với dự án.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0">
+      <h4><span class="num">7</span>Absence-of-errors fallacy</h4>
+      <p>Phần mềm không có bug nhưng không đáp ứng nhu cầu người dùng thì vẫn là thất bại.</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">3</span>Vòng đời kiểm thử phần mềm (STLC)</h2>
+    <p>Software Testing Life Cycle (STLC) gồm 6 giai đoạn, chạy song song với SDLC:</p>
+
+    <div class="tw">
+      <table>
+        <tr><th>#</th><th>Giai đoạn</th><th>Hoạt động chính</th><th>Output (Deliverable)</th></tr>
+        <tr><td><b>1</b></td><td>Requirement Analysis</td><td>Đọc, phân tích requirements; xác định testability</td><td>RTM (Requirement Traceability Matrix)</td></tr>
+        <tr><td><b>2</b></td><td>Test Planning</td><td>Lập kế hoạch: scope, resource, timeline, risk</td><td>Test Plan document</td></tr>
+        <tr><td><b>3</b></td><td>Test Case Design</td><td>Viết test cases, test data, test scripts</td><td>Test Cases, Test Data</td></tr>
+        <tr><td><b>4</b></td><td>Test Environment Setup</td><td>Cài đặt môi trường test, chuẩn bị dữ liệu</td><td>Test Environment Ready</td></tr>
+        <tr><td><b>5</b></td><td>Test Execution</td><td>Chạy test cases, log bugs, retest</td><td>Test Results, Bug Reports</td></tr>
+        <tr><td><b>6</b></td><td>Test Closure</td><td>Phân tích kết quả, viết báo cáo, lessons learned</td><td>Test Summary Report</td></tr>
+      </table>
+    </div>
+
+    <div class="box info">
+      <b>📌 Lưu ý:</b> Trong Agile, STLC được rút ngắn thành các sprint cycle (1-2 tuần). Test planning và test case design diễn ra liên tục, không tách biệt theo phase lớn.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">4</span>Các loại Testing cơ bản</h2>
+
+    <h3>Phân loại theo mức độ (Test Levels)</h3>
+    <div class="tw">
+      <table>
+        <tr><th>Level</th><th>Ai thực hiện</th><th>Mục tiêu</th></tr>
+        <tr><td><span class="badge badge-green">Unit Testing</span></td><td>Developer</td><td>Test từng hàm/class riêng lẻ</td></tr>
+        <tr><td><span class="badge badge-blue">Integration Testing</span></td><td>Dev + QA</td><td>Test tích hợp giữa các module/service</td></tr>
+        <tr><td><span class="badge badge-purple">System Testing</span></td><td>QA Team</td><td>Test toàn bộ hệ thống như end-user</td></tr>
+        <tr><td><span class="badge badge-amber">UAT</span></td><td>Business/Client</td><td>Xác nhận đúng nghiệp vụ trước go-live</td></tr>
+      </table>
+    </div>
+
+    <h3>Phân loại theo loại kiểm thử</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>🔲 Black-box Testing</h4>
+        <p>Không cần biết code bên trong. Chỉ test dựa trên Input → Output theo requirements. <em>Tester phổ thông dùng cách này.</em></p>
+      </div>
+      <div class="card">
+        <h4>🔳 White-box Testing</h4>
+        <p>Cần biết code. Test dựa trên cấu trúc bên trong: branches, paths, statements. Thường do developer thực hiện.</p>
+      </div>
+      <div class="card">
+        <h4>◧ Grey-box Testing</h4>
+        <p>Kết hợp cả hai. Có thể xem một phần code (DB schema, API spec) nhưng test từ góc nhìn user.</p>
+      </div>
+      <div class="card">
+        <h4>🔄 Functional Testing</h4>
+        <p>Test chức năng theo spec: login, checkout, search... Câu hỏi: "Hệ thống có làm đúng không?"</p>
+      </div>
+      <div class="card">
+        <h4>⚡ Non-Functional Testing</h4>
+        <p>Test hiệu năng, bảo mật, khả năng chịu tải, UX... Câu hỏi: "Hệ thống hoạt động tốt thế nào?"</p>
+      </div>
+      <div class="card">
+        <h4>🔁 Regression Testing</h4>
+        <p>Re-test sau khi code thay đổi, đảm bảo tính năng cũ không bị break bởi thay đổi mới.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">5</span>QA vs QC vs Testing</h2>
+    <p>Ba khái niệm thường bị nhầm lẫn nhưng có nghĩa khác nhau hoàn toàn:</p>
+    <div class="tw">
+      <table>
+        <tr><th></th><th>QA (Quality Assurance)</th><th>QC (Quality Control)</th><th>Testing</th></tr>
+        <tr><td><b>Là</b></td><td>Quy trình/Process</td><td>Sản phẩm/Product</td><td>Hoạt động cụ thể</td></tr>
+        <tr><td><b>Mục tiêu</b></td><td>Ngăn lỗi xảy ra</td><td>Tìm lỗi trong sản phẩm</td><td>Thực thi để tìm defect</td></tr>
+        <tr><td><b>Phạm vi</b></td><td>Toàn bộ SDLC</td><td>Giai đoạn test</td><td>Giai đoạn test</td></tr>
+        <tr><td><b>Tính chất</b></td><td>Proactive (chủ động)</td><td>Reactive (phản ứng)</td><td>Reactive (phản ứng)</td></tr>
+        <tr><td><b>Ví dụ</b></td><td>Code review, audit process</td><td>Chạy test cases</td><td>Test login form</td></tr>
+      </table>
+    </div>
+    <div class="box tip">
+      <b>💡 Nhớ nhanh:</b> QA = Prevention (ngăn ngừa). QC = Detection (phát hiện). Testing là một phần của QC.
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← Bài trước</button>
+    <button class="pri" onclick="go(1)">Hình minh hoạ →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: HÌNH MINH HOẠ ===== -->
+<div class="pan">
+
+  <div class="vis-card">
+    <h2>🔺 Test Pyramid – Chiến lược phân bổ test</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Test Pyramid cho thấy tỷ lệ lý tưởng: nhiều unit test, ít manual UI test. Càng lên cao càng tốn thời gian và tiền bạc.</p>
+    <div class="pyramid">
+      <div class="pyr-row" style="background:#dc2626;width:70%">🖥️ Manual/E2E Tests (ít nhất ~10%)</div>
+      <div class="pyr-row" style="background:#d97706;width:85%">🔗 Integration Tests (~30%)</div>
+      <div class="pyr-row" style="background:#16a34a;width:100%">⚙️ Unit Tests (nhiều nhất ~60%)</div>
+    </div>
+    <div class="box warn" style="margin-top:12px">
+      <b>⚠️ Anti-pattern:</b> Nhiều dự án Việt Nam làm ngược lại – chủ yếu manual test, ít automation. Dẫn đến tốn nhân lực, khó scale.
+    </div>
+  </div>
+
+  <div class="vis-card">
+    <h2>🔄 Vòng đời Bug (Bug Life Cycle)</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Một bug đi qua các trạng thái sau từ khi phát hiện đến khi đóng:</p>
+    <div style="overflow-x:auto">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:500px">
+        <div class="cycle-step" style="background:#eff6ff;border-color:#3b82f6;color:#1d4ed8">🆕 New</div>
+        <div class="cycle-arrow">→</div>
+        <div class="cycle-step" style="background:#fef3c7;border-color:#d97706;color:#92400e">📋 Assigned</div>
+        <div class="cycle-arrow">→</div>
+        <div class="cycle-step" style="background:#fce7f3;border-color:#db2777;color:#9d174d">🔧 In Progress</div>
+        <div class="cycle-arrow">→</div>
+        <div class="cycle-step" style="background:#f3e8ff;border-color:#9333ea;color:#6b21a8">✔️ Fixed</div>
+        <div class="cycle-arrow">→</div>
+        <div class="cycle-step" style="background:#fffbeb;border-color:#ca8a04;color:#854d0e">🔁 Retest</div>
+        <div class="cycle-arrow">→</div>
+        <div class="cycle-step" style="background:#f0fdf4;border-color:#16a34a;color:#15803d">✅ Closed</div>
+      </div>
+    </div>
+    <div class="tw" style="margin-top:16px">
+      <table>
+        <tr><th>Trạng thái</th><th>Ý nghĩa</th><th>Ai xử lý</th></tr>
+        <tr><td><span class="badge badge-blue">New</span></td><td>Bug mới được log</td><td>Tester</td></tr>
+        <tr><td><span class="badge badge-amber">Assigned</span></td><td>PM/Lead đã assign cho dev</td><td>PM/Lead</td></tr>
+        <tr><td><span class="badge badge-purple">In Progress</span></td><td>Developer đang fix</td><td>Developer</td></tr>
+        <tr><td><span class="badge badge-green">Fixed</span></td><td>Dev đã fix, chờ tester verify</td><td>Developer</td></tr>
+        <tr><td><span class="badge badge-amber">Retest</span></td><td>Tester đang verify lại</td><td>Tester</td></tr>
+        <tr><td><span class="badge badge-green">Closed</span></td><td>Bug đã resolved</td><td>Tester</td></tr>
+      </table>
+    </div>
+    <div class="box info" style="margin-top:8px">
+      <b>📌 Special statuses:</b> <code class="inl">Rejected</code> – Dev cho rằng không phải bug. <code class="inl">Deferred</code> – Lùi sang sprint sau. <code class="inl">Duplicate</code> – Đã có bug report tương tự.
+    </div>
+  </div>
+
+  <div class="vis-card">
+    <h2>📊 SDLC vs STLC – Song song như thế nào?</h2>
+    <div class="tw">
+      <table>
+        <tr><th>SDLC Phase</th><th>STLC Activity</th><th>Tester làm gì?</th></tr>
+        <tr><td>Requirements</td><td>Requirement Analysis</td><td>Review req, xác định test conditions</td></tr>
+        <tr><td>Design</td><td>Test Planning + Design</td><td>Viết test plan, thiết kế test cases</td></tr>
+        <tr><td>Development</td><td>Test Case Development</td><td>Hoàn thiện test cases, chuẩn bị data</td></tr>
+        <tr><td>Testing</td><td>Test Execution</td><td>Chạy test, log bug, retest</td></tr>
+        <tr><td>Deployment</td><td>UAT + Regression</td><td>Smoke test, sanity check</td></tr>
+        <tr><td>Maintenance</td><td>Test Closure</td><td>Báo cáo, lưu trữ test artifacts</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="vis-card">
+    <h2>🧠 Mind Map: Các loại Testing quan trọng</h2>
+    <div class="g3">
+      <div class="card" style="border-left:4px solid #6366f1">
+        <h4 style="color:#6366f1">Functional</h4>
+        <p>• Smoke Testing<br>• Sanity Testing<br>• Regression Testing<br>• Integration Testing<br>• UAT</p>
+      </div>
+      <div class="card" style="border-left:4px solid #f59e0b">
+        <h4 style="color:#d97706">Non-Functional</h4>
+        <p>• Performance Testing<br>• Load Testing<br>• Stress Testing<br>• Security Testing<br>• Usability Testing</p>
+      </div>
+      <div class="card" style="border-left:4px solid #10b981">
+        <h4 style="color:#059669">Maintenance</h4>
+        <p>• Regression Testing<br>• Confirmation Testing<br>• Maintenance Testing</p>
+      </div>
+    </div>
+    <div class="box tip" style="margin-top:8px">
+      <b>💡 Smoke vs Sanity:</b><br>
+      <strong>Smoke</strong> = Test build mới có khởi động được không? (broad, shallow)<br>
+      <strong>Sanity</strong> = Test nhanh 1 chức năng cụ thể sau khi fix bug (narrow, deep)
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← Lý thuyết</button>
+    <button class="pri" onclick="go(2)">Thực hành →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: THỰC HÀNH ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>Bài thực hành</h2>
+    <p>Hoàn thành 10 bài tập dưới đây. Tick checkbox khi hoàn thành mỗi bài.</p>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 bài hoàn thành</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ Đánh dấu tất cả hoàn thành</button>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p1">
+    <div class="pt-body">
+      <div class="pt-t">1. Phân biệt Error, Defect, Failure với ví dụ thực tế</div>
+      <div class="pt-sub">Cho tình huống: Tính năng thanh toán trả về số tiền sai. Xác định Error, Defect, Failure là gì trong trường hợp này.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Error:</span> Developer hiểu sai yêu cầu, viết công thức tính giá sai
+<span class="k">Defect:</span> Đoạn code if(discount > 0) { total = price - discount } viết sai logic
+<span class="k">Failure:</span> User thấy màn hình hiển thị "Tổng thanh toán: -50,000 VNĐ"
+
+→ Error (nguyên nhân) → Defect (trong code) → Failure (kết quả nhìn thấy)</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p2">
+    <div class="pt-body">
+      <div class="pt-t">2. Liệt kê 7 nguyên tắc Testing và cho ví dụ cho 3 nguyên tắc quan trọng nhất</div>
+      <div class="pt-sub">Bạn sẽ giải thích thế nào với một người mới học testing?</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Nguyên tắc 1 – Testing shows presence of bugs:</span>
+→ Dù test 1000 test cases, bạn không thể 100% đảm bảo không còn bug
+
+<span class="k">Nguyên tắc 5 – Pesticide Paradox:</span>
+→ Mỗi sprint mới cần thêm test case mới, không chỉ chạy lại test cũ
+
+<span class="k">Nguyên tắc 4 – Defect Clustering:</span>
+→ Focus nhiều hơn vào module Payment, Auth vì thường có nhiều bug hơn</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p3">
+    <div class="pt-body">
+      <div class="pt-t">3. Vẽ sơ đồ STLC và mô tả output của từng giai đoạn</div>
+      <div class="pt-sub">Tạo sơ đồ đơn giản (trên giấy hoặc draw.io) với 6 giai đoạn và deliverable tương ứng.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans">Requirement Analysis → RTM (Traceability Matrix)
+        ↓
+Test Planning → Test Plan Document
+        ↓
+Test Case Design → Test Cases + Test Data
+        ↓
+Environment Setup → Ready Environment + Test Data
+        ↓
+Test Execution → Test Results + Bug Reports
+        ↓
+Test Closure → Test Summary Report + Lessons Learned</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p4">
+    <div class="pt-body">
+      <div class="pt-t">4. Phân biệt Black-box và White-box Testing</div>
+      <div class="pt-sub">Viết 2 test case cho cùng chức năng "Đăng nhập": 1 cái theo Black-box, 1 cái theo White-box approach.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Black-box approach:</span>
+Test Case: Đăng nhập với email hợp lệ và mật khẩu đúng
+Input: email="test@gmail.com", password="Test123!"
+Expected: Redirect đến dashboard, hiển thị "Chào mừng test@gmail.com"
+→ Không cần biết code xử lý như thế nào
+
+<span class="k">White-box approach:</span>
+Test Case: Kiểm tra nhánh "password length < 8"
+Flow: if(password.length < 8) → throw ValidationError
+Input: password="123" (3 ký tự)
+Expected: Hàm authenticate() throw ValidationError với message "Mật khẩu tối thiểu 8 ký tự"
+→ Test cụ thể một đoạn logic trong code</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p5">
+    <div class="pt-body">
+      <div class="pt-t">5. Giải thích sự khác biệt giữa QA, QC và Testing bằng ngôn ngữ đơn giản</div>
+      <div class="pt-sub">Nếu bạn phải giải thích cho một BA hoặc PM không chuyên về testing, bạn sẽ nói gì?</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Ví dụ nhà hàng:</span>
+QA = Xây dựng quy trình nấu ăn chuẩn (SOP, recipe standard, training chef)
+    → Giúp ngăn món ăn bị hỏng ngay từ đầu
+
+QC = Người nếm thử món ăn trước khi serve (inspection)
+    → Tìm ra món nào không đạt chuẩn
+
+Testing = Một phần của QC: đưa ra tiêu chí cụ thể để đánh giá món ăn
+    → "Canh phải ấm 60-70°C, có đủ muối, không có xương lạ"</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p6">
+    <div class="pt-body">
+      <div class="pt-t">6. Xác định loại testing phù hợp cho từng tình huống</div>
+      <div class="pt-sub">Match mỗi tình huống với loại testing: Smoke, Regression, UAT, Performance, Security.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans">TH1: Dev vừa deploy build mới lên staging → <span class="k">Smoke Testing</span>
+    (Kiểm tra nhanh app có start được, login được không)
+
+TH2: Sprint 5 release thêm module "Báo cáo", cần đảm bảo
+    module "Thanh toán" cũ không bị ảnh hưởng → <span class="k">Regression Testing</span>
+
+TH3: Business stakeholder duyệt tính năng "Phê duyệt hợp đồng"
+    trước khi go-live → <span class="k">UAT (User Acceptance Testing)</span>
+
+TH4: App cần chịu tải 10,000 concurrent users vào dịp Black Friday → <span class="k">Performance/Load Testing</span>
+
+TH5: Kiểm tra có thể SQL Injection vào form đăng ký không → <span class="k">Security Testing</span></div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p7">
+    <div class="pt-body">
+      <div class="pt-t">7. Log một bug report hoàn chỉnh theo template chuẩn</div>
+      <div class="pt-sub">Tình huống: Tính năng "Thêm vào giỏ hàng" không hoạt động trên mobile Safari iOS 17. Viết bug report đầy đủ.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Bug Report Template:</span>
+Title: [Mobile Safari iOS 17] Nút "Thêm vào giỏ hàng" không phản hồi
+
+Environment: iPhone 14 Pro, iOS 17.2, Safari 17.0
+Build: v2.3.1 (staging)
+Priority: High | Severity: Critical
+
+Steps to Reproduce:
+1. Mở Safari trên iPhone 14 Pro (iOS 17)
+2. Truy cập staging.shop.vn/products
+3. Chọn sản phẩm bất kỳ
+4. Tap nút "Thêm vào giỏ hàng"
+
+Expected Result: Sản phẩm được thêm vào giỏ, badge số lượng tăng lên
+
+Actual Result: Nút không phản hồi, không có action nào xảy ra,
+console hiển thị: "TypeError: Cannot read property 'cart' of undefined"
+
+Attachments: screenshot.png, console_log.txt
+
+Workaround: Hoạt động bình thường trên Chrome iOS</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p8">
+    <div class="pt-body">
+      <div class="pt-t">8. Giải thích Pesticide Paradox và cách khắc phục trong team của bạn</div>
+      <div class="pt-sub">Đề xuất 3 cách cụ thể để tránh Pesticide Paradox trong dự án Agile.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Cách 1: Cập nhật test cases mỗi sprint</span>
+→ Review lại test cases sau mỗi sprint, thêm cases cho
+  edge cases vừa phát hiện trong sprint review
+
+<span class="k">Cách 2: Exploratory Testing</span>
+→ Dành 20% thời gian test không theo script,
+  khám phá tính năng theo góc nhìn mới mỗi lần
+
+<span class="k">Cách 3: Rotate tester</span>
+→ Đổi tester cho các module theo chu kỳ,
+  "fresh eyes" thường tìm ra bug mà người quen không thấy</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p9">
+    <div class="pt-body">
+      <div class="pt-t">9. Mô tả Bug Life Cycle từ khi tìm thấy đến khi đóng</div>
+      <div class="pt-sub">Trace theo bug #1234: "Button Submit bị disabled sau khi điền form hợp lệ" qua toàn bộ vòng đời.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans">08:00 - Tester log bug #1234 → Status: <span class="k">New</span>
+09:00 - PM review, assign cho Dev Minh → Status: <span class="k">Assigned</span>
+10:00 - Dev Minh nhận bug, bắt đầu investigate → Status: <span class="k">In Progress</span>
+14:00 - Dev Minh fix xong: thiếu event listener onInput → Status: <span class="k">Fixed</span>
+14:30 - Tester retest trên staging build mới → Status: <span class="k">Retest</span>
+15:00 - Tester verify OK, button hoạt động đúng → Status: <span class="k">Closed</span>
+
+Special case nếu fix chưa đúng:
+14:30 - Tester retest, vẫn lỗi → Status: <span class="k">Reopened</span> → quay về Assigned</div>
+    </div>
+  </div>
+
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p10">
+    <div class="pt-body">
+      <div class="pt-t">10. So sánh Verification và Validation với ví dụ thực tế</div>
+      <div class="pt-sub">Dự án xây dựng app quản lý kho. Cho ví dụ cụ thể về Verification và Validation trong dự án này.</div>
+      <span class="pt-rev" onclick="tr(this)">Xem gợi ý ›</span>
+      <div class="pt-ans"><span class="k">Verification (Xác minh):</span>
+"Chúng ta có đang xây dựng đúng cách không?"
+→ Review tài liệu: requirement doc có đầy đủ không?
+→ Code review: function updateStock() có đúng logic spec không?
+→ Test case review: test case có cover hết acceptance criteria?
+
+<span class="k">Validation (Thẩm định):</span>
+"Chúng ta có đang xây dựng đúng sản phẩm không?"
+→ UAT: kho trưởng dùng thử app có xuất/nhập hàng được không?
+→ Usability: giao diện có phù hợp workflow thực tế của kho không?
+→ Business value: app có giúp giảm sai sót kiểm kê thực sự không?
+
+→ Có thể Verify nhưng không Validate:
+   App đúng spec nhưng spec sai → app vô dụng với người dùng thực</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← Hình minh hoạ</button>
+    <button class="pri" onclick="go(3)">Phỏng vấn →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: PHỎNG VẤN ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">💬</span>12 Câu hỏi phỏng vấn Tester</h2>
+    <p>Click để mở rộng từng câu hỏi và xem câu trả lời mẫu.</p>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q1</div>
+      <div class="iq-q">Testing là gì? Mục tiêu của Testing là gì?</div>
+      <div class="iq-lv lv-b">Cơ bản</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>Câu trả lời mẫu:</strong></p>
+      <p>Testing là quá trình thực thi phần mềm để tìm ra sự khác biệt giữa kết quả thực tế và kết quả mong đợi. Mục tiêu chính gồm: (1) Tìm lỗi sớm nhất có thể, (2) Xác minh phần mềm đúng với requirements, (3) Cung cấp thông tin để stakeholder quyết định có release không, và (4) Giảm rủi ro cho production.</p>
+      <div class="box tip"><b>💡 Điểm cộng:</b> Đề cập đến "testing không thể chứng minh phần mềm hoàn toàn không có lỗi" – cho thấy hiểu nguyên tắc 1 của ISTQB.</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q2</div>
+      <div class="iq-q">Phân biệt Bug, Defect, Error, Failure?</div>
+      <div class="iq-lv lv-b">Cơ bản</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>Error = sai lầm của con người (hiểu sai requirement, viết sai logic). Defect/Bug = sản phẩm của Error còn tồn tại trong code hoặc tài liệu. Failure = hệ thống không hoạt động đúng khi chạy. Fault = nguyên nhân trong code gây ra Failure.</p>
+      <div class="box info"><b>📌 Ví dụ liên kết:</b> Dev hiểu sai spec (Error) → viết công thức sai (Defect) → user thấy số tiền sai (Failure).</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q3</div>
+      <div class="iq-q">Phân biệt Verification và Validation?</div>
+      <div class="iq-lv lv-b">Cơ bản</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>Verification:</strong> "Are we building the product right?" – Kiểm tra xem chúng ta có đang tuân theo spec/process không. Ví dụ: code review, test case review, document review.</p>
+      <p><strong>Validation:</strong> "Are we building the right product?" – Kiểm tra xem sản phẩm có đáp ứng nhu cầu thực tế của người dùng không. Ví dụ: UAT, beta testing.</p>
+      <div class="box warn"><b>⚠️ Bẫy:</b> Có thể verify thành công nhưng validate thất bại nếu requirement sai ngay từ đầu.</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q4</div>
+      <div class="iq-q">STLC gồm những giai đoạn nào? Bạn tham gia từ giai đoạn nào?</div>
+      <div class="iq-lv lv-b">Cơ bản</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>STLC gồm 6 giai đoạn: (1) Requirement Analysis, (2) Test Planning, (3) Test Case Design, (4) Environment Setup, (5) Test Execution, (6) Test Closure.</p>
+      <p>Tester nên tham gia từ giai đoạn 1 – Requirement Analysis – vì đây là lúc có thể phát hiện lỗi requirement sớm nhất, tiết kiệm nhất. Tham gia sớm giúp tester hiểu sâu business logic trước khi viết test case.</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q5</div>
+      <div class="iq-q">Phân biệt Black-box và White-box Testing?</div>
+      <div class="iq-lv lv-m">Trung bình</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>Black-box:</strong> Không cần biết code. Test dựa trên Input/Output theo requirement. Tester không cần kỹ năng lập trình. Ví dụ: Functional testing, UAT.</p>
+      <p><strong>White-box:</strong> Cần biết cấu trúc code. Test các nhánh, vòng lặp, paths trong code. Yêu cầu kỹ năng lập trình. Ví dụ: Unit testing, Code coverage analysis.</p>
+      <p><strong>Grey-box:</strong> Kết hợp cả hai – biết một phần internal (DB schema, API spec) nhưng test từ góc độ người dùng.</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q6</div>
+      <div class="iq-q">Phân biệt QA và QC? Tester thuộc về nhóm nào?</div>
+      <div class="iq-lv lv-m">Trung bình</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>QA (Quality Assurance):</strong> Proactive, tập trung vào process để ngăn ngừa defect. Ví dụ: xây dựng coding standards, review quy trình phát triển.</p>
+      <p><strong>QC (Quality Control):</strong> Reactive, tập trung vào sản phẩm để tìm defect. Testing là một phần của QC.</p>
+      <p>Trong thực tế, vai trò "QA Engineer" hay "Tester" thường làm cả hai – vừa thực thi test (QC) vừa đề xuất cải thiện quy trình (QA).</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q7</div>
+      <div class="iq-q">Smoke Testing và Sanity Testing khác nhau thế nào?</div>
+      <div class="iq-lv lv-m">Trung bình</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><strong>Smoke Testing:</strong> Kiểm tra nhanh, rộng toàn bộ app sau khi nhận build mới. Mục đích xem build có "stable" đủ để test tiếp không. Ví dụ: "App mở được, login được, các màn hình chính load được."</p>
+      <p><strong>Sanity Testing:</strong> Kiểm tra hẹp, sâu vào một vài tính năng cụ thể sau khi fix bug. Xác nhận fix đúng và không có regression gần đó. Ví dụ: "Sau khi fix bug tính tiền ship, sanity test module checkout."</p>
+      <div class="box tip"><b>💡 Nhớ:</b> Smoke = Broad + Shallow (sau new build). Sanity = Narrow + Deep (sau bug fix).</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q8</div>
+      <div class="iq-q">Pesticide Paradox là gì? Ảnh hưởng thế nào đến công việc tester?</div>
+      <div class="iq-lv lv-m">Trung bình</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>Pesticide Paradox (nguyên tắc thứ 5 của ISTQB): Nếu cùng một bộ test case được thực hiện lặp đi lặp lại, chúng sẽ không tìm ra bug mới. Hệ thống "miễn nhiễm" với test giống như sâu bọ quen thuốc trừ sâu.</p>
+      <p><strong>Giải pháp:</strong> Thường xuyên review và cập nhật test cases; sử dụng exploratory testing; rotate tester giữa các module; phân tích risk để tập trung vào khu vực thay đổi.</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q9</div>
+      <div class="iq-q">Tại sao không thể test toàn bộ (Exhaustive testing)?</div>
+      <div class="iq-lv lv-m">Trung bình</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>Vì số lượng tổ hợp input có thể là vô hạn. Ví dụ: Chỉ riêng ô input "Tên" cho phép 255 ký tự Unicode – số tổ hợp có thể lên đến hàng triệu tỷ.</p>
+      <p>Thay vào đó, tester dùng các kỹ thuật như: Equivalence Partitioning (chia nhóm tương đương), Boundary Value Analysis (test giá trị biên), Risk-based Testing (ưu tiên theo rủi ro).</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q10</div>
+      <div class="iq-q">Mô tả vòng đời của một bug (Bug Life Cycle)?</div>
+      <div class="iq-lv lv-b">Cơ bản</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>New → Assigned → In Progress → Fixed → Retest → Closed (nếu verified OK) hoặc Reopened (nếu vẫn lỗi).</p>
+      <p>Các trạng thái đặc biệt: <strong>Rejected</strong> (dev/PM cho rằng không phải bug hoặc là by design), <strong>Deferred</strong> (lùi sang version/sprint sau), <strong>Duplicate</strong> (đã có bug report tương tự), <strong>Cannot Reproduce</strong> (không thể tái hiện lỗi).</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q11</div>
+      <div class="iq-q">Regression Testing là gì và khi nào cần thực hiện?</div>
+      <div class="iq-lv lv-h">Nâng cao</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>Regression Testing là việc re-test các tính năng cũ sau khi có thay đổi code (bug fix, new feature, refactor) để đảm bảo các tính năng cũ không bị "break".</p>
+      <p><strong>Khi nào cần:</strong> Sau mỗi bug fix; sau mỗi sprint khi có feature mới; trước major release; sau khi merge code từ nhiều nhánh.</p>
+      <p><strong>Trong Agile:</strong> Regression test thường được automation hóa (automation regression suite) và chạy tự động sau mỗi code commit (CI/CD pipeline).</p>
+      <div class="box warn"><b>⚠️ Thách thức:</b> Regression test suite cần maintain thường xuyên – không được để test cũ fail mà không ai fix script.</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q12</div>
+      <div class="iq-q">Trong Agile, tester tham gia vào sprint như thế nào?</div>
+      <div class="iq-lv lv-h">Nâng cao</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>Tester trong Agile không chờ đến cuối sprint mới test. Thay vào đó:</p>
+      <ul>
+        <li><strong>Sprint Planning:</strong> Tham gia để hiểu user stories, đặt câu hỏi về acceptance criteria, xác định testability</li>
+        <li><strong>Trong sprint:</strong> Viết test cases dựa trên user stories, test feature ngay khi dev xong từng story</li>
+        <li><strong>Daily Standup:</strong> Báo cáo blockers về testing, sync với dev về bug đang fix</li>
+        <li><strong>Sprint Review:</strong> Demo kết quả test, báo cáo bug statistics</li>
+        <li><strong>Retrospective:</strong> Đề xuất cải thiện process testing</li>
+      </ul>
+      <div class="box tip"><b>💡 Keyword:</b> "Shift-left testing" – tester tham gia càng sớm càng tốt trong sprint, không phải giai đoạn cuối.</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← Thực hành</button>
+    <button class="pri" onclick="go(4)">Quiz ✅ →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: QUIZ ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>Quiz – 15 câu kiểm tra kiến thức</h2>
+    <p>Chọn đáp án đúng. Kết quả hiển thị sau khi nộp bài.</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">1</span>Mục tiêu CHÍNH của Software Testing là gì?</div>
+    <label class="opt" data-q="1" data-v="A">A. Chứng minh phần mềm hoàn toàn không có lỗi</label>
+    <label class="opt" data-q="1" data-v="B">B. Tìm lỗi và cung cấp thông tin để ra quyết định release</label>
+    <label class="opt" data-q="1" data-v="C">C. Viết automation test scripts</label>
+    <label class="opt" data-q="1" data-v="D">D. Thay thế code review</label>
+    <div class="qz-ex" data-q="1"><b>✅ Đáp án: B</b> – Testing không thể chứng minh hoàn toàn không có lỗi (Nguyên tắc 1 ISTQB). Mục tiêu là tìm lỗi và cung cấp thông tin để stakeholder quyết định.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">2</span>Theo nguyên tắc ISTQB, "Testing shows presence of bugs" có nghĩa là:</div>
+    <label class="opt" data-q="2" data-v="A">A. Testing chứng minh phần mềm có bug</label>
+    <label class="opt" data-q="2" data-v="B">B. Testing có thể xác nhận không còn bug nào</label>
+    <label class="opt" data-q="2" data-v="C">C. Testing chỉ có thể xác nhận sự tồn tại của bug, không thể xác nhận không còn bug</label>
+    <label class="opt" data-q="2" data-v="D">D. Cần test đến khi không tìm thấy bug nào nữa mới dừng</label>
+    <div class="qz-ex" data-q="2"><b>✅ Đáp án: C</b> – Testing có thể chứng minh CÓ bug, nhưng không bao giờ chứng minh KHÔNG CÒN bug. Đây là nền tảng của nguyên tắc 1.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">3</span>Developer viết nhầm công thức tính chiết khấu. Điều này được gọi là:</div>
+    <label class="opt" data-q="3" data-v="A">A. Failure</label>
+    <label class="opt" data-q="3" data-v="B">B. Error</label>
+    <label class="opt" data-q="3" data-v="C">C. Defect</label>
+    <label class="opt" data-q="3" data-v="D">D. Fault</label>
+    <div class="qz-ex" data-q="3"><b>✅ Đáp án: B</b> – Hành động "viết nhầm" là Error (sai lầm của con người). Kết quả của Error trong code là Defect. Khi chạy bị sai là Failure.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">4</span>Giai đoạn nào của STLC tạo ra "Test Plan document"?</div>
+    <label class="opt" data-q="4" data-v="A">A. Requirement Analysis</label>
+    <label class="opt" data-q="4" data-v="B">B. Test Planning</label>
+    <label class="opt" data-q="4" data-v="C">C. Test Case Design</label>
+    <label class="opt" data-q="4" data-v="D">D. Test Execution</label>
+    <div class="qz-ex" data-q="4"><b>✅ Đáp án: B</b> – Test Planning tạo ra Test Plan document (scope, resource, schedule, risk). Requirement Analysis tạo RTM, Test Case Design tạo test cases.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">5</span>Validation trả lời câu hỏi nào?</div>
+    <label class="opt" data-q="5" data-v="A">A. "Chúng ta có đang build đúng cách không?"</label>
+    <label class="opt" data-q="5" data-v="B">B. "Chúng ta có đang build đúng sản phẩm không?"</label>
+    <label class="opt" data-q="5" data-v="C">C. "Code có follow coding standard không?"</label>
+    <label class="opt" data-q="5" data-v="D">D. "Test case có cover hết requirement không?"</label>
+    <div class="qz-ex" data-q="5"><b>✅ Đáp án: B</b> – Validation = "Are we building the right product?" Verification = "Are we building the product right?" (câu A). UAT là ví dụ điển hình của Validation.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">6</span>Black-box testing khác White-box testing ở điểm nào?</div>
+    <label class="opt" data-q="6" data-v="A">A. Black-box chỉ dành cho senior tester, White-box cho junior</label>
+    <label class="opt" data-q="6" data-v="B">B. Black-box không cần biết code nội bộ, White-box test dựa trên cấu trúc code</label>
+    <label class="opt" data-q="6" data-v="C">C. Black-box test manual, White-box test automation</label>
+    <label class="opt" data-q="6" data-v="D">D. Black-box chỉ test UI, White-box chỉ test API</label>
+    <div class="qz-ex" data-q="6"><b>✅ Đáp án: B</b> – Đây là định nghĩa chính xác. Black-box = test từ góc nhìn user dựa trên I/O. White-box = test dựa trên internal code structure (branches, paths).</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">7</span>Pesticide Paradox xảy ra khi nào?</div>
+    <label class="opt" data-q="7" data-v="A">A. Tester bị lây nhiễm bệnh từ bug</label>
+    <label class="opt" data-q="7" data-v="B">B. Cùng một bộ test case chạy lặp lại không tìm ra bug mới</label>
+    <label class="opt" data-q="7" data-v="C">C. Quá nhiều tester làm cùng một dự án</label>
+    <label class="opt" data-q="7" data-v="D">D. Test environment không ổn định</label>
+    <div class="qz-ex" data-q="7"><b>✅ Đáp án: B</b> – Pesticide Paradox (Nguyên tắc 5): chạy cùng test cases hoài sẽ không tìm thêm bug mới. Cần update test cases, dùng exploratory testing.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">8</span>QA (Quality Assurance) tập trung vào:</div>
+    <label class="opt" data-q="8" data-v="A">A. Tìm bug trong sản phẩm (product-focused)</label>
+    <label class="opt" data-q="8" data-v="B">B. Cải thiện quy trình để ngăn bug xảy ra (process-focused)</label>
+    <label class="opt" data-q="8" data-v="C">C. Viết automation scripts</label>
+    <label class="opt" data-q="8" data-v="D">D. Quản lý bug tracker</label>
+    <div class="qz-ex" data-q="8"><b>✅ Đáp án: B</b> – QA = proactive, process-focused, phòng ngừa defect. QC = reactive, product-focused, tìm defect. Testing là một phần của QC.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">9</span>Smoke Testing được thực hiện khi nào?</div>
+    <label class="opt" data-q="9" data-v="A">A. Sau khi fix một bug cụ thể</label>
+    <label class="opt" data-q="9" data-v="B">B. Ngay sau khi nhận build mới để check stability</label>
+    <label class="opt" data-q="9" data-v="C">C. Trước khi viết test cases</label>
+    <label class="opt" data-q="9" data-v="D">D. Chỉ khi release production</label>
+    <div class="qz-ex" data-q="9"><b>✅ Đáp án: B</b> – Smoke test = kiểm tra nhanh build mới có stable không (app có start, login, các trang chính có load). Nếu smoke test fail → reject build, không test tiếp.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">10</span>Bug ở trạng thái "Deferred" nghĩa là:</div>
+    <label class="opt" data-q="10" data-v="A">A. Bug đã được fix</label>
+    <label class="opt" data-q="10" data-v="B">B. Dev cho rằng đây không phải bug</label>
+    <label class="opt" data-q="10" data-v="C">C. Bug bị lùi sang version/sprint sau do priority thấp</label>
+    <label class="opt" data-q="10" data-v="D">D. Không thể tái hiện bug</label>
+    <div class="qz-ex" data-q="10"><b>✅ Đáp án: C</b> – Deferred = lùi lại. Rejected = dev không đồng ý đây là bug. Cannot Reproduce = không tái hiện được. Closed = đã verify xong.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">11</span>Defect Clustering (Nguyên tắc 4) cho rằng:</div>
+    <label class="opt" data-q="11" data-v="A">A. Bug luôn xuất hiện theo cụm, không rải rác</label>
+    <label class="opt" data-q="11" data-v="B">B. ~80% bug tập trung ở ~20% module – test nhiều hơn vào khu vực rủi ro cao</label>
+    <label class="opt" data-q="11" data-v="C">C. Nên tập trung test đều tất cả module</label>
+    <label class="opt" data-q="11" data-v="D">D. Bug không thể dự đoán vị trí</label>
+    <div class="qz-ex" data-q="11"><b>✅ Đáp án: B</b> – Defect Clustering (Pareto principle): 80% bug ở 20% module. Tester nên ưu tiên test các module phức tạp, thay đổi nhiều, hoặc có lịch sử nhiều bug.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">12</span>Giai đoạn nào của STLC tạo ra RTM (Requirement Traceability Matrix)?</div>
+    <label class="opt" data-q="12" data-v="A">A. Test Planning</label>
+    <label class="opt" data-q="12" data-v="B">B. Test Execution</label>
+    <label class="opt" data-q="12" data-v="C">C. Requirement Analysis</label>
+    <label class="opt" data-q="12" data-v="D">D. Test Closure</label>
+    <div class="qz-ex" data-q="12"><b>✅ Đáp án: C</b> – RTM được tạo ra trong Requirement Analysis để map requirements với test cases. RTM đảm bảo mọi requirement đều được cover bởi ít nhất một test case.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">13</span>Điều nào sau đây là ví dụ của NON-FUNCTIONAL testing?</div>
+    <label class="opt" data-q="13" data-v="A">A. Test tính năng đăng ký tài khoản</label>
+    <label class="opt" data-q="13" data-v="B">B. Test app có chịu được 10,000 users cùng lúc không</label>
+    <label class="opt" data-q="13" data-v="C">C. Test luồng đặt hàng end-to-end</label>
+    <label class="opt" data-q="13" data-v="D">D. Test tính năng tìm kiếm sản phẩm</label>
+    <div class="qz-ex" data-q="13"><b>✅ Đáp án: B</b> – Load testing (khả năng chịu tải) là Non-functional testing. A, C, D đều là Functional testing (test chức năng). Non-functional = performance, security, usability, reliability...</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">14</span>Trong Agile, tester nên tham gia vào sprint từ bước nào?</div>
+    <label class="opt" data-q="14" data-v="A">A. Chỉ khi dev hoàn thành code</label>
+    <label class="opt" data-q="14" data-v="B">B. Từ Sprint Planning để hiểu user stories và acceptance criteria</label>
+    <label class="opt" data-q="14" data-v="C">C. Chỉ cuối sprint để test release candidate</label>
+    <label class="opt" data-q="14" data-v="D">D. Không cần tham gia planning, chỉ tập trung execution</label>
+    <div class="qz-ex" data-q="14"><b>✅ Đáp án: B</b> – "Shift-left testing": tester tham gia từ sớm. Sprint Planning giúp tester hiểu yêu cầu, đặt câu hỏi về edge cases, xác định acceptance criteria có testable không.</div>
+  </div>
+
+  <div class="qz">
+    <div class="qz-q"><span class="qn">15</span>Test Pyramid khuyến nghị tỷ lệ nào là lý tưởng?</div>
+    <label class="opt" data-q="15" data-v="A">A. Nhiều E2E/Manual test nhất, ít Unit test nhất</label>
+    <label class="opt" data-q="15" data-v="B">B. Tỷ lệ bằng nhau giữa Unit, Integration và E2E</label>
+    <label class="opt" data-q="15" data-v="C">C. Nhiều Unit test nhất, ít E2E/Manual test nhất</label>
+    <label class="opt" data-q="15" data-v="D">D. Chỉ cần Manual test, không cần Unit test</label>
+    <div class="qz-ex" data-q="15"><b>✅ Đáp án: C</b> – Test Pyramid: Unit tests (~60%) > Integration tests (~30%) > E2E/Manual (~10%). Unit test nhanh, rẻ, reliable. E2E chậm, tốn kém, flaky. Nhiều E2E = anti-pattern "Ice Cream Cone".</div>
+  </div>
+
+  </div><!-- end quiz-area -->
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 Nộp bài & xem kết quả</button>
+    <button class="qbtn rst" onclick="rst()">🔄 Làm lại</button>
+  </div>
+
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">Đang tính...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">Xem giải thích ở từng câu hỏi bên trên</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← Phỏng vấn</button>
+    <button class="pri" disabled>Đã hoàn thành bài học ✓</button>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+// Correct answers
+const ans={1:'B',2:'C',3:'B',4:'B',5:'B',6:'B',7:'B',8:'B',9:'B',10:'C',11:'B',12:'C',13:'B',14:'B',15:'C'};
+
+// Navigation
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+
+// Practice toggle
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'Ẩn gợi ý ›':'Xem gợi ý ›';
+}
+
+// Interview accordion
+function tq(hdr){
+  hdr.parentElement.classList.toggle('o');
+}
+
+// Progress tracking
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{
+    cb.closest('.pt').classList.toggle('done',cb.checked);
+  });
+  if(done===10){
+    document.querySelectorAll('.dot')[2].classList.add('d');
+  }
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+
+function mc(){
+  cbs.forEach(cb=>cb.checked=true);
+  upc();
+}
+
+// Quiz
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ans[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct) o.classList.add('ok');
+      else if(o.classList.contains('sel')) o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex) ex.classList.add('s');
+    if(sel[q]===correct) score++;
+  });
+
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90) msg='🏆 Xuất sắc! Bạn nắm vững kiến thức nền tảng Testing.';
+  else if(pct>=70) msg='✅ Tốt! Ôn lại các câu sai trước khi qua bài tiếp.';
+  else if(pct>=50) msg='📚 Khá. Cần đọc lại lý thuyết và làm thêm thực hành.';
+  else msg='💪 Cần cố gắng thêm. Đọc kỹ lại Panel Lý thuyết nhé!';
+  document.getElementById('qmsg').textContent=msg;
+
+  if(score>=12) document.querySelectorAll('.dot')[4].classList.add('d');
+
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'tester-s1d1'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

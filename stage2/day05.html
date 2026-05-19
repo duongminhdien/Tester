@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linux Day 05 · 连接查询 / 自关联 / 子查询</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+:root{
+  --day:#059669;
+  --day-d:#047857;
+  --day-bg:rgba(5,150,105,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);line-height:1.75;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(5,150,105,.25)}
+.hd-tag{display:inline-block;font-size:11px;background:rgba(255,255,255,.22);padding:4px 10px;border-radius:20px;font-weight:600;letter-spacing:.05em;margin-bottom:10px}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:6px;line-height:1.4}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.92}
+.hd-stats b{font-family:'Space Mono',monospace;font-weight:700;margin-right:4px}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t:hover{background:var(--day-bg);color:var(--day-d)}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(5,150,105,.4)}
+
+/* Panel */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sec card */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{font-size:13.5px;color:var(--ink2);margin-bottom:10px}
+.sec ul{margin-left:22px;margin-bottom:10px}
+.sec li{margin-bottom:6px;font-size:13.5px;color:var(--ink2)}
+
+/* Terminal/Code Block */
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .r{color:#f07178}
+.term .w{color:#fff;font-weight:600}
+.term .n{color:#f78c6c}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+/* Box */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box b{font-weight:700}
+
+/* Table */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+td code{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 5px;border-radius:3px;font-size:12px;font-weight:600}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p,.card .d{font-size:12.5px;color:var(--ink2);line-height:1.6}
+
+/* Venn Diagrams */
+.venn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:14px 0}
+.venn-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.venn-item h4{font-size:14px;font-weight:700;color:var(--day-d);margin-bottom:10px}
+.venn-svg{width:100%;max-width:200px;height:140px;margin:0 auto}
+.venn-desc{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+.iq-body p{margin:8px 0}
+.iq-body ul{margin:6px 0 6px 22px}
+.iq-body li{margin:4px 0}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+.qbtn{background:var(--day);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;margin-top:10px;box-shadow:0 4px 12px rgba(5,150,105,.3);transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px)}
+.qbtn.gr{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,.3)}
+.qbtn.gr:hover{background:#475569}
+.qz-sum{display:none;padding:18px;border-radius:12px;margin-top:14px;align-items:center;gap:18px;flex-wrap:wrap}
+.qz-sum.s{display:flex}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+.pt-ans .c{color:#c3e88d}
+.pt-ans .o{color:#f78c6c}
+.pt-ans .s{color:#ffcb6b}
+.pt-ans .g{color:#676e95}
+.pt-ans .k{color:#c792ea}
+
+/* Done bar */
+.done-bar{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid var(--green);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:18px;flex-wrap:wrap}
+.done-bar .txt{flex:1;font-size:13px;color:#15803d;line-height:1.5;min-width:200px}
+.done-bar .txt b{font-weight:700}
+.done-bar button{background:var(--green);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:all .2s}
+.done-bar button:hover{background:#15803d}
+.done-bar button.dn{background:#94a3b8;cursor:default}
+
+/* Page Nav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .qbtn{padding:11px 18px;font-size:13px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .venn-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 2 · LINUX DAY 05</div>
+  <h1>连接查询 / 自关联 / 子查询</h1>
+  <p>掌握 JOIN、自关联和子查询，打通多表查询任督二脉 — INNER/LEFT/RIGHT JOIN、自连接层级结构、子查询作条件和数据源</p>
+  <div class="hd-stats">
+    <div><b>3</b>种JOIN</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+
+<!-- Panel 0: 知识讲解 -->
+<div class="pan a">
+
+<div class="sec">
+  <h2><span class="ico">1</span>连接查询概述</h2>
+  <p>在关系型数据库中，数据通常分散在多个表中。<strong>连接查询</strong>（JOIN）用于将多个表的数据组合在一起，根据表之间的关联关系查询出我们需要的结果。</p>
+  
+  <div class="tw">
+    <table>
+      <tr>
+        <th>连接类型</th>
+        <th>说明</th>
+        <th>关键字</th>
+        <th>特点</th>
+      </tr>
+      <tr>
+        <td><strong>内连接</strong></td>
+        <td>查询两个表的交集数据</td>
+        <td><code>INNER JOIN</code></td>
+        <td>只返回匹配的记录</td>
+      </tr>
+      <tr>
+        <td><strong>左连接</strong></td>
+        <td>左表全部 + 右表匹配部分</td>
+        <td><code>LEFT JOIN</code></td>
+        <td>右表不匹配用 NULL 填充</td>
+      </tr>
+      <tr>
+        <td><strong>右连接</strong></td>
+        <td>右表全部 + 左表匹配部分</td>
+        <td><code>RIGHT JOIN</code></td>
+        <td>左表不匹配用 NULL 填充</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="box tip">
+    <b>💡 记忆技巧</b><br>
+    • 内连接 = 取交集（只要共同部分）<br>
+    • 左连接 = 左表为主（左表全要，右表配合）<br>
+    • 右连接 = 右表为主（右表全要，左表配合）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>内连接 INNER JOIN</h2>
+  <p>内连接返回两个表中满足连接条件的记录，即<strong>两个表都存在的数据</strong>。</p>
+
+  <h3>语法格式</h3>
+  <div class="term">
+<span class="k">SELECT</span> * <span class="k">FROM</span> 表1 
+<span class="k">INNER JOIN</span> 表2 
+<span class="k">ON</span> 表1.列 <span class="o">=</span> 表2.列;
+
+<span class="g">-- 可以使用别名简化</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students <span class="k">AS</span> stu
+<span class="k">INNER JOIN</span> scores <span class="k">AS</span> sc
+<span class="k">ON</span> stu.studentNo <span class="o">=</span> sc.studentNo;
+  </div>
+
+  <h3>实战示例</h3>
+  <div class="term">
+<span class="g">-- 查询学生信息及成绩</span>
+<span class="k">SELECT</span> stu.name, stu.age, sc.courseNo, sc.score
+<span class="k">FROM</span> students stu
+<span class="k">INNER JOIN</span> scores sc
+<span class="k">ON</span> stu.studentNo <span class="o">=</span> sc.studentNo;
+
+<span class="g">-- 连接三个表：学生+成绩+课程</span>
+<span class="k">SELECT</span> stu.name, co.name <span class="k">AS</span> course_name, sc.score
+<span class="k">FROM</span> students stu
+<span class="k">INNER JOIN</span> scores sc <span class="k">ON</span> stu.studentNo <span class="o">=</span> sc.studentNo
+<span class="k">INNER JOIN</span> courses co <span class="k">ON</span> sc.courseNo <span class="o">=</span> co.courseNo;
+  </div>
+
+  <div class="box info">
+    <b>⚠️ 注意事项</b><br>
+    • 表的别名可以省略 AS 关键字<br>
+    • ON 后面指定的是连接条件（通常是外键关系）<br>
+    • 可以连接多个表，但要注意性能问题<br>
+    • WHERE 条件在 ON 之后添加
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>左连接 LEFT JOIN</h2>
+  <p>左连接返回<strong>左表的所有记录</strong>，即使右表中没有匹配的记录。右表中不存在的数据用 NULL 填充。</p>
+
+  <h3>语法格式</h3>
+  <div class="term">
+<span class="k">SELECT</span> * <span class="k">FROM</span> 表1
+<span class="k">LEFT JOIN</span> 表2
+<span class="k">ON</span> 表1.列 <span class="o">=</span> 表2.列;
+  </div>
+
+  <h3>实战示例</h3>
+  <div class="term">
+<span class="g">-- 查询所有学生的成绩，包括没有成绩的学生</span>
+<span class="k">SELECT</span> stu.name, sc.courseNo, sc.score
+<span class="k">FROM</span> students stu
+<span class="k">LEFT JOIN</span> scores sc
+<span class="k">ON</span> stu.studentNo <span class="o">=</span> sc.studentNo;
+
+<span class="g">-- 结果：所有学生都会显示，没有成绩的学生 score 字段为 NULL</span>
+  </div>
+
+  <div class="box ok">
+    <b>✅ 使用场景</b><br>
+    • 统计所有部门的员工数量（包括没有员工的部门）<br>
+    • 查询所有课程的选课情况（包括没人选的课程）<br>
+    • 查找数据缺失的情况（WHERE 右表字段 IS NULL）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>右连接 RIGHT JOIN</h2>
+  <p>右连接返回<strong>右表的所有记录</strong>，即使左表中没有匹配的记录。左表中不存在的数据用 NULL 填充。</p>
+
+  <div class="term">
+<span class="g">-- 查询所有课程的学生成绩，包括没有学生选的课程</span>
+<span class="k">SELECT</span> co.name <span class="k">AS</span> course_name, stu.name, sc.score
+<span class="k">FROM</span> scores sc
+<span class="k">RIGHT JOIN</span> courses co
+<span class="k">ON</span> sc.courseNo <span class="o">=</span> co.courseNo
+<span class="k">LEFT JOIN</span> students stu
+<span class="k">ON</span> sc.studentNo <span class="o">=</span> stu.studentNo;
+  </div>
+
+  <div class="box tip">
+    <b>💡 提示</b><br>
+    右连接可以改写成左连接，只需交换表的位置即可。实际开发中，<strong>左连接使用更频繁</strong>。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>自关联</h2>
+  <p><strong>自关联</strong>是指同一张表与自己进行连接查询。通常用于表中存在<strong>层级关系</strong>的场景。</p>
+
+  <h3>应用场景</h3>
+  <div class="g3">
+    <div class="card">
+      <h4><span class="num">1</span>地区表</h4>
+      <p>省、市、区在同一张表中，通过 pid 字段关联</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">2</span>分类表</h4>
+      <p>一级分类、二级分类在同一张表</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">3</span>组织架构</h4>
+      <p>员工表中包含上级领导 ID</p>
+    </div>
+  </div>
+
+  <h3>示例：地区表</h3>
+  <div class="term">
+<span class="g">-- 表结构：areas(aid, atitle, pid)</span>
+<span class="g">-- aid=130000, atitle='河北省', pid=NULL</span>
+<span class="g">-- aid=130100, atitle='石家庄市', pid=130000</span>
+
+<span class="g">-- 查询河北省下的所有城市</span>
+<span class="k">SELECT</span> a2.aid, a2.atitle <span class="k">AS</span> city_name
+<span class="k">FROM</span> areas <span class="k">AS</span> a1
+<span class="k">INNER JOIN</span> areas <span class="k">AS</span> a2
+<span class="k">ON</span> a1.aid <span class="o">=</span> a2.pid
+<span class="k">WHERE</span> a1.atitle <span class="o">=</span> <span class="s">'河北省'</span>;
+  </div>
+
+  <div class="box danger">
+    <b>⚠️ 重点</b><br>
+    自关联<strong>必须使用别名</strong>，否则数据库无法区分是哪个表的字段。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>子查询</h2>
+  <p><strong>子查询</strong>是指将一个 SELECT 查询嵌套在另一个 SQL 语句中。子查询可以充当<strong>条件</strong>或<strong>数据源</strong>。</p>
+
+  <h3>1. 子查询充当条件</h3>
+  <div class="term">
+<span class="g">-- 标量子查询（返回单个值）</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students
+<span class="k">WHERE</span> age <span class="o">></span> (<span class="k">SELECT</span> <span class="k">AVG</span>(age) <span class="k">FROM</span> students);
+
+<span class="g">-- 列子查询（返回一列）</span>
+<span class="k">SELECT</span> score <span class="k">FROM</span> scores
+<span class="k">WHERE</span> studentNo <span class="k">IN</span> (
+    <span class="k">SELECT</span> studentNo <span class="k">FROM</span> students 
+    <span class="k">WHERE</span> age <span class="o">=</span> <span class="n">18</span>
+);
+
+<span class="g">-- 行子查询（返回一行多列）</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students
+<span class="k">WHERE</span> (class, age) <span class="o">=</span> (
+    <span class="k">SELECT</span> class, age <span class="k">FROM</span> students 
+    <span class="k">WHERE</span> name <span class="o">=</span> <span class="s">'王昭君'</span>
+);
+  </div>
+
+  <h3>2. 子查询充当数据源</h3>
+  <div class="term">
+<span class="g">-- 表子查询：子查询结果作为临时表</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> scores <span class="k">AS</span> sc
+<span class="k">INNER JOIN</span> (
+    <span class="k">SELECT</span> * <span class="k">FROM</span> courses 
+    <span class="k">WHERE</span> name <span class="k">IN</span> (<span class="s">'数据库'</span>, <span class="s">'系统测试'</span>)
+) <span class="k">AS</span> co
+<span class="k">ON</span> sc.courseNo <span class="o">=</span> co.courseNo;
+  </div>
+
+  <h3>特定关键字</h3>
+  <div class="tw">
+    <table>
+      <tr>
+        <th>关键字</th>
+        <th>说明</th>
+        <th>等价于</th>
+      </tr>
+      <tr>
+        <td><code>IN</code></td>
+        <td>在...之中</td>
+        <td>= ANY</td>
+      </tr>
+      <tr>
+        <td><code>ANY</code></td>
+        <td>任意一个</td>
+        <td>IN</td>
+      </tr>
+      <tr>
+        <td><code>SOME</code></td>
+        <td>ANY的别名</td>
+        <td>IN / ANY</td>
+      </tr>
+      <tr>
+        <td><code>NOT IN</code></td>
+        <td>不在...之中</td>
+        <td>!= ALL</td>
+      </tr>
+      <tr>
+        <td><code>ALL</code></td>
+        <td>所有</td>
+        <td>与 != 组合等于 NOT IN</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="box info">
+    <b>📌 子查询优化建议</b><br>
+    • 简单情况优先使用 JOIN 而非子查询（性能更好）<br>
+    • 避免在 WHERE 中使用相关子查询（每行都执行一次）<br>
+    • 子查询结果集较大时，考虑建立临时表<br>
+    • 使用 EXISTS 代替 IN（当子查询数据量大时）
+  </div>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+
+</div>
+
+
+<!-- Panel 1: 图解演示 -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">🎨</span>连接查询可视化</h2>
+  <p>通过韦恩图直观理解三种 JOIN 的区别：</p>
+
+  <div class="venn-grid">
+    <div class="venn-item">
+      <h4>内连接 INNER JOIN</h4>
+      <svg class="venn-svg" viewBox="0 0 200 120">
+        <circle cx="60" cy="60" r="40" fill="#059669" opacity="0.6"/>
+        <circle cx="140" cy="60" r="40" fill="#059669" opacity="0.6"/>
+        <text x="100" y="65" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14">交集</text>
+        <text x="35" y="25" fill="#64748b" font-size="11">表A</text>
+        <text x="155" y="25" fill="#64748b" font-size="11">表B</text>
+      </svg>
+      <p class="venn-desc">只返回两表共同的数据</p>
+    </div>
+
+    <div class="venn-item">
+      <h4>左连接 LEFT JOIN</h4>
+      <svg class="venn-svg" viewBox="0 0 200 120">
+        <circle cx="60" cy="60" r="40" fill="#059669" opacity="0.8"/>
+        <circle cx="140" cy="60" r="40" fill="#059669" opacity="0.3"/>
+        <text x="45" y="65" text-anchor="middle" fill="#fff" font-weight="bold" font-size="13">左表</text>
+        <text x="35" y="25" fill="#64748b" font-size="11">表A</text>
+        <text x="155" y="25" fill="#64748b" font-size="11">表B</text>
+      </svg>
+      <p class="venn-desc">左表全部 + 右表匹配部分</p>
+    </div>
+
+    <div class="venn-item">
+      <h4>右连接 RIGHT JOIN</h4>
+      <svg class="venn-svg" viewBox="0 0 200 120">
+        <circle cx="60" cy="60" r="40" fill="#059669" opacity="0.3"/>
+        <circle cx="140" cy="60" r="40" fill="#059669" opacity="0.8"/>
+        <text x="155" y="65" text-anchor="middle" fill="#fff" font-weight="bold" font-size="13">右表</text>
+        <text x="35" y="25" fill="#64748b" font-size="11">表A</text>
+        <text x="155" y="25" fill="#64748b" font-size="11">表B</text>
+      </svg>
+      <p class="venn-desc">右表全部 + 左表匹配部分</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">🌳</span>自关联演示：省市关系树</h2>
+  <p>展示河北省下的城市结构（自关联查询结果）：</p>
+
+  <div class="box ok">
+    <b>河北省</b> (aid: 130000, pid: NULL)<br>
+    <div style="margin-left:20px;margin-top:8px;line-height:2">
+      → 石家庄市 (aid: 130100, pid: 130000)<br>
+      → 邯郸市 (aid: 130400, pid: 130000)<br>
+      → 保定市 (aid: 130600, pid: 130000)<br>
+      → 张家口市 (aid: 130700, pid: 130000)<br>
+      → 承德市 (aid: 130800, pid: 130000)
+    </div>
+  </div>
+
+  <h3>对应 SQL 语句</h3>
+  <div class="term">
+<span class="k">SELECT</span> a2.aid, a2.atitle, a2.pid
+<span class="k">FROM</span> areas <span class="k">AS</span> a1
+<span class="k">INNER JOIN</span> areas <span class="k">AS</span> a2
+<span class="k">ON</span> a1.aid <span class="o">=</span> a2.pid
+<span class="k">WHERE</span> a1.atitle <span class="o">=</span> <span class="s">'河北省'</span>;
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">📊</span>子查询执行流程</h2>
+  <p>理解子查询的执行顺序和数据流向：</p>
+
+  <div class="box info">
+    <b>示例：查询成绩高于平均分的学生</b>
+  </div>
+
+  <div class="term">
+<span class="k">SELECT</span> name, score 
+<span class="k">FROM</span> students stu
+<span class="k">INNER JOIN</span> scores sc <span class="k">ON</span> stu.studentNo <span class="o">=</span> sc.studentNo
+<span class="k">WHERE</span> score <span class="o">></span> (<span class="k">SELECT</span> <span class="k">AVG</span>(score) <span class="k">FROM</span> scores);
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <h4><span class="num">1</span>执行子查询</h4>
+      <p>先执行 <code class="inl">SELECT AVG(score) FROM scores</code><br>假设结果 = 80</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">2</span>代入主查询</h4>
+      <p>将结果代入主查询<br><code class="inl">WHERE score > 80</code></p>
+    </div>
+    <div class="card">
+      <h4><span class="num">3</span>执行主查询</h4>
+      <p>返回分数大于 80 的学生信息</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">🔍</span>JOIN vs 子查询性能对比</h2>
+  
+  <div class="tw">
+    <table>
+      <tr>
+        <th>场景</th>
+        <th>推荐方式</th>
+        <th>原因</th>
+      </tr>
+      <tr>
+        <td>简单的多表关联</td>
+        <td>JOIN</td>
+        <td>性能更好，优化器可以优化执行计划</td>
+      </tr>
+      <tr>
+        <td>需要聚合函数结果作为条件</td>
+        <td>子查询</td>
+        <td>逻辑更清晰，易于理解</td>
+      </tr>
+      <tr>
+        <td>EXISTS 判断存在性</td>
+        <td>子查询 + EXISTS</td>
+        <td>找到第一条就停止，效率高</td>
+      </tr>
+      <tr>
+        <td>IN 大量数据</td>
+        <td>JOIN</td>
+        <td>避免 IN 子查询的性能问题</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="box tip">
+    <b>💡 优化建议</b><br>
+    • 小数据集（< 1000行）：两者性能差异不大<br>
+    • 大数据集：优先使用 JOIN，避免相关子查询<br>
+    • 使用 EXPLAIN 分析执行计划，选择更优方案
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+
+</div>
+
+<!-- Panel 2: 实战练习 -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">🛠️</span>实战练习</h2>
+  <p>基于以下表结构完成查询练习。点击"查看答案"展示 SQL 语句。</p>
+
+  <div class="box info">
+    <b>📋 表结构说明</b><br>
+    • <code class="inl">student</code>: 学生表 (sno, sname, ssex, sbirthday, class)<br>
+    • <code class="inl">teacher</code>: 教师表 (tno, tname, tsex, tbirthday, prof, depart)<br>
+    • <code class="inl">course</code>: 课程表 (cno, cname, tno)<br>
+    • <code class="inl">score</code>: 成绩表 (sno, cno, degree)
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p1">
+  <div class="pt-body">
+    <div class="pt-t">1. 查询 Student 表中所有记录的 Sname、Ssex 和 Class 列</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> sname, ssex, class <span class="k">FROM</span> student;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p2">
+  <div class="pt-body">
+    <div class="pt-t">2. 查询教师所有的单位即不重复的 Depart 列</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT DISTINCT</span> depart <span class="k">FROM</span> teacher;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p3">
+  <div class="pt-body">
+    <div class="pt-t">3. 查询 Score 表中成绩在 60 到 80 之间的所有记录</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> * <span class="k">FROM</span> score 
+<span class="k">WHERE</span> degree <span class="o">>=</span> <span class="n">60</span> <span class="k">AND</span> degree <span class="o"><=</span> <span class="n">80</span>;
+
+<span class="g">-- 或使用 BETWEEN</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> score 
+<span class="k">WHERE</span> degree <span class="k">BETWEEN</span> <span class="n">60</span> <span class="k">AND</span> <span class="n">80</span>;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p4">
+  <div class="pt-body">
+    <div class="pt-t">4. 查询 Score 表中的最高分的学生学号和课程号（子查询或排序）</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="g">-- 方法1：子查询</span>
+<span class="k">SELECT</span> sno, cno <span class="k">FROM</span> score
+<span class="k">WHERE</span> degree <span class="o">=</span> (<span class="k">SELECT MAX</span>(degree) <span class="k">FROM</span> score);
+
+<span class="g">-- 方法2：排序 + LIMIT</span>
+<span class="k">SELECT</span> sno, cno <span class="k">FROM</span> score
+<span class="k">ORDER BY</span> degree <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="n">1</span>;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p5">
+  <div class="pt-body">
+    <div class="pt-t">5. 查询每门课的平均成绩</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> co.cno, co.cname, <span class="k">AVG</span>(sc.degree) <span class="k">AS</span> avg_score
+<span class="k">FROM</span> course co
+<span class="k">INNER JOIN</span> score sc <span class="k">ON</span> co.cno <span class="o">=</span> sc.cno
+<span class="k">GROUP BY</span> co.cno, co.cname;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p6">
+  <div class="pt-body">
+    <div class="pt-t">6. 查询所有学生的 Sname、Cno 和 Degree 列</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> st.sname, sc.cno, sc.degree
+<span class="k">FROM</span> student st
+<span class="k">INNER JOIN</span> score sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p7">
+  <div class="pt-body">
+    <div class="pt-t">7. 查询所有学生的 Sno、Cname 和 Degree 列</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> st.sno, co.cname, sc.degree
+<span class="k">FROM</span> student st
+<span class="k">INNER JOIN</span> score sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+<span class="k">INNER JOIN</span> course co <span class="k">ON</span> sc.cno <span class="o">=</span> co.cno;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p8">
+  <div class="pt-body">
+    <div class="pt-t">8. 查询"95031"班学生的平均分</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT AVG</span>(sc.degree) <span class="k">AS</span> avg_score
+<span class="k">FROM</span> student st
+<span class="k">INNER JOIN</span> score sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+<span class="k">WHERE</span> st.class <span class="o">=</span> <span class="s">'95031'</span>;
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p9">
+  <div class="pt-body">
+    <div class="pt-t">9. 查询选修"3-105"课程的成绩高于"109"号同学成绩的所有同学记录</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> * <span class="k">FROM</span> student st
+<span class="k">INNER JOIN</span> score sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+<span class="k">WHERE</span> sc.cno <span class="o">=</span> <span class="s">'3-105'</span>
+  <span class="k">AND</span> sc.degree <span class="o">></span> (
+    <span class="k">SELECT MAX</span>(degree) <span class="k">FROM</span> score
+    <span class="k">WHERE</span> sno <span class="o">=</span> <span class="s">'109'</span> <span class="k">AND</span> cno <span class="o">=</span> <span class="s">'3-105'</span>
+  );
+    </div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p10">
+  <div class="pt-body">
+    <div class="pt-t">10. 查询成绩高于学号为"109"、课程号为"3-105"的成绩的所有记录</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+<span class="k">SELECT</span> * <span class="k">FROM</span> student st
+<span class="k">INNER JOIN</span> score sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+<span class="k">WHERE</span> sc.degree <span class="o">></span> (
+    <span class="k">SELECT MAX</span>(degree) <span class="k">FROM</span> score
+    <span class="k">WHERE</span> sno <span class="o">=</span> <span class="s">'109'</span> <span class="k">AND</span> cno <span class="o">=</span> <span class="s">'3-105'</span>
+);
+    </div>
+  </div>
+</div>
+
+<div class="done-bar">
+  <div class="txt">已完成 <b id="pc">0</b>/10 练习题</div>
+  <button onclick="mc()">✓ 全部标记完成</button>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+
+</div>
+
+
+<!-- Panel 3: 面试精讲 -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">💬</span>面试精讲</h2>
+  <p>掌握连接查询、自关联和子查询的常见面试问题。</p>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">什么是内连接？它与外连接有什么区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>内连接（INNER JOIN）：</strong>只返回两个表中满足连接条件的记录，即两个表的交集。</p>
+    <p><strong>外连接：</strong>包括左连接（LEFT JOIN）和右连接（RIGHT JOIN），除了返回匹配的记录外，还会返回某一侧表的所有记录，不匹配的部分用 NULL 填充。</p>
+    <p><strong>区别：</strong></p>
+    <ul>
+      <li>内连接：只要交集</li>
+      <li>左连接：左表全要 + 交集</li>
+      <li>右连接：右表全要 + 交集</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">什么场景下需要使用自关联？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>自关联</strong>用于同一张表内存在层级关系或上下级关系的场景：</p>
+    <ul>
+      <li><strong>地区表：</strong>省、市、区在同一张表，通过 pid 关联</li>
+      <li><strong>员工表：</strong>员工与上级领导在同一张表</li>
+      <li><strong>分类表：</strong>一级分类、二级分类在同一张表</li>
+      <li><strong>评论表：</strong>评论与回复在同一张表</li>
+    </ul>
+    <p><strong>要点：</strong>必须使用别名区分同一张表的不同角色。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">子查询有哪几种类型？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>按返回结果分类：</strong></p>
+    <ul>
+      <li><strong>标量子查询：</strong>返回单个值（如 AVG、MAX、COUNT）</li>
+      <li><strong>列子查询：</strong>返回一列多行（常与 IN、ANY、ALL 配合）</li>
+      <li><strong>行子查询：</strong>返回一行多列（与多个字段同时比较）</li>
+      <li><strong>表子查询：</strong>返回多行多列（作为临时表使用）</li>
+    </ul>
+    <p><strong>按位置分类：</strong></p>
+    <ul>
+      <li>WHERE 子查询：作为条件</li>
+      <li>FROM 子查询：作为数据源</li>
+      <li>SELECT 子查询：作为查询字段（少用）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">LEFT JOIN 和 RIGHT JOIN 可以互相转换吗？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>可以！</strong>只需交换表的位置即可：</p>
+    <div class="term">
+<span class="g">-- 这两条 SQL 结果相同</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students <span class="k">LEFT JOIN</span> scores <span class="k">ON</span> ...
+<span class="k">SELECT</span> * <span class="k">FROM</span> scores <span class="k">RIGHT JOIN</span> students <span class="k">ON</span> ...
+    </div>
+    <p><strong>实际开发建议：</strong>优先使用 LEFT JOIN，代码可读性更好，团队统一标准。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">如何找出没有成绩的学生？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>使用 <strong>LEFT JOIN + IS NULL</strong> 组合：</p>
+    <div class="term">
+<span class="k">SELECT</span> st.sno, st.sname
+<span class="k">FROM</span> students st
+<span class="k">LEFT JOIN</span> scores sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+<span class="k">WHERE</span> sc.sno <span class="k">IS NULL</span>;
+    </div>
+    <p><strong>原理：</strong>左连接会保留左表所有数据，没有成绩的学生在右表字段为 NULL。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">IN 和 EXISTS 有什么区别？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw">
+      <table>
+        <tr>
+          <th>对比项</th>
+          <th>IN</th>
+          <th>EXISTS</th>
+        </tr>
+        <tr>
+          <td>执行方式</td>
+          <td>先执行子查询，返回完整结果集</td>
+          <td>逐行判断，找到即停止</td>
+        </tr>
+        <tr>
+          <td>适用场景</td>
+          <td>子查询数据量小</td>
+          <td>子查询数据量大</td>
+        </tr>
+        <tr>
+          <td>性能</td>
+          <td>子查询大时慢</td>
+          <td>短路机制，效率高</td>
+        </tr>
+      </table>
+    </div>
+    <div class="term" style="margin-top:10px">
+<span class="g">-- IN：查询选过课的学生</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students
+<span class="k">WHERE</span> sno <span class="k">IN</span> (<span class="k">SELECT</span> sno <span class="k">FROM</span> scores);
+
+<span class="g">-- EXISTS：同样功能，大数据时更快</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students st
+<span class="k">WHERE EXISTS</span> (<span class="k">SELECT</span> <span class="n">1</span> <span class="k">FROM</span> scores sc <span class="k">WHERE</span> sc.sno <span class="o">=</span> st.sno);
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">多表 JOIN 时，ON 和 WHERE 的区别是什么？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>核心区别：</strong>执行时机不同！</p>
+    <ul>
+      <li><strong>ON：</strong>在连接时过滤（先过滤再连接）</li>
+      <li><strong>WHERE：</strong>在连接后过滤（先连接再过滤）</li>
+    </ul>
+    <p><strong>对 INNER JOIN：</strong>两者效果相同</p>
+    <p><strong>对 LEFT/RIGHT JOIN：</strong>ON 影响右表，WHERE 影响结果集</p>
+    <div class="term">
+<span class="g">-- 这两条 SQL 在 LEFT JOIN 时结果不同！</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students st
+<span class="k">LEFT JOIN</span> scores sc <span class="k">ON</span> st.sno<span class="o">=</span>sc.sno <span class="k">AND</span> sc.score<span class="o">></span><span class="n">80</span>;
+<span class="g">-- 结果：所有学生都显示，分数≤80的成绩字段为NULL</span>
+
+<span class="k">SELECT</span> * <span class="k">FROM</span> students st
+<span class="k">LEFT JOIN</span> scores sc <span class="k">ON</span> st.sno<span class="o">=</span>sc.sno
+<span class="k">WHERE</span> sc.score<span class="o">></span><span class="n">80</span>;
+<span class="g">-- 结果：只显示分数>80的学生（没有成绩的学生被过滤）</span>
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">如何优化包含子查询的慢查询？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>优化策略：</strong></p>
+    <ul>
+      <li><strong>用 JOIN 替代子查询：</strong>大部分情况下 JOIN 性能更好</li>
+      <li><strong>避免相关子查询：</strong>每行都执行一次，性能极差</li>
+      <li><strong>使用 EXISTS 替代 IN：</strong>子查询数据量大时</li>
+      <li><strong>建立索引：</strong>子查询关联字段加索引</li>
+      <li><strong>使用临时表：</strong>复杂子查询先存临时表</li>
+    </ul>
+    <div class="term">
+<span class="g">-- ❌ 慢：相关子查询（每行执行一次）</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students st
+<span class="k">WHERE</span> (<span class="k">SELECT COUNT</span>(*) <span class="k">FROM</span> scores sc <span class="k">WHERE</span> sc.sno<span class="o">=</span>st.sno) <span class="o">></span> <span class="n">5</span>;
+
+<span class="g">-- ✅ 快：改用 JOIN + GROUP BY</span>
+<span class="k">SELECT</span> st.* <span class="k">FROM</span> students st
+<span class="k">INNER JOIN</span> scores sc <span class="k">ON</span> st.sno<span class="o">=</span>sc.sno
+<span class="k">GROUP BY</span> st.sno
+<span class="k">HAVING COUNT</span>(*) <span class="o">></span> <span class="n">5</span>;
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">如何查询选修了全部课程的学生？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>方法1：</strong>分组统计 + 子查询</p>
+    <div class="term">
+<span class="k">SELECT</span> st.sno, st.sname
+<span class="k">FROM</span> students st
+<span class="k">INNER JOIN</span> scores sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+<span class="k">GROUP BY</span> st.sno, st.sname
+<span class="k">HAVING COUNT</span>(<span class="k">DISTINCT</span> sc.cno) <span class="o">=</span> (<span class="k">SELECT COUNT</span>(*) <span class="k">FROM</span> courses);
+    </div>
+    <p><strong>方法2：</strong>双重否定（没有他没选的课）</p>
+    <div class="term">
+<span class="k">SELECT</span> * <span class="k">FROM</span> students st
+<span class="k">WHERE NOT EXISTS</span> (
+  <span class="k">SELECT</span> * <span class="k">FROM</span> courses co
+  <span class="k">WHERE NOT EXISTS</span> (
+    <span class="k">SELECT</span> * <span class="k">FROM</span> scores sc 
+    <span class="k">WHERE</span> sc.sno<span class="o">=</span>st.sno <span class="k">AND</span> sc.cno<span class="o">=</span>co.cno
+  )
+);
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">ANY、ALL、SOME 的区别是什么？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw">
+      <table>
+        <tr>
+          <th>关键字</th>
+          <th>含义</th>
+          <th>等价</th>
+        </tr>
+        <tr>
+          <td><code>= ANY</code></td>
+          <td>等于任意一个</td>
+          <td>IN</td>
+        </tr>
+        <tr>
+          <td><code>!= ALL</code></td>
+          <td>不等于所有</td>
+          <td>NOT IN</td>
+        </tr>
+        <tr>
+          <td><code>SOME</code></td>
+          <td>ANY 的别名</td>
+          <td>ANY</td>
+        </tr>
+        <tr>
+          <td><code>> ANY</code></td>
+          <td>大于最小值</td>
+          <td>> MIN()</td>
+        </tr>
+        <tr>
+          <td><code>> ALL</code></td>
+          <td>大于最大值</td>
+          <td>> MAX()</td>
+        </tr>
+      </table>
+    </div>
+    <div class="term" style="margin-top:10px">
+<span class="g">-- 查询比任意一个男生年龄大的女生</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> students
+<span class="k">WHERE</span> sex<span class="o">=</span><span class="s">'女'</span> <span class="k">AND</span> age <span class="o">></span> <span class="k">ANY</span>(<span class="k">SELECT</span> age <span class="k">FROM</span> students <span class="k">WHERE</span> sex<span class="o">=</span><span class="s">'男'</span>);
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">如何实现排名查询（每个班级成绩前3名）？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><strong>MySQL 8.0+ 使用窗口函数：</strong></p>
+    <div class="term">
+<span class="k">SELECT</span> * <span class="k">FROM</span> (
+  <span class="k">SELECT</span> st.class, st.sname, sc.score,
+    <span class="k">ROW_NUMBER() OVER</span>(<span class="k">PARTITION BY</span> st.class <span class="k">ORDER BY</span> sc.score <span class="k">DESC</span>) <span class="k">AS</span> rank
+  <span class="k">FROM</span> students st
+  <span class="k">INNER JOIN</span> scores sc <span class="k">ON</span> st.sno <span class="o">=</span> sc.sno
+) <span class="k">AS</span> ranked
+<span class="k">WHERE</span> rank <span class="o"><=</span> <span class="n">3</span>;
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">UNION 和 JOIN 有什么区别？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw">
+      <table>
+        <tr>
+          <th>对比项</th>
+          <th>JOIN</th>
+          <th>UNION</th>
+        </tr>
+        <tr>
+          <td>方向</td>
+          <td>横向合并（增加列）</td>
+          <td>纵向合并（增加行）</td>
+        </tr>
+        <tr>
+          <td>数据来源</td>
+          <td>多个表</td>
+          <td>多个查询结果</td>
+        </tr>
+        <tr>
+          <td>列数要求</td>
+          <td>无要求</td>
+          <td>列数必须相同</td>
+        </tr>
+        <tr>
+          <td>去重</td>
+          <td>不去重</td>
+          <td>UNION去重，UNION ALL不去重</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+
+</div>
+
+
+<!-- Panel 4: 测验 -->
+<div class="pan">
+
+<div class="sec">
+  <h2><span class="ico">✅</span>知识测验</h2>
+  <p>完成以下 15 道题，测试你对连接查询、自关联和子查询的掌握程度。</p>
+</div>
+
+<div id="qz-list"></div>
+
+<div style="text-align:center;margin:20px 0">
+  <button class="qbtn" onclick="sub()">提交答案</button>
+</div>
+
+<div class="qz-sum" id="qsum" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid var(--green)">
+  <div style="flex:1;min-width:200px">
+    <div style="font-size:28px;font-weight:700;color:#15803d;margin-bottom:6px" id="qsc">0/15</div>
+    <div style="font-size:13px;color:#15803d" id="qmsg">完成测验查看得分</div>
+  </div>
+  <button class="qbtn gr" onclick="location.reload()">重新测验</button>
+</div>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+// Navigation
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dots=document.getElementById('dots');
+
+// Create dots
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dots.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+tabs.forEach((t,i)=>{
+  t.onclick=()=>go(i);
+});
+
+// Practice toggle
+function tr(el){
+  const ans=el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent=ans.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+
+// Practice checkboxes
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  cbs.forEach(cb=>{
+    cb.closest('.pt').classList.toggle('done',cb.checked);
+  });
+  // Mark dots as done
+  if(done===10){
+    document.querySelectorAll('.dot')[2].classList.add('d');
+  }
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+
+function mc(){
+  cbs.forEach(cb=>cb.checked=true);
+  upc();
+}
+
+// Interview toggle
+function tq(hdr){
+  const iq=hdr.parentElement;
+  iq.classList.toggle('o');
+}
+
+// Quiz data
+const QS=[
+  {
+    q:'以下哪种连接返回两个表的交集数据？',
+    o:['LEFT JOIN','RIGHT JOIN','INNER JOIN','FULL JOIN'],
+    a:2,
+    e:'内连接（INNER JOIN）只返回两个表中都存在的记录，即交集部分。'
+  },
+  {
+    q:'左连接查询的结果包含哪些数据？',
+    o:['只包含左表数据','只包含右表数据','左表全部+右表匹配部分','右表全部+左表匹配部分'],
+    a:2,
+    e:'LEFT JOIN 保留左表所有记录，右表不匹配的部分用 NULL 填充。'
+  },
+  {
+    q:'自关联查询时，是否必须使用别名？',
+    o:['必须使用','不需要使用','看情况使用','MySQL不支持自关联'],
+    a:0,
+    e:'自关联必须使用别名来区分同一张表在查询中的不同角色。'
+  },
+  {
+    q:'以下哪个子查询类型返回单个值？',
+    o:['标量子查询','列子查询','行子查询','表子查询'],
+    a:0,
+    e:'标量子查询返回单个值，通常用于聚合函数如 AVG()、MAX()、COUNT() 等。'
+  },
+  {
+    q:'查询没有成绩的学生，应该使用哪种连接？',
+    o:['INNER JOIN','LEFT JOIN + IS NULL','RIGHT JOIN','FULL JOIN'],
+    a:1,
+    e:'使用 LEFT JOIN 保留所有学生，然后用 WHERE score IS NULL 筛选没有成绩的学生。'
+  },
+  {
+    q:'以下哪个关键字与 IN 等价？',
+    o:['ALL','ANY','SOME','EXISTS'],
+    a:1,
+    e:'= ANY 与 IN 等价，SOME 是 ANY 的别名。'
+  },
+  {
+    q:'在 LEFT JOIN 中，ON 和 WHERE 的区别是什么？',
+    o:['没有区别','ON在连接时过滤，WHERE在连接后过滤','WHERE在连接时过滤，ON在连接后过滤','两者都在连接后过滤'],
+    a:1,
+    e:'ON 在连接时过滤（影响连接结果），WHERE 在连接后过滤（影响最终结果集）。对于 LEFT JOIN，这会导致不同的结果。'
+  },
+  {
+    q:'自关联常用于以下哪种场景？',
+    o:['多表关联查询','数据统计','层级关系查询','数据去重'],
+    a:2,
+    e:'自关联主要用于处理表内的层级关系，如省市关系、员工上下级关系等。'
+  },
+  {
+    q:'以下哪个语句性能通常最优？',
+    o:['相关子查询','IN 子查询','JOIN','EXISTS 子查询'],
+    a:2,
+    e:'大多数情况下 JOIN 性能最好，因为优化器可以更好地优化执行计划。'
+  },
+  {
+    q:'!= ALL 等价于以下哪个？',
+    o:['IN','NOT IN','ANY','SOME'],
+    a:1,
+    e:'!= ALL 表示不等于所有值，等价于 NOT IN。'
+  },
+  {
+    q:'子查询充当数据源时，通常出现在哪个位置？',
+    o:['SELECT','FROM','WHERE','HAVING'],
+    a:1,
+    e:'表子查询作为数据源时，出现在 FROM 子句中，必须使用别名。'
+  },
+  {
+    q:'查询选修了所有课程的学生，最适合使用哪种方法？',
+    o:['INNER JOIN','LEFT JOIN','分组统计+子查询','UNION'],
+    a:2,
+    e:'使用 GROUP BY + HAVING COUNT(DISTINCT cno) = (SELECT COUNT(*) FROM courses) 最直观。'
+  },
+  {
+    q:'RIGHT JOIN 和 LEFT JOIN 可以互相转换吗？',
+    o:['不可以','可以，交换表位置即可','只有内连接可以转换','取决于数据量'],
+    a:1,
+    e:'A LEFT JOIN B 等价于 B RIGHT JOIN A，只需交换表的位置。'
+  },
+  {
+    q:'EXISTS 和 IN 的主要区别是什么？',
+    o:['语法不同','EXISTS 有短路机制，大数据时更快','IN 有短路机制','两者性能完全相同'],
+    a:1,
+    e:'EXISTS 使用短路机制，找到第一条匹配记录就停止，适合大数据量子查询。'
+  },
+  {
+    q:'以下哪种情况建议使用子查询而非 JOIN？',
+    o:['简单的两表关联','需要聚合函数结果作为条件','查询多个表的数据','统计分组数据'],
+    a:1,
+    e:'当需要先计算聚合结果（如平均值、最大值）再作为条件时，子查询更清晰易懂。'
+  }
+];
+
+// Render quiz
+function rq(){
+  const c=document.getElementById('qz-list');
+  c.innerHTML=QS.map((q,i)=>{
+    const opts=q.o.map((op,j)=>`
+      <label class="opt" data-q="${i}" data-a="${j}">
+        <input type="radio" name="q${i}" value="${j}" style="display:none">
+        ${String.fromCharCode(65+j)}. ${op}
+      </label>
+    `).join('');
+    return `
+      <div class="qz" id="qz${i}">
+        <div class="qz-q"><span class="qn">${i+1}</span>${q.q}</div>
+        ${opts}
+        <div class="qz-ex" id="qe${i}"><b>解析：</b>${q.e}</div>
+      </div>
+    `;
+  }).join('');
+  
+  // Add click handlers
+  document.querySelectorAll('.opt').forEach(opt=>{
+    opt.onclick=function(){
+      const qi=this.dataset.q;
+      document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(o=>{
+        o.classList.remove('sel');
+        o.querySelector('input').checked=false;
+      });
+      this.classList.add('sel');
+      this.querySelector('input').checked=true;
+    };
+  });
+}
+
+function sub(){
+  let score=0;
+  QS.forEach((q,i)=>{
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    const qel=document.getElementById('qz'+i);
+    const exp=document.getElementById('qe'+i);
+    const opts=document.querySelectorAll(`.opt[data-q="${i}"]`);
+    
+    if(sel){
+      const ans=parseInt(sel.value);
+      opts.forEach((opt,j)=>{
+        opt.classList.remove('sel','ok','no');
+        if(j===q.a){
+          opt.classList.add('ok');
+        }else if(j===ans && ans!==q.a){
+          opt.classList.add('no');
+        }
+      });
+      
+      if(ans===q.a)score++;
+      exp.classList.add('s');
+    }
+  });
+  
+  const pct=Math.round(score/QS.length*100);
+  document.getElementById('qsc').textContent=`${score}/${QS.length} (${pct}%)`;
+  
+  const msg=document.getElementById('qmsg');
+  if(pct>=90){
+    msg.textContent='🏆 优秀！你已经完全掌握了连接查询的核心知识！';
+  }else if(pct>=75){
+    msg.textContent='👍 良好！继续加强练习，你会更优秀！';
+  }else if(pct>=60){
+    msg.textContent='📖 及格！建议回顾知识点，多做练习。';
+  }else{
+    msg.textContent='💪 继续努力！重新学习知识点后再来挑战吧！';
+  }
+  
+  document.getElementById('qsum').classList.add('s');
+  
+  // Mark quiz dot as done
+  if(pct>=60){
+    document.querySelectorAll('.dot')[4].classList.add('d');
+  }
+  
+  // Send score to parent
+  try{
+    window.parent.postMessage({
+      type:'qa_quiz_result',
+      score:score,
+      total:QS.length,
+      day:'s2d5'
+    },'*');
+  }catch(e){}
+  
+  document.getElementById('qsum').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// Initialize
+rq();
+</script>
+</body>
+</html>
