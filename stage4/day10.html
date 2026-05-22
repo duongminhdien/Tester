@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 10 · 断言、参数化、跳过与测试报告</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --day:#7c3aed;--day-d:#6d28d9;--day-bg:rgba(124,58,237,.08);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--code-bg:#1e2030;--code-ink:#a6accd;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:14px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:20px 20px 50px}
+.hd{background:linear-gradient(135deg,var(--day),var(--day-d));color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(124,58,237,.25)}
+.hd-tag{display:inline-block;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Space Mono',monospace;margin-bottom:10px}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+.hd-stats>div{font-size:12px;opacity:.92}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;margin-right:4px}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t:hover{color:var(--day-d);background:var(--day-bg)}.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+.pan{display:none;animation:fade .3s}.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{margin:8px 0;color:var(--ink2);font-size:13.5px}
+.sec ul,.sec ol{margin:8px 0 8px 20px;color:var(--ink2);font-size:13.5px}
+.sec li{margin:4px 0}
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.term .p{color:#82aaff}.term .c{color:#c3e88d}.term .o{color:#f78c6c}.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}.term .g{color:#676e95;font-style:italic}.term .n{color:#f78c6c}.term .b{color:#89ddff}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box b{display:inline-block;margin-bottom:2px}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);margin-top:6px}
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}.lv-m{background:#fef3c7;color:#92400e}.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq-body p{margin:10px 0}.iq-body ul,.iq-body ol{margin:8px 0 8px 18px}.iq.o .iq-body{display:block}
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1;min-width:0}
+.pt-t{font-size:13.5px;font-weight:600;margin-bottom:6px;line-height:1.5}.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border);user-select:none}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:10px;padding:12px 14px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:8px;line-height:1.8;overflow-x:auto;white-space:pre}
+.pt-ans.s{display:block}
+.pt-ans .k{color:#c792ea}.pt-ans .s{color:#c3e88d}.pt-ans .n{color:#f78c6c}.pt-ans .g{color:#676e95;font-style:italic}
+.pt-ans .b{color:#89ddff}.pt-ans .w{color:#fff;font-weight:600}.pt-ans .o{color:#f78c6c}.pt-ans .c{color:#ffcb6b}
+.prog{background:var(--day-bg);padding:12px 16px;border-radius:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--day-d);font-weight:600;flex-wrap:wrap}
+.prog .mc-btn{background:var(--day);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.prog .mc-btn:hover{background:var(--day-d)}.prog #pc{font-family:'Space Mono',monospace;font-size:15px}
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}.qz-ex b{color:var(--amber)}
+.qbtn{display:block;margin:20px auto;background:var(--day);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(124,58,237,.3);transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px)}
+#qr{display:none;background:linear-gradient(135deg,var(--day),var(--day-d));color:#fff;padding:20px;border-radius:12px;margin-bottom:18px;text-align:center}
+#qr.s{display:block}#qr h3{font-size:18px;margin-bottom:8px}
+#qr .sc{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;margin:8px 0}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.pnav button:disabled:hover{border-color:var(--border);color:var(--ink2)}
+.viz{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:18px;margin:12px 0}
+.viz-ttl{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:12px}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.flow-s{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.flow-s .fn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;margin-bottom:8px}
+.flow-s .ft{font-size:13px;font-weight:700;margin-bottom:4px}.flow-s .fd{font-size:11.5px;color:var(--muted);line-height:1.5}
+/* parameterized diagram */
+.pa-diagram{display:grid;grid-template-columns:1fr auto 1fr;gap:10px 16px;align-items:center;margin:14px 0;font-family:'Space Mono',monospace;font-size:12.5px}
+.pa-data{background:#faf5ff;border:2px solid var(--day);border-radius:8px;padding:10px 14px;color:var(--day-d)}
+.pa-meth{background:#f0fdf4;border:2px solid var(--green);border-radius:8px;padding:10px 14px;color:#15803d}
+.pa-arr{color:var(--day);font-size:20px;text-align:center;font-weight:700}
+/* skip badge */
+.sk{display:inline-block;padding:3px 10px;border-radius:12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700}
+.sk-s{background:#fef3c7;color:#92400e}
+.sk-i{background:#ede9fe;color:#5b21b6}
+/* dir tree */
+.dirtree{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;padding:14px 16px;border-radius:8px;margin:10px 0;line-height:1.9}
+.dirtree .dir{color:#82aaff;font-weight:700}.dirtree .file{color:#c3e88d}.dirtree .cm{color:#676e95;font-style:italic}
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}.hd{padding:20px 18px 16px}.hd h1{font-size:18px}.hd p{font-size:12px}
+  .sec{padding:16px 14px}.sec h2{font-size:16px}.t{font-size:11px;padding:8px 6px}.dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}.pnav button{font-size:12px;padding:9px 12px;min-width:100px}
+  .iq-hdr{padding:12px 12px}.iq-q{font-size:12.5px}.table{font-size:12px}.th,.td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}.pt-ans{font-size:11.5px}.pa-diagram{grid-template-columns:1fr}
+  .pa-arr{transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · TESTER DAY 10</div>
+  <h1>断言、参数化、跳过与测试报告</h1>
+  <p>assertIn 断言 · parameterized 参数化 · @skip 跳过 · HTMLTestReport · 绝对路径 · 完整项目结构</p>
+  <div class="hd-stats">
+    <div><b>2</b>核心断言</div>
+    <div><b>5</b>步参数化</div>
+    <div><b>2</b>种跳过</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 0 ============ -->
+<div class="pan a" id="p0">
+
+<div class="sec">
+  <h2><span class="ico">1</span>断言（Assert）进阶</h2>
+
+  <p>断言让程序<b>自动判断预期结果和实际结果是否相符</b>。上节学了 <code class="inl">assertEqual</code>，本节重点讲 <code class="inl">assertIn</code>。</p>
+
+  <h3>assertEqual —— 判断相等</h3>
+<div class="term">self.<span class="p">assertEqual</span>(预期结果, 实际结果)
+<span class="g"># 预期 == 实际 → 用例通过（不抛异常）</span>
+<span class="g"># 预期 != 实际 → 抛出 AssertionError，用例标记 F</span>
+
+self.<span class="p">assertEqual</span>(<span class="n">10</span>, <span class="n">10</span>)  <span class="g"># ✅ 通过</span>
+self.<span class="p">assertEqual</span>(<span class="n">10</span>, <span class="n">11</span>)  <span class="g"># ❌ 不通过</span></div>
+
+  <h3>assertIn —— 判断包含</h3>
+<div class="term">self.<span class="p">assertIn</span>(预期结果, 实际结果)
+<span class="g"># 预期 in 实际 → 通过</span>
+<span class="g"># 预期 not in 实际 → 抛出 AssertionError</span>
+
+self.<span class="p">assertIn</span>(<span class="s">'admin'</span>, <span class="s">'欢迎 admin 登录'</span>)      <span class="g"># ✅ 包含，通过</span>
+self.<span class="p">assertIn</span>(<span class="s">'admin'</span>, <span class="s">'欢迎 adminnnnnn 登录'</span>)   <span class="g"># ✅ 包含，通过</span>
+self.<span class="p">assertIn</span>(<span class="s">'admin'</span>, <span class="s">'欢迎 adddddmin 登录'</span>)    <span class="g"># ❌ 不包含，不通过</span></div>
+
+  <div class="box info">
+    <b>💡 什么时候用 assertIn？</b><br>
+    当接口返回的是一个长字符串（如 HTML 页面、JSON 字符串），只需要验证某个关键词是否在结果中出现时用 assertIn。<br>
+    例：验证登录成功后页面包含"欢迎" → <code class="inl">assertIn('欢迎', response.text)</code>
+  </div>
+
+  <h3>完整断言方法一览</h3>
+  <div class="tw">
+  <table>
+    <tr><th>方法</th><th>通过条件</th><th>典型场景</th></tr>
+    <tr><td><code class="inl">assertEqual(a, b)</code></td><td>a == b</td><td>验证函数返回值，最常用</td></tr>
+    <tr><td><code class="inl">assertNotEqual(a, b)</code></td><td>a != b</td><td>验证结果不相等</td></tr>
+    <tr><td><code class="inl">assertIn(a, b)</code></td><td>a in b</td><td>验证关键词在响应中</td></tr>
+    <tr><td><code class="inl">assertNotIn(a, b)</code></td><td>a not in b</td><td>验证不包含</td></tr>
+    <tr><td><code class="inl">assertTrue(x)</code></td><td>bool(x) is True</td><td>验证条件为真</td></tr>
+    <tr><td><code class="inl">assertFalse(x)</code></td><td>bool(x) is False</td><td>验证条件为假</td></tr>
+    <tr><td><code class="inl">assertIsNone(x)</code></td><td>x is None</td><td>验证返回 None</td></tr>
+    <tr><td><code class="inl">assertIsNotNone(x)</code></td><td>x is not None</td><td>验证不为 None</td></tr>
+  </table>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>参数化（parameterized）</h2>
+
+  <p><b>参数化</b>：通过参数传递数据，实现<b>数据和脚本分离</b>。多组数据测试同一功能，只需写一个测试方法。</p>
+
+  <div class="box warn">
+    <b>⚠️ 前提：安装 parameterized 插件</b><br>
+    unittest 本身不支持参数化，需要安装第三方插件：<br>
+    <code class="inl">pip install parameterized</code><br>
+    或国内镜像：<code class="inl">pip install -i https://pypi.douban.com/simple/ parameterized</code>
+  </div>
+
+  <h3>使用步骤（5 步）</h3>
+  <ol>
+    <li>导包：<code class="inl">from parameterized import parameterized</code></li>
+    <li>修改测试方法，将测试数据改为<b>变量参数</b></li>
+    <li>组织测试数据：格式 <code class="inl">[(), (), ()]</code>，一个元组是一组数据</li>
+    <li>在测试方法上方加装饰器：<code class="inl">@parameterized.expand(测试数据)</code></li>
+    <li>运行（直接 TestCase 或 Suite 都可以）</li>
+  </ol>
+
+  <h3>示例一：直接定义数据列表</h3>
+<div class="term"><span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+
+<span class="k">def</span> <span class="p">add</span>(a, b):
+    <span class="k">return</span> a <span class="o">+</span> b
+
+<span class="g"># 每个元组是一组测试数据 (a, b, 期望结果)</span>
+data <span class="o">=</span> [(<span class="n">1</span>, <span class="n">1</span>, <span class="n">2</span>), (<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>), (<span class="n">2</span>, <span class="n">3</span>, <span class="n">5</span>), (<span class="n">4</span>, <span class="n">5</span>, <span class="n">9</span>)]
+
+<span class="k">class</span> <span class="p">TestAdd</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="o">@parameterized.expand</span>(data)     <span class="g"># 装饰器</span>
+    <span class="k">def</span> <span class="p">test_add</span>(<span class="o">self</span>, a, b, expect):   <span class="g"># 参数对应元组的每个值</span>
+        <span class="p">print</span>(<span class="s">f'a:{a}, b:{b}, expect:{expect}'</span>)
+        self.<span class="p">assertEqual</span>(expect, <span class="p">add</span>(a, b))
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    unittest.<span class="p">main</span>()</div>
+
+  <div class="box tip">
+    <b>🎯 参数化后方法名规律</b><br>
+    parameterized 会自动为每组数据生成独立的测试方法名，如：<br>
+    <code class="inl">test_add_0</code>、<code class="inl">test_add_1</code>、<code class="inl">test_add_2</code>…<br>
+    这样每组数据独立统计通过/失败，互不影响。
+  </div>
+
+  <h3>示例二：从 JSON 文件读取数据（数组格式）</h3>
+<div class="term"><span class="g"># add_data.json（JSON 数组格式）</span>
+<span class="b">[</span>
+    <span class="b">[</span><span class="n">1</span>, <span class="n">1</span>, <span class="n">2</span><span class="b">]</span>,
+    <span class="b">[</span><span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span><span class="b">]</span>,
+    <span class="b">[</span><span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span><span class="b">]</span>
+<span class="b">]</span></div>
+
+<div class="term"><span class="k">import</span> json
+
+<span class="k">def</span> <span class="p">build_add_data</span>():
+    <span class="k">with</span> <span class="p">open</span>(<span class="s">'add_data.json'</span>) <span class="k">as</span> f:
+        data <span class="o">=</span> json.<span class="p">load</span>(f)   <span class="g"># [[], [], []] → parameterized 自动转元组</span>
+    <span class="k">return</span> data
+
+<span class="g"># 使用时：@parameterized.expand(build_add_data())</span></div>
+
+  <h3>示例三：从 JSON 文件读取数据（对象格式）</h3>
+<div class="term"><span class="g"># login_data.json（JSON 对象数组格式）</span>
+<span class="b">[</span>
+    <span class="b">{</span><span class="s">"desc"</span>: <span class="s">"正确用户名密码"</span>, <span class="s">"username"</span>: <span class="s">"admin"</span>, <span class="s">"password"</span>: <span class="s">"123456"</span>, <span class="s">"expect"</span>: <span class="s">"登录成功"</span><span class="b">}</span>,
+    <span class="b">{</span><span class="s">"desc"</span>: <span class="s">"错误用户名"</span>,     <span class="s">"username"</span>: <span class="s">"root"</span>,  <span class="s">"password"</span>: <span class="s">"123456"</span>, <span class="s">"expect"</span>: <span class="s">"登录失败"</span><span class="b">}</span>
+<span class="b">]</span></div>
+
+<div class="term"><span class="k">def</span> <span class="p">build_login_data</span>():
+    <span class="k">with</span> <span class="p">open</span>(<span class="s">'data/login_data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="p">load</span>(f)    <span class="g"># [{}, {}] → [(), ()]</span>
+    new_list <span class="o">=</span> []
+    <span class="k">for</span> data <span class="k">in</span> data_list:
+        username <span class="o">=</span> data.<span class="p">get</span>(<span class="s">'username'</span>)
+        password <span class="o">=</span> data.<span class="p">get</span>(<span class="s">'password'</span>)
+        expect   <span class="o">=</span> data.<span class="p">get</span>(<span class="s">'expect'</span>)
+        new_list.<span class="p">append</span>((username, password, expect))
+    <span class="k">return</span> new_list
+
+<span class="g"># 简洁写法（dict 值全部需要时）</span>
+<span class="k">def</span> <span class="p">build_data_v2</span>():
+    <span class="k">with</span> <span class="p">open</span>(<span class="s">'data/login_data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="p">load</span>(f)
+    <span class="k">return</span> [<span class="p">tuple</span>(d.<span class="p">values</span>()) <span class="k">for</span> d <span class="k">in</span> data_list]</div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>跳过（Skip）</h2>
+
+  <p>对于<b>未完成</b>或<b>不满足测试条件</b>的测试方法，可以设置为跳过，不执行。</p>
+
+  <h3>两种跳过方式</h3>
+
+  <div class="g2">
+    <div class="card">
+      <h4><span class="sk sk-s">@skip</span> 无条件跳过</h4>
+      <p>直接跳过，不管任何条件</p>
+<div class="term" style="font-size:12px"><span class="o">@unittest.skip</span>(<span class="s">'原因'</span>)
+<span class="k">def</span> <span class="p">test_method</span>(<span class="o">self</span>):
+    <span class="k">pass</span></div>
+    </div>
+    <div class="card">
+      <h4><span class="sk sk-i">@skipIf</span> 条件跳过</h4>
+      <p>条件为 True 时跳过</p>
+<div class="term" style="font-size:12px"><span class="o">@unittest.skipIf</span>(条件, <span class="s">'原因'</span>)
+<span class="k">def</span> <span class="p">test_method</span>(<span class="o">self</span>):
+    <span class="k">pass</span></div>
+    </div>
+  </div>
+
+  <h3>完整示例</h3>
+<div class="term"><span class="k">import</span> unittest
+
+version <span class="o">=</span> <span class="n">29</span>
+
+<span class="k">class</span> <span class="p">TestSkip</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="o">@unittest.skip</span>(<span class="s">'没什么原因，就是不想执行'</span>)
+    <span class="k">def</span> <span class="p">test_1</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'方法一'</span>)                <span class="g"># ⏭ 跳过，不会执行</span>
+
+    <span class="o">@unittest.skipIf</span>(version <span class="o">&gt;=</span> <span class="n">30</span>, <span class="s">'版本号>=30 不执行'</span>)
+    <span class="k">def</span> <span class="p">test_2</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'方法二'</span>)                <span class="g"># version=29 < 30，条件为 False，正常执行</span>
+
+    <span class="k">def</span> <span class="p">test_3</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'方法三'</span>)                <span class="g"># 正常执行</span></div>
+
+  <div class="box info">
+    <b>💡 执行结果中跳过的表示</b><br>
+    跳过的用例显示为 <code class="inl">s</code>（小写），例如 <code class="inl">.s.</code> 表示：第一个通过、第二个跳过、第三个通过。<br>
+    跳过不算失败，最终统计 <code class="inl">OK (skipped=1)</code>。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>生成测试报告（HTMLTestReport）</h2>
+
+  <p>使用第三方报告模板 <b>HTMLTestReport</b> 生成漂亮的 HTML 测试报告，本质是一个自定义的 TestRunner。</p>
+
+  <h3>安装</h3>
+<div class="term">pip install HTMLTestReport
+<span class="g"># 或国内镜像</span>
+pip install -i https://pypi.douban.com/simple/ HTMLTestReport</div>
+
+  <h3>使用步骤（4 步）</h3>
+  <ol>
+    <li>导包：<code class="inl">import unittest</code> 和 <code class="inl">from htmltestreport import HTMLTestReport</code></li>
+    <li>组装用例（套件 or Loader）</li>
+    <li>用 HTMLTestReport 的 runner 执行套件（替代 TextTestRunner）</li>
+    <li>查看生成的 HTML 报告文件</li>
+  </ol>
+
+<div class="term"><span class="k">import</span> unittest
+<span class="k">from</span> htmltestreport <span class="k">import</span> <span class="p">HTMLTestReport</span>
+<span class="k">from</span> case.test_login <span class="k">import</span> <span class="p">TestLogin</span>
+
+suite <span class="o">=</span> unittest.<span class="p">TestSuite</span>()
+suite.<span class="p">addTest</span>(unittest.<span class="p">makeSuite</span>(<span class="p">TestLogin</span>))
+
+<span class="g"># HTMLTestReport(报告路径.html, 报告标题, 描述)</span>
+runner <span class="o">=</span> <span class="p">HTMLTestReport</span>(<span class="s">'report/login_report.html'</span>, <span class="s">'登录测试报告'</span>, <span class="s">'V1.0'</span>)
+runner.<span class="p">run</span>(suite)</div>
+
+  <div class="box ok">
+    <b>✅ 报告内容</b><br>
+    HTML 报告包含：测试用例列表、通过/失败/跳过数量统计、每个用例的详细结果、失败用例的错误信息，可发送给 PM 或开发查看。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>绝对路径（os.path）</h2>
+
+  <p>在分目录的项目中，使用<b>相对路径</b>可能因运行目录不同而找不到文件，推荐使用<b>绝对路径</b>。</p>
+
+  <h3>关键知识点</h3>
+  <div class="tw">
+  <table>
+    <tr><th>语法</th><th>含义</th></tr>
+    <tr><td><code class="inl">__file__</code></td><td>特殊变量，表示<b>当前代码文件名（路径）</b></td></tr>
+    <tr><td><code class="inl">os.path.abspath(path)</code></td><td>获取绝对路径（补全完整路径）</td></tr>
+    <tr><td><code class="inl">os.path.dirname(path)</code></td><td>获取路径的<b>目录部分</b>（去掉文件名）</td></tr>
+    <tr><td><code class="inl">os.path.join(a, b)</code></td><td>路径拼接（跨平台安全）</td></tr>
+  </table>
+  </div>
+
+  <h3>在项目根目录创建 app.py（配置文件）</h3>
+<div class="term"><span class="g"># app.py（放在项目根目录）</span>
+<span class="k">import</span> os
+
+<span class="g"># 获取当前文件的目录 = 项目根目录</span>
+BASE_DIR <span class="o">=</span> os.path.<span class="p">dirname</span>(<span class="k">__file__</span>)
+
+<span class="g"># 或更严谨的写法（处理符号链接）</span>
+BASE_DIR <span class="o">=</span> os.path.<span class="p">dirname</span>(os.path.<span class="p">abspath</span>(<span class="k">__file__</span>))</div>
+
+  <h3>在其他文件中使用绝对路径</h3>
+<div class="term"><span class="g"># read_data.py</span>
+<span class="k">from</span> app <span class="k">import</span> BASE_DIR
+<span class="k">import</span> json
+
+<span class="k">def</span> <span class="p">build_login_data</span>():
+    <span class="g"># 用 BASE_DIR 拼接完整路径，不受运行目录影响</span>
+    path <span class="o">=</span> BASE_DIR <span class="o">+</span> <span class="s">'/data/login_data.json'</span>
+    <span class="k">with</span> <span class="p">open</span>(path, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="p">load</span>(f)
+    ...
+    <span class="k">return</span> new_list</div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>完整项目结构</h2>
+
+  <p>完整的自动化测试项目推荐目录结构：</p>
+
+<div class="dirtree"><span class="dir">project/</span>                    <span class="cm">← 项目根目录</span>
+├── <span class="file">app.py</span>                 <span class="cm">← 配置文件，定义 BASE_DIR</span>
+├── <span class="file">tools.py</span>               <span class="cm">← 被测功能代码（login、add 等）</span>
+├── <span class="dir">case/</span>                  <span class="cm">← 所有测试用例</span>
+│   └── <span class="file">test_login.py</span>      <span class="cm">← 用例代码（含 @parameterized）</span>
+├── <span class="dir">common/</span>                <span class="cm">← 公共模块</span>
+│   └── <span class="file">read_data.py</span>       <span class="cm">← 读取 JSON 数据的函数</span>
+├── <span class="dir">data/</span>                  <span class="cm">← 测试数据</span>
+│   └── <span class="file">login_data.json</span>    <span class="cm">← JSON 格式的测试用例数据</span>
+├── <span class="dir">report/</span>                <span class="cm">← 测试报告输出目录</span>
+│   └── <span class="file">login_report.html</span>  <span class="cm">← 生成的 HTML 报告</span>
+└── <span class="file">run.py</span>                 <span class="cm">← 主运行文件（Suite + HTMLTestReport）</span></div>
+
+  <h3>run.py 完整代码</h3>
+<div class="term"><span class="k">import</span> unittest
+<span class="k">from</span> app <span class="k">import</span> BASE_DIR
+<span class="k">from</span> htmltestreport <span class="k">import</span> <span class="p">HTMLTestReport</span>
+<span class="k">from</span> case.test_login <span class="k">import</span> <span class="p">TestLogin</span>
+
+suite <span class="o">=</span> unittest.<span class="p">TestSuite</span>()
+suite.<span class="p">addTest</span>(unittest.<span class="p">makeSuite</span>(<span class="p">TestLogin</span>))
+
+runner <span class="o">=</span> <span class="p">HTMLTestReport</span>(
+    BASE_DIR <span class="o">+</span> <span class="s">'/report/login_report.html'</span>,
+    <span class="s">'登录功能测试报告'</span>,
+    <span class="s">'V1.0'</span>
+)
+runner.<span class="p">run</span>(suite)</div>
+
+  <h3>完整用例代码 case/test_login.py</h3>
+<div class="term"><span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+<span class="k">from</span> tools <span class="k">import</span> login
+<span class="k">from</span> common.read_data <span class="k">import</span> build_login_data
+
+<span class="k">class</span> <span class="p">TestLogin</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="o">@parameterized.expand</span>(<span class="p">build_login_data</span>())
+    <span class="k">def</span> <span class="p">test_login</span>(<span class="o">self</span>, username, password, expect):
+        <span class="p">print</span>(<span class="s">f'username:{username}, pwd:{password}, expect:{expect}'</span>)
+        self.<span class="p">assertEqual</span>(expect, <span class="p">login</span>(username, password))</div>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+</div><!-- /p0 -->
+
+<!-- ============ PANEL 1 ============ -->
+<div class="pan" id="p1">
+
+<div class="sec">
+  <h2><span class="ico">1</span>assertEqual vs assertIn 对比</h2>
+  <div class="g2">
+    <div class="card">
+      <h4>⚖️ assertEqual 精确匹配</h4>
+<div class="term" style="font-size:12px"><span class="g"># 适合返回值完全可知时</span>
+self.<span class="p">assertEqual</span>(<span class="s">'登录成功'</span>,
+    <span class="p">login</span>(<span class="s">'admin'</span>, <span class="s">'123456'</span>))
+<span class="g"># '登录成功' == 实际返回值</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">适合：函数返回固定字符串、数字、布尔值</p>
+    </div>
+    <div class="card">
+      <h4>🔍 assertIn 包含匹配</h4>
+<div class="term" style="font-size:12px"><span class="g"># 适合返回值是大段文本时</span>
+self.<span class="p">assertIn</span>(<span class="s">'欢迎'</span>,
+    response.<span class="p">text</span>)
+<span class="g"># '欢迎' in '...欢迎 admin...'</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">适合：接口响应、HTML 页面、日志内容</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>参数化流程图</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">🔄 测试数据 → 参数化 → 多个独立用例</div>
+    <div style="display:grid;gap:10px">
+      <div class="pa-diagram">
+        <div class="pa-data">JSON 数据文件<br>login_data.json<br>[{}, {}, {}, {}]</div>
+        <div class="pa-arr">→</div>
+        <div class="pa-data">build_login_data()<br>返回 [(), (), ()]<br>每个元组一组数据</div>
+      </div>
+      <div class="pa-diagram">
+        <div class="pa-data">@parameterized.expand([<br>  ('admin','123456','成功'),<br>  ('root','123456','失败'),...<br>])</div>
+        <div class="pa-arr">→</div>
+        <div class="pa-meth">自动生成:<br>test_login_0<br>test_login_1<br>test_login_2<br>test_login_3</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>💡 参数化的核心价值</b><br>
+    • 4 组数据 → 4 个独立用例，各自统计通过/失败<br>
+    • 新增数据只需修改 JSON 文件，无需改代码<br>
+    • 实现了<b>数据驱动测试（Data-Driven Testing）</b>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>跳过装饰器对比</h2>
+  <div class="tw">
+  <table>
+    <tr><th>装饰器</th><th>跳过时机</th><th>使用场景</th></tr>
+    <tr><td><code class="inl">@unittest.skip(reason)</code></td><td>无条件跳过</td><td>功能未完成、临时禁用</td></tr>
+    <tr><td><code class="inl">@unittest.skipIf(cond, reason)</code></td><td>条件为 True 时跳过</td><td>特定版本/环境才执行</td></tr>
+    <tr><td><code class="inl">@unittest.skipUnless(cond, reason)</code></td><td>条件为 False 时跳过</td><td>仅在满足条件时执行</td></tr>
+  </table>
+  </div>
+<div class="term"><span class="g"># skipIf: 条件为 True → 跳过</span>
+<span class="o">@unittest.skipIf</span>(version <span class="o">&gt;=</span> <span class="n">30</span>, <span class="s">'版本>=30 跳过'</span>)   <span class="g"># version=29 → 不跳</span>
+<span class="o">@unittest.skipIf</span>(version <span class="o">&gt;=</span> <span class="n">20</span>, <span class="s">'版本>=20 跳过'</span>)   <span class="g"># version=29 → 跳过</span>
+
+<span class="g"># skipUnless: 条件为 False → 跳过</span>
+<span class="o">@unittest.skipUnless</span>(version <span class="o">&gt;=</span> <span class="n">30</span>, <span class="s">'版本不够跳过'</span>)  <span class="g"># version=29 → 跳过</span></div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>测试报告生成流程</h2>
+  <div class="flow">
+    <div class="flow-s">
+      <div class="fn">1</div>
+      <div class="ft">安装库</div>
+      <div class="fd">pip install HTMLTestReport</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">2</div>
+      <div class="ft">导包</div>
+      <div class="fd">from htmltestreport import HTMLTestReport</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">3</div>
+      <div class="ft">组装 Suite</div>
+      <div class="fd">TestSuite + addTest / makeSuite</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">4</div>
+      <div class="ft">创建 Runner</div>
+      <div class="fd">HTMLTestReport(路径, 标题, 描述)</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">5</div>
+      <div class="ft">执行</div>
+      <div class="fd">runner.run(suite) → 生成 .html</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>绝对路径原理</h2>
+  <div class="viz">
+    <div class="viz-ttl">📁 __file__ → abspath → dirname = BASE_DIR</div>
+<div class="term"><span class="k">import</span> os
+
+<span class="g"># 假设 app.py 在 /Users/tester/project/app.py</span>
+
+__file__                      <span class="g"># 'app.py' 或相对路径</span>
+os.path.<span class="p">abspath</span>(__file__)    <span class="g"># '/Users/tester/project/app.py' ← 完整路径</span>
+os.path.<span class="p">dirname</span>(...)        <span class="g"># '/Users/tester/project' ← 目录名</span>
+
+BASE_DIR <span class="o">=</span> os.path.<span class="p">dirname</span>(__file__)
+<span class="g"># 拼接：</span>
+data_path <span class="o">=</span> BASE_DIR <span class="o">+</span> <span class="s">'/data/login_data.json'</span>
+<span class="g"># '/Users/tester/project/data/login_data.json'</span></div>
+  </div>
+  <div class="box warn">
+    <b>⚠️ 为什么不用相对路径？</b><br>
+    在 run.py 中执行时，Python 的工作目录是运行命令的目录，不一定是 project 根目录。用相对路径会导致 <code class="inl">FileNotFoundError</code>。BASE_DIR 固定是 app.py 所在目录，永远正确。
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+</div><!-- /p1 -->
+
+<!-- ============ PANEL 2 ============ -->
+<div class="pan" id="p2">
+
+<div class="prog">
+  <div>📊 完成进度：<span id="pc">0</span> / 10</div>
+  <button class="mc-btn" onclick="mc()">全部勾选</button>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">1</span>实战练习（10 题）</h2>
+  <p>本日无作业，以下练习覆盖课堂所有知识点，勾选记录进度，点击"查看答案"展开代码。</p>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp1">
+  <div class="pt-body">
+    <div class="pt-t">1. 在一个 TestCase 中分别演示 <code class="inl">assertEqual</code>（通过）、<code class="inl">assertEqual</code>（失败）、<code class="inl">assertIn</code>（通过）三个断言用例。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">class</span> <span class="b">TestAssert</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">test_equal_pass</span>(self):
+        <span class="c">"""assertEqual 通过：10 == 10"""</span>
+        self.<span class="b">assertEqual</span>(<span class="n">10</span>, <span class="n">10</span>)
+
+    <span class="k">def</span> <span class="b">test_equal_fail</span>(self):
+        <span class="c">"""assertEqual 失败：10 != 11 → 用例标记 F"""</span>
+        self.<span class="b">assertEqual</span>(<span class="n">10</span>, <span class="n">11</span>)
+
+    <span class="k">def</span> <span class="b">test_in_pass</span>(self):
+        <span class="c">"""assertIn 通过：'admin' in '欢迎 admin 登录'"""</span>
+        self.<span class="b">assertIn</span>(<span class="s">'admin'</span>, <span class="s">'欢迎 admin 登录'</span>)
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()
+<span class="g"># 结果: .F. 有一个失败，两个通过</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp2">
+  <div class="pt-body">
+    <div class="pt-t">2. 安装 parameterized，并验证安装成功（<code class="inl">pip list</code>）。然后写最简单的参数化用例：用 4 组数据测试 <code class="inl">add(a, b)</code>，数据直接写在代码中。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># 命令行安装</span>
+<span class="g"># pip install parameterized</span>
+<span class="g"># pip list | grep parameterized  → 确认安装成功</span>
+
+<span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+
+
+<span class="k">def</span> <span class="b">add</span>(a, b):
+    <span class="k">return</span> a <span class="o">+</span> b
+
+
+data <span class="o">=</span> [(<span class="n">1</span>, <span class="n">1</span>, <span class="n">2</span>), (<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>), (<span class="n">2</span>, <span class="n">3</span>, <span class="n">5</span>), (<span class="n">4</span>, <span class="n">5</span>, <span class="n">9</span>)]
+
+
+<span class="k">class</span> <span class="b">TestAdd</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="o">@parameterized.expand</span>(data)
+    <span class="k">def</span> <span class="b">test_add</span>(self, a, b, expect):
+        self.<span class="b">assertEqual</span>(expect, <span class="b">add</span>(a, b))
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp3">
+  <div class="pt-body">
+    <div class="pt-t">3. 将数组格式的测试数据保存到 <code class="inl">add_data.json</code>，写 <code class="inl">build_add_data()</code> 函数读取并用于参数化。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># add_data.json</span>
+<span class="g"># [[1,1,2],[1,2,3],[2,3,5],[4,5,9],[10,20,30]]</span>
+
+<span class="k">import</span> json
+<span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+
+
+<span class="k">def</span> <span class="b">add</span>(a, b):
+    <span class="k">return</span> a <span class="o">+</span> b
+
+
+<span class="k">def</span> <span class="b">build_add_data</span>():
+    <span class="k">with</span> <span class="b">open</span>(<span class="s">'add_data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        <span class="k">return</span> json.<span class="b">load</span>(f)   <span class="g"># [[], []] → parameterized 接受列表或列表嵌套</span>
+
+
+<span class="k">class</span> <span class="b">TestAdd</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="o">@parameterized.expand</span>(<span class="b">build_add_data</span>())
+    <span class="k">def</span> <span class="b">test_add</span>(self, a, b, expect):
+        self.<span class="b">assertEqual</span>(expect, <span class="b">add</span>(a, b))</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp4">
+  <div class="pt-body">
+    <div class="pt-t">4. 将对象格式的登录测试数据保存到 <code class="inl">login_data.json</code>（含 desc、username、password、expect 字段），写 <code class="inl">build_login_data()</code> 读取并用于参数化（只取 username、password、expect）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># login_data.json:</span>
+<span class="g"># [{"desc":"正确","username":"admin","password":"123456","expect":"登录成功"},</span>
+<span class="g">#  {"desc":"错误用户名","username":"root","password":"123456","expect":"登录失败"},</span>
+<span class="g">#  {"desc":"错误密码","username":"admin","password":"123123","expect":"登录失败"},</span>
+<span class="g">#  {"desc":"全错","username":"root","password":"123123","expect":"登录失败"}]</span>
+
+<span class="k">import</span> json
+
+
+<span class="k">def</span> <span class="b">build_login_data</span>():
+    <span class="k">with</span> <span class="b">open</span>(<span class="s">'login_data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="b">load</span>(f)
+    new_list <span class="o">=</span> []
+    <span class="k">for</span> data <span class="k">in</span> data_list:
+        new_list.<span class="b">append</span>((
+            data.<span class="b">get</span>(<span class="s">'username'</span>),
+            data.<span class="b">get</span>(<span class="s">'password'</span>),
+            data.<span class="b">get</span>(<span class="s">'expect'</span>),
+        ))
+    <span class="k">return</span> new_list</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp5">
+  <div class="pt-body">
+    <div class="pt-t">5. 将上面的 <code class="inl">build_login_data</code> 和 <code class="inl">login</code> 函数整合，完成参数化登录测试（使用 assertEqual 断言）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+<span class="g"># from common.read_data import build_login_data  ← 实际项目中从模块导入</span>
+
+
+<span class="k">def</span> <span class="b">login</span>(username, password):
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span>:
+        <span class="k">return</span> <span class="s">'登录成功'</span>
+    <span class="k">else</span>:
+        <span class="k">return</span> <span class="s">'登录失败'</span>
+
+
+<span class="k">class</span> <span class="b">TestLogin</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="o">@parameterized.expand</span>(<span class="b">build_login_data</span>())
+    <span class="k">def</span> <span class="b">test_login</span>(self, username, password, expect):
+        <span class="b">print</span>(<span class="s">f'user:{username}, pwd:{password}, expect:{expect}'</span>)
+        self.<span class="b">assertEqual</span>(expect, <span class="b">login</span>(username, password))
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp6">
+  <div class="pt-body">
+    <div class="pt-t">6. 演示两种跳过：用 <code class="inl">@skip</code> 无条件跳过 test_1，用 <code class="inl">@skipIf(version >= 30)</code> 在 version=29 时让 test_2 正常执行，test_3 正常执行。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+version <span class="o">=</span> <span class="n">29</span>
+
+<span class="k">class</span> <span class="b">TestSkip</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="o">@unittest.skip</span>(<span class="s">'没什么原因，就是不想执行'</span>)
+    <span class="k">def</span> <span class="b">test_1</span>(self):
+        <span class="b">print</span>(<span class="s">'方法一'</span>)    <span class="g"># ⏭ 跳过，s</span>
+
+    <span class="o">@unittest.skipIf</span>(version <span class="o">&gt;=</span> <span class="n">30</span>, <span class="s">'版本>=30 才跳过'</span>)
+    <span class="k">def</span> <span class="b">test_2</span>(self):
+        <span class="b">print</span>(<span class="s">'方法二'</span>)    <span class="g"># version=29 < 30 → 条件 False → 正常执行</span>
+
+    <span class="k">def</span> <span class="b">test_3</span>(self):
+        <span class="b">print</span>(<span class="s">'方法三'</span>)    <span class="g"># 正常执行</span>
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()
+<span class="g"># 结果: s..  OK (skipped=1)</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp7">
+  <div class="pt-body">
+    <div class="pt-t">7. 用 <code class="inl">os.path</code> 获取 <code class="inl">app.py</code>（项目根目录配置文件）中的 BASE_DIR，打印结果验证是否正确。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># app.py（放在项目根目录）</span>
+<span class="k">import</span> os
+
+<span class="g"># 方式1（推荐，简洁）</span>
+BASE_DIR <span class="o">=</span> os.path.<span class="b">dirname</span>(__file__)
+
+<span class="g"># 方式2（更严谨，处理符号链接）</span>
+BASE_DIR <span class="o">=</span> os.path.<span class="b">dirname</span>(os.path.<span class="b">abspath</span>(__file__))
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">print</span>(BASE_DIR)
+    <span class="g"># 输出类似：/Users/tester/project</span>
+    <span class="g"># 验证：路径末尾是项目根目录名</span>
+
+<span class="g"># 在其他文件中使用：</span>
+<span class="g"># from app import BASE_DIR</span>
+<span class="g"># path = BASE_DIR + '/data/login_data.json'</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp8">
+  <div class="pt-body">
+    <div class="pt-t">8. 安装 <code class="inl">HTMLTestReport</code>，用它生成 add 函数参数化测试的 HTML 报告，保存到 <code class="inl">report/add_report.html</code>。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># 安装: pip install HTMLTestReport</span>
+
+<span class="k">import</span> unittest
+<span class="k">from</span> htmltestreport <span class="k">import</span> <span class="b">HTMLTestReport</span>
+<span class="g"># from hm_pa_add import TestAdd  ← 你的 TestAdd 所在文件</span>
+
+suite <span class="o">=</span> unittest.<span class="b">TestSuite</span>()
+suite.<span class="b">addTest</span>(unittest.<span class="b">makeSuite</span>(<span class="b">TestAdd</span>))
+
+runner <span class="o">=</span> <span class="b">HTMLTestReport</span>(
+    <span class="s">'report/add_report.html'</span>,   <span class="g"># 报告路径</span>
+    <span class="s">'加法用例测试报告'</span>,              <span class="g"># 报告标题</span>
+    <span class="s">'测试加法函数 add(a, b)'</span>        <span class="g"># 描述信息</span>
+)
+runner.<span class="b">run</span>(suite)
+<span class="g"># 执行后在 report/ 目录生成 add_report.html，用浏览器打开查看</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp9">
+  <div class="pt-body">
+    <div class="pt-t">9. 按照完整项目结构（project/app.py + case/ + data/ + report/ + common/）搭建项目框架，用绝对路径读取 data/login_data.json，用参数化 + HTMLTestReport 生成完整测试报告。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># ===== app.py（根目录）=====</span>
+<span class="k">import</span> os
+BASE_DIR <span class="o">=</span> os.path.<span class="b">dirname</span>(__file__)
+
+
+<span class="g"># ===== common/read_data.py =====</span>
+<span class="k">import</span> json
+<span class="k">from</span> app <span class="k">import</span> BASE_DIR
+
+<span class="k">def</span> <span class="b">build_login_data</span>():
+    path <span class="o">=</span> BASE_DIR <span class="o">+</span> <span class="s">'/data/login_data.json'</span>
+    <span class="k">with</span> <span class="b">open</span>(path, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="b">load</span>(f)
+    <span class="k">return</span> [(d[<span class="s">'username'</span>], d[<span class="s">'password'</span>], d[<span class="s">'expect'</span>]) <span class="k">for</span> d <span class="k">in</span> data_list]
+
+
+<span class="g"># ===== case/test_login.py =====</span>
+<span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+<span class="k">from</span> common.read_data <span class="k">import</span> build_login_data
+
+<span class="k">def</span> <span class="b">login</span>(u, p):
+    <span class="k">return</span> <span class="s">'登录成功'</span> <span class="k">if</span> u <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> p <span class="o">==</span> <span class="s">'123456'</span> <span class="k">else</span> <span class="s">'登录失败'</span>
+
+<span class="k">class</span> <span class="b">TestLogin</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+    <span class="o">@parameterized.expand</span>(<span class="b">build_login_data</span>())
+    <span class="k">def</span> <span class="b">test_login</span>(self, username, password, expect):
+        self.<span class="b">assertEqual</span>(expect, <span class="b">login</span>(username, password))
+
+
+<span class="g"># ===== run.py（根目录）=====</span>
+<span class="k">import</span> unittest
+<span class="k">from</span> app <span class="k">import</span> BASE_DIR
+<span class="k">from</span> htmltestreport <span class="k">import</span> <span class="b">HTMLTestReport</span>
+<span class="k">from</span> case.test_login <span class="k">import</span> <span class="b">TestLogin</span>
+
+suite <span class="o">=</span> unittest.<span class="b">TestSuite</span>()
+suite.<span class="b">addTest</span>(unittest.<span class="b">makeSuite</span>(<span class="b">TestLogin</span>))
+<span class="b">HTMLTestReport</span>(
+    BASE_DIR <span class="o">+</span> <span class="s">'/report/login_report.html'</span>,
+    <span class="s">'登录功能测试报告'</span>, <span class="s">'V1.0'</span>
+).<span class="b">run</span>(suite)</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="cp10">
+  <div class="pt-body">
+    <div class="pt-t">10. 综合题：在参数化登录测试中添加 <code class="inl">setUp</code>（打印"开始用例"）、<code class="inl">tearDown</code>（打印"结束用例"），并对一个测试方法使用 <code class="inl">@skip</code>，验证整体执行顺序。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+<span class="k">from</span> parameterized <span class="k">import</span> parameterized
+
+
+<span class="k">def</span> <span class="b">login</span>(u, p):
+    <span class="k">return</span> <span class="s">'登录成功'</span> <span class="k">if</span> u <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> p <span class="o">==</span> <span class="s">'123456'</span> <span class="k">else</span> <span class="s">'登录失败'</span>
+
+
+data <span class="o">=</span> [(<span class="s">'admin'</span>, <span class="s">'123456'</span>, <span class="s">'登录成功'</span>), (<span class="s">'root'</span>, <span class="s">'123456'</span>, <span class="s">'登录失败'</span>)]
+
+
+<span class="k">class</span> <span class="b">TestLoginFull</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">setUp</span>(self):
+        <span class="b">print</span>(<span class="s">'\n--- 开始用例 ---'</span>)
+
+    <span class="k">def</span> <span class="b">tearDown</span>(self):
+        <span class="b">print</span>(<span class="s">'--- 结束用例 ---'</span>)
+
+    <span class="o">@parameterized.expand</span>(data)
+    <span class="k">def</span> <span class="b">test_login</span>(self, username, password, expect):
+        self.<span class="b">assertEqual</span>(expect, <span class="b">login</span>(username, password))
+
+    <span class="o">@unittest.skip</span>(<span class="s">'暂时跳过此场景'</span>)
+    <span class="k">def</span> <span class="b">test_extra</span>(self):
+        <span class="b">print</span>(<span class="s">'额外测试'</span>)    <span class="g"># 不会执行</span>
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>(verbosity<span class="o">=</span><span class="n">2</span>)</div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+</div><!-- /p2 -->
+
+<!-- ============ PANEL 3 ============ -->
+<div class="pan" id="p3">
+
+<div class="sec">
+  <h2><span class="ico">1</span>面试高频题（12 题）</h2>
+  <p>点击题目展开详细解析。难度标签：<span class="iq-lv lv-b">基础</span> <span class="iq-lv lv-m">进阶</span> <span class="iq-lv lv-h">陷阱/场景</span></p>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">assertEqual 和 assertIn 有什么区别？分别在什么场景下使用？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>assertEqual(a, b)</b>：判断 a == b，要求<b>精确相等</b>。适合函数返回值是固定字符串、数字、布尔值的场景。</p>
+    <p><b>assertIn(a, b)</b>：判断 a in b，验证<b>包含关系</b>。适合返回值是大段文本、响应内容包含某个关键词的场景。</p>
+    <p><b>测试示例：</b></p>
+    <ul>
+      <li>登录函数返回 <code class="inl">'登录成功'</code> → 用 <code class="inl">assertEqual('登录成功', result)</code></li>
+      <li>UI 页面返回 HTML，验证含"欢迎" → 用 <code class="inl">assertIn('欢迎', response.text)</code></li>
+      <li>接口响应 JSON 字符串，验证含 <code class="inl">"success"</code> → 用 <code class="inl">assertIn('success', response.text)</code></li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">什么是参数化？为什么要参数化？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>参数化</b>：通过参数传递数据，实现测试数据和测试脚本分离。同一个测试方法可以用多组数据执行多次。</p>
+    <p><b>为什么要参数化：</b></p>
+    <ul>
+      <li><b>避免重复代码</b>：4 组数据写 4 个方法 → 参数化写 1 个方法</li>
+      <li><b>数据驱动</b>：测试数据存 JSON 文件，脚本不变；新增/修改数据只改 JSON</li>
+      <li><b>独立统计</b>：每组数据生成独立用例，一组失败不影响其他</li>
+      <li><b>可维护性强</b>：非技术人员可以维护测试数据（JSON 文件）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">如何使用 parameterized？写出完整的使用步骤。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <ol>
+      <li>安装：<code class="inl">pip install parameterized</code></li>
+      <li>导包：<code class="inl">from parameterized import parameterized</code></li>
+      <li>组织数据：<code class="inl">data = [(a1,b1,e1), (a2,b2,e2), ...]</code></li>
+      <li>装饰器：在方法上方加 <code class="inl">@parameterized.expand(data)</code></li>
+      <li>修改方法：参数与元组元素一一对应 <code class="inl">def test_x(self, a, b, expect):</code></li>
+      <li>运行即可</li>
+    </ol>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">读取 JSON 测试数据时，数组格式和对象格式的处理有什么不同？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>数组格式 [[a,b,e], ...]：</b>json.load 直接返回嵌套列表，parameterized 可直接接受，不用转换：</p>
+<div class="term">data <span class="o">=</span> json.<span class="p">load</span>(f)   <span class="g"># [[1,1,2], [1,2,3], ...]</span>
+<span class="g"># 直接传给 @parameterized.expand(data)</span></div>
+    <p><b>对象格式 [{"username":..., "expect":...}, ...]：</b>需要手动转换为元组列表：</p>
+<div class="term">new_list <span class="o">=</span> [(d[<span class="s">'username'</span>], d[<span class="s">'password'</span>], d[<span class="s">'expect'</span>]) <span class="k">for</span> d <span class="k">in</span> data_list]</div>
+    <p><b>优势对比：</b>对象格式更清晰（有字段名），推荐；数组格式更简洁，适合简单数据。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">skip 和 skipIf 的区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <ul>
+      <li><code class="inl">@unittest.skip(reason)</code>：<b>无条件跳过</b>，直接标记该方法不执行</li>
+      <li><code class="inl">@unittest.skipIf(condition, reason)</code>：<b>条件为 True 时跳过</b>，False 时正常执行</li>
+      <li><code class="inl">@unittest.skipUnless(condition, reason)</code>：<b>条件为 False 时跳过</b>（与 skipIf 相反）</li>
+    </ul>
+    <p><b>常见场景：</b></p>
+    <ul>
+      <li>功能未完成 → <code class="inl">@skip</code></li>
+      <li>在低版本不需要执行某功能 → <code class="inl">@skipIf(version < 30, '旧版本跳过')</code></li>
+      <li>只在 Windows 执行 → <code class="inl">@skipIf(not sys.platform.startswith('win'), '非 Windows')</code></li>
+    </ul>
+    <p>跳过的用例显示为 <code class="inl">s</code>，最终统计 <code class="inl">OK (skipped=N)</code>，不算失败。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">如何生成 HTML 测试报告？TextTestRunner 和 HTMLTestReport 有什么区别？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比</th><th>TextTestRunner</th><th>HTMLTestReport</th></tr>
+      <tr><td>输出格式</td><td>纯文本，控制台</td><td>HTML 文件，可用浏览器查看</td></tr>
+      <tr><td>可读性</td><td>低</td><td>高（有颜色、统计图）</td></tr>
+      <tr><td>分享</td><td>不方便</td><td>可直接发送 .html 文件</td></tr>
+      <tr><td>安装</td><td>自带，无需安装</td><td>需 pip install HTMLTestReport</td></tr>
+      <tr><td>用法</td><td>runner.run(suite)</td><td>HTMLTestReport(路径, 标题, 描述).run(suite)</td></tr>
+    </table>
+    </div>
+    <p><b>实际项目中</b>：CI/CD 流水线生成 HTML 报告，发送给 PM/开发团队查看，TextTestRunner 只用于调试。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">为什么要用绝对路径？如何获取项目根目录？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>为什么：</b>在分目录项目中，从不同位置运行脚本时，相对路径的基准目录不同，会导致 FileNotFoundError。绝对路径固定从项目根目录出发，不受运行目录影响。</p>
+    <p><b>获取方式：</b>在项目根目录创建 <code class="inl">app.py</code>：</p>
+<div class="term"><span class="k">import</span> os
+BASE_DIR <span class="o">=</span> os.path.<span class="p">dirname</span>(__file__)</div>
+    <p>其他文件通过 <code class="inl">from app import BASE_DIR</code> 使用，拼接路径：</p>
+<div class="term">path <span class="o">=</span> BASE_DIR <span class="o">+</span> <span class="s">'/data/login_data.json'</span></div>
+    <p><b>__file__ 是什么：</b>Python 的特殊变量，表示当前代码文件名（或路径）。<code class="inl">os.path.dirname</code> 去掉文件名，只保留目录。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">参数化测试中，每组数据的测试方法名是什么格式？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>parameterized 会根据数据自动生成方法名，格式为：</p>
+    <p><code class="inl">原方法名_序号_数据内容</code>，例如 <code class="inl">test_login_0</code>、<code class="inl">test_login_1</code>、<code class="inl">test_login_2</code>...</p>
+    <p>每组数据独立作为一个测试方法，<b>相互独立，一组失败不影响其他组</b>。</p>
+    <p>在报告中可以清楚看到哪组数据导致了失败，便于定位问题。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">下面的断言代码会通过吗？为什么？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term">self.<span class="p">assertIn</span>(<span class="s">'admin'</span>, <span class="s">'欢迎 adminnnnnn 登录'</span>)   <span class="g"># ① ?</span>
+self.<span class="p">assertIn</span>(<span class="s">'admin'</span>, <span class="s">'欢迎 adddddmin 登录'</span>)    <span class="g"># ② ?</span></div>
+    <p><b>答案：</b>① 通过，② 不通过</p>
+    <p><b>解析：</b>assertIn 判断的是<b>字符串包含</b>，相当于 Python 的 <code class="inl">in</code> 运算符：</p>
+    <ul>
+      <li>① <code class="inl">'admin' in '欢迎 adminnnnnn 登录'</code> → True（字符串中有 <code class="inl">admin</code> 这个子串）</li>
+      <li>② <code class="inl">'admin' in '欢迎 adddddmin 登录'</code> → False（<code class="inl">adddddmin</code> 不包含连续的 <code class="inl">admin</code> 子串）</li>
+    </ul>
+    <p>不是"模糊匹配"，而是严格的<b>子字符串包含</b>。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">skipIf 和 skipUnless 的关系？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>两者是<b>互补关系</b>：</p>
+    <ul>
+      <li><code class="inl">@skipIf(cond, reason)</code>：条件为 <b>True → 跳过</b>，False → 执行</li>
+      <li><code class="inl">@skipUnless(cond, reason)</code>：条件为 <b>False → 跳过</b>，True → 执行</li>
+    </ul>
+    <p>等价关系：<code class="inl">skipUnless(cond)</code> ≡ <code class="inl">skipIf(not cond)</code></p>
+    <p><b>例：</b></p>
+<div class="term"><span class="g"># 两种写法效果等同</span>
+<span class="o">@unittest.skipIf</span>(version <span class="o">&lt;</span> <span class="n">30</span>, <span class="s">'版本不够'</span>)
+<span class="o">@unittest.skipUnless</span>(version <span class="o">&gt;=</span> <span class="n">30</span>, <span class="s">'版本不够'</span>)</div>
+    <p>选哪个取决于哪种表述更自然可读。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">如果 JSON 数据文件中有 desc 字段，参数化时不需要 desc，如何处理？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>在 build_data 函数中，<b>只取需要的字段</b>，不要的字段（如 desc）直接跳过：</p>
+<div class="term"><span class="k">def</span> <span class="p">build_login_data</span>():
+    <span class="k">with</span> <span class="p">open</span>(<span class="s">'login_data.json'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="p">load</span>(f)
+    <span class="k">return</span> [
+        (d[<span class="s">'username'</span>], d[<span class="s">'password'</span>], d[<span class="s">'expect'</span>])   <span class="g"># 不要 desc</span>
+        <span class="k">for</span> d <span class="k">in</span> data_list
+    ]</div>
+    <p>这样测试方法签名是 <code class="inl">def test_login(self, username, password, expect)</code>，与数据精确对应。</p>
+    <p>如果全部值都需要，可用 <code class="inl">tuple(d.values())</code>，但要确保 JSON 键的顺序与方法参数顺序一致。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">在实际自动化测试项目中，如何组织代码结构？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>标准项目目录结构：</p>
+<div class="term">project/
+├── app.py          <span class="g"># BASE_DIR 配置</span>
+├── tools.py        <span class="g"># 被测功能代码</span>
+├── case/           <span class="g"># 所有用例，test_*.py</span>
+├── common/         <span class="g"># 公共模块：read_data.py 等</span>
+├── data/           <span class="g"># 测试数据 JSON 文件</span>
+├── report/         <span class="g"># HTML 报告输出</span>
+└── run.py          <span class="g"># 主运行：Suite + HTMLTestReport</span></div>
+    <p><b>最佳实践：</b></p>
+    <ul>
+      <li>用例文件命名 <code class="inl">test_项目_模块.py</code></li>
+      <li>测试数据存 JSON，build_data 函数单独封装在 common/</li>
+      <li>报告路径用绝对路径（BASE_DIR 拼接）</li>
+      <li>run.py 用 TestLoader.discover 批量加载</li>
+      <li>Fixture 负责打开/关闭浏览器、建立/断开接口连接</li>
+    </ul>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+</div><!-- /p3 -->
+
+<!-- ============ PANEL 4 ============ -->
+<div class="pan" id="p4">
+
+<div class="sec">
+  <h2><span class="ico">1</span>知识测验（15 题）</h2>
+  <p>选择每题答案后，点击底部"提交答卷"查看成绩和解析。</p>
+</div>
+
+<div id="qr">
+  <h3>🎉 完成！</h3>
+  <div class="sc"><span id="sc-num">0</span> / 15</div>
+  <div id="sc-msg" style="font-size:13px;opacity:.92"></div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">1</span><code class="inl">assertIn('admin', '欢迎 admin 登录')</code> 的结果是？</div>
+  <div class="opt" data-v="A">A. 不通过，因为字符串不完全相等</div>
+  <div class="opt" data-v="B">B. 通过，'admin' 是 '欢迎 admin 登录' 的子串</div>
+  <div class="opt" data-v="C">C. 报错</div>
+  <div class="opt" data-v="D">D. 不通过，需要完全匹配才行</div>
+  <div class="qz-ex"><b>解析：</b>assertIn 判断的是<b>包含关系</b>（in 运算符），'admin' 确实在 '欢迎 admin 登录' 这个字符串中，所以通过。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">2</span>parameterized 不是 Python 自带的，需要如何安装？</div>
+  <div class="opt" data-v="A">A. import parameterized</div>
+  <div class="opt" data-v="B">B. 无需安装，unittest 自带</div>
+  <div class="opt" data-v="C">C. pip install parameterized</div>
+  <div class="opt" data-v="D">D. conda install parameterized</div>
+  <div class="qz-ex"><b>解析：</b>parameterized 是第三方插件，需要 <code class="inl">pip install parameterized</code> 安装。安装后用 <code class="inl">from parameterized import parameterized</code> 导入。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">3</span>参数化测试数据的格式是什么？</div>
+  <div class="opt" data-v="A">A. 列表嵌套元组 [(), (), ()]，一个元组是一组数据</div>
+  <div class="opt" data-v="B">B. 字典 {key: value}</div>
+  <div class="opt" data-v="C">C. 嵌套字典 [{}, {}]</div>
+  <div class="opt" data-v="D">D. 二维列表 [[]]，不能用元组</div>
+  <div class="qz-ex"><b>解析：</b>parameterized.expand 接受列表，其中每个元素是一组数据（通常是元组或列表），每个元素的成员对应测试方法的参数。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">4</span>参数化装饰器写在哪里？</div>
+  <div class="opt" data-v="A">A. 类定义上方</div>
+  <div class="opt" data-v="B">B. import 语句下方</div>
+  <div class="opt" data-v="C">C. 测试方法内部</div>
+  <div class="opt" data-v="D">D. 测试方法名的上方（def 的上一行）</div>
+  <div class="qz-ex"><b>解析：</b>Python 装饰器写在被装饰函数的<b>上方紧邻</b>：<code class="inl">@parameterized.expand(data)</code> 然后下一行是 <code class="inl">def test_method(self, ...):</code>。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">5</span>使用 @unittest.skipIf(version >= 30, '...')，当 version=29 时，结果是？</div>
+  <div class="opt" data-v="A">A. 跳过该用例</div>
+  <div class="opt" data-v="B">B. 报错</div>
+  <div class="opt" data-v="C">C. 正常执行，29 < 30 条件为 False</div>
+  <div class="opt" data-v="D">D. 取决于用例内容</div>
+  <div class="qz-ex"><b>解析：</b>skipIf 在条件为 True 时跳过。version=29，29 >= 30 为 False，所以<b>不跳过，正常执行</b>。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">6</span>@unittest.skip 和 @unittest.skipIf 的最大区别是？</div>
+  <div class="opt" data-v="A">A. skip 无条件跳过，skipIf 根据条件决定是否跳过</div>
+  <div class="opt" data-v="B">B. skip 只能用在类上，skipIf 用在方法上</div>
+  <div class="opt" data-v="C">C. skip 用于测试通过后标记，skipIf 用于失败时</div>
+  <div class="opt" data-v="D">D. 没有区别，用法完全相同</div>
+  <div class="qz-ex"><b>解析：</b>@skip 直接跳过，不看任何条件；@skipIf 需要传入条件表达式，条件为 True 才跳过。两者都可以用在类或方法上。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">7</span>被跳过的用例在执行结果中显示什么符号？</div>
+  <div class="opt" data-v="A">A. F</div>
+  <div class="opt" data-v="B">B. s</div>
+  <div class="opt" data-v="C">C. E</div>
+  <div class="opt" data-v="D">D. X</div>
+  <div class="qz-ex"><b>解析：</b>. = pass, F = fail, E = error, <b>s = skip（跳过）</b>。最终汇总 <code class="inl">OK (skipped=N)</code>，跳过不算失败。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">8</span>HTMLTestReport 和 TextTestRunner 的本质区别是什么？</div>
+  <div class="opt" data-v="A">A. 执行速度不同</div>
+  <div class="opt" data-v="B">B. 支持的断言方法不同</div>
+  <div class="opt" data-v="C">C. 组装用例的方式不同</div>
+  <div class="opt" data-v="D">D. 输出报告的格式不同，一个是文本一个是 HTML</div>
+  <div class="qz-ex"><b>解析：</b>两者都是 TestRunner 的实现，区别在于输出格式：TextTestRunner 输出纯文本到控制台，HTMLTestReport 生成可视化 HTML 文件。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">9</span>生成 HTMLTestReport 需要传几个参数？</div>
+  <div class="opt" data-v="A">A. 1 个（只有路径）</div>
+  <div class="opt" data-v="B">B. 2 个（路径 + 标题）</div>
+  <div class="opt" data-v="C">C. 3 个（路径 + 标题 + 描述）</div>
+  <div class="opt" data-v="D">D. 没有参数限制</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">HTMLTestReport(报告路径.html, 报告标题, 描述信息)</code>，3 个参数：文件路径、标题名称、附加描述。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">10</span><code class="inl">__file__</code> 是什么？</div>
+  <div class="opt" data-v="A">A. 当前代码文件的路径</div>
+  <div class="opt" data-v="B">B. 打开的文件对象</div>
+  <div class="opt" data-v="C">C. 文件读取方法</div>
+  <div class="opt" data-v="D">D. 文件后缀名</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">__file__</code> 是 Python 的特殊变量，表示<b>当前执行的代码文件的路径</b>（文件名或完整路径）。在 app.py 中用它来确定项目根目录。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">11</span>以下代码 <code class="inl">BASE_DIR = os.path.dirname(__file__)</code> 得到的是什么？</div>
+  <div class="opt" data-v="A">A. 当前文件的完整路径（含文件名）</div>
+  <div class="opt" data-v="B">B. 当前文件所在的目录路径</div>
+  <div class="opt" data-v="C">C. 项目中所有文件的列表</div>
+  <div class="opt" data-v="D">D. Python 解释器的路径</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">os.path.dirname</code> 去掉路径中的文件名部分，只保留目录。如 <code class="inl">dirname('/project/app.py')</code> → <code class="inl">'/project'</code>。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">12</span>为什么推荐使用绝对路径而不是相对路径打开文件？</div>
+  <div class="opt" data-v="A">A. 绝对路径写起来更短</div>
+  <div class="opt" data-v="B">B. 相对路径在 Windows 上不支持</div>
+  <div class="opt" data-v="C">C. 绝对路径可以跨网络访问</div>
+  <div class="opt" data-v="D">D. 相对路径依赖运行目录，分目录项目中可能找不到文件</div>
+  <div class="qz-ex"><b>解析：</b>相对路径的基准是<b>Python 的工作目录</b>，不同位置运行脚本时工作目录不同，可能导致 FileNotFoundError。绝对路径从固定的根目录出发，始终正确。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">13</span>参数化测试有 4 组数据，哪组失败不影响其他组，这体现了参数化的什么优势？</div>
+  <div class="opt" data-v="A">A. 每组数据独立成为一个测试方法，互不影响</div>
+  <div class="opt" data-v="B">B. 参数化会自动跳过失败的数据</div>
+  <div class="opt" data-v="C">C. 参数化有自动重试机制</div>
+  <div class="opt" data-v="D">D. 这是 unittest 本身的特性，与参数化无关</div>
+  <div class="qz-ex"><b>解析：</b>parameterized 会把每组数据展开为一个<b>独立的测试方法</b>（test_login_0, test_login_1...），各自独立执行和统计，一组失败不影响其他组。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">14</span>下列哪种数据格式更适合用在 JSON 测试数据文件中（可读性更好）？</div>
+  <div class="opt" data-v="A">A. <code class="inl">[[1,1,2],[1,2,3]]</code>（数组格式）</div>
+  <div class="opt" data-v="B">B. <code class="inl">"1,1,2\n1,2,3"</code>（字符串格式）</div>
+  <div class="opt" data-v="C">C. <code class="inl">[{"a":1,"b":1,"expect":2}]</code>（对象数组格式）</div>
+  <div class="opt" data-v="D">D. <code class="inl">{"data":[[1,1,2]]}</code></div>
+  <div class="qz-ex"><b>解析：</b>对象格式（每组数据有字段名）可读性最好，维护人员可以直接看懂每个字段的含义，特别是非技术人员维护数据时。数组格式虽然简洁但不直观。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">15</span>完整项目中 run.py 的职责是什么？</div>
+  <div class="opt" data-v="A">A. 存放被测功能代码</div>
+  <div class="opt" data-v="B">B. 组装所有用例（Suite）并用 HTMLTestReport 执行，生成报告</div>
+  <div class="opt" data-v="C">C. 定义测试数据的读取方法</div>
+  <div class="opt" data-v="D">D. 配置项目根目录 BASE_DIR</div>
+  <div class="qz-ex"><b>解析：</b>run.py 是主运行文件，职责是组装 TestSuite（或 TestLoader.discover），创建 HTMLTestReport runner 并执行，生成测试报告。app.py 管 BASE_DIR，tools.py 管被测功能，common/ 管数据读取。</div>
+</div>
+
+<button class="qbtn" onclick="sub()">提交答卷</button>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+</div><!-- /p4 -->
+
+</div><!-- /wrap -->
+
+<script>
+const pans=document.querySelectorAll('.pan'),tabs=document.querySelectorAll('.t'),dots=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){const d=document.createElement('span');d.className='dot'+(i===0?' a':'');d.onclick=()=>go(i);dots.appendChild(d);}
+function go(i){tabs.forEach((t,k)=>t.classList.toggle('a',k===i));pans.forEach((p,k)=>p.classList.toggle('a',k===i));document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));window.scrollTo({top:0,behavior:'smooth'});}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i);});
+function tr(el){const a=el.nextElementSibling;a.classList.toggle('s');el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';}
+function tq(h){h.parentElement.classList.toggle('o');}
+const cbs=document.querySelectorAll('.ci');
+function upc(){const d=document.querySelectorAll('.ci:checked').length;document.getElementById('pc').textContent=d;cbs.forEach(c=>c.closest('.pt').classList.toggle('done',c.checked));document.querySelectorAll('.dot')[2].classList.toggle('d',d===10);}
+cbs.forEach(c=>c.onchange=upc);upc();
+function mc(){cbs.forEach(c=>c.checked=true);upc();}
+document.querySelectorAll('.qz').forEach(qz=>{qz.querySelectorAll('.opt').forEach(opt=>{opt.onclick=()=>{if(qz.classList.contains('locked'))return;qz.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));opt.classList.add('sel');};});});
+function sub(){
+  const qzs=document.querySelectorAll('.qz');let s=0;
+  qzs.forEach(qz=>{qz.classList.add('locked');const a=qz.dataset.a,sel=qz.querySelector('.opt.sel');
+    qz.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(o.dataset.v===a)o.classList.add('ok');if(sel&&o===sel&&sel.dataset.v!==a)o.classList.add('no');});
+    if(sel&&sel.dataset.v===a)s++;qz.querySelector('.qz-ex').classList.add('s');});
+  document.getElementById('sc-num').textContent=s;
+  const m=['别灰心！多练习再来一次吧 💡','建议回到知识讲解重新学习 📚','还不错！复习错题解析～ 📖','很棒！继续加油 💪','满分！断言参数化全掌握！🎉'];
+  document.getElementById('sc-msg').textContent=m[Math.min(4,Math.floor(s/3))];
+  const qr=document.getElementById('qr');qr.classList.add('s');qr.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.dot')[4].classList.add('d');
+  try{window.parent.postMessage({type:'qa_quiz_result',score:s,total:15,day:'s4d10'},'*');}catch(e){}
+}
+</script>
+</body>
+</html>
