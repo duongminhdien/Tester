@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 4 · Python基础 Day 03 – 数据容器：字符串/列表/元组/字典</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#ea580c;--day-d:#c2410c;--day-bg:rgba(234,88,12,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--code-bg:#1e2030;--code-ink:#a6accd;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+html,body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(234,88,12,.25)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(234,88,12,.3)}
+
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{margin-bottom:10px;color:var(--ink2);line-height:1.75}
+.sec ul,.sec ol{padding-left:18px;color:var(--ink2);margin-bottom:10px}
+.sec li{margin-bottom:5px;line-height:1.7}
+
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.8}
+.term .k{color:#c792ea}
+.term .s{color:#ffcb6b}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .n{color:#f78c6c}
+.term .g{color:#676e95;font-style:italic}
+.term .w{color:#fff;font-weight:600}
+.term .p{color:#82aaff}
+.term .r{color:#f07178}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:420px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:13px;color:var(--ink2);line-height:1.65}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.bg-str{background:#fef3c7;color:#92400e}
+.bg-list{background:#dcfce7;color:#15803d}
+.bg-tup{background:#dbeafe;color:#1d4ed8}
+.bg-dict{background:#ede9fe;color:#6d28d9}
+
+/* Index visual */
+.idx-grid{display:flex;border:2px solid var(--day);border-radius:8px;overflow:hidden;margin:12px 0;font-family:'Space Mono',monospace;font-size:13px;text-align:center}
+.idx-row{display:flex;flex-direction:column;flex:1;border-right:1px solid var(--border)}
+.idx-row:last-child{border-right:none}
+.idx-pos{background:var(--day-bg);color:var(--day-d);padding:4px 2px;font-size:11px;font-weight:700}
+.idx-char{padding:8px 4px;font-weight:700;font-size:15px;color:var(--ink);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.idx-neg{background:#fef2f2;color:#991b1b;padding:4px 2px;font-size:11px;font-weight:700}
+
+/* Method tag */
+.mtag{display:inline-block;background:var(--day);color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin:2px}
+.mtag-g{background:var(--green)}
+.mtag-b{background:var(--blue)}
+.mtag-p{background:#7c3aed}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.cmp-item{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.cmp-hd{padding:8px 12px;font-size:12px;font-weight:700}
+.cmp-body{padding:12px}
+
+/* Vis */
+.vis-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.vis-card h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day)}
+
+/* Practice */
+.prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.prog-bar{flex:1;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--day),var(--day-d));border-radius:99px;transition:width .4s}
+.prog-txt{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--day-d);min-width:40px;text-align:right}
+.mc-btn{padding:7px 14px;background:var(--day-bg);color:var(--day-d);border:1.5px solid var(--day);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;white-space:nowrap}
+.mc-btn:hover{background:var(--day);color:#fff}
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border);margin-top:6px}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+.pt-tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;background:var(--day-bg);color:var(--day-d);margin-left:6px;vertical-align:middle}
+
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+.qbtn{display:block;width:100%;padding:13px;background:var(--day);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin:20px 0 10px;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:var(--day-d)}
+#qres{display:none;background:var(--card);border:2px solid var(--day);border-radius:14px;padding:22px;text-align:center;margin-top:16px}
+#qres.s{display:block}
+#qscore{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--day);display:block;margin-bottom:6px}
+#qmsg{font-size:14px;color:var(--ink2)}
+
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3,.cmp{grid-template-columns:1fr}
+  .idx-grid{font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · PYTHON基础 DAY 03</div>
+  <h1>数据容器：字符串 / 列表 / 元组 / 字典</h1>
+  <p>掌握 Python 四大数据容器的定义与操作：字符串的下标/切片/查找/替换/拆分/连接，列表的增删改查排序，元组的特性，字典的键值对增删查遍历。结合 TPShop 测试数据案例综合应用。</p>
+  <div class="hd-stats">
+    <div><b>4</b>大容器</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- Section 1: 字符串 -->
+  <div class="sec">
+    <h2><span class="ico">1</span>字符串 str</h2>
+    <p>字符串是用 <b>引号</b>（单引号、双引号、三引号）引起来的内容，属于 Python 的数据容器之一。</p>
+
+    <h3>定义方式 & 特殊字符</h3>
+    <div class="term">
+<span class="g"># 三种引号均可定义</span>
+str1 <span class="o">=</span> <span class="s">'hello'</span>       <span class="g"># 单引号</span>
+str2 <span class="o">=</span> <span class="s">"hello"</span>       <span class="g"># 双引号</span>
+str3 <span class="o">=</span> <span class="s">"""hello"""</span>    <span class="g"># 三引号（可多行）</span>
+
+<span class="g"># 包含引号的字符串</span>
+str4 <span class="o">=</span> <span class="s">"I'm 小明"</span>      <span class="g"># 字符串含单引号 → 用双引号定义</span>
+str5 <span class="o">=</span> <span class="s">'I\'m 小明'</span>    <span class="g"># 转义字符 \' 解决</span>
+
+<span class="g"># 常用转义字符</span>
+<span class="g"># \n → 换行   \t → 制表符   \' → 单引号   \\ → 反斜杠</span>
+
+<span class="g"># 原生字符串：前缀 r，\ 不转义</span>
+str6 <span class="o">=</span> r<span class="s">'I\'m 小明'</span>   <span class="g"># 输出: I\'m 小明</span>
+    </div>
+
+    <h3>下标（索引）与切片</h3>
+    <p>下标是数据在容器中的位置编号，从 <b>0</b> 开始，支持负数下标（-1 表示最后一个）。</p>
+
+    <!-- 索引可视化 -->
+    <div class="idx-grid">
+      <div class="idx-row"><div class="idx-pos">0</div><div class="idx-char">a</div><div class="idx-neg">-7</div></div>
+      <div class="idx-row"><div class="idx-pos">1</div><div class="idx-char">b</div><div class="idx-neg">-6</div></div>
+      <div class="idx-row"><div class="idx-pos">2</div><div class="idx-char">c</div><div class="idx-neg">-5</div></div>
+      <div class="idx-row"><div class="idx-pos">3</div><div class="idx-char">d</div><div class="idx-neg">-4</div></div>
+      <div class="idx-row"><div class="idx-pos">4</div><div class="idx-char">e</div><div class="idx-neg">-3</div></div>
+      <div class="idx-row"><div class="idx-pos">5</div><div class="idx-char">f</div><div class="idx-neg">-2</div></div>
+      <div class="idx-row"><div class="idx-pos">6</div><div class="idx-char">g</div><div class="idx-neg">-1</div></div>
+    </div>
+
+    <div class="term">
+my_str <span class="o">=</span> <span class="s">'abcdefg'</span>
+<span class="g"># 下标访问</span>
+<span class="p">print</span>(my_str[<span class="n">0</span>])    <span class="g"># a（第一个）</span>
+<span class="p">print</span>(my_str[<span class="n">-1</span>])   <span class="g"># g（最后一个）</span>
+<span class="p">print</span>(my_str[<span class="n">3</span>])    <span class="g"># d</span>
+
+<span class="g"># 切片语法：容器[start:end:step]  end取不到</span>
+<span class="p">print</span>(my_str[<span class="n">0</span>:<span class="n">3</span>])    <span class="g"># abc（步长1可省略）</span>
+<span class="p">print</span>(my_str[:<span class="n">3</span>])     <span class="g"># abc（start为0可省略）</span>
+<span class="p">print</span>(my_str[<span class="n">4</span>:])     <span class="g"># efg（取到末尾，end可省略）</span>
+<span class="p">print</span>(my_str[::<span class="n">2</span>])    <span class="g"># aceg（步长2，每隔一个取）</span>
+<span class="p">print</span>(my_str[::<span class="n">-1</span>])   <span class="g"># gfedcba（步长-1，逆序）</span>
+    </div>
+
+    <h3>常用字符串方法</h3>
+    <div class="tw">
+      <table>
+        <tr><th>方法</th><th>作用</th><th>返回值</th><th>注意点</th></tr>
+        <tr><td><span class="mtag">find(sub)</span></td><td>查找子串位置</td><td>找到→下标，未找到→<code class="inl">-1</code></td><td>不会报错</td></tr>
+        <tr><td><span class="mtag">replace(old,new,n)</span></td><td>替换子串</td><td>新字符串</td><td>原字符串不变</td></tr>
+        <tr><td><span class="mtag">split(sep)</span></td><td>按sep拆分</td><td>列表</td><td>默认按空白字符拆</td></tr>
+        <tr><td><span class="mtag">sep.join(list)</span></td><td>连接列表元素</td><td>字符串</td><td>列表元素必须是str</td></tr>
+      </table>
+    </div>
+
+    <div class="term">
+my_str <span class="o">=</span> <span class="s">'hello world and itcast and itheima'</span>
+
+<span class="g"># find() 查找</span>
+<span class="p">print</span>(my_str.<span class="p">find</span>(<span class="s">'and'</span>))    <span class="g"># 12（第一次出现的下标）</span>
+<span class="p">print</span>(my_str.<span class="p">find</span>(<span class="s">'good'</span>))   <span class="g"># -1（不存在）</span>
+
+<span class="g"># replace() 替换</span>
+new_str <span class="o">=</span> my_str.<span class="p">replace</span>(<span class="s">'and'</span>, <span class="s">'or'</span>)
+<span class="p">print</span>(new_str)  <span class="g"># hello world or itcast or itheima</span>
+<span class="p">print</span>(my_str)   <span class="g"># 原字符串不变！</span>
+
+<span class="g"># split() 拆分</span>
+list1 <span class="o">=</span> my_str.<span class="p">split</span>()        <span class="g"># 默认空白字符分隔</span>
+<span class="g"># ['hello', 'world', 'and', 'itcast', 'and', 'itheima']</span>
+
+<span class="g"># join() 连接</span>
+<span class="p">print</span>(<span class="s">'_*_'</span>.<span class="p">join</span>(list1))  <span class="g"># hello_*_world_*_and_*_...</span>
+<span class="p">print</span>(<span class="s">','</span>.<span class="p">join</span>(list1))    <span class="g"># hello,world,and,...</span>
+    </div>
+  </div>
+
+  <!-- Section 2: 列表 -->
+  <div class="sec">
+    <h2><span class="ico">2</span>列表 list</h2>
+    <p>列表用 <code class="inl">[]</code> 定义，可以存放 <b>任意多个、任意类型</b> 的数据，支持下标和切片，数据 <b>可以修改</b>。</p>
+
+    <div class="term">
+<span class="g"># 定义列表</span>
+list1 <span class="o">=</span> []                         <span class="g"># 空列表</span>
+list2 <span class="o">=</span> [<span class="n">1</span>, <span class="n">3.14</span>, <span class="s">'hello'</span>, <span class="w">False</span>]  <span class="g"># 混合类型</span>
+list3 <span class="o">=</span> <span class="p">list</span>(<span class="s">'abcd'</span>)               <span class="g"># ['a','b','c','d']</span>
+
+<span class="g"># 下标和切片（与字符串相同）</span>
+<span class="p">print</span>(list2[<span class="n">0</span>])     <span class="g"># 1</span>
+<span class="p">print</span>(list2[<span class="n">-1</span>])    <span class="g"># False</span>
+<span class="p">print</span>(list2[<span class="n">1</span>:<span class="n">3</span>])   <span class="g"># [3.14, 'hello']</span>
+    </div>
+
+    <h3>列表增删改查方法</h3>
+    <div class="tw">
+      <table>
+        <tr><th>操作</th><th>方法/语法</th><th>说明</th><th>返回值</th></tr>
+        <tr><td>追加</td><td><span class="mtag mtag-g">append(data)</span></td><td>在末尾追加数据</td><td>None（原列表修改）</td></tr>
+        <tr><td>删除</td><td><span class="mtag mtag-g">pop(index)</span></td><td>按下标删除，默认删最后</td><td>被删除的数据</td></tr>
+        <tr><td>删除</td><td><span class="mtag mtag-g">remove(data)</span></td><td>按值删除第一个匹配项</td><td>None</td></tr>
+        <tr><td>修改</td><td><span class="mtag">list[i] = 新值</span></td><td>通过下标赋值</td><td>—</td></tr>
+        <tr><td>查找</td><td><span class="mtag mtag-b">index(data)</span></td><td>找到→下标，未找→报错</td><td>下标</td></tr>
+        <tr><td>统计</td><td><span class="mtag mtag-b">count(data)</span></td><td>统计数据出现次数</td><td>整数</td></tr>
+        <tr><td>排序</td><td><span class="mtag mtag-p">sort()</span></td><td>升序（reverse=True降序）</td><td>None（原列表修改）</td></tr>
+        <tr><td>反转</td><td><span class="mtag mtag-p">reverse()</span></td><td>反转原列表</td><td>None（原列表修改）</td></tr>
+      </table>
+    </div>
+
+    <div class="term">
+my_list <span class="o">=</span> [<span class="s">'hello'</span>, <span class="s">'python'</span>, <span class="s">'itcast'</span>]
+
+<span class="g"># 追加</span>
+my_list.<span class="p">append</span>(<span class="s">'heima'</span>)
+<span class="p">print</span>(my_list)  <span class="g"># ['hello', 'python', 'itcast', 'heima']</span>
+
+<span class="g"># 删除</span>
+my_list.<span class="p">pop</span>()         <span class="g"># 删最后一个</span>
+my_list.<span class="p">pop</span>(<span class="n">1</span>)        <span class="g"># 删下标为1的数据</span>
+my_list.<span class="p">remove</span>(<span class="s">'hello'</span>)  <span class="g"># 按值删除</span>
+
+<span class="g"># 修改</span>
+my_list[<span class="n">0</span>] <span class="o">=</span> <span class="s">'chuanzhi'</span>  <span class="g"># 修改第一个</span>
+
+<span class="g"># 排序</span>
+nums <span class="o">=</span> [<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>]
+nums.<span class="p">sort</span>()                   <span class="g"># [1, 1, 3, 4, 5]</span>
+nums.<span class="p">sort</span>(reverse<span class="o">=</span><span class="w">True</span>)       <span class="g"># [5, 4, 3, 1, 1]</span>
+    </div>
+
+    <h3>列表嵌套（二维列表）</h3>
+    <div class="term">
+<span class="g"># 嵌套列表 - 存储学生信息</span>
+student_list <span class="o">=</span> [
+    [<span class="s">'张三'</span>, <span class="s">'18'</span>, <span class="s">'功能测试'</span>],
+    [<span class="s">'李四'</span>, <span class="s">'20'</span>, <span class="s">'自动化测试'</span>],
+    [<span class="s">'王五'</span>, <span class="s">'21'</span>, <span class="s">'自动化测试'</span>]
+]
+
+<span class="p">print</span>(student_list[<span class="n">0</span>][<span class="n">0</span>])  <span class="g"># 张三（第1个列表的第1个数据）</span>
+<span class="p">print</span>(student_list[<span class="n">1</span>][<span class="n">0</span>])  <span class="g"># 李四</span>
+
+<span class="g"># 遍历所有人的年龄</span>
+<span class="k">for</span> info <span class="k">in</span> student_list<span class="o">:</span>
+    <span class="p">print</span>(info[<span class="n">1</span>])           <span class="g"># info 是内层列表</span>
+    </div>
+  </div>
+
+  <!-- Section 3: 元组 -->
+  <div class="sec">
+    <h2><span class="ico">3</span>元组 tuple & 组包/拆包</h2>
+    <p>元组用 <code class="inl">()</code> 定义，与列表非常相似，最大区别是 <b>元组中的数据不能修改</b>，主要用于传参和返回值。</p>
+
+    <div class="g2">
+      <div>
+        <div class="term">
+<span class="g"># 定义元组</span>
+tuple1 <span class="o">=</span> ()                  <span class="g"># 空元组</span>
+tuple2 <span class="o">=</span> (<span class="n">1</span>, <span class="n">2</span>, <span class="s">'hello'</span>)    <span class="g"># 非空元组</span>
+tuple3 <span class="o">=</span> (<span class="n">10</span>,)               <span class="g"># 单元素元组，逗号必须有！</span>
+tuple4 <span class="o">=</span> <span class="p">tuple</span>([<span class="n">1</span>,<span class="n">2</span>,<span class="n">3</span>])    <span class="g"># 列表转元组</span>
+
+<span class="p">print</span>(tuple2[<span class="n">2</span>])   <span class="g"># hello（支持下标）</span>
+<span class="g"># tuple2[0] = 99   # ❌ 报错！元组不可修改</span>
+        </div>
+      </div>
+      <div>
+        <div class="term">
+<span class="g"># 组包（pack）：多个值 → 元组</span>
+a <span class="o">=</span> <span class="n">1</span>, <span class="n">2</span>    <span class="g"># a = (1, 2)</span>
+
+<span class="g"># 拆包（unpack）：元组 → 多个变量</span>
+x, y <span class="o">=</span> a   <span class="g"># x=1, y=2</span>
+
+<span class="g"># 经典应用：交换两个变量的值</span>
+a <span class="o">=</span> <span class="n">10</span>
+b <span class="o">=</span> <span class="n">20</span>
+a, b <span class="o">=</span> b, a   <span class="g"># a=20, b=10</span>
+<span class="p">print</span>(a, b)
+
+<span class="g"># 字符串拆包</span>
+x, y, z <span class="o">=</span> <span class="s">'abc'</span>
+<span class="p">print</span>(y)  <span class="g"># b</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="box warn"><b>⚠️ 单元素元组陷阱：</b><code class="inl">(10)</code> 是整数，<code class="inl">(10,)</code> 才是元组。定义单元素元组时，数据后面的逗号不能省略！</div>
+  </div>
+
+  <!-- Section 4: 字典 -->
+  <div class="sec">
+    <h2><span class="ico">4</span>字典 dict</h2>
+    <p>字典用 <code class="inl">{}</code> 定义，由 <b>键值对（key: value）</b> 组成。字典的键不能重复，主要使用字符串类型。字典 <b>没有下标</b>，通过键访问值。</p>
+
+    <div class="term">
+<span class="g"># 定义字典</span>
+my_dict <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'小明'</span>, <span class="s">'age'</span>: <span class="n">18</span>, <span class="s">'height'</span>: <span class="n">1.78</span>}
+
+<span class="g"># ——— 增加/修改 ———</span>
+my_dict[<span class="s">'age'</span>] <span class="o">=</span> <span class="n">20</span>      <span class="g"># 键存在 → 修改</span>
+my_dict[<span class="s">'weight'</span>] <span class="o">=</span> <span class="n">65</span>   <span class="g"># 键不存在 → 添加</span>
+
+<span class="g"># ——— 删除 ———</span>
+my_dict.<span class="p">pop</span>(<span class="s">'height'</span>)    <span class="g"># 根据键删除键值对</span>
+
+<span class="g"># ——— 查询 ———</span>
+<span class="p">print</span>(my_dict[<span class="s">'name'</span>])       <span class="g"># 小明（键不存在会报错）</span>
+<span class="p">print</span>(my_dict.<span class="p">get</span>(<span class="s">'sex'</span>))   <span class="g"># None（键不存在返回None，不报错）</span>
+
+<span class="g"># ——— 遍历（三种方式）———</span>
+<span class="k">for</span> k <span class="k">in</span> my_dict<span class="o">:</span>          <span class="g"># 遍历键</span>
+    <span class="p">print</span>(k)
+
+<span class="k">for</span> v <span class="k">in</span> my_dict.<span class="p">values</span>()<span class="o">:</span>  <span class="g"># 遍历值（最常用）</span>
+    <span class="p">print</span>(v)
+
+<span class="k">for</span> k, v <span class="k">in</span> my_dict.<span class="p">items</span>()<span class="o">:</span>  <span class="g"># 遍历键值对</span>
+    <span class="p">print</span>(k, v)
+    </div>
+
+    <h3>字典综合案例 — TPShop 测试数据</h3>
+    <div class="term">
+<span class="g"># 测试用例列表（列表+字典嵌套）</span>
+test_cases <span class="o">=</span> [
+    {<span class="s">'desc'</span>: <span class="s">'正确用户名密码验证码'</span>, <span class="s">'username'</span>: <span class="s">'13888888888'</span>,
+     <span class="s">'password'</span>: <span class="s">'123456'</span>, <span class="s">'verify_code'</span>: <span class="s">'8888'</span>, <span class="s">'expect'</span>: <span class="s">'登录成功'</span>},
+    {<span class="s">'desc'</span>: <span class="s">'错误密码'</span>, <span class="s">'username'</span>: <span class="s">'13888888888'</span>,
+     <span class="s">'password'</span>: <span class="s">'wrong'</span>, <span class="s">'verify_code'</span>: <span class="s">'8888'</span>, <span class="s">'expect'</span>: <span class="s">'登录失败'</span>},
+    {<span class="s">'desc'</span>: <span class="s">'错误验证码'</span>, <span class="s">'username'</span>: <span class="s">'13888888888'</span>,
+     <span class="s">'password'</span>: <span class="s">'123456'</span>, <span class="s">'verify_code'</span>: <span class="s">'0000'</span>, <span class="s">'expect'</span>: <span class="s">'验证码错误'</span>},
+]
+
+<span class="g"># 遍历打印</span>
+<span class="k">for</span> case <span class="k">in</span> test_cases<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'用户名:{case["username"]} 密码:{case["password"]} '</span>
+          <span class="s">f'验证码:{case["verify_code"]} 期望结果:{case["expect"]}'</span>)
+
+<span class="g"># 扩展：转换为元组列表</span>
+tuple_list <span class="o">=</span> [(c[<span class="s">'username'</span>], c[<span class="s">'password'</span>], c[<span class="s">'verify_code'</span>], c[<span class="s">'expect'</span>])
+               <span class="k">for</span> c <span class="k">in</span> test_cases]
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <!-- 四大容器对比 -->
+  <div class="vis-card">
+    <h2>📦 四大数据容器对比</h2>
+    <div class="tw">
+      <table>
+        <tr><th>特性</th><th><span class="badge bg-str">str 字符串</span></th><th><span class="badge bg-list">list 列表</span></th><th><span class="badge bg-tup">tuple 元组</span></th><th><span class="badge bg-dict">dict 字典</span></th></tr>
+        <tr><td>定义符号</td><td><code class="inl">''""</code></td><td><code class="inl">[]</code></td><td><code class="inl">()</code></td><td><code class="inl">{}</code></td></tr>
+        <tr><td>数据类型</td><td>只能是字符</td><td>任意类型</td><td>任意类型</td><td>键值对</td></tr>
+        <tr><td>可修改</td><td>❌ 不可修改</td><td>✅ 可修改</td><td>❌ 不可修改</td><td>✅ 可修改</td></tr>
+        <tr><td>有下标</td><td>✅ 有</td><td>✅ 有</td><td>✅ 有</td><td>❌ 没有</td></tr>
+        <tr><td>支持切片</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+        <tr><td>重复数据</td><td>✅ 允许</td><td>✅ 允许</td><td>✅ 允许</td><td>❌ 键不能重复</td></tr>
+        <tr><td>主要用途</td><td>文本处理</td><td>有序集合</td><td>传参/返回值</td><td>键值映射</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 切片图解 -->
+  <div class="vis-card">
+    <h2>✂️ 切片操作图解 [start:end:step]</h2>
+    <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:12px">
+      <div class="idx-grid" style="margin-bottom:12px">
+        <div class="idx-row"><div class="idx-pos">0</div><div class="idx-char" style="background:#dcfce7">a</div><div class="idx-neg">-7</div></div>
+        <div class="idx-row"><div class="idx-pos">1</div><div class="idx-char" style="background:#dcfce7">b</div><div class="idx-neg">-6</div></div>
+        <div class="idx-row"><div class="idx-pos">2</div><div class="idx-char" style="background:#dcfce7">c</div><div class="idx-neg">-5</div></div>
+        <div class="idx-row"><div class="idx-pos">3</div><div class="idx-char">d</div><div class="idx-neg">-4</div></div>
+        <div class="idx-row"><div class="idx-pos">4</div><div class="idx-char" style="background:#fef3c7">e</div><div class="idx-neg">-3</div></div>
+        <div class="idx-row"><div class="idx-pos">5</div><div class="idx-char" style="background:#fef3c7">f</div><div class="idx-neg">-2</div></div>
+        <div class="idx-row"><div class="idx-pos">6</div><div class="idx-char" style="background:#fef3c7">g</div><div class="idx-neg">-1</div></div>
+      </div>
+      <div class="tw" style="margin:0">
+        <table style="min-width:300px">
+          <tr><th>切片写法</th><th>结果</th><th>说明</th></tr>
+          <tr><td><code class="inl">[:3]</code></td><td><span style="color:var(--green);font-weight:700">abc</span></td><td>下标0-2（end=3取不到）</td></tr>
+          <tr><td><code class="inl">[4:]</code></td><td><span style="color:var(--amber);font-weight:700">efg</span></td><td>下标4到末尾</td></tr>
+          <tr><td><code class="inl">[::2]</code></td><td>aceg</td><td>步长2，隔一个取</td></tr>
+          <tr><td><code class="inl">[::-1]</code></td><td>gfedcba</td><td>步长-1，逆序</td></tr>
+          <tr><td><code class="inl">[2:6:3]</code></td><td>cf</td><td>下标2和5（2,2+3=5）</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 字典遍历三种方式 -->
+  <div class="vis-card">
+    <h2>🔑 字典遍历三种方式对比</h2>
+    <div class="g3">
+      <div style="background:#fdf4ff;border:1.5px solid #a855f7;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#7e22ce;margin-bottom:8px;font-size:13px">① 遍历键</div>
+        <div class="term" style="font-size:12px">
+<span class="k">for</span> k <span class="k">in</span> my_dict<span class="o">:</span>
+    <span class="p">print</span>(k)
+<span class="g"># name  age  sex</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">适合：只需要键名</p>
+      </div>
+      <div style="background:#f0fdf4;border:1.5px solid var(--green);border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:13px">② 遍历值 ⭐最常用</div>
+        <div class="term" style="font-size:12px">
+<span class="k">for</span> v <span class="k">in</span> my_dict.<span class="p">values</span>()<span class="o">:</span>
+    <span class="p">print</span>(v)
+<span class="g"># 小明  18  男</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">适合：批量处理值</p>
+      </div>
+      <div style="background:#eff6ff;border:1.5px solid #3b82f6;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#1d4ed8;margin-bottom:8px;font-size:13px">③ 遍历键值对</div>
+        <div class="term" style="font-size:12px">
+<span class="k">for</span> k,v <span class="k">in</span> my_dict.<span class="p">items</span>()<span class="o">:</span>
+    <span class="p">print</span>(k, v)
+<span class="g"># name 小明</span>
+<span class="g"># age  18</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">适合：同时需要键和值</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- find vs index 对比 -->
+  <div class="vis-card">
+    <h2>🔍 find() vs index() 对比</h2>
+    <div class="cmp">
+      <div style="background:#f0fdf4;border:1.5px solid var(--green);border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:13px">str.find() — 字符串专用</div>
+        <div class="term" style="font-size:12px">
+s <span class="o">=</span> <span class="s">'hello world'</span>
+<span class="p">print</span>(s.<span class="p">find</span>(<span class="s">'world'</span>))  <span class="g"># 6</span>
+<span class="p">print</span>(s.<span class="p">find</span>(<span class="s">'xyz'</span>))    <span class="g"># -1 不报错！</span>
+        </div>
+        <p style="font-size:12px;color:var(--ink2);margin-top:6px">✅ 未找到返回 -1，不报错<br>只能在字符串中使用</p>
+      </div>
+      <div style="background:#fef2f2;border:1.5px solid var(--red);border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:var(--red);margin-bottom:8px;font-size:13px">list.index() — 列表/字符串</div>
+        <div class="term" style="font-size:12px">
+lst <span class="o">=</span> [<span class="s">'a'</span>, <span class="s">'b'</span>, <span class="s">'c'</span>]
+<span class="p">print</span>(lst.<span class="p">index</span>(<span class="s">'b'</span>))   <span class="g"># 1</span>
+<span class="g"># lst.index('x')  ← ❌ 报错！</span>
+        </div>
+        <p style="font-size:12px;color:var(--ink2);margin-top:6px">❌ 未找到直接报错<br>列表没有 find()，只有 index()</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+
+  <div class="prog-wrap">
+    <span style="font-size:13px;font-weight:600;color:var(--ink2)">完成进度</span>
+    <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+    <span class="prog-txt"><span id="pc">0</span>/10</span>
+    <button class="mc-btn" onclick="mc()">全部完成</button>
+  </div>
+
+  <!-- 题1 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p1">
+    <div class="pt-body">
+      <div class="pt-t">1. 字符串基本操作：在 "hello world and itcast and itheima and Python" 中查找 and / good，替换 and→or，按空白分割，用 _*_ 连接 <span class="pt-tag">str</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+str1 <span class="o">=</span> <span class="s">'hello world and itcast and itheima and Python'</span>
+
+<span class="g"># 查找</span>
+<span class="p">print</span>(str1.<span class="p">find</span>(<span class="s">'and'</span>))    <span class="g"># 12</span>
+<span class="p">print</span>(str1.<span class="p">find</span>(<span class="s">'good'</span>))   <span class="g"># -1</span>
+
+<span class="g"># 替换 and → or</span>
+<span class="p">print</span>(str1.<span class="p">replace</span>(<span class="s">'and'</span>, <span class="s">'or'</span>))
+
+<span class="g"># 按空白分割</span>
+list1 <span class="o">=</span> str1.<span class="p">split</span>()
+<span class="p">print</span>(list1)
+
+<span class="g"># 用 _*_ 连接</span>
+<span class="p">print</span>(<span class="s">'_*_'</span>.<span class="p">join</span>(list1))
+<span class="g"># 用 逗号 连接</span>
+<span class="p">print</span>(<span class="s">','</span>.<span class="p">join</span>(list1))
+      </div>
+    </div>
+  </div>
+
+  <!-- 题2 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p2">
+    <div class="pt-body">
+      <div class="pt-t">2. 列表增删改查：声明 ["hello","python","itcast","hello"]，追加/删除/修改/查找/统计/遍历 <span class="pt-tag">list</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+my_list <span class="o">=</span> [<span class="s">'hello'</span>, <span class="s">'python'</span>, <span class="s">'itcast'</span>, <span class="s">'hello'</span>]
+
+my_list.<span class="p">append</span>(<span class="s">'heima'</span>)      <span class="g"># 追加</span>
+<span class="p">print</span>(my_list)
+
+my_list.<span class="p">pop</span>(<span class="n">1</span>)               <span class="g"># 删除第二个（下标1）</span>
+<span class="p">print</span>(my_list)
+
+my_list.<span class="p">remove</span>(<span class="s">'heima'</span>)      <span class="g"># 删除 heima</span>
+<span class="p">print</span>(my_list)
+
+my_list[<span class="n">1</span>] <span class="o">=</span> <span class="s">'chuanzhi'</span>      <span class="g"># 修改第二个</span>
+<span class="p">print</span>(my_list[<span class="n">0</span>])             <span class="g"># 打印第一个</span>
+<span class="p">print</span>(my_list.<span class="p">count</span>(<span class="s">'hello'</span>)) <span class="g"># 统计hello次数</span>
+<span class="p">print</span>(<span class="p">len</span>(my_list))           <span class="g"># 长度</span>
+
+<span class="k">for</span> item <span class="k">in</span> my_list<span class="o">:</span>          <span class="g"># 遍历</span>
+    <span class="p">print</span>(item)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题3 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p3">
+    <div class="pt-body">
+      <div class="pt-t">3. 列表过滤：从 ["red","apples","orange","pink","bananas","blue","black","white"] 中筛选出以 s 或 e 结尾的元素 <span class="pt-tag">list+str</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+list1 <span class="o">=</span> [<span class="s">'red'</span>,<span class="s">'apples'</span>,<span class="s">'orange'</span>,<span class="s">'pink'</span>,<span class="s">'bananas'</span>,<span class="s">'blue'</span>,<span class="s">'black'</span>,<span class="s">'white'</span>]
+result <span class="o">=</span> []
+
+<span class="k">for</span> word <span class="k">in</span> list1<span class="o">:</span>
+    <span class="g"># 最后一个字符是 's' 或 'e'</span>
+    <span class="k">if</span> word[<span class="n">-1</span>] <span class="o">==</span> <span class="s">'s'</span> <span class="k">or</span> word[<span class="n">-1</span>] <span class="o">==</span> <span class="s">'e'</span><span class="o">:</span>
+        result.<span class="p">append</span>(word)
+
+<span class="p">print</span>(result)
+<span class="g"># ['apples', 'orange', 'bananas', 'blue', 'white']</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题4 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p4">
+    <div class="pt-body">
+      <div class="pt-t">4. 随机抽签：输入5个学生名字存入列表，随机取一个打印 <span class="pt-tag">list+random</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">import</span> random
+
+names <span class="o">=</span> []
+<span class="k">for</span> i <span class="k">in</span> <span class="p">range</span>(<span class="n">5</span>)<span class="o">:</span>
+    name <span class="o">=</span> <span class="p">input</span>(<span class="s">f'请输入第{i+1}个学生的名字:'</span>)
+    names.<span class="p">append</span>(name)
+
+<span class="g"># 随机取一个</span>
+index <span class="o">=</span> random.<span class="p">randint</span>(<span class="n">0</span>, <span class="p">len</span>(names)<span class="o">-</span><span class="n">1</span>)
+<span class="p">print</span>(<span class="s">f'被抽中的学生是: {names[index]}'</span>)
+
+<span class="g"># 或用 random.choice</span>
+<span class="g"># print(random.choice(names))</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题5 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p5">
+    <div class="pt-body">
+      <div class="pt-t">5. 列表每个数字加10：nums = [10, 20, 30, 40, 50]，每个数字加10后打印 <span class="pt-tag">list</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+nums <span class="o">=</span> [<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>, <span class="n">50</span>]
+
+<span class="k">for</span> i <span class="k">in</span> <span class="p">range</span>(<span class="p">len</span>(nums))<span class="o">:</span>
+    nums[i] <span class="o">+=</span> <span class="n">10</span>   <span class="g"># 在原列表上修改</span>
+
+<span class="p">print</span>(nums)  <span class="g"># [20, 30, 40, 50, 60]</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题6 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p6">
+    <div class="pt-body">
+      <div class="pt-t">6. TPShop 测试用例：至少3条，包含用户名/密码/验证码/期望结果，遍历打印 <span class="pt-tag">list+dict</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+test_cases <span class="o">=</span> [
+    {<span class="s">'desc'</span>: <span class="s">'正确信息登录'</span>, <span class="s">'username'</span>: <span class="s">'13888888888'</span>,
+     <span class="s">'password'</span>: <span class="s">'123456'</span>, <span class="s">'verify_code'</span>: <span class="s">'8888'</span>, <span class="s">'expect'</span>: <span class="s">'登录成功'</span>},
+    {<span class="s">'desc'</span>: <span class="s">'密码错误'</span>, <span class="s">'username'</span>: <span class="s">'13888888888'</span>,
+     <span class="s">'password'</span>: <span class="s">'wrong'</span>, <span class="s">'verify_code'</span>: <span class="s">'8888'</span>, <span class="s">'expect'</span>: <span class="s">'登录失败'</span>},
+    {<span class="s">'desc'</span>: <span class="s">'验证码错误'</span>, <span class="s">'username'</span>: <span class="s">'13888888888'</span>,
+     <span class="s">'password'</span>: <span class="s">'123456'</span>, <span class="s">'verify_code'</span>: <span class="s">'0000'</span>, <span class="s">'expect'</span>: <span class="s">'验证码错误'</span>},
+]
+
+<span class="k">for</span> case <span class="k">in</span> test_cases<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'用户名:{case["username"]} 密码:{case["password"]} '</span>
+          <span class="s">f'验证码:{case["verify_code"]} 期望结果:{case["expect"]}'</span>)
+
+<span class="g"># 扩展：提取为元组列表</span>
+tuple_list <span class="o">=</span> [
+    (c[<span class="s">'username'</span>], c[<span class="s">'password'</span>], c[<span class="s">'verify_code'</span>], c[<span class="s">'expect'</span>])
+    <span class="k">for</span> c <span class="k">in</span> test_cases
+]
+<span class="p">print</span>(tuple_list)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题7 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p7">
+    <div class="pt-body">
+      <div class="pt-t">7. 字典增删改查：定义个人信息字典，修改年龄，添加体重，删除身高，用 get() 安全查询不存在的键 <span class="pt-tag">dict</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+my_dict <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'小明'</span>, <span class="s">'age'</span>: <span class="n">18</span>, <span class="s">'height'</span>: <span class="n">1.78</span>}
+
+my_dict[<span class="s">'age'</span>] <span class="o">=</span> <span class="n">20</span>       <span class="g"># 修改年龄</span>
+my_dict[<span class="s">'weight'</span>] <span class="o">=</span> <span class="n">65</span>    <span class="g"># 添加体重</span>
+my_dict.<span class="p">pop</span>(<span class="s">'height'</span>)     <span class="g"># 删除身高</span>
+<span class="p">print</span>(my_dict)
+
+<span class="p">print</span>(my_dict.<span class="p">get</span>(<span class="s">'sex'</span>))   <span class="g"># None（不报错）</span>
+<span class="g"># print(my_dict['sex'])     # ❌ 报错</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题8 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p8">
+    <div class="pt-body">
+      <div class="pt-t">8. 遍历字典：用 keys() / values() / items() 三种方式遍历 {'name':'小明','age':18,'sex':'男'} <span class="pt-tag">dict</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+my_dict <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'小明'</span>, <span class="s">'age'</span>: <span class="n">18</span>, <span class="s">'sex'</span>: <span class="s">'男'</span>}
+
+<span class="g"># ① 遍历键</span>
+<span class="k">for</span> k <span class="k">in</span> my_dict<span class="o">:</span>
+    <span class="p">print</span>(k)
+
+<span class="g"># ② 遍历值</span>
+<span class="k">for</span> v <span class="k">in</span> my_dict.<span class="p">values</span>()<span class="o">:</span>
+    <span class="p">print</span>(v)
+
+<span class="g"># ③ 遍历键值对</span>
+<span class="k">for</span> k, v <span class="k">in</span> my_dict.<span class="p">items</span>()<span class="o">:</span>
+    <span class="p">print</span>(k, v)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题9 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p9">
+    <div class="pt-body">
+      <div class="pt-t">9. 元组应用：交换两变量的值，用一行代码实现；定义只含一个元素的元组 <span class="pt-tag">tuple</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="g"># 交换两变量（利用组包+拆包）</span>
+a <span class="o">=</span> <span class="n">10</span>
+b <span class="o">=</span> <span class="n">20</span>
+a, b <span class="o">=</span> b, a   <span class="g"># 一行搞定！</span>
+<span class="p">print</span>(a, b)   <span class="g"># 20 10</span>
+
+<span class="g"># 单元素元组（逗号不能少）</span>
+t1 <span class="o">=</span> (<span class="n">10</span>,)    <span class="g"># ✅ 元组</span>
+t2 <span class="o">=</span> (<span class="n">10</span>)     <span class="g"># ❌ 整数，不是元组！</span>
+<span class="p">print</span>(<span class="p">type</span>(t1), <span class="p">type</span>(t2))
+      </div>
+    </div>
+  </div>
+
+  <!-- 题10 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p10">
+    <div class="pt-body">
+      <div class="pt-t">10. 综合：嵌套列表存储学生信息（姓名/年龄/岗位），遍历打印所有年龄，为张三添加性别后再删除 <span class="pt-tag">list嵌套</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+student_list <span class="o">=</span> [
+    [<span class="s">'张三'</span>, <span class="s">'18'</span>, <span class="s">'功能测试'</span>],
+    [<span class="s">'李四'</span>, <span class="s">'20'</span>, <span class="s">'自动化测试'</span>],
+    [<span class="s">'王五'</span>, <span class="s">'21'</span>, <span class="s">'自动化测试'</span>]
+]
+
+<span class="g"># 遍历所有人的年龄</span>
+<span class="k">for</span> info <span class="k">in</span> student_list<span class="o">:</span>
+    <span class="p">print</span>(info[<span class="n">1</span>])  <span class="g"># 18  20  21</span>
+
+<span class="g"># 为张三添加性别</span>
+student_list[<span class="n">0</span>].<span class="p">append</span>(<span class="s">'男'</span>)
+<span class="p">print</span>(student_list[<span class="n">0</span>])  <span class="g"># ['张三', '18', '功能测试', '男']</span>
+
+<span class="g"># 删除性别</span>
+student_list[<span class="n">0</span>].<span class="p">pop</span>()
+<span class="p">print</span>(student_list[<span class="n">0</span>])  <span class="g"># ['张三', '18', '功能测试']</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+
+  <div class="sec" style="padding:16px">
+    <h2><span class="ico">💬</span>面试精讲 · 12题</h2>
+    <p style="color:var(--muted);font-size:13px">点击展开答案 — 绿色基础 / 黄色进阶 / 红色陷阱题</p>
+  </div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div><div class="iq-q">Python 的四大数据容器（str/list/tuple/dict）各有什么特点？如何选择？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>str（字符串）：</b>不可修改，存储文本，支持下标/切片。</p>
+    <p><b>list（列表）：</b>可修改，有序，可存任意类型，支持下标/切片，最灵活。</p>
+    <p><b>tuple（元组）：</b>不可修改，有序，主要用于函数传参和返回值，保护数据不被篡改。</p>
+    <p><b>dict（字典）：</b>键值对，通过键快速查找值，键不重复，无下标。适合描述有属性的对象。</p>
+    <div class="box tip"><b>💡 选择原则：</b>需要修改 → list；键值对映射 → dict；保护数据 → tuple；文本处理 → str。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div><div class="iq-q">字符串的 find() 和列表的 index() 有什么区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>find()：</b>字符串专有，未找到返回 -1，不报错。字符串也有 index() 方法，但未找到会报错。</p>
+    <p><b>index()：</b>字符串和列表都有，未找到直接报错（ValueError）。</p>
+    <p>列表没有 find() 方法，只有 index()。所以操作列表时要先判断是否存在，再用 index()。</p>
+    <div class="box danger"><b>⚠️ 记住：</b>列表没有 find()。字符串两者都有，但 find() 更安全（不报错）。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div><div class="iq-q">切片语法 [start:end:step] 中，end 能取到吗？有哪些省略规则？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>end 取不到</b>（左闭右开区间）。例如 <code class="inl">'abcdefg'[0:3]</code> 取下标0,1,2的字符，不含3。</p>
+    <p><b>省略规则：</b>步长为1可省略 → <code class="inl">[0:3:1]</code> 等同 <code class="inl">[0:3]</code>；start为0可省略 → <code class="inl">[:3]</code>；取到末尾end可省略 → <code class="inl">[4:]</code>；全部省略 <code class="inl">[:]</code> 等于复制整个容器；步长为-1可逆序 → <code class="inl">[::-1]</code>。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div><div class="iq-q">字符串的 replace() 和 split() 方法会修改原字符串吗？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>不会修改原字符串。</b>Python 的字符串是不可变类型（immutable），所有字符串方法都返回一个新的字符串，原字符串保持不变。</p>
+    <p>使用时需要用变量接收返回值：<code class="inl">new_str = my_str.replace('a', 'b')</code>，否则结果丢失。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div><div class="iq-q">列表的 pop() 和 remove() 有什么区别？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>pop(index)：</b>按 <b>下标</b> 删除，返回被删除的数据。不传参数时默认删除最后一个。</p>
+    <p><b>remove(data)：</b>按 <b>值</b> 删除，删除第一个匹配的元素，返回 None。如果值不存在会报错。</p>
+    <div class="tw"><table><tr><th></th><th>pop()</th><th>remove()</th></tr><tr><td>删除依据</td><td>下标</td><td>值</td></tr><tr><td>返回值</td><td>被删除的数据</td><td>None</td></tr><tr><td>值不存在时</td><td>下标越界报错</td><td>ValueError报错</td></tr></table></div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div><div class="iq-q">列表的 sort() 和切片 [::-1] 都能排序/反转，有什么区别？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>sort() 和 reverse()：</b>直接修改原列表，原地操作，不返回新列表（返回None）。</p>
+    <p><b>切片 [::-1]：</b>返回新列表，原列表不变。字符串 <b>只能</b> 用切片逆序（字符串没有 reverse() 方法）。</p>
+    <div class="box info"><b>记忆：</b>列表两种方式都能逆序；字符串只能切片逆序；sort()只能用于列表。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div><div class="iq-q">字典的 dict['key'] 和 dict.get('key') 有什么区别？实际开发中用哪个？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>dict['key']：</b>键不存在时直接 <b>报错（KeyError）</b>，适合确定键存在的情况。</p>
+    <p><b>dict.get('key')：</b>键不存在时返回 <b>None</b>（不报错），更安全。还可以设置默认值：<code class="inl">dict.get('key', '默认值')</code>。</p>
+    <p>实际开发中推荐优先使用 <code class="inl">get()</code>，避免因键不存在而崩溃。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div><div class="iq-q">字典的键可以是什么类型？值可以是什么类型？键可以重复吗？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>键：</b>必须是 <b>不可变类型</b>（字符串、数字、元组都可以）。<b>键不能重复</b>，后赋值的会覆盖前面的。</p>
+    <p><b>值：</b>可以是任意类型（字符串、数字、列表、字典、函数等），没有限制。</p>
+    <div class="box warn"><b>⚠️ 列表不能作为字典的键</b>（列表是可变类型），会报 TypeError。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div><div class="iq-q">元组和列表最大的区别是什么？元组在什么场景下使用？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>最大区别：</b>元组的数据 <b>不可修改</b>，列表可以修改。</p>
+    <p><b>元组的使用场景：</b><br>
+    ① 函数返回多个值时（自动打包成元组）<br>
+    ② 作为字典的键（因为可哈希）<br>
+    ③ 需要保护数据不被意外修改时<br>
+    ④ 函数传参（不希望函数内部修改参数）</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div><div class="iq-q">什么是组包（pack）和拆包（unpack）？有哪些实际应用？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>组包：</b>将多个值自动组成元组。<code class="inl">a = 1, 2</code> → a 是元组 (1, 2)。</p>
+    <p><b>拆包：</b>将容器中的多个值分别赋给多个变量。变量数量必须与容器元素数量相同。</p>
+    <p><b>实际应用：</b><br>
+    ① 交换变量：<code class="inl">a, b = b, a</code><br>
+    ② 解包字符串：<code class="inl">x, y, z = 'abc'</code><br>
+    ③ 函数返回多值：<code class="inl">x, y = func()</code><br>
+    ④ for 循环解包：<code class="inl">for k, v in dict.items()</code></p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div><div class="iq-q">join() 方法的作用是什么？使用时有什么注意点？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>作用：</b>将列表（或其他可迭代对象）中的元素用指定的分隔符连接成一个字符串。</p>
+    <p><b>语法：</b><code class="inl">分隔符.join(列表)</code>，注意是 <b>分隔符调用 join</b>，而不是列表调用。</p>
+    <div class="box danger"><b>⚠️ 注意：</b>列表中的每个元素 <b>必须是字符串类型</b>，否则会报 TypeError。数字列表需先转换：<code class="inl">[str(i) for i in nums]</code>。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div><div class="iq-q">如何理解 Python 字符串的"不可变性"？这在实际代码中有什么影响？</div><div class="iq-lv lv-h">陷阱题</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p>字符串创建后，其内容 <b>不能被修改</b>。<code class="inl">s[0] = 'X'</code> 会报 TypeError。</p>
+    <p>replace()、split()、upper() 等方法都不改变原字符串，而是 <b>返回新字符串</b>。</p>
+    <div class="term" style="font-size:12px">
+s <span class="o">=</span> <span class="s">'hello'</span>
+s.<span class="p">upper</span>()            <span class="g"># ❌ 结果丢失！</span>
+<span class="p">print</span>(s)              <span class="g"># hello（原字符串未变）</span>
+s <span class="o">=</span> s.<span class="p">upper</span>()         <span class="g"># ✅ 必须用变量接收</span>
+<span class="p">print</span>(s)              <span class="g"># HELLO</span>
+    </div>
+    <div class="box danger"><b>⚠️ 常见错误：</b>调用字符串方法后不接收返回值，以为已修改了字符串。记住：字符串方法永远返回新字符串。</div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+
+  <div class="sec" style="padding:16px;margin-bottom:12px">
+    <h2><span class="ico">✅</span>测验 · 15题</h2>
+    <p style="color:var(--muted);font-size:13px">选择答案后点击"提交测验"查看解析</p>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span><code class="inl">'abcdefg'[-1]</code> 的结果是？</div>
+    <div class="opt" onclick="sel(this,0,1)">A. a</div><div class="opt" onclick="sel(this,0,2)">B. f</div>
+    <div class="opt" onclick="sel(this,0,3)">C. g</div><div class="opt" onclick="sel(this,0,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>-1 表示最后一个元素，'abcdefg' 的最后一个字符是 g。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span><code class="inl">'abcdefg'[::2]</code> 的结果是？</div>
+    <div class="opt" onclick="sel(this,1,1)">A. abcd</div><div class="opt" onclick="sel(this,1,2)">B. aceg</div>
+    <div class="opt" onclick="sel(this,1,3)">C. bdfg</div><div class="opt" onclick="sel(this,1,4)">D. gfedcba</div>
+    <div class="qz-ex"><b>解析：</b>[::2] 步长为2，从下标0开始：0→a, 2→c, 4→e, 6→g，结果是 aceg。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span><code class="inl">'hello'.find('xyz')</code> 的返回值是？</div>
+    <div class="opt" onclick="sel(this,2,1)">A. None</div><div class="opt" onclick="sel(this,2,2)">B. False</div>
+    <div class="opt" onclick="sel(this,2,3)">C. -1</div><div class="opt" onclick="sel(this,2,4)">D. 抛出异常</div>
+    <div class="qz-ex"><b>解析：</b>find() 找不到时返回 -1，不报错。这是 find() 与 index() 最大的区别。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>执行 <code class="inl">s = 'good'; s.replace('good','GOOD'); print(s)</code> 输出的是？</div>
+    <div class="opt" onclick="sel(this,3,1)">A. GOOD</div><div class="opt" onclick="sel(this,3,2)">B. good</div>
+    <div class="opt" onclick="sel(this,3,3)">C. Good</div><div class="opt" onclick="sel(this,3,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>字符串不可变，replace() 返回新字符串，原字符串 s 未改变，所以仍然输出 'good'。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span><code class="inl">'a-b-c'.split('-')</code> 的结果是？</div>
+    <div class="opt" onclick="sel(this,4,1)">A. 'abc'</div><div class="opt" onclick="sel(this,4,2)">B. ['a', 'b', 'c']</div>
+    <div class="opt" onclick="sel(this,4,3)">C. ('a', 'b', 'c')</div><div class="opt" onclick="sel(this,4,4)">D. {'a','b','c'}</div>
+    <div class="qz-ex"><b>解析：</b>split() 按指定字符分割，返回 <b>列表</b>，所以结果是 ['a', 'b', 'c']。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>以下关于列表的 append() 方法，正确的是？</div>
+    <div class="opt" onclick="sel(this,5,1)">A. 返回新列表，原列表不变</div>
+    <div class="opt" onclick="sel(this,5,2)">B. 直接修改原列表，返回 None</div>
+    <div class="opt" onclick="sel(this,5,3)">C. 在列表开头插入数据</div>
+    <div class="opt" onclick="sel(this,5,4)">D. 可以同时追加多个数据</div>
+    <div class="qz-ex"><b>解析：</b>append() 直接在原列表末尾追加数据，返回 None，不生成新列表。在开头插入用 insert(0, data)。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>执行 <code class="inl">t = (10)</code>，t 的类型是？</div>
+    <div class="opt" onclick="sel(this,6,1)">A. tuple</div><div class="opt" onclick="sel(this,6,2)">B. list</div>
+    <div class="opt" onclick="sel(this,6,3)">C. int</div><div class="opt" onclick="sel(this,6,4)">D. str</div>
+    <div class="qz-ex"><b>解析：</b>(10) 等同于 10，是整数。单元素元组必须写成 <code class="inl">(10,)</code>，逗号不能省略！</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>以下哪个操作会导致报错？</div>
+    <div class="opt" onclick="sel(this,7,1)">A. <code class="inl">d = {}; print(d.get('key'))</code></div>
+    <div class="opt" onclick="sel(this,7,2)">B. <code class="inl">d = {'a':1}; print(d['a'])</code></div>
+    <div class="opt" onclick="sel(this,7,3)">C. <code class="inl">d = {}; print(d['key'])</code></div>
+    <div class="opt" onclick="sel(this,7,4)">D. <code class="inl">d = {}; d['new'] = 1</code></div>
+    <div class="qz-ex"><b>解析：</b>C 会报 KeyError：键 'key' 不存在。A 用 get() 返回 None 不报错；B 键存在正常访问；D 是添加新键值对。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>字典中同一个键被定义两次，最终保留哪个值？</div>
+    <div class="opt" onclick="sel(this,8,1)">A. 第一次的值</div><div class="opt" onclick="sel(this,8,2)">B. 第二次的值（后者覆盖前者）</div>
+    <div class="opt" onclick="sel(this,8,3)">C. 两个值都保留</div><div class="opt" onclick="sel(this,8,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>字典的键唯一，后赋值的会覆盖前面的：<code class="inl">{'a':1, 'a':2}</code> 结果是 {'a':2}。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>以下哪种方式不能遍历字典中的所有值？</div>
+    <div class="opt" onclick="sel(this,9,1)">A. <code class="inl">for v in d.values()</code></div>
+    <div class="opt" onclick="sel(this,9,2)">B. <code class="inl">for k,v in d.items()</code></div>
+    <div class="opt" onclick="sel(this,9,3)">C. <code class="inl">for k in d: print(d[k])</code></div>
+    <div class="opt" onclick="sel(this,9,4)">D. <code class="inl">for v in d</code></div>
+    <div class="qz-ex"><b>解析：</b>D 中 <code class="inl">for v in d</code> 遍历的是字典的 <b>键</b>，不是值。A/B/C 都能获取到值。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span><code class="inl">','.join([1, 2, 3])</code> 会发生什么？</div>
+    <div class="opt" onclick="sel(this,10,1)">A. 输出 '1,2,3'</div><div class="opt" onclick="sel(this,10,2)">B. 输出 [1,2,3]</div>
+    <div class="opt" onclick="sel(this,10,3)">C. 报错（TypeError）</div><div class="opt" onclick="sel(this,10,4)">D. 输出 '123'</div>
+    <div class="qz-ex"><b>解析：</b>join() 要求列表元素必须是字符串，[1,2,3] 是整数列表，会报 TypeError。正确写法：<code class="inl">','.join(['1','2','3'])</code>。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>以下哪种方式可以安全地逆序字符串 s？</div>
+    <div class="opt" onclick="sel(this,11,1)">A. <code class="inl">s.reverse()</code></div>
+    <div class="opt" onclick="sel(this,11,2)">B. <code class="inl">s[::-1]</code></div>
+    <div class="opt" onclick="sel(this,11,3)">C. <code class="inl">s.sort()</code></div>
+    <div class="opt" onclick="sel(this,11,4)">D. <code class="inl">reverse(s)</code></div>
+    <div class="qz-ex"><b>解析：</b>字符串没有 reverse() 方法，也没有 sort()。只能用切片 <code class="inl">[::-1]</code> 逆序字符串。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>执行以下代码后，student_list[0] 的结果是什么？<br><code style="font-size:12px;font-family:monospace">lst = [['张三','18'],['李四','20']]; lst[0].append('男'); lst[0].pop()</code></div>
+    <div class="opt" onclick="sel(this,12,1)">A. ['张三','18','男']</div>
+    <div class="opt" onclick="sel(this,12,2)">B. ['张三','18']</div>
+    <div class="opt" onclick="sel(this,12,3)">C. ['李四','20']</div>
+    <div class="opt" onclick="sel(this,12,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>先 append('男') → ['张三','18','男']，再 pop() 删最后一个 → ['张三','18']。回到原始状态。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>以下关于字典 pop() 和列表 pop() 的区别，正确的是？</div>
+    <div class="opt" onclick="sel(this,13,1)">A. 两者都按下标删除</div>
+    <div class="opt" onclick="sel(this,13,2)">B. 字典 pop() 按键删除，列表 pop() 按下标删除</div>
+    <div class="opt" onclick="sel(this,13,3)">C. 两者都按值删除</div>
+    <div class="opt" onclick="sel(this,13,4)">D. 字典没有 pop() 方法</div>
+    <div class="qz-ex"><b>解析：</b>字典 <code class="inl">dict.pop('key')</code> 按键删除键值对；列表 <code class="inl">list.pop(index)</code> 按下标删除，默认删最后一个。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>以下哪种方式可以将测试数据 {'username':'admin','password':'123'} 中的所有键值对打印出来？</div>
+    <div class="opt" onclick="sel(this,14,1)">A. <code class="inl">for i in data: print(i, data[i])</code></div>
+    <div class="opt" onclick="sel(this,14,2)">B. <code class="inl">for k,v in data.items(): print(k,v)</code></div>
+    <div class="opt" onclick="sel(this,14,3)">C. 以上两种都可以</div>
+    <div class="opt" onclick="sel(this,14,4)">D. 以上两种都不可以</div>
+    <div class="qz-ex"><b>解析：</b>A 遍历键再用 data[i] 取值，C 直接用 items() 解包键值对，两种方式都能打印所有键值对。</div>
+  </div>
+
+  <button class="qbtn" onclick="sub()">提交测验</button>
+  <div id="qres">
+    <span id="qscore">0/15</span>
+    <div id="qmsg"></div>
+    <button onclick="rst()" style="margin-top:14px;padding:9px 22px;background:var(--day);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">重新作答</button>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i);});
+
+function tr(el){
+  const ans=el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent=ans.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pf').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked);});
+  if(done===10) document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc();}
+
+function tq(hdr){hdr.parentElement.classList.toggle('o');}
+
+const ans=[3,2,3,2,2,2,3,3,2,4,3,2,2,2,3];
+const sel_state={};
+function sel(el,q,opt){
+  document.querySelectorAll(`.qz:nth-child(${q+1}) .opt`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  sel_state[q]=opt;
+}
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach((qz,i)=>{
+    const opts=qz.querySelectorAll('.opt');
+    const ex=qz.querySelector('.qz-ex');
+    opts.forEach((o,j)=>{
+      o.classList.remove('ok','no');
+      if(j+1===ans[i]) o.classList.add('ok');
+      else if(sel_state[i]===j+1) o.classList.add('no');
+    });
+    if(sel_state[i]===ans[i]) score++;
+    ex.classList.add('s');
+  });
+  const pct=Math.round(score/15*100);
+  document.getElementById('qscore').textContent=score+'/15';
+  let msg='';
+  if(pct>=90) msg='🏆 优秀！四大容器掌握扎实！';
+  else if(pct>=75) msg='✅ 良好！再复习一下 find/index 和 get/[] 的区别。';
+  else if(pct>=60) msg='📚 一般，建议多练习字典遍历和字符串切片。';
+  else msg='💪 需要加油！重新阅读各容器的增删改查操作。';
+  document.getElementById('qmsg').textContent=msg;
+  document.getElementById('qres').classList.add('s');
+  if(score>=12) document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s4d3'},'*');
+  document.getElementById('qres').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  Object.keys(sel_state).forEach(k=>delete sel_state[k]);
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

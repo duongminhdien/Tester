@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAGE 4 · PYTHON DAY 01 - Python基础入门</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--day:#2563eb;
+--day-d:#1d4ed8;
+--day-bg:rgba(37,99,235,.08);
+--bg:#f8fafc;
+--card:#fff;
+--ink:#0f172a;
+--ink2:#334155;
+--muted:#64748b;
+--border:#e2e8f0;
+--code-bg:#1e2030;
+--code-ink:#a6accd;
+--green:#16a34a;
+--red:#dc2626;
+--amber:#d97706;
+--blue:#3b82f6
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:20px 20px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(37,99,235,.25)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:800;margin-bottom:6px;line-height:1.3}
+.hd p{font-size:13.5px;opacity:.88;line-height:1.6}
+.hd-stats{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.9}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:18px;display:block;margin-bottom:2px}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px;line-height:1.75}
+.sec ul,.sec ol{color:var(--ink2);margin:6px 0 10px 18px;line-height:1.8}
+.sec li{margin-bottom:4px}
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.term .k{color:#c792ea}.term .s{color:#ffcb6b}.term .o{color:#f78c6c}.term .n{color:#f78c6c}.term .g{color:#676e95;font-style:italic}.term .c{color:#c3e88d}.term .w{color:#fff;font-weight:600}.term .p{color:#82aaff}.term .r{color:#f07178}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}.lv-m{background:#fef3c7;color:#92400e}.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto;white-space:pre}
+.pt-ans.s{display:block}
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+#qr{display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;margin-top:18px;text-align:center}
+#qr h3{font-size:20px;font-weight:800;margin-bottom:8px}
+#qr p{color:var(--ink2);font-size:14px}
+.qbtn{display:inline-block;margin-top:18px;padding:13px 36px;background:var(--day);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.prog-bar{background:#e2e8f0;border-radius:99px;height:8px;margin:10px 0;overflow:hidden}
+.prog-fill{height:100%;background:var(--day);border-radius:99px;transition:width .4s}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.flow-box{background:var(--day);color:#fff;padding:12px 18px;border-radius:10px;text-align:center;font-weight:700;font-size:13px}
+.flow-arrow{text-align:center;font-size:20px;color:var(--day);padding:6px 0}
+.metric-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:all .2s}
+.metric-card:hover{border-color:var(--day);transform:translateY(-2px)}
+.metric-card .mv{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--day)}
+.metric-card .ml{font-size:12px;color:var(--muted);margin-top:4px}
+@media(max-width:640px){
+.wrap{padding:14px 12px 40px}.hd{padding:20px 18px 16px}.hd h1{font-size:19px}.hd p{font-size:12px}
+.sec{padding:16px 14px}.sec h2{font-size:16px}.sec h3{font-size:14px}
+.t{font-size:11px;padding:8px 6px}.dn{padding:4px}
+.term{font-size:11.5px;padding:10px 12px}.qbtn{padding:11px 18px;font-size:13px}
+.pnav button{font-size:12px;padding:9px 12px}.iq-hdr{padding:12px 12px}.iq-q{font-size:12.5px}
+table{font-size:12px}th,td{padding:7px 9px}.g2,.g3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+<div class="hd-tag">STAGE 4 · PYTHON DAY 01</div>
+<h1>Python基础入门：环境搭建、变量与运算符</h1>
+<p>掌握Python环境搭建、PyCharm使用、变量定义与命名规范、四种数据类型、类型转换、输入输出、格式化输出以及算术/比较/逻辑运算符</p>
+<div class="hd-stats">
+<div><b>4</b>种数据类型</div>
+<div><b>10</b>实战练习</div>
+<div><b>12</b>面试题</div>
+<div><b>15</b>测验题</div>
+</div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn"><div class="ts">
+<button class="t a" data-p="0">📖 知识讲解</button>
+<button class="t" data-p="1">🖼️ 图解演示</button>
+<button class="t" data-p="2">🛠️ 实战练习</button>
+<button class="t" data-p="3">💬 面试精讲</button>
+<button class="t" data-p="4">✅ 测验</button>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- PANEL 0: 知识讲解 -->
+<!-- ============================================================ -->
+<div class="pan a">
+
+<div class="sec">
+<h2><span class="ico">1</span>Python介绍</h2>
+<p>Python由吉多·范罗苏姆（Guido van Rossum，昵称"龟叔"）创建，目前主流版本为Python3。Python是一门简单易学、免费开源的编程语言。</p>
+
+<h3>编译型语言 vs 解释型语言</h3>
+<div class="g2">
+<div class="card">
+<h4>🔧 编译型语言</h4>
+<p>如C、C++，先将源代码编译成二进制可执行文件，再运行。速度快。</p>
+</div>
+<div class="card">
+<h4>🐍 解释型语言</h4>
+<p>如Python，边解释边执行，从上到下逐行执行。下方代码的错误不会影响上方代码的执行。</p>
+</div>
+</div>
+
+<h3>Python在测试领域的应用</h3>
+<ul>
+<li>Python + requests → 接口自动化</li>
+<li>Python + Selenium → Web自动化</li>
+<li>Python + Appium → 移动端自动化（手机APP）</li>
+</ul>
+</div>
+
+<div class="sec">
+<h2><span class="ico">2</span>环境搭建</h2>
+
+<h3>Python环境（必须有）</h3>
+<p>安装Python解释器（Python 3.6及以上版本），安装时注意：</p>
+<ul>
+<li>勾选<b>添加PATH环境变量</b>（让程序可在任意目录执行）</li>
+<li>安装目录不要有中文，选择空目录</li>
+<li>安装后不要自己移动文件</li>
+</ul>
+
+<h3>PyCharm环境（IDE）</h3>
+<p>PyCharm是Python最好用的集成开发环境（IDE）之一，可以写代码、执行代码、查看结果。</p>
+<p>创建项目步骤：</p>
+<ol>
+<li>双击打开PyCharm</li>
+<li>Create New Project</li>
+<li>配置代码路径和解释器路径（选择System Interpreter）</li>
+<li>右键项目 → New → Python File → 输入文件名</li>
+<li>书写代码（必须顶格书写）</li>
+<li>右键 → Run 运行代码，查看控制台结果</li>
+</ol>
+
+<div class="box tip">
+<b>🔧 PyCharm常用设置</b><br>
+File → Settings → Appearance → Theme 设置背景色；Editor → Font 设置字体和大小；Project → Project Interpreter 配置解释器。
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">3</span>注释</h2>
+<p>注释是对代码进行解释和说明的文字，不会被解释器执行。作用是增强代码的可读性。</p>
+
+<h3>单行注释</h3>
+<div class="term"><span class="g"># 这是一个单行注释</span>
+<span class="p">print</span>(<span class="s">'hello world'</span>)  <span class="g"># 也可以写在代码后面</span>
+<span class="g"># 快捷键：Ctrl + /</span></div>
+
+<h3>多行注释</h3>
+<div class="term"><span class="s">"""
+这是三对双引号组成的多行注释
+可以换行，不会被执行
+"""</span>
+
+<span class="s">'''
+这是三对单引号组成的多行注释
+同样不会被执行
+'''</span></div>
+
+<div class="box warn">
+<b>⚠️ 注释注意点</b><br>
+注释并非越多越好，一目了然的代码无需注释。逻辑复杂的代码应先写注释再编码。不要用中文去翻译Python代码的含义。
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">4</span>变量（重点）</h2>
+<p>变量的作用是用来保存数据的。变量必须先定义后使用。</p>
+
+<h3>定义与使用</h3>
+<div class="term"><span class="g"># 定义语法：变量名 = 数据值</span>
+name <span class="o">=</span> <span class="s">"小明"</span>     <span class="g"># 定义变量并赋值</span>
+<span class="p">print</span>(name)       <span class="g"># 使用变量，输出：小明</span>
+<span class="p">print</span>(<span class="s">'name'</span>)     <span class="g"># 输出引号中的内容：name</span>
+
+age <span class="o">=</span> <span class="n">18</span>
+<span class="p">print</span>(age)        <span class="g"># 输出：18</span></div>
+
+<h3>变量名命名规范</h3>
+<p><b>标识符规则：</b></p>
+<ul>
+<li>由字母、数字和下划线组成，不能以数字开头</li>
+<li>不能使用Python内置关键字（如 if、True、False、and、or、not）</li>
+<li>区分大小写（Name 和 name 是不同的变量）</li>
+</ul>
+<p><b>命名规范：</b></p>
+<ul>
+<li>见名知意</li>
+<li>Python主要使用<b>下划线连接</b>（如 my_name、student_age）</li>
+<li>大驼峰：MyName（每个单词首字母大写）</li>
+<li>小驼峰：myName（第一个单词首字母小写）</li>
+</ul>
+
+<div class="term"><span class="g"># 合法变量名示例</span>
+a <span class="o">=</span> <span class="n">1</span>        <span class="g"># ✓</span>
+_a <span class="o">=</span> <span class="n">2</span>       <span class="g"># ✓</span>
+num2 <span class="o">=</span> <span class="n">3</span>     <span class="g"># ✓</span>
+my_name <span class="o">=</span> <span class="s">"小明"</span>  <span class="g"># ✓ 推荐</span>
+
+<span class="g"># 非法变量名示例</span>
+<span class="g"># 2name    ✗ 数字开头</span>
+<span class="g"># if       ✗ 关键字</span>
+<span class="g"># a-b      ✗ 含有减号</span>
+<span class="g"># !hello   ✗ 含有特殊字符</span></div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">5</span>数据类型</h2>
+<p>使用 <code class="inl">type(变量)</code> 函数可以获取变量的数据类型。</p>
+
+<div class="tw"><table>
+<tr><th>分类</th><th>类型名</th><th>关键字</th><th>示例</th></tr>
+<tr><td rowspan="3">数字类型</td><td>整型</td><td><code class="inl">int</code></td><td>18, -5, 0</td></tr>
+<tr><td>浮点型</td><td><code class="inl">float</code></td><td>1.71, 3.14, -0.5</td></tr>
+<tr><td>布尔型</td><td><code class="inl">bool</code></td><td>True, False</td></tr>
+<tr><td rowspan="4">非数字类型</td><td>字符串</td><td><code class="inl">str</code></td><td>'hello', "小明"</td></tr>
+<tr><td>列表</td><td><code class="inl">list</code></td><td>[1, 2, 3]</td></tr>
+<tr><td>元组</td><td><code class="inl">tuple</code></td><td>(1, 2, 3)</td></tr>
+<tr><td>字典</td><td><code class="inl">dict</code></td><td>{"name": "小明"}</td></tr>
+</table></div>
+
+<div class="term"><span class="g"># 数据类型示例</span>
+age <span class="o">=</span> <span class="n">18</span>
+<span class="p">print</span>(<span class="p">type</span>(age))      <span class="g"># &lt;class 'int'&gt;</span>
+
+height <span class="o">=</span> <span class="n">1.71</span>
+<span class="p">print</span>(<span class="p">type</span>(height))   <span class="g"># &lt;class 'float'&gt;</span>
+
+is_men <span class="o">=</span> <span class="k">True</span>
+<span class="p">print</span>(<span class="p">type</span>(is_men))   <span class="g"># &lt;class 'bool'&gt;</span>
+
+name <span class="o">=</span> <span class="s">'tom'</span>
+<span class="p">print</span>(<span class="p">type</span>(name))     <span class="g"># &lt;class 'str'&gt;</span></div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">6</span>数据类型转换</h2>
+<p>将一种数据类型转换为另一种数据类型。注意：数据类型转换不会改变原数据的类型，而是生成一个新数据。</p>
+
+<div class="tw"><table>
+<tr><th>函数</th><th>作用</th><th>注意事项</th></tr>
+<tr><td><code class="inl">int()</code></td><td>转换为整型</td><td>float可以转；只有整数类型的字符串才能转（如 '18'）</td></tr>
+<tr><td><code class="inl">float()</code></td><td>转换为浮点型</td><td>int可以转；数字类型的字符串都可以转</td></tr>
+<tr><td><code class="inl">str()</code></td><td>转换为字符串</td><td>任意类型都可以转（加引号）</td></tr>
+</table></div>
+
+<div class="term"><span class="g"># 类型转换示例</span>
+<span class="p">int</span>(<span class="n">3.14</span>)       <span class="g"># 3（截断小数部分）</span>
+<span class="p">int</span>(<span class="s">'12'</span>)       <span class="g"># 12</span>
+<span class="p">float</span>(<span class="n">18</span>)       <span class="g"># 18.0</span>
+<span class="p">float</span>(<span class="s">'3.14'</span>)   <span class="g"># 3.14</span>
+<span class="p">str</span>(<span class="n">100</span>)        <span class="g"># '100'</span></div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">7</span>输入与输出</h2>
+
+<h3>输入 input()</h3>
+<p>从键盘获取数据，使用 <code class="inl">input()</code> 函数。</p>
+<div class="term"><span class="g"># 语法：变量 = input('提示信息')</span>
+name <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入你的姓名：'</span>)
+<span class="p">print</span>(<span class="p">type</span>(name), name)</div>
+<div class="box info">
+<b>💡 input() 三个特点</b><br>
+1. 遇到 input 会暂停执行，等待用户输入；2. 输入过程中遇到回车表示输入结束；3. 获取的内容<b>都是字符串类型（str）</b>。
+</div>
+
+<h3>输出 print()</h3>
+<p><code class="inl">print()</code> 是Python的输出函数，将内容显示在控制台。默认 <code class="inl">end='\n'</code>（输出后换行）。</p>
+
+<h3>格式化输出</h3>
+<div class="term"><span class="g"># 方法一：f-string（推荐，Python 3.6+）</span>
+name <span class="o">=</span> <span class="s">'小明'</span>
+age <span class="o">=</span> <span class="n">18</span>
+<span class="p">print</span>(<span class="s">f'我的名字是 </span>{name}<span class="s">, 年龄 </span>{age}<span class="s"> 岁'</span>)
+
+<span class="g"># 方法二：format()</span>
+<span class="p">print</span>(<span class="s">'我的名字是 {}, 年龄 {} 岁'</span>.<span class="p">format</span>(name, age))
+
+<span class="g"># 方法三：字符串拼接（+）</span>
+<span class="p">print</span>(<span class="s">'我的名字是 '</span> <span class="o">+</span> name <span class="o">+</span> <span class="s">', 年龄 '</span> <span class="o">+</span> <span class="p">str</span>(age) <span class="o">+</span> <span class="s">' 岁'</span>)</div>
+
+<h3>转义字符</h3>
+<ul>
+<li><code class="inl">\n</code> — 换行（回车）</li>
+<li><code class="inl">\t</code> — 制表符（Tab键）</li>
+</ul>
+</div>
+
+<div class="sec">
+<h2><span class="ico">8</span>运算符</h2>
+
+<h3>算术运算符</h3>
+<div class="tw"><table>
+<tr><th>符号</th><th>作用</th><th>示例</th></tr>
+<tr><td><code class="inl">+</code></td><td>加</td><td>9 + 2 = 11</td></tr>
+<tr><td><code class="inl">-</code></td><td>减</td><td>9 - 2 = 7</td></tr>
+<tr><td><code class="inl">*</code></td><td>乘</td><td>9 * 2 = 18</td></tr>
+<tr><td><code class="inl">/</code></td><td>除</td><td>9 / 2 = 4.5</td></tr>
+<tr><td><code class="inl">//</code></td><td>求商（整除）</td><td>9 // 2 = 4</td></tr>
+<tr><td><code class="inl">%</code></td><td>取余</td><td>9 % 2 = 1</td></tr>
+<tr><td><code class="inl">**</code></td><td>幂/次方</td><td>2 ** 3 = 8</td></tr>
+</table></div>
+<div class="box tip">
+<b>💡 优先级</b>：() > ** > * / // % > + -<br>
+<b>💡 应用</b>：% 常用于判断偶数（数字 % 2 == 0 则为偶数）
+</div>
+
+<h3>比较运算符</h3>
+<p>比较运算符的结果是 <code class="inl">bool</code> 类型（True 或 False）。</p>
+<div class="tw"><table>
+<tr><th>符号</th><th>作用</th><th>示例（a=2, b=1）</th></tr>
+<tr><td><code class="inl">==</code></td><td>相等</td><td>a == b → False</td></tr>
+<tr><td><code class="inl">!=</code></td><td>不相等</td><td>a != b → True</td></tr>
+<tr><td><code class="inl">></code></td><td>大于</td><td>a > b → True</td></tr>
+<tr><td><code class="inl"><</code></td><td>小于</td><td>a < b → False</td></tr>
+<tr><td><code class="inl">>=</code></td><td>大于等于</td><td>a >= b → True</td></tr>
+<tr><td><code class="inl"><=</code></td><td>小于等于</td><td>a <= b → False</td></tr>
+</table></div>
+
+<h3>逻辑运算符</h3>
+<div class="tw"><table>
+<tr><th>符号</th><th>含义</th><th>规则</th></tr>
+<tr><td><code class="inl">and</code></td><td>逻辑与（并且）</td><td>一假为假，两个条件都为True才为True</td></tr>
+<tr><td><code class="inl">or</code></td><td>逻辑或（或者）</td><td>一真为真，只要一个条件为True就为True</td></tr>
+<tr><td><code class="inl">not</code></td><td>逻辑非（取反）</td><td>True变False，False变True</td></tr>
+</table></div>
+
+<h3>赋值运算符与复合赋值运算符</h3>
+<div class="tw"><table>
+<tr><th>符号</th><th>作用</th><th>等价于</th></tr>
+<tr><td><code class="inl">=</code></td><td>赋值</td><td>a = 10</td></tr>
+<tr><td><code class="inl">+=</code></td><td>加后赋值</td><td>a += b → a = a + b</td></tr>
+<tr><td><code class="inl">-=</code></td><td>减后赋值</td><td>a -= b → a = a - b</td></tr>
+<tr><td><code class="inl">*=</code></td><td>乘后赋值</td><td>a *= b → a = a * b</td></tr>
+<tr><td><code class="inl">/=</code></td><td>除后赋值</td><td>a /= b → a = a / b</td></tr>
+<tr><td><code class="inl">%=</code></td><td>取余后赋值</td><td>a %= b → a = a % b</td></tr>
+</table></div>
+</div>
+
+<div class="pnav">
+<button disabled>← 上一节</button>
+<button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 1: 图解演示 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">1</span>Python课程知识体系</h2>
+<div class="g3">
+<div class="metric-card"><div class="mv">20%</div><div class="ml">Python基础</div><p style="font-size:11px;color:var(--muted);margin-top:4px">环境·变量·数据类型·运算符·流程控制</p></div>
+<div class="metric-card"><div class="mv">10%</div><div class="ml">数据序列</div><p style="font-size:11px;color:var(--muted);margin-top:4px">字符串·列表·元组·字典</p></div>
+<div class="metric-card"><div class="mv">20%</div><div class="ml">函数</div><p style="font-size:11px;color:var(--muted);margin-top:4px">函数·变量进阶·函数进阶</p></div>
+<div class="metric-card"><div class="mv">30%</div><div class="ml">面向对象</div><p style="font-size:11px;color:var(--muted);margin-top:4px">面向对象介绍·三大特征</p></div>
+<div class="metric-card"><div class="mv">10%</div><div class="ml">异常/文件</div><p style="font-size:11px;color:var(--muted);margin-top:4px">异常·文件操作·JSON操作</p></div>
+<div class="metric-card"><div class="mv">10%</div><div class="ml">UnitTest</div><p style="font-size:11px;color:var(--muted);margin-top:4px">基本用法·断言·参数化·测试报告</p></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">2</span>编译型 vs 解释型语言</h2>
+<div class="g2">
+<div>
+<div class="flow-box" style="background:#64748b">编译型语言（C/C++）</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:#64748b">源代码 → 编译器</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:#64748b">可执行文件(.exe)</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:var(--green)">操作系统执行 ⚡ 速度快</div>
+</div>
+<div>
+<div class="flow-box">解释型语言（Python）</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">源代码 → 解释器</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box">逐行解释执行</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-box" style="background:var(--amber)">直接运行 🐢 速度较慢</div>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">3</span>数据类型分类图</h2>
+<div class="g2">
+<div class="card" style="border-left:4px solid var(--day)">
+<h4>📊 数字类型</h4>
+<p><b>int</b>（整型）：18, -5, 0</p>
+<p><b>float</b>（浮点型）：1.71, 3.14</p>
+<p><b>bool</b>（布尔型）：True / False</p>
+<p style="font-size:11px;color:var(--muted)">布尔型中非0即为真</p>
+</div>
+<div class="card" style="border-left:4px solid var(--amber)">
+<h4>📝 非数字类型</h4>
+<p><b>str</b>（字符串）：使用引号引起来的内容</p>
+<p><b>list</b>（列表）：[1, 2, 3]</p>
+<p><b>tuple</b>（元组）：(1, 2, 3)</p>
+<p><b>dict</b>（字典）：{"name": "小明"}</p>
+</div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">4</span>类型转换规则速查</h2>
+<div class="flow-box">int() 转整型</div>
+<div class="box ok">float → int ✓（截断小数） ｜ 整数字符串 → int ✓ ｜ 小数字符串 → int ✗</div>
+<div class="flow-box" style="margin-top:8px">float() 转浮点型</div>
+<div class="box ok">int → float ✓ ｜ 数字字符串 → float ✓（整数和小数都可以）</div>
+<div class="flow-box" style="margin-top:8px">str() 转字符串</div>
+<div class="box ok">任意类型 → str ✓（给数据加引号）</div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">5</span>格式化输出对比</h2>
+<div class="tw"><table>
+<tr><th>方法</th><th>语法</th><th>版本要求</th></tr>
+<tr><td>f-string</td><td><code class="inl">f"名字:{name}"</code></td><td>Python ≥ 3.6</td></tr>
+<tr><td>format()</td><td><code class="inl">"名字:{}".format(name)</code></td><td>任意版本</td></tr>
+<tr><td>+拼接</td><td><code class="inl">"名字:" + name</code></td><td>任意版本（数字需str()转换）</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h2><span class="ico">6</span>PyCharm波浪线含义</h2>
+<div class="g3">
+<div class="card" style="border-left:4px solid var(--red)">
+<h4 style="color:var(--red)">🔴 红色波浪线</h4>
+<p>代码中的错误，需要解决，否则影响执行</p>
+</div>
+<div class="card" style="border-left:4px solid #94a3b8">
+<h4 style="color:#64748b">⚪ 灰色波浪线</h4>
+<p>PEP8规范问题，不影响执行。Ctrl+Alt+L 格式化</p>
+</div>
+<div class="card" style="border-left:4px solid var(--green)">
+<h4 style="color:var(--green)">🟢 绿色波浪线</h4>
+<p>PyCharm认为不是一个单词，不影响执行</p>
+</div>
+</div>
+</div>
+
+<div class="pnav">
+<button onclick="go(0)">← 知识讲解</button>
+<button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 2: 实战练习 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">🛠️</span>实战练习</h2>
+<p>完成以下10道练习题，巩固Python基础语法。</p>
+<div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+<p style="font-size:13px;color:var(--muted)">已完成 <b id="pc" style="color:var(--day);font-family:'Space Mono',monospace">0</b> / 10 题 <span style="float:right;cursor:pointer;color:var(--day);font-weight:600" onclick="mc()">全部完成 ✓</span></p>
+</div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">1. 定义变量 name、age、weight、phone、address 并打印个人名片。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">name = "张三"
+age = 25
+weight = 65.5
+phone = "13800138000"
+address = "北京市朝阳区"
+
+print(f"姓名: {name}")
+print(f"年龄: {age}")
+print(f"体重: {weight}")
+print(f"手机号: {phone}")
+print(f"家庭住址: {address}")</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">2. 定义 name、age、height 变量，使用两种格式化方法输出信息。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">name = "小明"
+age = 18
+height = 175
+
+<span class="g"># 方法一：f-string</span>
+print(f"我的名字是 {name}，年龄是 {age} 岁，身高是 {height} 厘米")
+
+<span class="g"># 方法二：format()</span>
+print("我的名字是 {}，年龄是 {} 岁，身高是 {} 厘米".format(name, age, height))</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">3. 从键盘获取用户名和密码并打印。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">username = input("请输入用户名：")
+password = input("请输入密码：")
+
+print(f"用户名是: {username}, 密码是: {password}")</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">4. 制作一个加法计算器：用户输入2个整数，输出求和结果。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">num1 = int(input("请输入第一个数字："))
+num2 = int(input("请输入第二个数字："))
+result = num1 + num2
+print(f"{num1} + {num2} = {result}")</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">5. 用户输入天数，折算成秒数并输出。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">days = int(input("请输入天数："))
+seconds = days * 24 * 60 * 60
+print(f"{days}天等于{seconds}秒")</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">6. 写出 type() 函数获取 int、float、bool、str 四种类型的代码。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">age = 18
+print(type(age))       <span class="g"># &lt;class 'int'&gt;</span>
+
+height = 1.71
+print(type(height))    <span class="g"># &lt;class 'float'&gt;</span>
+
+is_ok = True
+print(type(is_ok))     <span class="g"># &lt;class 'bool'&gt;</span>
+
+name = "小明"
+print(type(name))      <span class="g"># &lt;class 'str'&gt;</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">7. 判断下列变量名哪些不能使用：test, 2name, if, !hello, print, abc-def, TEST</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># 不能使用的变量名：</span>
+<span class="g"># 2name   ✗ 数字开头</span>
+<span class="g"># if      ✗ Python关键字</span>
+<span class="g"># !hello  ✗ 特殊字符开头</span>
+<span class="g"># abc-def ✗ 含有减号（非法字符）</span>
+
+<span class="g"># 可以使用的变量名：</span>
+<span class="g"># test    ✓</span>
+<span class="g"># print   ✓（不是关键字，但不推荐，会覆盖内置函数）</span>
+<span class="g"># TEST    ✓</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">8. a=2, b=1，写出所有比较运算的结果。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">a = 2
+b = 1
+
+print(a == b)    <span class="g"># False</span>
+print(a != b)    <span class="g"># True</span>
+print(a > b)     <span class="g"># True</span>
+print(a < b)     <span class="g"># False</span>
+print(a >= b)    <span class="g"># True</span>
+print(a <= b)    <span class="g"># False</span></div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">9. 输入姓名、年龄、身高，输出类型和5年后的年龄、是否成年。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">name = input("请输入姓名：")
+age = int(input("请输入年龄："))
+height = float(input("请输入身高："))
+
+print(type(name), type(age), type(height))
+print(f"姓名:{name} 年龄:{age} 身高:{height}")
+
+age_after = age + 5
+print(f"{name} 5年之后的年龄是 {age_after}")
+print(f"{name}是否成年:{age >= 18}")</div>
+</div></div>
+
+<div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+<div class="pt-t">10. 使用逻辑运算符计算：a=5, b=3，写出 and/or/not 的运算结果。</div>
+<span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">a = 5
+b = 3
+
+print(a > 5 and b < 4)   <span class="g"># False and True → False</span>
+print(a > 5 or b < 4)    <span class="g"># False or True → True</span>
+print(a >= b or b < 2)   <span class="g"># True or False → True</span>
+print(not a >= b)         <span class="g"># not True → False</span></div>
+</div></div>
+
+<div class="pnav">
+<button onclick="go(1)">← 图解演示</button>
+<button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 3: 面试精讲 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">💬</span>面试精讲</h2>
+<p>共12道Python基础面试题，涵盖语言特性、变量、数据类型和运算符等核心知识。</p>
+</div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div><div class="iq-q">Python是编译型语言还是解释型语言？有什么区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>Python是<b>解释型语言</b>。编译型语言（如C/C++）先将源代码编译成可执行文件再运行，速度快；解释型语言（如Python）由解释器逐行解释执行，开发效率高但运行速度相对较慢。Python从上到下执行，下方代码的错误不会影响上方代码的执行。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div><div class="iq-q">Python中变量名的命名规则是什么？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. 由字母、数字和下划线组成，不能以数字开头</p>
+<p>2. 不能使用Python内置关键字（如 if、True、False、and、or、not等）</p>
+<p>3. 区分大小写</p>
+<p>4. 命名规范：见名知意，Python推荐使用下划线连接（如 my_name），也可以使用驼峰命名（大驼峰MyName、小驼峰myName）</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div><div class="iq-q">描述 input() 函数的特点。</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. 代码执行遇到 input 时会暂停，等待用户输入</p>
+<p>2. 输入过程中遇到回车键表示输入结束</p>
+<p>3. 使用 input 获取的内容<b>都是字符串类型（str）</b>，如果需要数字运算，需要用 int() 或 float() 进行类型转换</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div><div class="iq-q">Python中常见的数据类型有哪些？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>数字类型：</b>int（整型）、float（浮点型）、bool（布尔型，True/False）</p>
+<p><b>非数字类型：</b>str（字符串）、list（列表）、tuple（元组）、dict（字典）、set（集合）</p>
+<p>可以使用 type() 函数查看变量的数据类型。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div><div class="iq-q">int()、float()、str() 三个类型转换函数有什么区别？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>int()：</b>float可以转（截断小数）；整数类型的字符串可以转（如 '18'），小数字符串不可以转</p>
+<p><b>float()：</b>int可以转（加.0）；数字类型字符串都可以转（整数和小数字符串）</p>
+<p><b>str()：</b>任意类型都可以转换为字符串（加引号）</p>
+<p>注意：类型转换不会改变原数据的类型，而是生成一个新数据。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div><div class="iq-q">Python中 / 和 // 和 % 的区别？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>/（除法）：</b>返回浮点数结果，如 9 / 2 = 4.5</p>
+<p><b>//（求商/整除）：</b>返回整数商，如 9 // 2 = 4</p>
+<p><b>%（取余）：</b>返回余数，如 9 % 2 = 1</p>
+<p>应用：% 常用于判断一个数是否为偶数（num % 2 == 0）</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div><div class="iq-q">and、or、not 三个逻辑运算符的规则？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>and（逻辑与）：</b>一假为假。两个条件都为True，结果才为True</p>
+<p><b>or（逻辑或）：</b>一真为真。只要一个条件为True，结果就为True</p>
+<p><b>not（逻辑非）：</b>取反。True变False，False变True</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div><div class="iq-q">Python中 == 和 = 的区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>=</b> 是赋值运算符，将右边的值赋给左边的变量，如 a = 10</p>
+<p><b>==</b> 是比较运算符，判断两个值是否相等，返回 True 或 False，如 a == 10 → True</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div><div class="iq-q">f-string 和 format() 格式化输出的区别？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>f-string：</b>Python 3.6+ 开始可用，在字符串前加 f 或 F，变量直接写在 {} 中，如 <code class="inl">f"名字:{name}"</code>，更简洁直观</p>
+<p><b>format()：</b>任意Python版本可用，字符串中用 {} 占位，变量在 format() 括号中按顺序写，如 <code class="inl">"名字:{}".format(name)</code></p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div><div class="iq-q">Python中的注释有哪些？快捷键是什么？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>单行注释：</b>以 # 开头，快捷键 Ctrl + /</p>
+<p><b>多行注释：</b>三对单引号 ''' ''' 或三对双引号 """ """</p>
+<p>注释的作用是增强代码可读性，注释的代码不会被执行。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div><div class="iq-q">Python中 \n 和 \t 是什么？print 函数的 end 参数有什么用？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p><b>\n：</b>换行符（回车），让后续内容从下一行开始</p>
+<p><b>\t：</b>制表符（Tab键），插入一个水平缩进</p>
+<p><b>end参数：</b>print 函数默认 end='\n'，每次输出后自动换行。可以修改 end 参数改变输出后的行为，如 <code class="inl">print('hello', end=' ')</code> 输出后不换行而是加空格。</p>
+</div></div>
+
+<div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div><div class="iq-q">为什么说Python适合做自动化测试？</div><div class="iq-lv lv-h">高频</div><div class="iq-tg">+</div></div><div class="iq-body">
+<p>1. <b>简单易学：</b>语法简洁，开发效率高，适合测试人员快速上手</p>
+<p>2. <b>丰富的库支持：</b>requests（接口自动化）、Selenium（Web自动化）、Appium（移动端自动化）、UnitTest/Pytest（测试框架）</p>
+<p>3. <b>跨平台：</b>支持 Windows、Linux、Mac 多平台运行</p>
+<p>4. <b>社区活跃：</b>大量教程和开源工具，遇到问题容易找到解决方案</p>
+</div></div>
+
+<div class="pnav">
+<button onclick="go(2)">← 实战练习</button>
+<button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANEL 4: 测验 -->
+<!-- ============================================================ -->
+<div class="pan">
+
+<div class="sec">
+<h2><span class="ico">✅</span>知识测验</h2>
+<p>共15道选择题，测试你对Python基础语法的掌握程度。</p>
+</div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">1</span>Python属于什么类型的编程语言？</div>
+<div class="opt" onclick="sel(this)">A. 编译型语言</div>
+<div class="opt" onclick="sel(this)">B. 解释型语言</div>
+<div class="opt" onclick="sel(this)">C. 机器语言</div>
+<div class="opt" onclick="sel(this)">D. 汇编语言</div>
+<div class="qz-ex"><b>💡 解析：</b>Python是解释型语言，由解释器逐行解释执行代码。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">2</span>以下哪个不是合法的Python变量名？</div>
+<div class="opt" onclick="sel(this)">A. my_name</div>
+<div class="opt" onclick="sel(this)">B. _test</div>
+<div class="opt" onclick="sel(this)">C. 2name</div>
+<div class="opt" onclick="sel(this)">D. TEST</div>
+<div class="qz-ex"><b>💡 解析：</b>变量名不能以数字开头，2name 是非法变量名。</div></div>
+
+<div class="qz" data-a="4"><div class="qz-q"><span class="qn">3</span>input() 函数获取的数据类型是？</div>
+<div class="opt" onclick="sel(this)">A. int</div>
+<div class="opt" onclick="sel(this)">B. float</div>
+<div class="opt" onclick="sel(this)">C. bool</div>
+<div class="opt" onclick="sel(this)">D. str</div>
+<div class="qz-ex"><b>💡 解析：</b>input() 获取的内容都是字符串类型（str），需要运算时需手动转换。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">4</span>int(3.14) 的结果是？</div>
+<div class="opt" onclick="sel(this)">A. 3</div>
+<div class="opt" onclick="sel(this)">B. 3.0</div>
+<div class="opt" onclick="sel(this)">C. 4</div>
+<div class="opt" onclick="sel(this)">D. 3.14</div>
+<div class="qz-ex"><b>💡 解析：</b>int() 将浮点数转整数时直接截断小数部分，不做四舍五入。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">5</span>9 // 2 的结果是？</div>
+<div class="opt" onclick="sel(this)">A. 4.5</div>
+<div class="opt" onclick="sel(this)">B. 4</div>
+<div class="opt" onclick="sel(this)">C. 1</div>
+<div class="opt" onclick="sel(this)">D. 5</div>
+<div class="qz-ex"><b>💡 解析：</b>// 是整除运算符（求商），9 // 2 = 4，余数被丢弃。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">6</span>以下哪个是Python的多行注释？</div>
+<div class="opt" onclick="sel(this)">A. // 注释内容</div>
+<div class="opt" onclick="sel(this)">B. /* 注释内容 */</div>
+<div class="opt" onclick="sel(this)">C. """ 注释内容 """</div>
+<div class="opt" onclick="sel(this)">D. &lt;!-- 注释内容 --&gt;</div>
+<div class="qz-ex"><b>💡 解析：</b>Python多行注释使用三对双引号 """ """ 或三对单引号 ''' '''。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">7</span>True and False 的结果是？</div>
+<div class="opt" onclick="sel(this)">A. False</div>
+<div class="opt" onclick="sel(this)">B. True</div>
+<div class="opt" onclick="sel(this)">C. None</div>
+<div class="opt" onclick="sel(this)">D. 报错</div>
+<div class="qz-ex"><b>💡 解析：</b>and 运算一假为假，True and False = False。</div></div>
+
+<div class="qz" data-a="4"><div class="qz-q"><span class="qn">8</span>以下哪个不是Python关键字？</div>
+<div class="opt" onclick="sel(this)">A. if</div>
+<div class="opt" onclick="sel(this)">B. True</div>
+<div class="opt" onclick="sel(this)">C. and</div>
+<div class="opt" onclick="sel(this)">D. print</div>
+<div class="qz-ex"><b>💡 解析：</b>print 是内置函数，不是关键字。if、True、and 都是Python关键字。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">9</span>f-string 格式化输出从哪个Python版本开始支持？</div>
+<div class="opt" onclick="sel(this)">A. Python 3.0</div>
+<div class="opt" onclick="sel(this)">B. Python 3.6</div>
+<div class="opt" onclick="sel(this)">C. Python 2.7</div>
+<div class="opt" onclick="sel(this)">D. Python 3.10</div>
+<div class="qz-ex"><b>💡 解析：</b>f-string 是 Python 3.6 版本开始引入的格式化字符串方法。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">10</span>9 % 2 的结果是？</div>
+<div class="opt" onclick="sel(this)">A. 4.5</div>
+<div class="opt" onclick="sel(this)">B. 4</div>
+<div class="opt" onclick="sel(this)">C. 1</div>
+<div class="opt" onclick="sel(this)">D. 0</div>
+<div class="qz-ex"><b>💡 解析：</b>% 是取余运算符，9 % 2 = 1（9除以2余1）。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">11</span>type(1.5) 的输出是？</div>
+<div class="opt" onclick="sel(this)">A. &lt;class 'int'&gt;</div>
+<div class="opt" onclick="sel(this)">B. &lt;class 'float'&gt;</div>
+<div class="opt" onclick="sel(this)">C. &lt;class 'str'&gt;</div>
+<div class="opt" onclick="sel(this)">D. &lt;class 'bool'&gt;</div>
+<div class="qz-ex"><b>💡 解析：</b>1.5 是小数，数据类型为 float（浮点型）。</div></div>
+
+<div class="qz" data-a="1"><div class="qz-q"><span class="qn">12</span>a = 5, a += 3 执行后 a 的值是？</div>
+<div class="opt" onclick="sel(this)">A. 8</div>
+<div class="opt" onclick="sel(this)">B. 5</div>
+<div class="opt" onclick="sel(this)">C. 3</div>
+<div class="opt" onclick="sel(this)">D. 15</div>
+<div class="qz-ex"><b>💡 解析：</b>a += 3 等价于 a = a + 3，即 5 + 3 = 8。</div></div>
+
+<div class="qz" data-a="4"><div class="qz-q"><span class="qn">13</span>\n 在Python中表示什么？</div>
+<div class="opt" onclick="sel(this)">A. 制表符</div>
+<div class="opt" onclick="sel(this)">B. 空格</div>
+<div class="opt" onclick="sel(this)">C. 删除</div>
+<div class="opt" onclick="sel(this)">D. 换行</div>
+<div class="qz-ex"><b>💡 解析：</b>\n 是换行符（回车），\t 是制表符（Tab）。</div></div>
+
+<div class="qz" data-a="3"><div class="qz-q"><span class="qn">14</span>not True 的结果是？</div>
+<div class="opt" onclick="sel(this)">A. True</div>
+<div class="opt" onclick="sel(this)">B. None</div>
+<div class="opt" onclick="sel(this)">C. False</div>
+<div class="opt" onclick="sel(this)">D. 报错</div>
+<div class="qz-ex"><b>💡 解析：</b>not 是逻辑非运算符，取反操作。not True = False。</div></div>
+
+<div class="qz" data-a="2"><div class="qz-q"><span class="qn">15</span>2 ** 3 的结果是？</div>
+<div class="opt" onclick="sel(this)">A. 6</div>
+<div class="opt" onclick="sel(this)">B. 8</div>
+<div class="opt" onclick="sel(this)">C. 5</div>
+<div class="opt" onclick="sel(this)">D. 9</div>
+<div class="qz-ex"><b>💡 解析：</b>** 是幂运算符，2 ** 3 表示2的3次方，即 2 × 2 × 2 = 8。</div></div>
+
+<div style="text-align:center;margin-top:24px">
+<button class="qbtn" onclick="sub()">提交答案</button>
+</div>
+
+<div id="qr">
+<h3 id="qr-t"></h3>
+<p id="qr-d"></p>
+</div>
+
+<div class="pnav">
+<button onclick="go(3)">← 面试精讲</button>
+<button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+</div>
+
+</div>
+
+<script>
+const pans=document.querySelectorAll('.pan'),tabs=document.querySelectorAll('.t'),dots=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){const d=document.createElement('span');d.className='dot'+(i===0?' a':'');d.onclick=()=>go(i);dots.appendChild(d)}
+function go(i){tabs.forEach((t,k)=>t.classList.toggle('a',k===i));pans.forEach((p,k)=>p.classList.toggle('a',k===i));document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));window.scrollTo({top:0,behavior:'smooth'})}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+function tr(el){const a=el.nextElementSibling;a.classList.toggle('s');el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›'}
+function tq(h){h.parentElement.classList.toggle('o')}
+const cbs=document.querySelectorAll('.ci');
+function upc(){const d=document.querySelectorAll('.ci:checked').length;document.getElementById('pc').textContent=d;document.getElementById('pf').style.width=(d/10*100)+'%';cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked)});if(d===10)document.querySelectorAll('.dot')[2].classList.add('d')}
+cbs.forEach(cb=>cb.onchange=upc);upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+function sel(el){el.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel')}
+function sub(){const qzs=document.querySelectorAll('.qz');let s=0;qzs.forEach(q=>{const a=parseInt(q.dataset.a),opts=q.querySelectorAll('.opt');let p=-1;opts.forEach((o,i)=>{if(o.classList.contains('sel'))p=i+1});opts.forEach((o,i)=>{o.classList.remove('sel');if(i+1===a)o.classList.add('ok');else if(i+1===p&&p!==a)o.classList.add('no')});if(p===a)s++;q.querySelector('.qz-ex').classList.add('s')});const qr=document.getElementById('qr');qr.style.display='block';const pct=Math.round(s/15*100);document.getElementById('qr-t').textContent=s+' / 15（'+pct+'%）';let m='';if(pct>=90)m='🎉 非常优秀！Python基础已扎实掌握！';else if(pct>=70)m='👍 不错！部分知识点需要再巩固。';else if(pct>=50)m='📖 还需加油，建议回顾知识讲解。';else m='💪 基础薄弱，建议重新学习后再测试。';document.getElementById('qr-d').textContent=m;document.querySelectorAll('.dot')[4].classList.add('d');try{window.parent.postMessage({type:'qa_quiz_result',score:s,total:15,day:'s4d1'},'*')}catch(e){}}
+</script>
+</body>
+</html>

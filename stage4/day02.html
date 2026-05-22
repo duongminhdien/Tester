@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 4 · Python基础 Day 02 – 判断语句 & 循环控制</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#7c3aed;--day-d:#6d28d9;--day-bg:rgba(124,58,237,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--code-bg:#1e2030;--code-ink:#a6accd;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+html,body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(124,58,237,.25)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sections */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{margin-bottom:10px;color:var(--ink2);line-height:1.75}
+.sec ul,.sec ol{padding-left:18px;color:var(--ink2);margin-bottom:10px}
+.sec li{margin-bottom:5px;line-height:1.7}
+
+/* Code blocks */
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.8}
+.term .k{color:#c792ea}
+.term .s{color:#ffcb6b}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .n{color:#f78c6c}
+.term .g{color:#676e95;font-style:italic}
+.term .w{color:#fff;font-weight:600}
+.term .p{color:#82aaff}
+.term .r{color:#f07178}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+
+/* Tables */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:420px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:13px;color:var(--ink2);line-height:1.65}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-purple{background:#ede9fe;color:#6d28d9}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0}
+.flow-box{padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;font-family:'Space Mono',monospace;text-align:center}
+.flow-arr{color:var(--muted);font-size:16px;font-weight:700}
+.fb-start{background:var(--day-bg);color:var(--day-d);border:2px solid var(--day)}
+.fb-cond{background:#fef3c7;color:#92400e;border:2px solid #d97706}
+.fb-yes{background:#dcfce7;color:#15803d;border:2px solid #16a34a}
+.fb-no{background:#fee2e2;color:#991b1b;border:2px solid #dc2626}
+.fb-end{background:#f1f5f9;color:var(--ink2);border:2px solid var(--border)}
+
+/* Comparison block */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.cmp-item{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.cmp-hd{padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.04em}
+.cmp-body{padding:12px}
+
+/* Syntax highlight box */
+.syn{background:linear-gradient(135deg,var(--day-bg),rgba(124,58,237,.04));border:1.5px dashed var(--day);border-radius:10px;padding:14px;margin:12px 0}
+.syn-title{font-size:11px;font-weight:700;color:var(--day-d);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border);margin-top:6px}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+.pt-tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;background:var(--day-bg);color:var(--day-d);margin-left:6px;vertical-align:middle}
+
+/* Progress bar */
+.prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.prog-bar{flex:1;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--day),var(--day-d));border-radius:99px;transition:width .4s}
+.prog-txt{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--day-d);min-width:40px;text-align:right}
+.mc-btn{padding:7px 14px;background:var(--day-bg);color:var(--day-d);border:1.5px solid var(--day);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;white-space:nowrap}
+.mc-btn:hover{background:var(--day);color:#fff}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+.qbtn{display:block;width:100%;padding:13px;background:var(--day);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin:20px 0 10px;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:var(--day-d)}
+#qres{display:none;background:var(--card);border:2px solid var(--day);border-radius:14px;padding:22px;text-align:center;margin-top:16px}
+#qres.s{display:block}
+#qscore{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--day);display:block;margin-bottom:6px}
+#qmsg{font-size:14px;color:var(--ink2)}
+
+/* Page nav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* Vis cards */
+.vis-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.vis-card h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day)}
+
+/* Keyword tags */
+.kw{display:inline-block;background:var(--day);color:#fff;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:2px 9px;border-radius:5px;margin:2px}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3,.cmp{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Header -->
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · PYTHON基础 DAY 02</div>
+  <h1>判断语句 & 循环控制</h1>
+  <p>掌握 if / elif / else 条件判断、if 嵌套、while 与 for 循环、break / continue 关键字，学会 Debug 调试技巧，并综合应用于石头剪刀布、猜数字等实战案例。</p>
+  <div class="hd-stats">
+    <div><b>5</b>大知识块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- Dots -->
+<div id="dots"></div>
+
+<!-- Tabs -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- Section 1: if 基础 -->
+  <div class="sec">
+    <h2><span class="ico">1</span>if 判断语句</h2>
+    <p>判断语句的作用：根据条件的真假，决定执行哪段代码。对应自然语言中的"如果……否则……"。</p>
+
+    <h3>单独 if 语句</h3>
+    <div class="syn">
+      <div class="syn-title">语法格式</div>
+      <div class="term">
+<span class="k">if</span> 判断条件<span class="o">:</span>
+    <span class="g"># 条件成立，执行这里的代码块</span>
+    执行的代码
+    执行的代码
+<span class="g"># 这行与 if 无关（不在缩进中）</span>
+      </div>
+    </div>
+    <div class="box info">
+      <b>📌 语法要点：</b><br>
+      1. <code class="inl">if</code> 后边需要一个 <b>冒号 :</b><br>
+      2. 冒号之后回车并缩进（PyCharm 会自动添加）<br>
+      3. 缩进中的代码称为 <b>代码块</b>，要么都执行，要么都不执行<br>
+      4. 与 if 无关的代码不需要写在缩进中
+    </div>
+
+    <div class="term">
+<span class="g"># 示例：判断是否满18岁</span>
+age <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入年龄:'</span>))
+<span class="k">if</span> age <span class="o">>=</span> <span class="n">18</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'满18岁，可以进入网吧'</span>)
+<span class="p">print</span>(<span class="s">'这行和if无关，无论如何都会执行'</span>)
+    </div>
+
+    <h3>if else 结构</h3>
+    <div class="syn">
+      <div class="syn-title">语法格式</div>
+      <div class="term">
+<span class="k">if</span> 判断条件<span class="o">:</span>
+    <span class="g"># 条件成立执行</span>
+    执行的代码
+<span class="k">else</span><span class="o">:</span>
+    <span class="g"># 条件不成立执行</span>
+    执行的代码
+      </div>
+    </div>
+    <div class="box warn"><b>⚠️ 注意：</b><code class="inl">else</code> 不能单独使用，必须与 <code class="inl">if</code> 配合，且必须对齐。if 和 else 之间不能有顶格书写的代码。</div>
+
+    <div class="term">
+<span class="g"># 示例：是否满18岁</span>
+age <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入年龄:'</span>))
+<span class="k">if</span> age <span class="o">>=</span> <span class="n">18</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'可以进网吧嗨皮'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'回家写作业！'</span>)
+    </div>
+
+    <h3>if elif else 结构（多分支）</h3>
+    <div class="syn">
+      <div class="syn-title">语法格式</div>
+      <div class="term">
+<span class="k">if</span> 判断条件1<span class="o">:</span>
+    条件1成立执行
+<span class="k">elif</span> 判断条件2<span class="o">:</span>   <span class="g"># 条件1不成立才判断</span>
+    条件2成立执行
+<span class="k">elif</span> 判断条件3<span class="o">:</span>
+    条件3成立执行
+<span class="k">else</span><span class="o">:</span>
+    以上都不成立才执行
+      </div>
+    </div>
+    <div class="box tip"><b>💡 核心规则：</b>一旦某个条件成立，后续的 elif/else 全部跳过，不再判断。利用这个特性可以简化条件写法：已知 <code class="inl">score &lt; 90</code> 时，<code class="inl">elif score >= 80</code> 就等价于 <code class="inl">80 &lt;= score &lt; 90</code>。</div>
+
+    <div class="term">
+<span class="g"># 示例：成绩等级判断（简化写法）</span>
+score <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入分数:'</span>))
+<span class="k">if</span> score <span class="o">>=</span> <span class="n">90</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'优'</span>)
+<span class="k">elif</span> score <span class="o">>=</span> <span class="n">80</span><span class="o">:</span>   <span class="g"># 隐含 score < 90</span>
+    <span class="p">print</span>(<span class="s">'良'</span>)
+<span class="k">elif</span> score <span class="o">>=</span> <span class="n">70</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'中'</span>)
+<span class="k">elif</span> score <span class="o">>=</span> <span class="n">60</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'差'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'不及格'</span>)
+    </div>
+  </div>
+
+  <!-- Section 2: if + 逻辑运算符 & 嵌套 -->
+  <div class="sec">
+    <h2><span class="ico">2</span>逻辑运算符 & if 嵌套</h2>
+
+    <h3>逻辑运算符（and / or / not）</h3>
+    <div class="tw">
+      <table>
+        <tr><th>运算符</th><th>含义</th><th>规则</th><th>示例</th></tr>
+        <tr><td><code class="inl">and</code></td><td>并且</td><td>两边都为 True 才为 True</td><td><code class="inl">age >= 18 and name == 'admin'</code></td></tr>
+        <tr><td><code class="inl">or</code></td><td>或者</td><td>一边为 True 即为 True</td><td><code class="inl">score_a > 60 or score_b > 60</code></td></tr>
+        <tr><td><code class="inl">not</code></td><td>取反</td><td>True → False，False → True</td><td><code class="inl">not is_admin</code></td></tr>
+      </table>
+    </div>
+
+    <div class="term">
+<span class="g"># 用户名 AND 密码同时正确才能登录</span>
+name <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入用户名:'</span>)
+pwd  <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入密码:'</span>)
+<span class="k">if</span> name <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> pwd <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'登录成功！'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'登录信息错误！'</span>)
+    </div>
+
+    <h3>if 嵌套</h3>
+    <p>当判断条件存在 <b>递进关系</b>（第一个条件成立，才有必要判断第二个条件）时，使用 if 嵌套。</p>
+    <div class="syn">
+      <div class="syn-title">语法格式</div>
+      <div class="term">
+<span class="k">if</span> 判断条件1<span class="o">:</span>
+    条件1成立执行
+    <span class="k">if</span> 判断条件2<span class="o">:</span>    <span class="g"># 只有条件1成立才会判断</span>
+        条件2成立执行
+    <span class="k">else</span><span class="o">:</span>
+        条件2不成立执行
+<span class="k">else</span><span class="o">:</span>
+    条件1不成立执行
+      </div>
+    </div>
+
+    <div class="term">
+<span class="g"># 案例：ATM取款机 — 先验证密码，再判断余额</span>
+pwd <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入密码:'</span>)
+<span class="k">if</span> pwd <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'密码正确'</span>)
+    money <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入取款金额:'</span>))
+    <span class="k">if</span> money <span class="o">></span> <span class="n">1000</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'余额不足'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'取款中，请稍后...'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'密码错误，请重试'</span>)
+
+<span class="g"># 案例：先验证码 → 再验证用户名密码</span>
+code <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入验证码:'</span>)
+<span class="k">if</span> code <span class="o">==</span> <span class="s">'8888'</span><span class="o">:</span>
+    username <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入用户名:'</span>)
+    password <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入密码:'</span>)
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'登录成功'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'用户名或密码错误'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'验证码不正确，请重新输入'</span>)
+    </div>
+  </div>
+
+  <!-- Section 3: while 循环 -->
+  <div class="sec">
+    <h2><span class="ico">3</span>while 循环</h2>
+    <p>循环的作用：让指定的代码 <b>重复执行</b>。<code class="inl">while</code> 适合"不知道确切次数，满足条件就执行"的场景。</p>
+
+    <div class="syn">
+      <div class="syn-title">基本语法</div>
+      <div class="term">
+<span class="g"># 1. 定义计数器（循环初始条件）</span>
+i <span class="o">=</span> <span class="n">0</span>
+<span class="g"># 2. 循环判断条件</span>
+<span class="k">while</span> i <span class="o"><</span> <span class="n">5</span><span class="o">:</span>
+    <span class="g"># 循环体（重复执行的代码）</span>
+    <span class="p">print</span>(<span class="s">'我错了...'</span>)
+    <span class="g"># 3. 计数器 +1（避免死循环）</span>
+    i <span class="o">=</span> i <span class="o">+</span> <span class="n">1</span>
+      </div>
+    </div>
+
+    <div class="box info"><b>🔁 执行顺序：</b>初始条件 → 判断 → 循环体 → 计数器+1 → 判断 → 循环体 → ... → 条件不成立 → 结束</div>
+
+    <h3>死循环 vs 无限循环</h3>
+    <div class="cmp">
+      <div class="cmp-item">
+        <div class="cmp-hd" style="background:#fee2e2;color:#991b1b">❌ 死循环（Bug）</div>
+        <div class="cmp-body">
+          <p style="font-size:13px;color:var(--ink2)">程序员不小心造成，忘记更新计数器，导致无法退出。</p>
+          <div class="term" style="font-size:12px">
+i <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> i <span class="o"><</span> <span class="n">5</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'永远执行'</span>)
+    <span class="g"># ❌ 忘记写 i += 1</span>
+          </div>
+        </div>
+      </div>
+      <div class="cmp-item">
+        <div class="cmp-hd" style="background:#dcfce7;color:#15803d">✅ 无限循环（刻意设计）</div>
+        <div class="cmp-body">
+          <p style="font-size:13px;color:var(--ink2)">故意用 <code class="inl">while True</code>，内部用 <code class="inl">break</code> 在满足条件时退出。</p>
+          <div class="term" style="font-size:12px">
+<span class="k">while</span> <span class="w">True</span><span class="o">:</span>
+    用户输入...
+    <span class="k">if</span> 满足退出条件<span class="o">:</span>
+        <span class="k">break</span>  <span class="g"># 终止循环</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>break 与 continue</h3>
+    <div class="tw">
+      <table>
+        <tr><th>关键字</th><th>作用</th><th>使用范围</th></tr>
+        <tr><td><span class="kw">break</span></td><td>立即终止整个循环</td><td>只能在循环中使用</td></tr>
+        <tr><td><span class="kw">continue</span></td><td>结束本次循环，继续下一次</td><td>只能在循环中使用</td></tr>
+      </table>
+    </div>
+
+    <div class="term">
+<span class="g"># 求 1-100 的累加和</span>
+i <span class="o">=</span> <span class="n">1</span>
+num <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> i <span class="o"><=</span> <span class="n">100</span><span class="o">:</span>
+    num <span class="o">=</span> num <span class="o">+</span> i   <span class="g"># 0+1+2+...+100</span>
+    i <span class="o">+=</span> <span class="n">1</span>
+<span class="p">print</span>(<span class="s">'求和结果为:'</span>, num)  <span class="g"># 5050</span>
+
+<span class="g"># 登录系统 + while 无限循环 + break</span>
+<span class="k">while</span> <span class="w">True</span><span class="o">:</span>
+    username <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入用户名:'</span>)
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'exit'</span><span class="o">:</span>
+        <span class="k">break</span>
+    password <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入密码:'</span>)
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'登录成功'</span>)
+        <span class="k">break</span>
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'用户名或密码错误！请再次输入'</span>)
+    </div>
+  </div>
+
+  <!-- Section 4: for 循环 -->
+  <div class="sec">
+    <h2><span class="ico">4</span>for 循环</h2>
+    <p><code class="inl">for</code> 循环也称 <b>for 遍历</b>，用于从容器（字符串/列表/元组/字典）中逐个取出数据，也可做指定次数的循环。</p>
+
+    <div class="g2">
+      <div>
+        <h3>遍历字符串</h3>
+        <div class="term">
+<span class="k">for</span> 变量 <span class="k">in</span> 字符串<span class="o">:</span>
+    重复执行的代码
+
+<span class="g"># 示例：逐个打印字符</span>
+str1 <span class="o">=</span> <span class="s">'abcd'</span>
+<span class="k">for</span> i <span class="k">in</span> str1<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'字符:'</span>, i)
+<span class="g"># 输出: a  b  c  d</span>
+        </div>
+      </div>
+      <div>
+        <h3>指定次数循环</h3>
+        <div class="term">
+<span class="k">for</span> 变量 <span class="k">in</span> <span class="p">range</span>(n)<span class="o">:</span>
+    重复执行的代码
+
+<span class="g"># range(5) → [0,1,2,3,4]</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="p">range</span>(<span class="n">5</span>)<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'第'</span>, i, <span class="s">'次'</span>)
+        </div>
+      </div>
+    </div>
+
+    <div class="box tip"><b>💡 range() 说明：</b><code class="inl">range(n)</code> 生成 [0, n) 的整数序列，<b>不包含 n</b>。求1-100的和用 <code class="inl">range(101)</code>（包含100）。</div>
+
+    <div class="term">
+<span class="g"># for 循环求 1-100 的累加和</span>
+num <span class="o">=</span> <span class="n">0</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="p">range</span>(<span class="n">101</span>)<span class="o">:</span>  <span class="g"># range(101) → 0,1,2,...,100</span>
+    num <span class="o">+=</span> i
+<span class="p">print</span>(<span class="s">'求和结果为:'</span>, num)  <span class="g"># 5050</span>
+    </div>
+  </div>
+
+  <!-- Section 5: Debug & random -->
+  <div class="sec">
+    <h2><span class="ico">5</span>Debug 调试 & 随机数</h2>
+
+    <h3>Debug 调试步骤</h3>
+    <div class="g3">
+      <div class="card">
+        <h4><span class="num">1</span>打断点</h4>
+        <p>在代码行号旁边点击，出现红色圆点即断点。建议打在第一行查看完整执行流程。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">2</span>右键 Debug</h4>
+        <p>右键文件 → Debug 运行。代码会在断点处暂停，PyCharm 至少需要两个断点。</p>
+      </div>
+      <div class="card">
+        <h4><span class="num">3</span>单步执行</h4>
+        <p>按 <code class="inl">F8</code> 逐行执行，观察变量值变化，判断哪一行代码走错了分支。</p>
+      </div>
+    </div>
+
+    <h3>随机数 random 模块</h3>
+    <div class="term">
+<span class="g"># 第一步：导入随机数模块</span>
+<span class="k">import</span> random
+
+<span class="g"># 第二步：生成 [a, b] 之间的随机整数（包含 a 和 b）</span>
+num <span class="o">=</span> random<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">3</span>)
+<span class="p">print</span>(num)  <span class="g"># 可能输出 1、2 或 3</span>
+
+<span class="g"># 石头剪刀布案例（无限循环版）</span>
+<span class="k">import</span> random
+<span class="k">while</span> <span class="w">True</span><span class="o">:</span>
+    player <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请出拳 石头1/剪刀2/布3/退出0:'</span>))
+    <span class="k">if</span> player <span class="o">==</span> <span class="n">0</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'欢迎下次游戏'</span>)
+        <span class="k">break</span>
+    computer <span class="o">=</span> random<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">3</span>)
+    <span class="k">if</span> (player<span class="o">==</span><span class="n">1</span> <span class="k">and</span> computer<span class="o">==</span><span class="n">2</span>) <span class="k">or</span> \
+       (player<span class="o">==</span><span class="n">2</span> <span class="k">and</span> computer<span class="o">==</span><span class="n">3</span>) <span class="k">or</span> \
+       (player<span class="o">==</span><span class="n">3</span> <span class="k">and</span> computer<span class="o">==</span><span class="n">1</span>)<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'玩家胜利！'</span>)
+    <span class="k">elif</span> player <span class="o">==</span> computer<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'平局'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'电脑胜利！'</span>)
+    </div>
+    <div class="box info"><b>📦 import 规范：</b>导入语句统一放在文件最上方。<code class="inl">random.randint(a, b)</code> 生成 [a, b] 的随机整数，包含 a 和 b 两端。</div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <!-- if 结构对比 -->
+  <div class="vis-card">
+    <h2>🔀 三种 if 结构对比</h2>
+    <div class="g3">
+      <div style="background:#eff6ff;border:2px solid #3b82f6;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#1d4ed8;margin-bottom:8px;font-size:13px">① 单独 if</div>
+        <div class="flow" style="flex-direction:column;align-items:flex-start;gap:4px">
+          <div class="flow-box fb-cond">条件?</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="color:var(--green);font-size:12px">✅ True → 执行代码块</span>
+          </div>
+          <div style="color:var(--muted);font-size:12px">❌ False → 跳过</div>
+        </div>
+        <div class="term" style="font-size:11.5px;margin-top:8px">
+<span class="k">if</span> 条件<span class="o">:</span>
+    代码块
+        </div>
+      </div>
+      <div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#15803d;margin-bottom:8px;font-size:13px">② if else</div>
+        <div style="font-size:12px;color:var(--ink2);line-height:1.8">
+          ✅ True → 执行 if 块<br>
+          ❌ False → 执行 else 块<br>
+          <span style="color:var(--muted)">必须二选一</span>
+        </div>
+        <div class="term" style="font-size:11.5px;margin-top:8px">
+<span class="k">if</span> 条件<span class="o">:</span>
+    代码块A
+<span class="k">else</span><span class="o">:</span>
+    代码块B
+        </div>
+      </div>
+      <div style="background:#fdf4ff;border:2px solid #a855f7;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#7e22ce;margin-bottom:8px;font-size:13px">③ if elif else</div>
+        <div style="font-size:12px;color:var(--ink2);line-height:1.8">
+          ✅ 条件1 → 块A<br>
+          ✅ 条件2 → 块B<br>
+          ✅ 条件N → 块N<br>
+          ❌ else → 默认块
+        </div>
+        <div class="term" style="font-size:11.5px;margin-top:8px">
+<span class="k">if</span> 条件1<span class="o">:</span>  块A
+<span class="k">elif</span> 条件2<span class="o">:</span> 块B
+<span class="k">else</span><span class="o">:</span> 默认
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- while vs for 对比 -->
+  <div class="vis-card">
+    <h2>🔁 while vs for 循环对比</h2>
+    <div class="tw">
+      <table>
+        <tr><th>对比项</th><th>while 循环</th><th>for 循环</th></tr>
+        <tr><td>适用场景</td><td>不确定次数，满足条件就执行</td><td>已知次数，或遍历容器</td></tr>
+        <tr><td>控制方式</td><td>手动维护计数器 i += 1</td><td>自动从容器取出，或 range(n)</td></tr>
+        <tr><td>典型用法</td><td>登录重试、猜数字游戏</td><td>1-100累加、遍历字符串</td></tr>
+        <tr><td>死循环写法</td><td><code class="inl">while True:</code></td><td>较少用于无限循环</td></tr>
+        <tr><td>break/continue</td><td>✅ 可用</td><td>✅ 可用</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- break vs continue 可视化 -->
+  <div class="vis-card">
+    <h2>⚡ break vs continue 执行流程</h2>
+    <div class="cmp">
+      <div style="background:#fef2f2;border:1.5px solid var(--red);border-radius:10px;padding:16px">
+        <div style="font-weight:700;color:var(--red);margin-bottom:10px;font-size:13px">🛑 break — 终止整个循环</div>
+        <div class="term" style="font-size:12px">
+i <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> i <span class="o"><</span> <span class="n">5</span><span class="o">:</span>
+    <span class="k">if</span> i <span class="o">==</span> <span class="n">3</span><span class="o">:</span>
+        <span class="k">break</span>   <span class="g"># 直接退出</span>
+    <span class="p">print</span>(i)
+    i <span class="o">+=</span> <span class="n">1</span>
+<span class="g"># 输出: 0  1  2</span>
+<span class="g"># i=3 时直接退出，4不会打印</span>
+        </div>
+      </div>
+      <div style="background:#f0fdf4;border:1.5px solid var(--green);border-radius:10px;padding:16px">
+        <div style="font-weight:700;color:var(--green);margin-bottom:10px;font-size:13px">⏭️ continue — 跳过本次，继续下次</div>
+        <div class="term" style="font-size:12px">
+i <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> i <span class="o"><</span> <span class="n">5</span><span class="o">:</span>
+    i <span class="o">+=</span> <span class="n">1</span>
+    <span class="k">if</span> i <span class="o">==</span> <span class="n">3</span><span class="o">:</span>
+        <span class="k">continue</span>  <span class="g"># 跳过本次</span>
+    <span class="p">print</span>(i)
+<span class="g"># 输出: 1  2  4  5</span>
+<span class="g"># i=3 时跳过 print(3)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- if 嵌套流程图 -->
+  <div class="vis-card">
+    <h2>🔐 if 嵌套 — 验证码+登录 流程图</h2>
+    <div style="background:#f8fafc;border-radius:10px;padding:16px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px">
+        <div class="flow-box fb-start" style="width:180px">🚀 用户输入验证码</div>
+        <div style="color:var(--muted)">↓</div>
+        <div class="flow-box fb-cond" style="width:180px">验证码 == 'qwer'?</div>
+        <div style="display:flex;gap:40px;align-items:flex-start;margin-top:4px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="color:var(--red);font-size:11px;font-weight:700">❌ 否</div>
+            <div class="flow-box fb-no" style="width:130px;font-size:11px">输出：验证码错误</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="color:var(--green);font-size:11px;font-weight:700">✅ 是</div>
+            <div class="flow-box fb-yes" style="width:130px;font-size:11px">输入用户名密码</div>
+            <div style="color:var(--muted)">↓</div>
+            <div class="flow-box fb-cond" style="width:140px;font-size:11px">用户名&密码正确?</div>
+            <div style="display:flex;gap:20px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div style="color:var(--red);font-size:11px">❌</div>
+                <div class="flow-box fb-no" style="width:100px;font-size:11px">用户名/密码错误</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div style="color:var(--green);font-size:11px">✅</div>
+                <div class="flow-box fb-yes" style="width:100px;font-size:11px">🎉 登录成功</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="box tip" style="margin-top:12px"><b>💡 嵌套规律：</b>只有外层条件成立，才会进入内层判断。这就是嵌套的核心逻辑。</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+
+  <div class="prog-wrap">
+    <span style="font-size:13px;font-weight:600;color:var(--ink2)">完成进度</span>
+    <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+    <span class="prog-txt"><span id="pc">0</span>/10</span>
+    <button class="mc-btn" onclick="mc()">全部完成</button>
+  </div>
+
+  <!-- 题1 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p1">
+    <div class="pt-body">
+      <div class="pt-t">1. 用户输入年龄，超过65岁输出"可以退休了"，否则输出"小伙子，加油干！" <span class="pt-tag">if-else</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">age</span> <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入年龄:'</span>))
+<span class="k">if</span> age <span class="o">></span> <span class="n">65</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'可以退休了'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'小伙子，加油干！'</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题2 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p2">
+    <div class="pt-body">
+      <div class="pt-t">2. 判断年龄阶段：0-17青少年 / 18-35青年 / 36-59中年 / 60-99老年，输出"您的年龄是xx: xxx" <span class="pt-tag">if-elif-else</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+age <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入年龄:'</span>))
+<span class="k">if</span> age <span class="o"><=</span> <span class="n">17</span><span class="o">:</span>
+    stage <span class="o">=</span> <span class="s">'青少年'</span>
+<span class="k">elif</span> age <span class="o"><=</span> <span class="n">35</span><span class="o">:</span>
+    stage <span class="o">=</span> <span class="s">'青年'</span>
+<span class="k">elif</span> age <span class="o"><=</span> <span class="n">59</span><span class="o">:</span>
+    stage <span class="o">=</span> <span class="s">'中年'</span>
+<span class="k">else</span><span class="o">:</span>
+    stage <span class="o">=</span> <span class="s">'老年'</span>
+<span class="p">print</span>(<span class="s">f'您的年龄是{age}: {stage}'</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题3 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p3">
+    <div class="pt-body">
+      <div class="pt-t">3. 用户登录系统：先验证验证码(qwer)，正确后再验证用户名(aaa)和密码(123456) <span class="pt-tag">if嵌套</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+code <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入验证码:'</span>)
+<span class="k">if</span> code <span class="o">==</span> <span class="s">'qwer'</span><span class="o">:</span>
+    username <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入用户名:'</span>)
+    password <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入密码:'</span>)
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'aaa'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'登录成功'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'用户名或密码错误'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'验证码不正确，请重新输入'</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题4 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p4">
+    <div class="pt-body">
+      <div class="pt-t">4. 输入1-7的数字，6或7输出"周末"，否则输出"工作日" <span class="pt-tag">if-else</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+day <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入数字(1-7):'</span>))
+<span class="k">if</span> day <span class="o">==</span> <span class="n">6</span> <span class="k">or</span> day <span class="o">==</span> <span class="n">7</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'周末'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'工作日'</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题5 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p5">
+    <div class="pt-body">
+      <div class="pt-t">5. 输入1-7，分别输出"今天是周一/二/三/四/五/周末" <span class="pt-tag">if-elif-else</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+day <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入数字(1-7):'</span>))
+days <span class="o">=</span> [<span class="s">'周一'</span>,<span class="s">'周二'</span>,<span class="s">'周三'</span>,<span class="s">'周四'</span>,<span class="s">'周五'</span>]
+<span class="k">if</span> <span class="n">1</span> <span class="o">&lt;=</span> day <span class="o">&lt;=</span> <span class="n">5</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'今天是{days[day-1]}'</span>)
+<span class="k">elif</span> day <span class="o">==</span> <span class="n">6</span> <span class="k">or</span> day <span class="o">==</span> <span class="n">7</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'今天是周末'</span>)
+<span class="g"># 传统 elif 写法也正确</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题6 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p6">
+    <div class="pt-body">
+      <div class="pt-t">6. 闰年判断：能被4整除但不能被100整除，或能被400整除的年份 <span class="pt-tag">逻辑运算符</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+year <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入年份:'</span>))
+<span class="k">if</span> (year <span class="o">%</span> <span class="n">4</span> <span class="o">==</span> <span class="n">0</span> <span class="k">and</span> year <span class="o">%</span> <span class="n">100</span> <span class="o">!=</span> <span class="n">0</span>) <span class="k">or</span> (year <span class="o">%</span> <span class="n">400</span> <span class="o">==</span> <span class="n">0</span>)<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'{year}年是闰年'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'{year}年不是闰年'</span>)
+<span class="g"># 验证: 2000→闰年  2100→不是  2024→闰年  2018→不是</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题7 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p7">
+    <div class="pt-body">
+      <div class="pt-t">7. 求 1-100 所有数的累加和；再求 1-100 偶数的累加和 <span class="pt-tag">while/for</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="g"># 方法一：while 循环（所有数）</span>
+i, total <span class="o">=</span> <span class="n">1</span>, <span class="n">0</span>
+<span class="k">while</span> i <span class="o">&lt;=</span> <span class="n">100</span><span class="o">:</span>
+    total <span class="o">+=</span> i
+    i <span class="o">+=</span> <span class="n">1</span>
+<span class="p">print</span>(<span class="s">'1-100所有数之和:'</span>, total)  <span class="g"># 5050</span>
+
+<span class="g"># 方法二：for 循环（偶数之和）</span>
+even_sum <span class="o">=</span> <span class="n">0</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="p">range</span>(<span class="n">1</span>, <span class="n">101</span>)<span class="o">:</span>
+    <span class="k">if</span> i <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">0</span><span class="o">:</span>
+        even_sum <span class="o">+=</span> i
+<span class="p">print</span>(<span class="s">'1-100偶数之和:'</span>, even_sum)  <span class="g"># 2550</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 题8 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p8">
+    <div class="pt-body">
+      <div class="pt-t">8. 简易计算器：输入两个数字和运算符(+ - * /)，输出计算结果 <span class="pt-tag">if-elif</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+num1 <span class="o">=</span> <span class="p">float</span>(<span class="p">input</span>(<span class="s">'请输入第一个数字:'</span>))
+num2 <span class="o">=</span> <span class="p">float</span>(<span class="p">input</span>(<span class="s">'请输入第二个数字:'</span>))
+op   <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入要进行的操作(+ - * /):'</span>)
+<span class="k">if</span> op <span class="o">==</span> <span class="s">'+'</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'计算结果为: {num1} + {num2} = {num1+num2}'</span>)
+<span class="k">elif</span> op <span class="o">==</span> <span class="s">'-'</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'计算结果为: {num1} - {num2} = {num1-num2}'</span>)
+<span class="k">elif</span> op <span class="o">==</span> <span class="s">'*'</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'计算结果为: {num1} * {num2} = {num1*num2}'</span>)
+<span class="k">elif</span> op <span class="o">==</span> <span class="s">'/'</span><span class="o">:</span>
+    <span class="k">if</span> num2 <span class="o">!=</span> <span class="n">0</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">f'计算结果为: {num1} / {num2} = {num1/num2}'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'错误：除数不能为0！'</span>)
+<span class="k">else</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'不支持的运算符'</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题9 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p9">
+    <div class="pt-body">
+      <div class="pt-t">9. 猜数字游戏：电脑生成1-100随机数，用户猜测，提示大/小，猜中为止 <span class="pt-tag">while+random+break</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">import</span> random
+secret <span class="o">=</span> random<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">100</span>)
+<span class="k">while</span> <span class="w">True</span><span class="o">:</span>
+    guess <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请猜测数字(1-100):'</span>))
+    <span class="k">if</span> guess <span class="o">==</span> secret<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">f'恭喜你猜对了，数字是 {secret}'</span>)
+        <span class="k">break</span>
+    <span class="k">elif</span> guess <span class="o">></span> secret<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'猜测的数字太大了，继续加油'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'猜测的数字有点小，再来一次'</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- 题10 -->
+  <div class="pt">
+    <input type="checkbox" class="ci" id="p10">
+    <div class="pt-body">
+      <div class="pt-t">10. 石头剪刀布游戏：支持输入0退出，循环对战，判断胜负 <span class="pt-tag">while+random综合</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">import</span> random
+<span class="k">while</span> <span class="w">True</span><span class="o">:</span>
+    player <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'石头1/剪刀2/布3/退出0:'</span>))
+    <span class="k">if</span> player <span class="o">==</span> <span class="n">0</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'欢迎下次游戏！'</span>)
+        <span class="k">break</span>
+    computer <span class="o">=</span> random<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">3</span>)
+    <span class="k">if</span> (player<span class="o">==</span><span class="n">1</span> <span class="k">and</span> computer<span class="o">==</span><span class="n">2</span>) <span class="k">or</span> \
+       (player<span class="o">==</span><span class="n">2</span> <span class="k">and</span> computer<span class="o">==</span><span class="n">3</span>) <span class="k">or</span> \
+       (player<span class="o">==</span><span class="n">3</span> <span class="k">and</span> computer<span class="o">==</span><span class="n">1</span>)<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'🎉 玩家胜利！'</span>)
+    <span class="k">elif</span> player <span class="o">==</span> computer<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'🤝 平局'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'💻 电脑胜利！'</span>)
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+
+  <div class="sec" style="padding:16px">
+    <h2><span class="ico">💬</span>面试精讲 · 12题</h2>
+    <p style="color:var(--muted);font-size:13px">点击题目展开答案，绿色=基础，黄色=进阶，红色=陷阱/场景题</p>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q1</div>
+      <div class="iq-q">if、if-else、if-elif-else 三者有什么区别？分别适用什么场景？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>if（单独）：</b>只有条件成立时才执行，条件不成立直接跳过。适用于"只在满足条件时做某事"的场景。</p>
+      <p><b>if-else：</b>二选一，条件成立走 if 块，否则走 else 块，必定执行其中之一。</p>
+      <p><b>if-elif-else：</b>多分支，按顺序判断，第一个成立的条件执行后，其余全部跳过。适合多个互斥条件（成绩等级、年龄阶段等）。</p>
+      <div class="box tip"><b>💡 记忆口诀：</b>单 if = 可选执行；if-else = 必选其一；elif = 多选一。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q2</div>
+      <div class="iq-q">Python 中缩进有什么作用？缩进错误会导致什么问题？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>Python 使用 <b>缩进（4个空格或1个Tab）</b>来表示代码块，替代其他语言中的大括号 {}。</p>
+      <p>属于同一代码块的语句必须有相同的缩进级别。缩进错误会导致 <code class="inl">IndentationError</code> 或逻辑错误（代码不在期望的块中执行）。</p>
+      <div class="box danger"><b>⚠️ 常见错误：</b>混用空格和Tab导致的 <code class="inl">TabError</code>，建议统一使用4个空格（PyCharm 默认）。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q3</div>
+      <div class="iq-q">and、or、not 逻辑运算符的运算规则是什么？有短路求值吗？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>and：</b>两侧都为 True 才返回 True。存在"短路"——左边为 False 时，右边不再求值。</p>
+      <p><b>or：</b>一侧为 True 即返回 True。"短路"——左边为 True 时，右边不再求值。</p>
+      <p><b>not：</b>取反，<code class="inl">not True → False</code>，<code class="inl">not False → True</code>。</p>
+      <div class="box info"><b>短路求值意义：</b>可以利用短路避免异常，如 <code class="inl">if x != 0 and 10/x > 1</code>，x 为 0 时不会执行除法。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q4</div>
+      <div class="iq-q">if 嵌套和 if-elif 有什么区别？什么时候用嵌套？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>if-elif：</b>条件之间是 <b>并列关系</b>，不分先后，满足哪个就执行哪个。</p>
+      <p><b>if 嵌套：</b>条件之间是 <b>递进关系</b>，只有外层条件成立，才有必要判断内层条件。</p>
+      <p>典型场景：ATM先验密码才能取款；登录先验验证码才验用户名密码。</p>
+      <div class="box tip"><b>💡 判断依据：</b>第二个条件只有在第一个条件成立时才有意义 → 用嵌套。两个条件互相独立 → 用 elif。</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q5</div>
+      <div class="iq-q">while 循环和 for 循环有什么区别？各自适用什么场景？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>while 循环：</b>适合不确定循环次数的场景。只要条件成立就持续执行，需要手动维护计数器。例如：用户登录重试、猜数字游戏。</p>
+      <p><b>for 循环：</b>适合已知次数或遍历容器的场景。自动从容器中逐个取出数据，或配合 <code class="inl">range()</code> 做固定次数循环。例如：遍历字符串、1-100累加。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q6</div>
+      <div class="iq-q">break 和 continue 有什么区别？只能用在哪里？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>break：</b>立即终止 <b>整个循环</b>，循环后续代码不再执行，直接跳到循环结束后的第一行代码。</p>
+      <p><b>continue：</b>结束 <b>本次循环</b> 的剩余代码，回到循环开头判断条件，继续下一次循环。</p>
+      <p>两者都只能用在循环（while / for）中，不能单独使用。</p>
+      <div class="box warn"><b>⚠️ 常见陷阱：</b>在 while True 中使用 continue 时，要确保计数器在 continue 之前已更新，否则可能造成死循环！</div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q7</div>
+      <div class="iq-q">range() 函数的用法是什么？range(5)、range(1,6)、range(0,10,2) 分别生成什么？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><code class="inl">range(stop)</code>：生成 [0, stop) 的整数序列。<br>
+      <code class="inl">range(start, stop)</code>：生成 [start, stop) 的整数序列。<br>
+      <code class="inl">range(start, stop, step)</code>：带步长的序列。</p>
+      <div class="tw">
+        <table>
+          <tr><th>写法</th><th>生成序列</th></tr>
+          <tr><td><code class="inl">range(5)</code></td><td>0, 1, 2, 3, 4（不含5）</td></tr>
+          <tr><td><code class="inl">range(1, 6)</code></td><td>1, 2, 3, 4, 5（不含6）</td></tr>
+          <tr><td><code class="inl">range(0, 10, 2)</code></td><td>0, 2, 4, 6, 8（步长2）</td></tr>
+          <tr><td><code class="inl">range(101)</code></td><td>0-100（含100，用于1-100累加）</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q8</div>
+      <div class="iq-q">死循环和无限循环有什么区别？无限循环在实际开发中有什么用途？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>死循环（Bug）：</b>因为开发者失误（忘记更新计数器等）造成的无法退出的循环，属于程序错误。</p>
+      <p><b>无限循环（刻意设计）：</b>使用 <code class="inl">while True:</code> 有意让程序持续运行，内部通过 <code class="inl">break</code> 或特定条件退出。</p>
+      <p><b>实际用途：</b>用户登录重试、服务器监听请求、游戏主循环、菜单系统等需要持续运行直到用户主动退出的场景。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q9</div>
+      <div class="iq-q">如何判断一个年份是否为闰年？请写出判断逻辑。</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p>闰年条件（满足其一即可）：<br>
+      ① 能被4整除 <b>且</b> 不能被100整除（普通闰年）<br>
+      ② 能被400整除（世纪闰年）</p>
+      <div class="term">
+<span class="k">if</span> (year <span class="o">%</span> <span class="n">4</span> <span class="o">==</span> <span class="n">0</span> <span class="k">and</span> year <span class="o">%</span> <span class="n">100</span> <span class="o">!=</span> <span class="n">0</span>) <span class="k">or</span> (year <span class="o">%</span> <span class="n">400</span> <span class="o">==</span> <span class="n">0</span>)<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">f'{year}年是闰年'</span>)
+<span class="g"># 验证: 2000✅ 1900❌ 2024✅ 2023❌</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q10</div>
+      <div class="iq-q">random.randint(1, 10) 和 random.randint(0, 9) 有什么区别？</div>
+      <div class="iq-lv lv-m">进阶</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><code class="inl">random.randint(a, b)</code> 生成 [a, b] 之间的随机整数，<b>包含 a 和 b 两端</b>。</p>
+      <p><code class="inl">randint(1, 10)</code>：可能生成 1, 2, 3, ..., 10（共10个数）</p>
+      <p><code class="inl">randint(0, 9)</code>：可能生成 0, 1, 2, ..., 9（共10个数）</p>
+      <p>两者范围不同，但数量相同。注意区别于 <code class="inl">range(1, 10)</code>（不含10）。</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q11</div>
+      <div class="iq-q">下面代码有什么问题？如何修复？</div>
+      <div class="iq-lv lv-h">陷阱题</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <div class="term">
+i <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> i <span class="o"><</span> <span class="n">5</span><span class="o">:</span>
+    <span class="k">if</span> i <span class="o">==</span> <span class="n">3</span><span class="o">:</span>
+        <span class="k">continue</span>
+    <span class="p">print</span>(i)
+    i <span class="o">+=</span> <span class="n">1</span>
+      </div>
+      <p><b>问题：</b>当 i == 3 时执行 continue，跳过了 <code class="inl">i += 1</code>，导致 i 永远等于3，形成 <b>死循环</b>！</p>
+      <p><b>修复方案：</b>将 <code class="inl">i += 1</code> 放在 continue 之前：</p>
+      <div class="term">
+i <span class="o">=</span> <span class="n">0</span>
+<span class="k">while</span> i <span class="o"><</span> <span class="n">5</span><span class="o">:</span>
+    i <span class="o">+=</span> <span class="n">1</span>   <span class="g"># ✅ 先更新计数器</span>
+    <span class="k">if</span> i <span class="o">==</span> <span class="n">3</span><span class="o">:</span>
+        <span class="k">continue</span>
+    <span class="p">print</span>(i)
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <div class="iq-hdr" onclick="tq(this)">
+      <div class="iq-num">Q12</div>
+      <div class="iq-q">Debug 调试的目的是什么？PyCharm 中如何使用断点调试？</div>
+      <div class="iq-lv lv-b">基础</div>
+      <div class="iq-tg">+</div>
+    </div>
+    <div class="iq-body">
+      <p><b>Debug 目的：</b>查看代码的逐行执行过程，观察变量值的变化，定位逻辑错误所在位置。</p>
+      <p><b>步骤：</b><br>
+      ① 在行号左侧点击设置断点（红色圆点），建议从第一行开始<br>
+      ② 右键文件 → 选择"Debug"运行<br>
+      ③ 代码在断点处暂停，查看当前变量值<br>
+      ④ 按 <code class="inl">F8</code> 单步执行，观察每行执行结果</p>
+      <div class="box info"><b>💡 PyCharm 注意：</b>至少需要两个断点才能正常启动 Debug 模式。</div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+
+  <div class="sec" style="padding:16px;margin-bottom:12px">
+    <h2><span class="ico">✅</span>测验 · 15题</h2>
+    <p style="color:var(--muted);font-size:13px">选择答案后点击"提交测验"查看得分与解析</p>
+  </div>
+
+  <!-- Q1 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">1</span>以下关于 if 语句的描述，错误的是？</div>
+    <div class="opt" onclick="sel(this,0,1)">A. if 后面必须有冒号</div>
+    <div class="opt" onclick="sel(this,0,2)">B. if 代码块必须缩进</div>
+    <div class="opt" onclick="sel(this,0,3)">C. else 可以单独使用，不需要配合 if</div>
+    <div class="opt" onclick="sel(this,0,4)">D. if 和 else 之间不能有顶格书写的代码</div>
+    <div class="qz-ex"><b>解析：</b>C 错误。<code class="inl">else</code> 不能单独使用，必须配合 <code class="inl">if</code>（或 <code class="inl">for</code>/<code class="inl">while</code>），且必须与 if 对齐。</div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">2</span>下列代码的输出结果是什么？<br><code style="font-family:monospace;font-size:12px">score = 85; print('优') if score>=90 else print('良') if score>=80 else print('中')</code></div>
+    <div class="opt" onclick="sel(this,1,1)">A. 优</div>
+    <div class="opt" onclick="sel(this,1,2)">B. 良</div>
+    <div class="opt" onclick="sel(this,1,3)">C. 中</div>
+    <div class="opt" onclick="sel(this,1,4)">D. 不及格</div>
+    <div class="qz-ex"><b>解析：</b>score=85，不满足 >=90，满足 >=80，输出"良"。这是 Python 三元表达式（条件表达式）的链式写法。</div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">3</span><code class="inl">if-elif-else</code> 结构中，如果第一个 elif 的条件成立，以下描述正确的是？</div>
+    <div class="opt" onclick="sel(this,2,1)">A. 继续判断后续所有 elif 条件</div>
+    <div class="opt" onclick="sel(this,2,2)">B. 执行该 elif 块后，跳过其余 elif 和 else</div>
+    <div class="opt" onclick="sel(this,2,3)">C. 还会执行 else 块</div>
+    <div class="opt" onclick="sel(this,2,4)">D. 程序报错</div>
+    <div class="qz-ex"><b>解析：</b>if-elif-else 结构：一旦某个条件成立，执行对应块后，后续所有分支（elif/else）全部跳过，不再判断。</div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">4</span>以下代码执行后，输出的是什么？<br><code style="font-family:monospace;font-size:12px">i=0; [print(i) or i.__setattr__('x',0) for _ in range(3)]</code> — 简化版：i=5，while i>0: i-=2，循环结束时 i 等于？</div>
+    <div class="opt" onclick="sel(this,3,1)">A. 0</div>
+    <div class="opt" onclick="sel(this,3,2)">B. 1</div>
+    <div class="opt" onclick="sel(this,3,3)">C. -1</div>
+    <div class="opt" onclick="sel(this,3,4)">D. 2</div>
+    <div class="qz-ex"><b>解析：</b>i=5 → 3 → 1 → -1，当 i=-1 时不满足 i>0，循环退出，此时 i=-1。</div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">5</span><code class="inl">random.randint(1, 100)</code> 可能生成的最大值和最小值分别是？</div>
+    <div class="opt" onclick="sel(this,4,1)">A. 最大99，最小1</div>
+    <div class="opt" onclick="sel(this,4,2)">B. 最大100，最小1</div>
+    <div class="opt" onclick="sel(this,4,3)">C. 最大100，最小0</div>
+    <div class="opt" onclick="sel(this,4,4)">D. 最大99，最小0</div>
+    <div class="qz-ex"><b>解析：</b><code class="inl">randint(a, b)</code> 生成 [a, b] 的整数，包含两端。所以最小值=1，最大值=100。</div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">6</span><code class="inl">range(1, 10, 3)</code> 生成的序列是？</div>
+    <div class="opt" onclick="sel(this,5,1)">A. [1, 4, 7, 10]</div>
+    <div class="opt" onclick="sel(this,5,2)">B. [1, 4, 7]</div>
+    <div class="opt" onclick="sel(this,5,3)">C. [1, 3, 6, 9]</div>
+    <div class="opt" onclick="sel(this,5,4)">D. [0, 3, 6, 9]</div>
+    <div class="qz-ex"><b>解析：</b>range(1, 10, 3) 从1开始，步长3，不超过10：1, 4, 7（10不含）。</div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">7</span>以下关于 break 和 continue 的描述，正确的是？</div>
+    <div class="opt" onclick="sel(this,6,1)">A. break 结束本次循环，continue 终止整个循环</div>
+    <div class="opt" onclick="sel(this,6,2)">B. continue 结束本次循环，break 终止整个循环</div>
+    <div class="opt" onclick="sel(this,6,3)">C. 两者都可以终止整个循环</div>
+    <div class="opt" onclick="sel(this,6,4)">D. 两者都只是跳过本次循环</div>
+    <div class="qz-ex"><b>解析：</b>B 正确。<code class="inl">continue</code>：结束本次循环，继续下次。<code class="inl">break</code>：直接终止整个循环，不再执行循环体。</div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">8</span>以下代码会输出几次"hello"？<br><code style="font-family:monospace;font-size:12px">for i in range(5):<br>&nbsp;&nbsp;&nbsp;&nbsp;if i == 3: break<br>&nbsp;&nbsp;&nbsp;&nbsp;print('hello')</code></div>
+    <div class="opt" onclick="sel(this,7,1)">A. 5次</div>
+    <div class="opt" onclick="sel(this,7,2)">B. 4次</div>
+    <div class="opt" onclick="sel(this,7,3)">C. 3次</div>
+    <div class="opt" onclick="sel(this,7,4)">D. 0次</div>
+    <div class="qz-ex"><b>解析：</b>i=0,1,2 时打印 hello（3次），i=3 时执行 break 退出循环，不打印。所以共输出3次。</div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">9</span>闰年的判断条件是什么？以下哪个年份是闰年？</div>
+    <div class="opt" onclick="sel(this,8,1)">A. 1900（能被100整除）</div>
+    <div class="opt" onclick="sel(this,8,2)">B. 2100（能被100整除）</div>
+    <div class="opt" onclick="sel(this,8,3)">C. 2000（能被400整除）</div>
+    <div class="opt" onclick="sel(this,8,4)">D. 2023（不能被4整除）</div>
+    <div class="qz-ex"><b>解析：</b>闰年：①能被4整除且不能被100整除，或②能被400整除。2000能被400整除 → 闰年✅。1900/2100能被100整除但不能被400整除 → 非闰年❌。</div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">10</span>下面代码中，<code class="inl">pass</code> 语句的作用是？</div>
+    <div class="opt" onclick="sel(this,9,1)">A. 跳过当前循环</div>
+    <div class="opt" onclick="sel(this,9,2)">B. 终止程序</div>
+    <div class="opt" onclick="sel(this,9,3)">C. 占位符，什么也不做，保持代码语法完整</div>
+    <div class="opt" onclick="sel(this,9,4)">D. 等同于 continue</div>
+    <div class="qz-ex"><b>解析：</b><code class="inl">pass</code> 是空语句/占位符，语法上需要代码块但暂时没有内容时使用，什么也不做，避免语法错误。</div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">11</span>以下哪种情况会导致死循环？</div>
+    <div class="opt" onclick="sel(this,10,1)">A. while True: 内有 break 语句</div>
+    <div class="opt" onclick="sel(this,10,2)">B. while i < 5: 内忘记写 i += 1</div>
+    <div class="opt" onclick="sel(this,10,3)">C. for i in range(100): 循环100次</div>
+    <div class="opt" onclick="sel(this,10,4)">D. while i < 0: i 初始值为5</div>
+    <div class="qz-ex"><b>解析：</b>B 会死循环：i 的初始值小于5，条件始终成立，且没有更新 i，无法退出。D 不会死循环（初始就不满足条件）。</div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">12</span><code class="inl">for i in 'hello':</code> 会循环几次？</div>
+    <div class="opt" onclick="sel(this,11,1)">A. 1次</div>
+    <div class="opt" onclick="sel(this,11,2)">B. 4次</div>
+    <div class="opt" onclick="sel(this,11,3)">C. 5次</div>
+    <div class="opt" onclick="sel(this,11,4)">D. 6次</div>
+    <div class="qz-ex"><b>解析：</b>'hello' 有5个字符：h/e/l/l/o，for 循环会逐个取出每个字符，共循环5次。</div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">13</span>以下代码的输出是？<br><code style="font-family:monospace;font-size:12px">x = 10; print('A') if x > 5 and x < 20 else print('B')</code></div>
+    <div class="opt" onclick="sel(this,12,1)">A. A</div>
+    <div class="opt" onclick="sel(this,12,2)">B. B</div>
+    <div class="opt" onclick="sel(this,12,3)">C. AB</div>
+    <div class="opt" onclick="sel(this,12,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>x=10，10>5 为 True，10&lt;20 为 True，and 两边都为 True → 条件成立 → 输出 A。</div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">14</span>Debug 时，在 PyCharm 中单步执行的快捷键是？</div>
+    <div class="opt" onclick="sel(this,13,1)">A. F5</div>
+    <div class="opt" onclick="sel(this,13,2)">B. F7</div>
+    <div class="opt" onclick="sel(this,13,3)">C. F8</div>
+    <div class="opt" onclick="sel(this,13,4)">D. F10</div>
+    <div class="qz-ex"><b>解析：</b>PyCharm 中 F8 是"Step Over"（单步执行，不进入函数内部），是 Debug 时最常用的按键。F7 是 Step Into（进入函数）。</div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="qz">
+    <div class="qz-q"><span class="qn">15</span>猜数字游戏中，使用 <code class="inl">while True</code> + <code class="inl">break</code> 的原因是什么？</div>
+    <div class="opt" onclick="sel(this,14,1)">A. 为了让程序运行更快</div>
+    <div class="opt" onclick="sel(this,14,2)">B. 因为不知道用户需要猜几次才能猜中，用无限循环+猜中时break最合适</div>
+    <div class="opt" onclick="sel(this,14,3)">C. while True 是 Python 的语法要求</div>
+    <div class="opt" onclick="sel(this,14,4)">D. 使用 for 循环无法实现猜数字</div>
+    <div class="qz-ex"><b>解析：</b>猜数字不知道用户需要猜多少次，while True 让程序持续运行，猜中时 break 退出，这正是"不确定次数循环"的最佳场景。</div>
+  </div>
+
+  <button class="qbtn" onclick="sub()">提交测验</button>
+
+  <div id="qres">
+    <span id="qscore">0/15</span>
+    <div id="qmsg"></div>
+    <button onclick="rst()" style="margin-top:14px;padding:9px 22px;background:var(--day);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">重新作答</button>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{ t.onclick=()=>go(i); });
+
+/* Practice */
+function tr(el){
+  const ans=el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent=ans.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pf').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked);});
+  if(done===10) document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc();}
+
+/* Interview */
+function tq(hdr){hdr.parentElement.classList.toggle('o');}
+
+/* Quiz */
+const ans=[3,2,2,3,2,2,2,3,3,3,2,3,1,3,2];
+const sel_state={};
+function sel(el,q,opt){
+  document.querySelectorAll(`.qz:nth-child(${q+1}) .opt`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  sel_state[q]=opt;
+}
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach((qz,i)=>{
+    const opts=qz.querySelectorAll('.opt');
+    const ex=qz.querySelector('.qz-ex');
+    opts.forEach((o,j)=>{
+      o.classList.remove('ok','no');
+      if(j+1===ans[i]) o.classList.add('ok');
+      else if(sel_state[i]===j+1) o.classList.add('no');
+    });
+    if(sel_state[i]===ans[i]) score++;
+    ex.classList.add('s');
+  });
+  const pct=Math.round(score/15*100);
+  document.getElementById('qscore').textContent=score+'/15';
+  let msg='';
+  if(pct>=90) msg='🏆 优秀！判断语句和循环控制掌握扎实！';
+  else if(pct>=75) msg='✅ 良好！再复习一下 break/continue 和 range() 的细节。';
+  else if(pct>=60) msg='📚 一般，建议多练习判断嵌套和循环的实战题。';
+  else msg='💪 需要加油！重新阅读知识讲解，逐步练习。';
+  document.getElementById('qmsg').textContent=msg;
+  document.getElementById('qres').classList.add('s');
+  if(score>=12) document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s4d2'},'*');
+  document.getElementById('qres').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  Object.keys(sel_state).forEach(k=>delete sel_state[k]);
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 07 · 继承、多态与文件操作</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --day:#e11d48;
+  --day-d:#be123c;
+  --day-bg:rgba(225,29,72,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6
+}
+body{
+  font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.7;
+  font-size:14px;
+  -webkit-font-smoothing:antialiased
+}
+.wrap{max-width:960px;margin:0 auto;padding:20px 20px 50px}
+
+/* Header */
+.hd{
+  background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);
+  color:#fff;
+  padding:28px 28px 24px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 8px 24px rgba(225,29,72,.25)
+}
+.hd-tag{
+  display:inline-block;
+  background:rgba(255,255,255,.18);
+  padding:4px 10px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.5px;
+  font-family:'Space Mono',monospace;
+  margin-bottom:10px
+}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{
+  display:flex;
+  gap:18px;
+  margin-top:16px;
+  flex-wrap:wrap
+}
+.hd-stats>div{font-size:12px;opacity:.92}
+.hd-stats b{
+  font-family:'Space Mono',monospace;
+  font-size:18px;
+  font-weight:700;
+  margin-right:4px
+}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:6px;
+  display:flex;
+  gap:4px;
+  margin-bottom:18px;
+  overflow-x:auto
+}
+.ts{display:flex;gap:4px;width:100%}
+.t{
+  flex:1;
+  padding:10px 12px;
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:8px;
+  white-space:nowrap;
+  font-family:inherit;
+  transition:all .2s
+}
+.t:hover{color:var(--day-d);background:var(--day-bg)}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(225,29,72,.3)}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sections */
+.sec{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px;
+  margin-bottom:18px
+}
+.sec h2{
+  font-size:18px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:14px;
+  padding-bottom:10px;
+  border-bottom:2px solid var(--day);
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.sec h2 .ico{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;height:32px;
+  background:var(--day-bg);
+  color:var(--day-d);
+  border-radius:8px;
+  font-size:16px;
+  font-weight:700;
+  font-family:'Space Mono',monospace
+}
+.sec h3{
+  font-size:15px;
+  font-weight:700;
+  color:var(--ink);
+  margin:18px 0 10px;
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+.sec h3::before{
+  content:'';
+  width:4px;height:16px;
+  background:var(--day);
+  border-radius:2px;
+  display:inline-block
+}
+.sec p{margin:8px 0;color:var(--ink2);font-size:13.5px}
+.sec ul,.sec ol{margin:8px 0 8px 20px;color:var(--ink2);font-size:13.5px}
+.sec li{margin:4px 0}
+
+/* Code blocks */
+.term{
+  background:var(--code-bg);
+  color:var(--code-ink);
+  font-family:'Space Mono',monospace;
+  font-size:13px;
+  padding:14px 16px;
+  border-radius:8px;
+  margin:10px 0;
+  overflow-x:auto;
+  line-height:1.7;
+  white-space:pre
+}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .r{color:#f07178}
+.term .w{color:#fff;font-weight:600}
+.term .n{color:#f78c6c}
+.term .b{color:#89ddff}
+
+code.inl{
+  font-family:'Space Mono',monospace;
+  background:#f1f5f9;
+  color:var(--day-d);
+  padding:1px 6px;
+  border-radius:4px;
+  font-size:12.5px;
+  font-weight:600
+}
+
+/* Info boxes */
+.box{
+  padding:12px 14px;
+  border-radius:8px;
+  margin:10px 0;
+  font-size:13px;
+  line-height:1.7;
+  border-left:4px solid
+}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box b{display:inline-block;margin-bottom:2px}
+
+/* Tables */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{
+  background:#fafbfc;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+  transition:all .2s
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{
+  display:inline-block;
+  width:22px;height:22px;
+  line-height:22px;
+  text-align:center;
+  background:var(--day);
+  color:#fff;
+  border-radius:50%;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  font-weight:700
+}
+.card p{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+/* Interview */
+.iq{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:10px;
+  overflow:hidden;
+  transition:all .2s
+}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq-body p{margin:10px 0}
+.iq-body ul{margin:8px 0 8px 18px}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 16px;
+  margin-bottom:10px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  transition:all .2s
+}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1;min-width:0}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  background:#f8fafc;
+  color:var(--muted);
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  display:inline-block;
+  border:1px dashed var(--border);
+  user-select:none
+}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{
+  display:none;
+  margin-top:10px;
+  padding:12px 14px;
+  background:var(--code-bg);
+  color:var(--code-ink);
+  font-family:'Space Mono',monospace;
+  font-size:12.5px;
+  border-radius:8px;
+  line-height:1.8;
+  overflow-x:auto;
+  white-space:pre
+}
+.pt-ans.s{display:block}
+.pt-ans .k{color:#c792ea}
+.pt-ans .s{color:#c3e88d}
+.pt-ans .n{color:#f78c6c}
+.pt-ans .g{color:#676e95;font-style:italic}
+.pt-ans .b{color:#89ddff}
+.pt-ans .w{color:#fff;font-weight:600}
+.pt-ans .o{color:#f78c6c}
+.pt-ans .c{color:#ffcb6b}
+
+.prog{
+  background:var(--day-bg);
+  padding:12px 16px;
+  border-radius:10px;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:13px;
+  color:var(--day-d);
+  font-weight:600;
+  flex-wrap:wrap
+}
+.prog .mc-btn{
+  background:var(--day);
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:inherit
+}
+.prog .mc-btn:hover{background:var(--day-d)}
+.prog #pc{font-family:'Space Mono',monospace;font-size:15px}
+
+/* Quiz */
+.qz{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  margin-bottom:14px
+}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{
+  display:inline-block;
+  width:26px;height:26px;
+  line-height:26px;
+  text-align:center;
+  background:var(--day);
+  color:#fff;
+  border-radius:50%;
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  font-weight:700;
+  margin-right:8px
+}
+.opt{
+  display:block;
+  padding:10px 14px;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  margin-bottom:8px;
+  cursor:pointer;
+  font-size:13.5px;
+  color:var(--ink2);
+  transition:all .15s;
+  line-height:1.5
+}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{
+  display:none;
+  margin-top:10px;
+  padding:10px 12px;
+  background:#fffbeb;
+  border-left:3px solid var(--amber);
+  border-radius:6px;
+  font-size:12.5px;
+  color:#78350f;
+  line-height:1.6
+}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+
+.qbtn{
+  display:block;
+  margin:20px auto;
+  background:var(--day);
+  color:#fff;
+  border:none;
+  padding:12px 28px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:inherit;
+  box-shadow:0 4px 12px rgba(225,29,72,.3);
+  transition:all .2s
+}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px);box-shadow:0 6px 16px rgba(225,29,72,.4)}
+.qbtn:disabled{opacity:.5;cursor:not-allowed}
+#qr{
+  display:none;
+  background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);
+  color:#fff;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:18px;
+  text-align:center
+}
+#qr.s{display:block}
+#qr h3{font-size:18px;margin-bottom:8px}
+#qr .sc{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;margin:8px 0}
+
+/* Page nav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{
+  flex:1;
+  min-width:120px;
+  background:#fff;
+  border:1.5px solid var(--border);
+  color:var(--ink2);
+  padding:11px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  transition:all .2s
+}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.pnav button:disabled:hover{border-color:var(--border);color:var(--ink2)}
+
+/* Visualizations */
+.viz{
+  background:#fafbfc;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  margin:12px 0
+}
+.viz-ttl{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* Inheritance tree */
+.tree{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0;
+  margin:14px 0;
+  font-family:'Space Mono',monospace
+}
+.tree-node{
+  background:#fff;
+  border:2px solid var(--day);
+  border-radius:8px;
+  padding:8px 16px;
+  font-weight:700;
+  color:var(--day-d);
+  font-size:13px;
+  min-width:120px;
+  text-align:center
+}
+.tree-node.root{
+  background:var(--day);
+  color:#fff
+}
+.tree-line{
+  width:2px;
+  height:24px;
+  background:var(--day)
+}
+.tree-row{
+  display:flex;
+  gap:30px;
+  justify-content:center;
+  flex-wrap:wrap
+}
+
+/* Method resolution box */
+.mro{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+  margin:12px 0;
+  font-family:'Space Mono',monospace;
+  font-size:12.5px
+}
+.mro-step{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 0;
+  border-bottom:1px dashed var(--border)
+}
+.mro-step:last-child{border-bottom:none}
+.mro-num{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;height:22px;
+  background:var(--day);
+  color:#fff;
+  border-radius:50%;
+  font-weight:700;
+  font-size:11px;
+  flex-shrink:0
+}
+.mro-cls{
+  background:var(--day-bg);
+  padding:3px 10px;
+  border-radius:5px;
+  color:var(--day-d);
+  font-weight:700
+}
+.mro-found{
+  background:#dcfce7;
+  color:#15803d;
+  padding:2px 10px;
+  border-radius:5px;
+  font-weight:700;
+  font-size:11px
+}
+
+/* Memory layout */
+.mem{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;
+  margin:14px 0
+}
+.mem h5{
+  font-family:'Space Mono',monospace;
+  color:var(--day-d);
+  margin-bottom:10px;
+  font-size:13px
+}
+.mem-block{
+  background:#fafbfc;
+  border:1px dashed var(--border);
+  border-radius:8px;
+  padding:10px 14px;
+  margin:6px 0;
+  font-family:'Space Mono',monospace;
+  font-size:12.5px
+}
+.mem-block.cls{
+  background:#fff7ed;
+  border-color:#fb923c;
+  border-style:solid
+}
+.mem-block.inst{
+  background:#eff6ff;
+  border-color:#3b82f6;
+  border-style:solid
+}
+.mem-lbl{
+  font-size:10px;
+  text-transform:uppercase;
+  color:var(--muted);
+  letter-spacing:.5px;
+  margin-bottom:4px;
+  font-weight:700
+}
+
+/* File mode badges */
+.fm{
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:14px;
+  font-family:'Space Mono',monospace;
+  font-weight:700;
+  font-size:12px;
+  margin-right:6px
+}
+.fm-r{background:#dbeafe;color:#1e40af}
+.fm-w{background:#fee2e2;color:#991b1b}
+.fm-a{background:#fef3c7;color:#92400e}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .qbtn{padding:11px 18px;font-size:13px}
+  .pnav button{font-size:12px;padding:9px 12px;min-width:100px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .pt-ans{font-size:11.5px;padding:10px}
+  .tree-row{flex-direction:column;gap:10px;align-items:center}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · TESTER DAY 07</div>
+  <h1>继承、多态、私有公有与文件操作</h1>
+  <p>面向对象进阶 · 类与对象的深入理解 · 三大方法 · 文件读写</p>
+  <div class="hd-stats">
+    <div><b>3</b>大OOP特性</div>
+    <div><b>3</b>种方法类型</div>
+    <div><b>3</b>文件模式</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- TABS -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 0: 知识讲解 ============ -->
+<div class="pan a" id="p0">
+
+<div class="sec">
+  <h2><span class="ico">1</span>继承的概念</h2>
+
+  <p><b>继承</b>描述的是类与类之间的关系（<code class="inl">is-a</code> 关系），是面向对象三大特性之一。</p>
+
+  <div class="box info">
+    <b>🎯 继承的好处</b><br>
+    • <b>减少代码冗余</b>，相同的代码不需要写多次<br>
+    • <b>提高编程效率</b>，子类自动拥有父类的属性和方法<br>
+    • <b>便于维护</b>，修改父类，所有子类同步更新
+  </div>
+
+  <h3>继承的语法</h3>
+<div class="term"><span class="g"># 写法 1：显式继承 object（最完整）</span>
+<span class="k">class</span> <span class="p">类A</span>(<span class="p">object</span>):
+    <span class="k">pass</span>
+
+<span class="g"># 写法 2：空括号</span>
+<span class="k">class</span> <span class="p">类A</span>():
+    <span class="k">pass</span>
+
+<span class="g"># 写法 3：不写括号（推荐，等同于继承 object）</span>
+<span class="k">class</span> <span class="p">类A</span>:
+    <span class="k">pass</span>
+
+<span class="g"># 类 B 继承 类 A</span>
+<span class="k">class</span> <span class="p">类B</span>(<span class="p">类A</span>):
+    <span class="k">pass</span></div>
+
+  <div class="box tip">
+    <b>📝 术语</b><br>
+    • <b>类 A</b>：被继承的类，称为<b>父类</b>（或基类、super class）<br>
+    • <b>类 B</b>：继承别人的类，称为<b>子类</b>（或派生类、sub class）<br>
+    • <b>object</b>：Python 中最原始的类，所有类都默认继承它
+  </div>
+
+  <h3>完整示例：动物继承体系</h3>
+<div class="term"><span class="k">class</span> <span class="p">Animal</span>:
+    <span class="c">"""动物类"""</span>
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name, age):
+        <span class="o">self</span>.name <span class="o">=</span> name
+        <span class="o">self</span>.age <span class="o">=</span> age
+
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 吃东西'</span>)
+
+    <span class="k">def</span> <span class="p">sleep</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 睡觉'</span>)
+
+
+<span class="k">class</span> <span class="p">Cat</span>(<span class="p">Animal</span>):       <span class="g"># 猫继承动物</span>
+    <span class="k">def</span> <span class="p">catch</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 会抓老鼠'</span>)
+
+
+<span class="k">class</span> <span class="p">Dog</span>(<span class="p">Animal</span>):       <span class="g"># 狗继承动物</span>
+    <span class="k">def</span> <span class="p">look_the_door</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 正在看家'</span>)
+
+
+<span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):          <span class="g"># 哮天犬继承狗</span>
+    <span class="k">def</span> <span class="p">fly</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 在天上飞'</span>)
+
+
+xtq <span class="o">=</span> <span class="p">XTQ</span>(<span class="s">'哮天犬'</span>, <span class="n">100</span>)
+xtq.<span class="p">eat</span>()           <span class="g"># 来自爷爷类 Animal</span>
+xtq.<span class="p">look_the_door</span>() <span class="g"># 来自父类 Dog</span>
+xtq.<span class="p">fly</span>()           <span class="g"># 来自自己 XTQ</span></div>
+
+  <div class="box ok">
+    <b>✨ 继承的传递性</b><br>
+    C 继承 B，B 继承 A，则 C 可以使用 A 类中的属性和方法。<br>
+    XTQ → Dog → Animal → object，<code class="inl">xtq</code> 对象能用整条链路的所有公有方法。
+  </div>
+
+  <h3>对象调用方法的查找顺序</h3>
+  <p>当执行 <code class="inl">对象.方法名()</code> 时，Python 会按以下顺序查找：</p>
+  <ol>
+    <li>先在<b>自己的类</b>中查找，找到 → 使用</li>
+    <li>没找到，去<b>父类</b>中查找，找到 → 使用</li>
+    <li>没找到，去<b>父类的父类</b>中查找，找到 → 使用</li>
+    <li>... 一直找到 <code class="inl">object</code> 类</li>
+    <li>都没找到 → <b>报错</b> <code class="inl">AttributeError</code></li>
+  </ol>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>方法重写（override）</h2>
+
+  <p><b>重写</b>就是<b>在子类中定义一个和父类方法同名的方法</b>，当子类对象调用该方法时，会执行子类自己的版本。</p>
+
+  <h3>为什么要重写？</h3>
+  <p>当父类中的方法实现不能满足子类对象的需求时，可以通过重写来定制子类自己的行为。</p>
+
+  <h3>两种重写方式</h3>
+  <div class="g2">
+    <div class="card">
+      <h4><span class="num">1</span>覆盖式重写</h4>
+      <p>父类中的功能<b>全部不要</b>，直接在子类中重新写一遍方法</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">2</span>扩展式重写</h4>
+      <p>父类中的功能<b>还需要</b>，但要在基础上添加新功能，用 <code class="inl">super()</code> 调用父类方法</p>
+    </div>
+  </div>
+
+  <h3>覆盖式重写示例</h3>
+<div class="term"><span class="k">class</span> <span class="p">Dog</span>:
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'汪汪汪叫......'</span>)
+
+
+<span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):
+    <span class="g"># 父类的 bark 不能满足需求，完全覆盖重写</span>
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'嗷嗷嗷叫.....'</span>)
+
+
+xtq <span class="o">=</span> <span class="p">XTQ</span>()
+xtq.<span class="p">bark</span>()   <span class="g"># 嗷嗷嗷叫.....（父类的汪汪汪没了）</span></div>
+
+  <h3>扩展式重写示例（使用 super()）</h3>
+<div class="term"><span class="k">class</span> <span class="p">Dog</span>:
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'汪汪汪叫......'</span>)
+        <span class="p">print</span>(<span class="s">'汪汪汪叫......'</span>)
+
+
+<span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="g"># 1. 先调用父类的方法（保留原有功能）</span>
+        <span class="p">super</span>().<span class="p">bark</span>()
+        <span class="g"># 2. 再添加新功能</span>
+        <span class="p">print</span>(<span class="s">'嗷嗷嗷叫.....'</span>)
+        <span class="p">print</span>(<span class="s">'嗷嗷嗷叫.....'</span>)
+
+
+xtq <span class="o">=</span> <span class="p">XTQ</span>()
+xtq.<span class="p">bark</span>()
+<span class="g"># 汪汪汪叫......</span>
+<span class="g"># 汪汪汪叫......</span>
+<span class="g"># 嗷嗷嗷叫.....</span>
+<span class="g"># 嗷嗷嗷叫.....</span></div>
+
+  <div class="box tip">
+    <b>💡 super() 的用法</b><br>
+    <code class="inl">super().方法名()</code> 表示<b>调用父类的同名方法</b>。在子类的重写方法中使用，可以保留父类的原有功能再添加新逻辑。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>多态（polymorphism）</h2>
+
+  <div class="box info">
+    <b>📘 定义</b><br>
+    <b>多态</b>：不同的子类对象调用相同的方法，产生不同的执行结果。<br>
+    多态是一种<b>调用代码的技巧</b>，依赖于继承和方法重写。
+  </div>
+
+  <h3>多态示例</h3>
+<div class="term"><span class="k">class</span> <span class="p">Dog</span>:
+    <span class="k">def</span> <span class="p">game</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'普通狗简单的玩耍...'</span>)
+
+
+<span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):
+    <span class="k">def</span> <span class="p">game</span>(<span class="o">self</span>):       <span class="g"># 重写 game 方法</span>
+        <span class="p">print</span>(<span class="s">'哮天犬在天上玩耍...'</span>)
+
+
+<span class="k">class</span> <span class="p">Person</span>:
+    <span class="k">def</span> <span class="p">play_with_dog</span>(<span class="o">self</span>, dog):
+        <span class="c">"""dog 可以是 Dog 类或其子类的对象"""</span>
+        <span class="p">print</span>(<span class="s">'人和狗在玩耍...'</span>, end<span class="o">=</span><span class="s">''</span>)
+        dog.<span class="p">game</span>()    <span class="g"># 关键：同一行代码，不同对象产生不同结果</span>
+
+
+xw <span class="o">=</span> <span class="p">Person</span>()
+xw.<span class="p">play_with_dog</span>(<span class="p">Dog</span>())   <span class="g"># 人和狗在玩耍...普通狗简单的玩耍...</span>
+xw.<span class="p">play_with_dog</span>(<span class="p">XTQ</span>())   <span class="g"># 人和狗在玩耍...哮天犬在天上玩耍...</span></div>
+
+  <div class="box tip">
+    <b>🎯 多态的价值</b><br>
+    <code class="inl">play_with_dog</code> 方法<b>不需要修改</b>，就能适配 Dog 和 XTQ 两种不同的狗。新增一种狗（如博美 Pomeranian）也不需要改这个方法。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>公有与私有权限</h2>
+
+  <p>Python 定义类时，可以给属性和方法设置<b>访问权限</b>，规定它们能在什么地方使用。</p>
+
+  <div class="g2">
+    <div class="card">
+      <h4>🌍 公有（public）</h4>
+      <ul style="margin:0">
+        <li>直接定义的属性/方法默认就是公有</li>
+        <li>可在<b>任何地方</b>访问（类内、类外、子类）</li>
+        <li>只要有对象就能用</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>🔒 私有（private）</h4>
+      <ul style="margin:0">
+        <li><b>只能在类的内部</b>定义（class 缩进中）</li>
+        <li>属性/方法名前加<b>两个下划线</b> <code class="inl">__</code></li>
+        <li>只能在当前类内部使用，<b>不能在类外和子类</b>直接使用</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>应用场景</h3>
+  <ul>
+    <li><b>一般情况</b>下，定义的属性和方法<b>都为公有</b></li>
+    <li>某个属性<b>不想被外部直接修改</b> → 定义为私有</li>
+    <li>某个方法是<b>内部辅助方法</b>，不希望外部调用 → 定义为私有</li>
+  </ul>
+
+  <h3>完整案例：保护年龄属性</h3>
+<div class="term"><span class="k">class</span> <span class="p">Person</span>:
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name, age):
+        <span class="o">self</span>.name <span class="o">=</span> name          <span class="g"># 公有</span>
+        <span class="o">self</span>.__age <span class="o">=</span> age         <span class="g"># 私有（前加双下划线）</span>
+
+    <span class="k">def</span> <span class="p">__str__</span>(<span class="o">self</span>):              <span class="g"># 公有方法</span>
+        <span class="k">return</span> <span class="s">f"</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s">, </span><span class="b">{</span><span class="o">self</span>.__age<span class="b">}</span><span class="s">"</span>
+
+    <span class="k">def</span> <span class="p">set_age</span>(<span class="o">self</span>, age):       <span class="g"># 公有方法，修改私有属性</span>
+        <span class="k">if</span> age <span class="o">&lt;</span> <span class="n">0</span> <span class="k">or</span> age <span class="o">&gt;</span> <span class="n">120</span>:
+            <span class="p">print</span>(<span class="s">'提供的年龄信息不对'</span>)
+            <span class="k">return</span>
+        <span class="o">self</span>.__age <span class="o">=</span> age
+
+
+xw <span class="o">=</span> <span class="p">Person</span>(<span class="s">'小王'</span>, <span class="n">18</span>)
+<span class="p">print</span>(xw)                <span class="g"># 小王, 18</span>
+
+xw.__age <span class="o">=</span> <span class="n">10000</span>        <span class="g"># 这是给对象添加一个新的 __age 属性，不是修改私有属性！</span>
+<span class="p">print</span>(xw)                <span class="g"># 小王, 18（__str__ 中的 __age 仍是 18）</span>
+
+xw.<span class="p">set_age</span>(<span class="n">10000</span>)        <span class="g"># 提供的年龄信息不对</span>
+xw.<span class="p">set_age</span>(<span class="n">25</span>)           <span class="g"># 修改成功</span>
+<span class="p">print</span>(xw)                <span class="g"># 小王, 25</span></div>
+
+  <div class="box warn">
+    <b>⚠️ 注意：私有属性的"伪私有"机制</b><br>
+    Python 没有真正的私有，<code class="inl">__age</code> 实际被改名成 <code class="inl">_Person__age</code>（名称改写）。在类外仍可通过 <code class="inl">xw._Person__age</code> 强行访问，但<b>极度不推荐</b>。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>类对象 vs 实例对象</h2>
+
+  <p>Python 中"一切皆对象"，类本身也是对象。</p>
+
+  <div class="g2">
+    <div class="card">
+      <h4>🏛️ 类对象</h4>
+      <p><b>类对象就是类本身</b>，使用 <code class="inl">class</code> 定义的类。代码执行时由解释器自动创建。</p>
+      <p><b>作用：</b></p>
+      <ul style="margin:0">
+        <li>使用类对象创建实例对象</li>
+        <li>存储类的特征值（<b>类属性</b>）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>🎁 实例对象</h4>
+      <p>由类对象（类）<b>创建</b>出来的对象，即 <code class="inl">类名()</code> 实例化的结果，简称<b>实例</b>。</p>
+      <p>没有特殊说明时，"对象"通常都指<b>实例对象</b>。可以保存自己的特征值（<b>实例属性</b>）。</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>实例属性 vs 类属性</h2>
+
+  <h3>实例属性（Instance Attribute）</h3>
+  <ul>
+    <li><b>概念</b>：每个实例对象具有的特征，每个实例都有自己独立的一份</li>
+    <li><b>定义</b>：一般在 <code class="inl">__init__</code> 方法中通过 <code class="inl">self.属性名 = 值</code> 定义</li>
+    <li><b>内存</b>：每个实例都保存一份，<b>内存中有多份</b></li>
+    <li><b>访问</b>：<code class="inl">实例.属性名</code> 或 类内 <code class="inl">self.属性名</code></li>
+  </ul>
+
+  <h3>类属性（Class Attribute）</h3>
+  <ul>
+    <li><b>概念</b>：是类对象的特征，是<b>整个类共享</b>的</li>
+    <li><b>定义</b>：在类内部、方法外部直接定义的变量</li>
+    <li><b>内存</b>：<b>只有类对象保存一份</b>，所有实例共享</li>
+    <li><b>访问</b>：<code class="inl">类名.属性名</code>（推荐）或 <code class="inl">实例.属性名</code>（不推荐）</li>
+  </ul>
+
+  <div class="box warn">
+    <b>⚠️ 什么时候定义类属性？</b><br>
+    大部分属性都用实例属性（self 定义）。当某个属性描述的是<b>整个类的特征</b>（修改它会影响所有实例的这个特征），才定义为类属性。<br>
+    例如：游戏的"历史最高分"、统计"创建了多少个对象"。
+  </div>
+
+  <h3>属性查找顺序</h3>
+  <p>使用 <code class="inl">实例.属性</code> 访问时：</p>
+  <ol>
+    <li>先在<b>实例属性</b>中查找，找到 → 使用</li>
+    <li>没找到，去<b>类属性</b>中查找，找到 → 使用</li>
+    <li>都没找到 → 报错</li>
+  </ol>
+
+  <h3>案例：统计工具数量</h3>
+<div class="term"><span class="k">class</span> <span class="p">Tool</span>:
+    count <span class="o">=</span> <span class="n">0</span>              <span class="g"># 类属性，记录创建对象的个数</span>
+
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name):
+        <span class="o">self</span>.name <span class="o">=</span> name     <span class="g"># 实例属性</span>
+        <span class="p">Tool</span>.count <span class="o">+=</span> <span class="n">1</span>    <span class="g"># 通过类名修改类属性</span>
+
+
+<span class="p">print</span>(<span class="p">Tool</span>.count)        <span class="g"># 0</span>
+
+tool1 <span class="o">=</span> <span class="p">Tool</span>(<span class="s">'锤子'</span>)
+<span class="p">print</span>(<span class="p">Tool</span>.count)        <span class="g"># 1</span>
+
+tool2 <span class="o">=</span> <span class="p">Tool</span>(<span class="s">'扳手'</span>)
+<span class="p">print</span>(<span class="p">Tool</span>.count)        <span class="g"># 2</span>
+<span class="p">print</span>(tool2.count)       <span class="g"># 2（实例找不到 count，去类属性找到了）</span></div>
+
+  <div class="box danger">
+    <b>❌ 不要用 实例.类属性 = 值 修改类属性</b><br>
+    <code class="inl">tool1.count = 99</code> <b>不会修改类属性</b>，而是给 tool1 添加了一个同名的<b>实例属性</b>。修改类属性请用 <code class="inl">类名.属性 = 值</code>。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>三种方法类型</h2>
+
+  <div class="tw">
+  <table>
+    <tr><th>方法类型</th><th>装饰器</th><th>首参数</th><th>使用场景</th></tr>
+    <tr><td>实例方法</td><td>无</td><td><code class="inl">self</code></td><td>需要使用<b>实例属性</b></td></tr>
+    <tr><td>类方法</td><td><code class="inl">@classmethod</code></td><td><code class="inl">cls</code></td><td>不需要实例属性，需要<b>类属性</b></td></tr>
+    <tr><td>静态方法</td><td><code class="inl">@staticmethod</code></td><td>无</td><td>既不需要实例属性也不需要类属性</td></tr>
+  </table>
+  </div>
+
+  <h3>实例方法（Instance Method）</h3>
+<div class="term"><span class="k">class</span> <span class="p">类名</span>:
+    <span class="k">def</span> <span class="p">方法名</span>(<span class="o">self</span>):       <span class="g"># 直接定义就是实例方法</span>
+        <span class="k">pass</span>
+
+<span class="g"># 调用方式</span>
+实例对象.<span class="p">方法名</span>()</div>
+
+  <h3>类方法（Class Method）</h3>
+<div class="term"><span class="k">class</span> <span class="p">类名</span>:
+    <span class="o">@classmethod</span>             <span class="g"># 必须加装饰器</span>
+    <span class="k">def</span> <span class="p">方法名</span>(<span class="p">cls</span>):        <span class="g"># 第一个参数是 cls，表示类对象</span>
+        <span class="k">pass</span>
+
+<span class="g"># 调用方式</span>
+类名.<span class="p">方法名</span>()              <span class="g"># 推荐</span>
+实例对象.<span class="p">方法名</span>()           <span class="g"># 也可以</span></div>
+
+  <h3>静态方法（Static Method）</h3>
+<div class="term"><span class="k">class</span> <span class="p">类名</span>:
+    <span class="o">@staticmethod</span>            <span class="g"># 必须加装饰器</span>
+    <span class="k">def</span> <span class="p">方法名</span>():             <span class="g"># 没有 self 或 cls 参数</span>
+        <span class="k">pass</span>
+
+<span class="g"># 调用方式</span>
+类名.<span class="p">方法名</span>()
+实例对象.<span class="p">方法名</span>()</div>
+
+  <div class="box tip">
+    <b>💡 cls 和 self 的关系</b><br>
+    • <code class="inl">self</code> 是<b>实例对象</b>，由谁调用方法就是谁<br>
+    • <code class="inl">cls</code> 是<b>类对象</b>（类名），由 Python 自动传递<br>
+    • 都不需要手动传递，约定俗成的命名
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>Game 综合案例</h2>
+
+  <p><b>需求：</b>设计一个游戏类，包含历史最高分（类属性）和玩家姓名（实例属性），具有三种不同类型的方法。</p>
+
+<div class="term"><span class="k">import</span> random
+
+
+<span class="k">class</span> <span class="p">Game</span>:
+    top_score <span class="o">=</span> <span class="n">0</span>           <span class="g"># 类属性：历史最高分</span>
+
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name):
+        <span class="o">self</span>.player_name <span class="o">=</span> name  <span class="g"># 实例属性：当前玩家</span>
+
+    <span class="o">@staticmethod</span>
+    <span class="k">def</span> <span class="p">show_help</span>():        <span class="g"># 静态方法：不需要 self/cls</span>
+        <span class="p">print</span>(<span class="s">'这是游戏的帮助信息'</span>)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="p">show_top_score</span>(<span class="p">cls</span>):  <span class="g"># 类方法：需要访问类属性</span>
+        <span class="p">print</span>(<span class="s">f'历史最高分: </span><span class="b">{</span><span class="p">cls</span>.top_score<span class="b">}</span><span class="s">'</span>)
+
+    <span class="k">def</span> <span class="p">start_game</span>(<span class="o">self</span>):     <span class="g"># 实例方法：需要访问实例属性</span>
+        score <span class="o">=</span> random.<span class="p">randint</span>(<span class="n">10</span>, <span class="n">100</span>)
+        <span class="p">print</span>(<span class="s">f'玩家 </span><span class="b">{</span><span class="o">self</span>.player_name<span class="b">}</span><span class="s"> 得分: </span><span class="b">{</span>score<span class="b">}</span><span class="s">'</span>)
+        <span class="k">if</span> score <span class="o">&gt;</span> <span class="p">Game</span>.top_score:
+            <span class="p">Game</span>.top_score <span class="o">=</span> score
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="p">Game</span>.<span class="p">show_help</span>()
+    <span class="p">Game</span>.<span class="p">show_top_score</span>()
+
+    player <span class="o">=</span> <span class="p">Game</span>(<span class="s">'小王'</span>)
+    player.<span class="p">start_game</span>()
+    <span class="p">Game</span>.<span class="p">show_top_score</span>()</div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">9</span>文件操作</h2>
+
+  <p><b>文件</b>：可以存储在长期存储设备（硬盘、U 盘）上的一段数据。</p>
+
+  <div class="box info">
+    <b>📁 文件的分类</b><br>
+    根据能否用<b>记事本</b>打开：<br>
+    • <b>文本文件</b>：可以用记事本打开，如 .txt、.py、.md、.json<br>
+    • <b>二进制文件</b>：不能用记事本打开，如 .mp3、.mp4、.png、.jpg、.exe
+  </div>
+
+  <h3>文件操作三步流程</h3>
+  <ol>
+    <li><b>打开</b>文件 <code class="inl">open()</code></li>
+    <li><b>读写</b>文件 <code class="inl">read()</code> / <code class="inl">write()</code></li>
+    <li><b>关闭</b>文件 <code class="inl">close()</code></li>
+  </ol>
+
+  <h3>open() 函数</h3>
+<div class="term"><span class="p">open</span>(file, mode<span class="o">=</span><span class="s">'r'</span>, encoding<span class="o">=</span><span class="p">None</span>)</div>
+
+  <div class="tw">
+  <table>
+    <tr><th>参数</th><th>含义</th><th>说明</th></tr>
+    <tr><td><code class="inl">file</code></td><td>文件路径</td><td>相对路径（./、../）或绝对路径（C:/、D:/）</td></tr>
+    <tr><td><code class="inl">mode</code></td><td>打开模式</td><td>r / w / a</td></tr>
+    <tr><td><code class="inl">encoding</code></td><td>编码格式</td><td>utf-8（常用，1 汉字 = 3 字节）、gbk（1 汉字 = 2 字节）</td></tr>
+  </table>
+  </div>
+
+  <h3>三种打开模式</h3>
+  <div class="g3">
+    <div class="card">
+      <h4><span class="fm fm-r">r</span></h4>
+      <p><b>只读（read）</b><br>默认模式。如果文件<b>不存在会报错</b>。</p>
+    </div>
+    <div class="card">
+      <h4><span class="fm fm-w">w</span></h4>
+      <p><b>只写（write）</b><br>如果文件存在，会<b>覆盖</b>原文件内容！文件不存在则创建。</p>
+    </div>
+    <div class="card">
+      <h4><span class="fm fm-a">a</span></h4>
+      <p><b>追加（append）</b><br>在文件<b>末尾</b>写入新内容，不覆盖原内容。文件不存在则创建。</p>
+    </div>
+  </div>
+
+  <h3>读文件 read()</h3>
+<div class="term"><span class="g"># 1. 打开文件</span>
+f <span class="o">=</span> <span class="p">open</span>(<span class="s">'a.txt'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>)
+
+<span class="g"># 2. 读取文件，返回字符串</span>
+data <span class="o">=</span> f.<span class="p">read</span>()
+<span class="p">print</span>(data)
+
+<span class="g"># 3. 关闭文件</span>
+f.<span class="p">close</span>()</div>
+
+  <h3>写文件 write()</h3>
+<div class="term"><span class="g"># 1. 以写模式打开</span>
+f <span class="o">=</span> <span class="p">open</span>(<span class="s">'a.txt'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>)
+
+<span class="g"># 2. 写入内容（必须是字符串）</span>
+f.<span class="p">write</span>(<span class="s">'好好学习</span><span class="b">\n</span><span class="s">天天向上'</span>)
+
+<span class="g"># 3. 关闭文件（自动保存，同步内存到硬盘）</span>
+f.<span class="p">close</span>()</div>
+
+  <h3>推荐写法：with 语句（自动关闭）</h3>
+<div class="term"><span class="k">with</span> <span class="p">open</span>(<span class="s">'a.txt'</span>, <span class="s">'r'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> f.<span class="p">read</span>()
+    <span class="p">print</span>(data)
+<span class="g"># 出了 with 缩进，文件自动关闭，不用手动 close()</span></div>
+
+  <div class="box ok">
+    <b>✅ 为什么推荐 with 写法</b><br>
+    • <b>自动关闭</b>文件，即使发生异常也能保证关闭<br>
+    • 代码更简洁，不会忘记 close<br>
+    • 这是 Python 处理文件的最佳实践
+  </div>
+
+  <h3>读写文件应用：保存测试数据</h3>
+  <p>在自动化测试中，文件操作常用于：</p>
+  <ul>
+    <li>从文件读取<b>测试数据</b>，进行数据驱动测试</li>
+    <li>把<b>测试结果</b>写入日志文件，便于查看分析</li>
+    <li>持久化保存<b>配置信息</b>、最高分等需要长期保留的数据</li>
+  </ul>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+
+</div><!-- /panel 0 -->
+
+<!-- ============ PANEL 1: 图解演示 ============ -->
+<div class="pan" id="p1">
+
+<div class="sec">
+  <h2><span class="ico">1</span>继承层次结构图</h2>
+  <p>动物继承体系：哮天犬 → 狗 → 动物 → object（Python 顶层基类）</p>
+
+  <div class="viz">
+    <div class="viz-ttl">🌳 多层继承的传递性</div>
+    <div class="tree">
+      <div class="tree-node root">object</div>
+      <div class="tree-line"></div>
+      <div class="tree-node">Animal（动物）</div>
+      <div class="tree-line"></div>
+      <div class="tree-row">
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div class="tree-node">Cat（猫）</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div class="tree-node">Dog（狗）</div>
+          <div class="tree-line"></div>
+          <div class="tree-node">XTQ（哮天犬）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>🎯 哮天犬可以使用哪些方法？</b><br>
+    • <code class="inl">fly()</code> — 来自自己 XTQ ✓<br>
+    • <code class="inl">look_the_door()</code> — 来自父类 Dog ✓<br>
+    • <code class="inl">eat()</code>、<code class="inl">sleep()</code> — 来自爷爷类 Animal ✓<br>
+    • <code class="inl">__init__()</code> — 来自 Animal ✓
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>方法查找顺序（MRO）</h2>
+  <p>当执行 <code class="inl">xtq.eat()</code> 时，Python 按继承链向上查找：</p>
+
+  <div class="mro">
+    <div class="mro-step">
+      <div class="mro-num">1</div>
+      <div>先在 <span class="mro-cls">XTQ</span> 中查找 eat()</div>
+      <div style="margin-left:auto" class="iq-lv lv-h">❌ 没找到</div>
+    </div>
+    <div class="mro-step">
+      <div class="mro-num">2</div>
+      <div>去父类 <span class="mro-cls">Dog</span> 中查找 eat()</div>
+      <div style="margin-left:auto" class="iq-lv lv-h">❌ 没找到</div>
+    </div>
+    <div class="mro-step">
+      <div class="mro-num">3</div>
+      <div>去 <span class="mro-cls">Animal</span> 中查找 eat()</div>
+      <div style="margin-left:auto"><span class="mro-found">✅ 找到，使用</span></div>
+    </div>
+  </div>
+
+  <div class="box info">
+    <b>💡 MRO 全称</b> Method Resolution Order（方法解析顺序）。可以通过 <code class="inl">类名.__mro__</code> 查看：<br>
+    <code class="inl">XTQ.__mro__</code> → <code class="inl">(XTQ, Dog, Animal, object)</code>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>覆盖式 vs 扩展式重写对比</h2>
+
+  <div class="g2">
+    <div class="card">
+      <h4>🔄 覆盖式重写</h4>
+<div class="term"><span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'嗷嗷叫'</span>)
+        <span class="g"># 父类的汪汪叫不要</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">输出：<b>嗷嗷叫</b></p>
+    </div>
+    <div class="card">
+      <h4>➕ 扩展式重写</h4>
+<div class="term"><span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="p">super</span>().<span class="p">bark</span>()
+        <span class="p">print</span>(<span class="s">'嗷嗷叫'</span>)</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">输出：<b>汪汪叫</b> + <b>嗷嗷叫</b></p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>多态：一行代码多种行为</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">🎭 同一个 game() 方法，不同对象不同结果</div>
+<div class="term">xw.<span class="p">play_with_dog</span>(<span class="p">Dog</span>())
+<span class="g"># → 人和狗在玩耍...普通狗简单的玩耍...</span>
+
+xw.<span class="p">play_with_dog</span>(<span class="p">XTQ</span>())
+<span class="g"># → 人和狗在玩耍...哮天犬在天上玩耍...</span>
+
+xw.<span class="p">play_with_dog</span>(<span class="p">Pomeranian</span>())  <span class="g"># 新增博美</span>
+<span class="g"># → 人和狗在玩耍...博美撒娇地玩耍...</span>
+<span class="g"># 不需要修改 play_with_dog 方法！</span></div>
+  </div>
+
+  <div class="box tip">
+    <b>🎯 多态 = 继承 + 重写 + 父类引用指向子类对象</b><br>
+    <code class="inl">play_with_dog</code> 期待"狗类或其子类对象"，传不同子类进去，<code class="inl">dog.game()</code> 就调用不同子类的实现。这是<b>开闭原则</b>的体现：<b>对扩展开放，对修改关闭</b>。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>公有 vs 私有 对比</h2>
+
+  <div class="tw">
+  <table>
+    <tr><th>对比项</th><th>公有 public</th><th>私有 private</th></tr>
+    <tr><td>命名</td><td>普通名字 <code class="inl">name</code></td><td>双下划线开头 <code class="inl">__age</code></td></tr>
+    <tr><td>类内访问</td><td>✅ 可以</td><td>✅ 可以</td></tr>
+    <tr><td>类外访问</td><td>✅ 可以 <code class="inl">obj.name</code></td><td>❌ 不可以</td></tr>
+    <tr><td>子类访问</td><td>✅ 可以</td><td>❌ 不可以</td></tr>
+    <tr><td>建议</td><td>大部分情况</td><td>需要保护的数据</td></tr>
+  </table>
+  </div>
+
+  <div class="box danger">
+    <b>❌ 看似修改私有，实则添加新公有属性</b><br>
+<div class="term" style="margin:6px 0 0">xw.<span class="o">__age</span> <span class="o">=</span> <span class="n">10000</span>   <span class="g"># 不是修改 self.__age！</span>
+                  <span class="g"># 而是给 xw 添加了一个新的公有属性 __age</span></div>
+    类外通过 <code class="inl">xw.__age = 值</code> 不会触发"私有保护"，而是创建了一个<b>新属性</b>。原私有属性 <code class="inl">_Person__age</code> 仍是原值。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>实例属性 vs 类属性（内存视角）</h2>
+
+  <p>每个实例对象独立保存自己的<b>实例属性</b>，所有实例<b>共享</b>同一份<b>类属性</b>。</p>
+
+  <div class="mem">
+    <h5>📦 Tool 类创建 2 个对象后的内存</h5>
+
+    <div class="mem-block cls">
+      <div class="mem-lbl">🏛️ 类对象 Tool（内存中只有一份）</div>
+      <div><span style="color:var(--day-d);font-weight:700">count</span> = 2 ← <span style="color:var(--muted)">类属性，所有实例共享</span></div>
+    </div>
+
+    <div class="mem-block inst">
+      <div class="mem-lbl">🎁 实例对象 tool1（每个实例独立一份）</div>
+      <div><span style="color:#1e40af;font-weight:700">name</span> = '锤子'</div>
+    </div>
+
+    <div class="mem-block inst">
+      <div class="mem-lbl">🎁 实例对象 tool2（每个实例独立一份）</div>
+      <div><span style="color:#1e40af;font-weight:700">name</span> = '扳手'</div>
+    </div>
+  </div>
+
+  <div class="box warn">
+    <b>⚠️ 修改类属性的正确姿势</b><br>
+    ✅ <code class="inl">Tool.count = 99</code> → 修改类属性<br>
+    ❌ <code class="inl">tool1.count = 99</code> → 给 tool1 添加一个同名的<b>实例属性</b>，遮盖类属性
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>三种方法对比</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">🔍 怎么判断该用哪种方法？</div>
+    <div class="tw">
+    <table>
+      <tr><th>方法体内用到了...</th><th>该定义为</th><th>装饰器</th></tr>
+      <tr><td>实例属性（self.xxx）</td><td>实例方法</td><td>无</td></tr>
+      <tr><td>仅类属性（cls.xxx）</td><td>类方法</td><td>@classmethod</td></tr>
+      <tr><td>都不用，纯工具函数</td><td>静态方法</td><td>@staticmethod</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <h3>Game 案例中三种方法的应用</h3>
+<div class="term"><span class="k">class</span> <span class="p">Game</span>:
+    top_score <span class="o">=</span> <span class="n">0</span>
+
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name):
+        <span class="o">self</span>.player_name <span class="o">=</span> name
+
+    <span class="o">@staticmethod</span>              <span class="g"># ① 静态：不需要实例/类属性</span>
+    <span class="k">def</span> <span class="p">show_help</span>():
+        <span class="p">print</span>(<span class="s">'帮助信息'</span>)
+
+    <span class="o">@classmethod</span>               <span class="g"># ② 类方法：用类属性 top_score</span>
+    <span class="k">def</span> <span class="p">show_top_score</span>(<span class="p">cls</span>):
+        <span class="p">print</span>(<span class="p">cls</span>.top_score)
+
+    <span class="k">def</span> <span class="p">start_game</span>(<span class="o">self</span>):       <span class="g"># ③ 实例方法：用实例属性 player_name</span>
+        <span class="p">print</span>(<span class="o">self</span>.player_name)</div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>文件操作流程图</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">📂 三步走</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+      <div style="background:#fff;border:2px solid var(--day);border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">📂</div>
+        <div style="font-weight:700;color:var(--day-d);font-size:14px;margin-bottom:4px">1. 打开</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted)">open(file, mode, encoding)</div>
+      </div>
+      <div style="background:#fff;border:2px solid var(--day);border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">✏️</div>
+        <div style="font-weight:700;color:var(--day-d);font-size:14px;margin-bottom:4px">2. 读 / 写</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted)">f.read() / f.write(s)</div>
+      </div>
+      <div style="background:#fff;border:2px solid var(--day);border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">🔒</div>
+        <div style="font-weight:700;color:var(--day-d);font-size:14px;margin-bottom:4px">3. 关闭</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted)">f.close()</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>三种打开模式对比</h3>
+  <div class="tw">
+  <table>
+    <tr><th>模式</th><th>名称</th><th>文件存在</th><th>文件不存在</th><th>能读</th><th>能写</th></tr>
+    <tr><td><span class="fm fm-r">r</span></td><td>只读 read</td><td>正常打开</td><td>❌ 报错</td><td>✅</td><td>❌</td></tr>
+    <tr><td><span class="fm fm-w">w</span></td><td>只写 write</td><td>⚠️ <b>覆盖</b>原内容</td><td>✅ 创建新文件</td><td>❌</td><td>✅</td></tr>
+    <tr><td><span class="fm fm-a">a</span></td><td>追加 append</td><td>末尾追加</td><td>✅ 创建新文件</td><td>❌</td><td>✅</td></tr>
+  </table>
+  </div>
+
+  <div class="box danger">
+    <b>⚠️ 重要：w 模式会清空原文件！</b><br>
+    用 <code class="inl">open('a.txt', 'w')</code> 打开已存在的文件，<b>立即就清空</b>了原内容（不用等到 write）。重要文件操作前请先备份，或者用 <code class="inl">'a'</code> 追加模式。
+  </div>
+
+  <h3>with 语法（推荐）</h3>
+  <div class="g2">
+    <div class="card">
+      <h4>❌ 传统写法</h4>
+<div class="term">f <span class="o">=</span> <span class="p">open</span>(<span class="s">'a.txt'</span>)
+data <span class="o">=</span> f.<span class="p">read</span>()
+<span class="g"># 如果这里报错，f 不会关闭</span>
+f.<span class="p">close</span>()</div>
+    </div>
+    <div class="card">
+      <h4>✅ with 语法</h4>
+<div class="term"><span class="k">with</span> <span class="p">open</span>(<span class="s">'a.txt'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> f.<span class="p">read</span>()
+<span class="g"># 自动关闭，即使报错也安全</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+
+</div><!-- /panel 1 -->
+
+<!-- ============ PANEL 2: 实战练习 ============ -->
+<div class="pan" id="p2">
+
+<div class="prog">
+  <div>📊 完成进度：<span id="pc">0</span> / 10</div>
+  <button class="mc-btn" onclick="mc()">全部勾选</button>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">1</span>实战练习（10 题）</h2>
+  <p>包含本日全部作业题，勾选复选框记录进度，点击"查看答案"展开参考代码。</p>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p1">
+  <div class="pt-body">
+    <div class="pt-t">1. 定义 <code class="inl">Animal</code> 父类有 <code class="inl">eat</code>、<code class="inl">sleep</code> 方法。定义 <code class="inl">Cat</code>、<code class="inl">Dog</code> 继承 <code class="inl">Animal</code>。Dog 再多一个 <code class="inl">XTQ</code> 子类，添加 <code class="inl">fly</code> 方法。创建哮天犬对象并调用 4 个方法。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Animal</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, age):
+        self.name <span class="o">=</span> name
+        self.age <span class="o">=</span> age
+
+    <span class="k">def</span> <span class="b">eat</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 吃东西'</span>)
+
+    <span class="k">def</span> <span class="b">sleep</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 睡觉'</span>)
+
+
+<span class="k">class</span> <span class="b">Cat</span>(<span class="b">Animal</span>):
+    <span class="k">def</span> <span class="b">catch</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 抓老鼠'</span>)
+
+
+<span class="k">class</span> <span class="b">Dog</span>(<span class="b">Animal</span>):
+    <span class="k">def</span> <span class="b">look_the_door</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 看家'</span>)
+
+
+<span class="k">class</span> <span class="b">XTQ</span>(<span class="b">Dog</span>):
+    <span class="k">def</span> <span class="b">fly</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 在天上飞'</span>)
+
+
+xtq <span class="o">=</span> <span class="b">XTQ</span>(<span class="s">'哮天犬'</span>, <span class="n">100</span>)
+xtq.<span class="b">eat</span>()
+xtq.<span class="b">sleep</span>()
+xtq.<span class="b">look_the_door</span>()
+xtq.<span class="b">fly</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p2">
+  <div class="pt-body">
+    <div class="pt-t">2. 【作业题 2】定义 <code class="inl">Animal</code> 类有 <code class="inl">eat</code>、<code class="inl">drink</code>、<code class="inl">sleep</code> 方法。定义 <code class="inl">Dog</code> 继承 <code class="inl">Animal</code>，添加 <code class="inl">bark</code> 方法。狗对象调用吃和喝方法。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Animal</span>:
+    <span class="k">def</span> <span class="b">eat</span>(self):
+        <span class="b">print</span>(<span class="s">'吃肉...'</span>)
+
+    <span class="k">def</span> <span class="b">drink</span>(self):
+        <span class="b">print</span>(<span class="s">'喝水...'</span>)
+
+    <span class="k">def</span> <span class="b">sleep</span>(self):
+        <span class="b">print</span>(<span class="s">'睡觉...'</span>)
+
+
+<span class="k">class</span> <span class="b">Dog</span>(<span class="b">Animal</span>):
+    <span class="k">def</span> <span class="b">bark</span>(self):
+        <span class="b">print</span>(<span class="s">'汪汪叫...'</span>)
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    dog <span class="o">=</span> <span class="b">Dog</span>()
+    dog.<span class="b">eat</span>()      <span class="g"># 吃肉...（继承自父类）</span>
+    dog.<span class="b">drink</span>()    <span class="g"># 喝水...（继承自父类）</span>
+    dog.<span class="b">bark</span>()     <span class="g"># 汪汪叫...（自己的方法）</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p3">
+  <div class="pt-body">
+    <div class="pt-t">3. 演示扩展式重写：父类 <code class="inl">Dog</code> 的 <code class="inl">bark</code> 输出 "汪汪叫"。子类 <code class="inl">XTQ</code> 重写 <code class="inl">bark</code>，先调用父类方法，再输出 "嗷嗷叫"。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Dog</span>:
+    <span class="k">def</span> <span class="b">bark</span>(self):
+        <span class="b">print</span>(<span class="s">'汪汪叫...'</span>)
+
+
+<span class="k">class</span> <span class="b">XTQ</span>(<span class="b">Dog</span>):
+    <span class="k">def</span> <span class="b">bark</span>(self):
+        <span class="b">super</span>().<span class="b">bark</span>()      <span class="g"># 调用父类方法</span>
+        <span class="b">print</span>(<span class="s">'嗷嗷叫...'</span>)   <span class="g"># 再添加新功能</span>
+
+
+xtq <span class="o">=</span> <span class="b">XTQ</span>()
+xtq.<span class="b">bark</span>()
+<span class="g"># 汪汪叫...</span>
+<span class="g"># 嗷嗷叫...</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p4">
+  <div class="pt-body">
+    <div class="pt-t">4. 演示多态：定义 <code class="inl">Dog</code> 和 <code class="inl">XTQ</code> 都有 <code class="inl">game</code> 方法（实现不同）。定义 <code class="inl">Person</code> 类有 <code class="inl">play_with_dog(dog)</code> 方法，传入不同的狗对象，会有不同的输出。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Dog</span>:
+    <span class="k">def</span> <span class="b">game</span>(self):
+        <span class="b">print</span>(<span class="s">'普通狗玩耍...'</span>)
+
+
+<span class="k">class</span> <span class="b">XTQ</span>(<span class="b">Dog</span>):
+    <span class="k">def</span> <span class="b">game</span>(self):
+        <span class="b">print</span>(<span class="s">'哮天犬在天上玩耍...'</span>)
+
+
+<span class="k">class</span> <span class="b">Person</span>:
+    <span class="k">def</span> <span class="b">play_with_dog</span>(self, dog):
+        <span class="b">print</span>(<span class="s">'人和狗在玩耍...'</span>, end<span class="o">=</span><span class="s">''</span>)
+        dog.<span class="b">game</span>()
+
+
+xw <span class="o">=</span> <span class="b">Person</span>()
+xw.<span class="b">play_with_dog</span>(<span class="b">Dog</span>())   <span class="g"># 人和狗在玩耍...普通狗玩耍...</span>
+xw.<span class="b">play_with_dog</span>(<span class="b">XTQ</span>())   <span class="g"># 人和狗在玩耍...哮天犬在天上玩耍...</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p5">
+  <div class="pt-body">
+    <div class="pt-t">5. 【作业题 3】定义 <code class="inl">Person</code> 类：<code class="inl">name</code> 公有、<code class="inl">__age</code> 私有。提供 <code class="inl">get_age</code> 获取年龄、<code class="inl">set_age</code> 设置年龄（0~120 之间才生效）。重写 <code class="inl">__str__</code> 打印姓名和年龄。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Person</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, age):
+        self.name <span class="o">=</span> name        <span class="g"># 公有</span>
+        self.__age <span class="o">=</span> age       <span class="g"># 私有</span>
+
+    <span class="k">def</span> <span class="b">__str__</span>(self):
+        <span class="k">return</span> <span class="s">f'姓名: {self.name}, 年龄: {self.__age}'</span>
+
+    <span class="k">def</span> <span class="b">get_age</span>(self):
+        <span class="k">return</span> self.__age
+
+    <span class="k">def</span> <span class="b">set_age</span>(self, age):
+        <span class="k">if</span> <span class="n">0</span> <span class="o">&lt;=</span> age <span class="o">&lt;=</span> <span class="n">120</span>:
+            self.__age <span class="o">=</span> age
+        <span class="k">else</span>:
+            <span class="b">print</span>(<span class="s">'输入不正确'</span>)
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    xw <span class="o">=</span> <span class="b">Person</span>(<span class="s">'小王'</span>, <span class="n">18</span>)
+    <span class="b">print</span>(xw)            <span class="g"># 姓名: 小王, 年龄: 18</span>
+    <span class="b">print</span>(xw.<span class="b">get_age</span>())  <span class="g"># 18</span>
+
+    xw.<span class="b">set_age</span>(<span class="n">25</span>)
+    <span class="b">print</span>(xw)            <span class="g"># 姓名: 小王, 年龄: 25</span>
+
+    xw.<span class="b">set_age</span>(<span class="n">200</span>)        <span class="g"># 输入不正确</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p6">
+  <div class="pt-body">
+    <div class="pt-t">6. 定义 <code class="inl">Tool</code> 工具类：实例属性 <code class="inl">name</code>、类属性 <code class="inl">count</code> 记录创建对象的个数。每创建一个对象 count +1。使用类方法 <code class="inl">show_tool_count</code> 返回总数。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Tool</span>:
+    count <span class="o">=</span> <span class="n">0</span>    <span class="g"># 类属性</span>
+
+    <span class="k">def</span> <span class="b">__init__</span>(self, name):
+        self.name <span class="o">=</span> name
+        <span class="b">Tool</span>.count <span class="o">+=</span> <span class="n">1</span>
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="b">show_tool_count</span>(cls):
+        <span class="k">return</span> cls.count
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">print</span>(<span class="b">Tool</span>.<span class="b">show_tool_count</span>())   <span class="g"># 0</span>
+
+    t1 <span class="o">=</span> <span class="b">Tool</span>(<span class="s">'锤子'</span>)
+    t2 <span class="o">=</span> <span class="b">Tool</span>(<span class="s">'扳手'</span>)
+    <span class="b">print</span>(<span class="b">Tool</span>.<span class="b">show_tool_count</span>())   <span class="g"># 2</span>
+    <span class="b">print</span>(t1.<span class="b">show_tool_count</span>())      <span class="g"># 2（实例也能调）</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p7">
+  <div class="pt-body">
+    <div class="pt-t">7. 【作业代码题 · Game 案例】定义 <code class="inl">Game</code> 类：类属性 <code class="inl">top_score</code> 和 <code class="inl">top_score_player</code>。静态方法 <code class="inl">show_help</code>、类方法 <code class="inl">show_top_score</code>、实例方法 <code class="inl">start_game</code>（随机 10-100 分，超过最高分则更新）。主程序：小王、小李、小张各玩一局。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> random
+
+
+<span class="k">class</span> <span class="b">Game</span>:
+    top_score <span class="o">=</span> <span class="n">0</span>              <span class="g"># 历史最高分</span>
+    top_score_player <span class="o">=</span> <span class="s">''</span>      <span class="g"># 最高分玩家姓名</span>
+
+    <span class="k">def</span> <span class="b">__init__</span>(self, name):
+        self.player_name <span class="o">=</span> name
+
+    <span class="o">@staticmethod</span>
+    <span class="k">def</span> <span class="b">show_help</span>():
+        <span class="b">print</span>(<span class="s">'这是游戏的帮助信息'</span>)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="b">show_top_score</span>(cls):
+        <span class="b">print</span>(<span class="s">f'最高分: {cls.top_score}, 玩家: {cls.top_score_player}'</span>)
+
+    <span class="k">def</span> <span class="b">start_game</span>(self):
+        score <span class="o">=</span> random.<span class="b">randint</span>(<span class="n">10</span>, <span class="n">100</span>)
+        <span class="b">print</span>(<span class="s">f'玩家 {self.player_name} 本次得分: {score}'</span>)
+        <span class="k">if</span> score <span class="o">&gt;</span> <span class="b">Game</span>.top_score:
+            <span class="b">Game</span>.top_score <span class="o">=</span> score
+            <span class="b">Game</span>.top_score_player <span class="o">=</span> self.player_name
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">Game</span>.<span class="b">show_help</span>()              <span class="g"># 1. 查看帮助</span>
+    <span class="b">Game</span>.<span class="b">show_top_score</span>()         <span class="g"># 2. 查看最高分</span>
+
+    <span class="k">for</span> name <span class="k">in</span> [<span class="s">'小王'</span>, <span class="s">'小李'</span>, <span class="s">'小张'</span>]:
+        player <span class="o">=</span> <span class="b">Game</span>(name)
+        player.<span class="b">start_game</span>()
+        <span class="b">Game</span>.<span class="b">show_top_score</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p8">
+  <div class="pt-body">
+    <div class="pt-t">8. 【作业题 4】在 <code class="inl">test.txt</code> 文件中写入 "wow, so beautiful!"，然后读取文件内容并打印。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># 1. 写文件</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'test.txt'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    f.<span class="b">write</span>(<span class="s">'wow, so beautiful!'</span>)
+
+<span class="g"># 2. 读文件</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'test.txt'</span>, <span class="s">'r'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> f.<span class="b">read</span>()
+    <span class="b">print</span>(data)
+<span class="g"># 输出: wow, so beautiful!</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p9">
+  <div class="pt-body">
+    <div class="pt-t">9. 【作业题 5】向 <code class="inl">a.txt</code> 中写入 "张三,李四,王五,赵六"，然后读取文件内容，用字符串方法 <code class="inl">split</code> 切分，把每个名字存入列表 <code class="inl">my_list</code>，最后打印。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># 1. 写文件</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'a.txt'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    f.<span class="b">write</span>(<span class="s">'张三,李四,王五,赵六'</span>)
+
+<span class="g"># 2. 读文件并切分</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'a.txt'</span>, <span class="s">'r'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> f.<span class="b">read</span>()              <span class="g"># 字符串</span>
+    my_list <span class="o">=</span> data.<span class="b">split</span>(<span class="s">','</span>)   <span class="g"># 按逗号切分</span>
+    <span class="b">print</span>(my_list)
+<span class="g"># ['张三', '李四', '王五', '赵六']</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p10">
+  <div class="pt-body">
+    <div class="pt-t">10. 【作业题 6】向 <code class="inl">b.txt</code> 写入 "1,2,3,4,5,6,7"，然后读取文件内容，把这些数字相加求和并打印。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># 1. 写文件</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'b.txt'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    f.<span class="b">write</span>(<span class="s">'1,2,3,4,5,6,7'</span>)
+
+<span class="g"># 2. 读文件并求和</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'b.txt'</span>, <span class="s">'r'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> f.<span class="b">read</span>()              <span class="g"># '1,2,3,4,5,6,7'</span>
+    nums <span class="o">=</span> data.<span class="b">split</span>(<span class="s">','</span>)      <span class="g"># ['1','2',...]</span>
+
+    <span class="g"># 方法一：循环求和</span>
+    total <span class="o">=</span> <span class="n">0</span>
+    <span class="k">for</span> n <span class="k">in</span> nums:
+        total <span class="o">+=</span> <span class="b">int</span>(n)
+    <span class="b">print</span>(total)               <span class="g"># 28</span>
+
+    <span class="g"># 方法二（更简洁）: sum + 列表推导式</span>
+    <span class="g"># total = sum(int(n) for n in nums)</span></div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+
+</div><!-- /panel 2 -->
+
+<!-- ============ PANEL 3: 面试精讲 ============ -->
+<div class="pan" id="p3">
+
+<div class="sec">
+  <h2><span class="ico">1</span>面试高频题（12 题）</h2>
+  <p>点击题目展开详细解析。难度标签：<span class="iq-lv lv-b">基础</span> <span class="iq-lv lv-m">进阶</span> <span class="iq-lv lv-h">陷阱/场景</span></p>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">什么是继承？写出 Python 继承的语法。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>继承</b>描述类与类之间的 <code class="inl">is-a</code> 关系。子类继承父类后，自动拥有父类的所有公有属性和方法，无需重复编写。</p>
+    <p><b>语法：</b></p>
+<div class="term"><span class="k">class</span> <span class="p">子类</span>(<span class="p">父类</span>):
+    <span class="k">pass</span></div>
+    <p><b>好处：</b></p>
+    <ul>
+      <li>减少代码冗余，提高复用性</li>
+      <li>子类只需关注自己独特的部分</li>
+      <li>修改父类，所有子类同步更新</li>
+    </ul>
+    <p>注意：不写括号也是继承（默认继承 <code class="inl">object</code>），即 <code class="inl">class A:</code> 等价于 <code class="inl">class A(object):</code>。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">什么是方法重写？为什么要重写？重写后如何调用父类方法？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>什么是重写：</b>在子类中定义一个与父类同名的方法，覆盖父类的实现。</p>
+    <p><b>为什么重写：</b>父类的方法实现<b>不能满足子类对象的需求</b>，需要子类提供自己的实现。</p>
+    <p><b>两种方式：</b></p>
+    <ul>
+      <li><b>覆盖式重写</b>：父类功能全部不要，子类完全重新写。</li>
+      <li><b>扩展式重写</b>：父类功能还要保留，再加新功能，用 <code class="inl">super().方法名()</code> 调用父类方法。</li>
+    </ul>
+    <p><b>调用父类方法：</b></p>
+<div class="term"><span class="k">class</span> <span class="p">XTQ</span>(<span class="p">Dog</span>):
+    <span class="k">def</span> <span class="p">bark</span>(<span class="o">self</span>):
+        <span class="p">super</span>().<span class="p">bark</span>()      <span class="g"># 调用父类的 bark</span>
+        <span class="p">print</span>(<span class="s">'嗷嗷叫'</span>)</div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">什么是多态？多态有什么作用？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>多态：</b>不同的子类对象调用相同的方法，产生不同的执行结果。多态是一种<b>调用代码的技巧</b>，依赖于继承和方法重写。</p>
+    <p><b>三要素：</b></p>
+    <ol>
+      <li>继承（子类继承父类）</li>
+      <li>重写（子类重写父类方法）</li>
+      <li>父类引用指向子类对象（传参时传不同子类对象）</li>
+    </ol>
+    <p><b>作用：</b></p>
+    <ul>
+      <li><b>调用方代码不变</b>，能适配多种子类对象</li>
+      <li>新增子类时<b>不需要修改</b>原有代码（开闭原则）</li>
+      <li>提高代码的<b>可扩展性</b>和<b>可维护性</b></li>
+    </ul>
+    <p><b>测试场景：</b>基础测试类提供 <code class="inl">setUp/tearDown</code>，各种子类测试用例自动使用基类钩子，无需重复编写。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">公有属性和私有属性的区别？如何定义私有属性？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>区别：</b></p>
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比项</th><th>公有</th><th>私有</th></tr>
+      <tr><td>命名</td><td>普通名字</td><td>双下划线开头 <code class="inl">__age</code></td></tr>
+      <tr><td>类内</td><td>✅ 可访问</td><td>✅ 可访问</td></tr>
+      <tr><td>类外</td><td>✅ 可访问</td><td>❌ 不可直接访问</td></tr>
+      <tr><td>子类</td><td>✅ 可继承使用</td><td>❌ 不可直接使用</td></tr>
+    </table>
+    </div>
+    <p><b>定义方式：</b>在属性名或方法名前加<b>双下划线</b>，且<b>只能在类内部定义</b>。</p>
+    <p><b>应用场景：</b>需要保护的数据（如年龄、密码），通过公有的 setter 方法验证后才能修改。</p>
+    <p><b>注意：</b>Python 没有真正的私有，<code class="inl">__age</code> 实际改名成 <code class="inl">_Person__age</code>，类外仍可强行访问，但极不推荐。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">实例属性和类属性的区别？分别什么时候用？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比项</th><th>实例属性</th><th>类属性</th></tr>
+      <tr><td>定义位置</td><td><code class="inl">__init__</code> 中 <code class="inl">self.x = ...</code></td><td>类内方法外</td></tr>
+      <tr><td>归属</td><td>实例对象</td><td>类对象</td></tr>
+      <tr><td>内存</td><td>每个实例独立一份</td><td>整个类共享一份</td></tr>
+      <tr><td>访问</td><td><code class="inl">实例.属性</code></td><td><code class="inl">类名.属性</code>（推荐）</td></tr>
+    </table>
+    </div>
+    <p><b>什么时候用类属性：</b>当某个属性描述的是<b>整个类的特征</b>，所有实例共享，例如：</p>
+    <ul>
+      <li>统计创建了多少个对象（<code class="inl">count</code>）</li>
+      <li>游戏的历史最高分（<code class="inl">top_score</code>）</li>
+      <li>配置常量（如数据库连接字符串）</li>
+    </ul>
+    <p><b>大部分属性用实例属性</b>（self 定义），只有少数需要全局共享的才用类属性。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">实例方法、类方法、静态方法的区别？如何选择？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>类型</th><th>装饰器</th><th>首参</th><th>使用场景</th></tr>
+      <tr><td>实例方法</td><td>无</td><td><code class="inl">self</code></td><td>需要访问实例属性</td></tr>
+      <tr><td>类方法</td><td><code class="inl">@classmethod</code></td><td><code class="inl">cls</code></td><td>需要访问类属性，但不需要实例属性</td></tr>
+      <tr><td>静态方法</td><td><code class="inl">@staticmethod</code></td><td>无</td><td>都不需要，纯工具函数</td></tr>
+    </table>
+    </div>
+    <p><b>判断标准：</b>看方法体内用到了什么。</p>
+    <ul>
+      <li>用到 <code class="inl">self.xxx</code> → 实例方法</li>
+      <li>只用到 <code class="inl">cls.xxx</code>（类属性）→ 类方法</li>
+      <li>都不用 → 静态方法（纯辅助函数，放类里只是为了组织代码）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">描述 open() 函数的参数及其含义。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><code class="inl">open(file, mode='r', encoding=None)</code></p>
+    <ul>
+      <li><b>file</b>：要操作的文件路径，可以是<b>相对路径</b>（./、../）或<b>绝对路径</b>（C:/、/usr/...）</li>
+      <li><b>mode</b>：打开模式
+        <ul>
+          <li><code class="inl">'r'</code> — 只读（read），文件不存在会报错（默认）</li>
+          <li><code class="inl">'w'</code> — 只写（write），<b>会覆盖</b>原内容</li>
+          <li><code class="inl">'a'</code> — 追加（append），在末尾添加</li>
+        </ul>
+      </li>
+      <li><b>encoding</b>：编码格式
+        <ul>
+          <li><code class="inl">'utf-8'</code> — 常用，1 个汉字 = 3 字节</li>
+          <li><code class="inl">'gbk'</code> — 1 个汉字 = 2 字节</li>
+        </ul>
+      </li>
+    </ul>
+    <p><b>返回值：</b>文件对象，用于后续的读写操作。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">为什么推荐使用 with 语句操作文件？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><code class="inl">with open(...) as f:</code> 是 Python 操作文件的<b>最佳实践</b>。</p>
+    <p><b>优点：</b></p>
+    <ul>
+      <li><b>自动关闭</b>文件，不需要手动写 <code class="inl">f.close()</code></li>
+      <li>即使代码块中<b>发生异常</b>，也能保证文件被关闭</li>
+      <li>代码更<b>简洁清晰</b>，可读性强</li>
+    </ul>
+    <p><b>对比：</b></p>
+<div class="term"><span class="g"># ❌ 传统写法：异常时不会关闭文件</span>
+f <span class="o">=</span> <span class="p">open</span>(<span class="s">'a.txt'</span>)
+data <span class="o">=</span> f.<span class="p">read</span>()   <span class="g"># 这里如果报错，f 不会关闭</span>
+f.<span class="p">close</span>()
+
+<span class="g"># ✅ with 写法：自动关闭</span>
+<span class="k">with</span> <span class="p">open</span>(<span class="s">'a.txt'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> f.<span class="p">read</span>()
+<span class="g"># 出了 with 缩进，f 自动关闭</span></div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">下面代码会输出什么？为什么？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term"><span class="k">class</span> <span class="p">Tool</span>:
+    count <span class="o">=</span> <span class="n">0</span>
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name):
+        <span class="o">self</span>.name <span class="o">=</span> name
+        <span class="o">self</span>.count <span class="o">+=</span> <span class="n">1</span>   <span class="g"># 注意这行</span>
+
+t1 <span class="o">=</span> <span class="p">Tool</span>(<span class="s">'锤子'</span>)
+t2 <span class="o">=</span> <span class="p">Tool</span>(<span class="s">'扳手'</span>)
+<span class="p">print</span>(<span class="p">Tool</span>.count)   <span class="g"># ?</span>
+<span class="p">print</span>(t1.count)     <span class="g"># ?</span></div>
+    <p><b>答案：</b><code class="inl">Tool.count</code> 输出 <b>0</b>，<code class="inl">t1.count</code> 输出 <b>1</b>。</p>
+    <p><b>原因：</b><code class="inl">self.count += 1</code> 等价于 <code class="inl">self.count = self.count + 1</code>。第一次执行时，<code class="inl">self.count</code> 找不到实例属性，找到类属性 <code class="inl">Tool.count = 0</code>，<b>然后给实例自己创建了一个 count = 1</b>（不是修改类属性！）。</p>
+    <p><b>正确写法：</b>修改类属性必须用 <code class="inl">类名.属性</code>，即 <code class="inl">Tool.count += 1</code>。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">用 'w' 模式打开一个已有的重要文件，没写入任何内容就 close() 了，文件会怎样？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>答案：</b>文件内容会被<b>清空</b>。</p>
+    <p><b>原因：</b><code class="inl">'w'</code> 模式打开时<b>立即清空</b>原文件，不需要等 write() 调用。这是非常容易踩的坑！</p>
+<div class="term">f <span class="o">=</span> <span class="p">open</span>(<span class="s">'important.txt'</span>, <span class="s">'w'</span>)   <span class="g"># 这一行就清空了！</span>
+f.<span class="p">close</span>()                          <span class="g"># 关闭，文件已空</span></div>
+    <p><b>避坑技巧：</b></p>
+    <ul>
+      <li>读取用 <code class="inl">'r'</code>，追加用 <code class="inl">'a'</code></li>
+      <li>真的要覆盖前，先备份原文件</li>
+      <li>操作重要文件用 <code class="inl">'r+'</code> 或 <code class="inl">'x'</code>（独占创建，存在则报错）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">下面代码中，cat.eat() 会调用谁的 eat？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term"><span class="k">class</span> <span class="p">A</span>:
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'A.eat'</span>)
+
+<span class="k">class</span> <span class="p">B</span>(<span class="p">A</span>):
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'B.eat'</span>)
+
+<span class="k">class</span> <span class="p">C</span>(<span class="p">B</span>):
+    <span class="k">pass</span>
+
+c <span class="o">=</span> <span class="p">C</span>()
+c.<span class="p">eat</span>()</div>
+    <p><b>答案：</b>输出 <code class="inl">B.eat</code>。</p>
+    <p><b>查找顺序（MRO）：</b></p>
+    <ol>
+      <li>先在 C 中找 eat → 没找到</li>
+      <li>去父类 B 中找 → <b>找到</b>，使用 B.eat</li>
+      <li>不再继续往上找了</li>
+    </ol>
+    <p>Python 按 <code class="inl">C → B → A → object</code> 的顺序查找，找到就停。可以通过 <code class="inl">C.__mro__</code> 查看完整顺序。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">在自动化测试中，继承和多态如何应用？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>继承和多态在测试框架中无处不在：</p>
+    <ol>
+      <li><b>BasePage 基类</b>：把所有页面共有的方法（click、input、wait）封装在 <code class="inl">BasePage</code>，各页面类（<code class="inl">LoginPage</code>、<code class="inl">CartPage</code>）继承复用。</li>
+      <li><b>BaseTestCase 基类</b>：在 <code class="inl">unittest</code>、<code class="inl">pytest</code> 中，所有测试类继承基类的 <code class="inl">setUp</code>/<code class="inl">tearDown</code>，统一处理浏览器启动、数据准备。</li>
+      <li><b>多浏览器适配（多态）</b>：定义抽象 Driver 基类，<code class="inl">ChromeDriver</code>、<code class="inl">FirefoxDriver</code> 重写其方法。测试代码不变，传入不同浏览器对象即可。</li>
+      <li><b>API 测试封装</b>：基础 ApiClient 提供 get/post，业务 Api（如 UserApi）继承并添加业务方法。</li>
+      <li><b>断言扩展</b>：自定义断言类继承 <code class="inl">unittest.TestCase</code>，扩展业务断言方法。</li>
+    </ol>
+    <p>掌握继承和多态是从"会写脚本"进阶到"会做测试框架"的核心能力。</p>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+
+</div><!-- /panel 3 -->
+
+<!-- ============ PANEL 4: 测验 ============ -->
+<div class="pan" id="p4">
+
+<div class="sec">
+  <h2><span class="ico">1</span>知识测验（15 题）</h2>
+  <p>选择每题答案后，点击底部"提交答卷"查看成绩和解析。</p>
+</div>
+
+<div id="qr">
+  <h3>🎉 完成！</h3>
+  <div class="sc"><span id="sc-num">0</span> / 15</div>
+  <div id="sc-msg" style="font-size:13px;opacity:.92"></div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">1</span>下列关于继承的说法，正确的是？</div>
+  <div class="opt" data-v="A">A. 子类不能继承父类的私有属性</div>
+  <div class="opt" data-v="B">B. 子类继承父类后，自动拥有父类的公有属性和方法</div>
+  <div class="opt" data-v="C">C. Python 不支持多层继承</div>
+  <div class="opt" data-v="D">D. 继承会增加代码冗余</div>
+  <div class="qz-ex"><b>解析：</b>B 正确。继承的核心好处就是子类自动拥有父类的公有属性和方法。私有属性确实子类不能直接使用，但 A 选项措辞不全面。Python 支持多层继承（C 错）。继承<b>减少</b>冗余（D 错）。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">2</span>下面哪种写法不是合法的继承定义？</div>
+  <div class="opt" data-v="A">A. <code class="inl">class A(object): pass</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">class A(): pass</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">class A extends object: pass</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">class A: pass</code></div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">extends</code> 是 Java 的语法。Python 用<b>括号</b>表示继承：<code class="inl">class 子类(父类):</code>。A、B、D 都默认或显式继承 object，都是合法的。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">3</span>在子类中调用父类的同名方法应该用？</div>
+  <div class="opt" data-v="A">A. <code class="inl">self.方法名()</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">父类名.方法名(self)</code> ← 可以但不推荐</div>
+  <div class="opt" data-v="C">C. <code class="inl">parent.方法名()</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">super().方法名()</code></div>
+  <div class="qz-ex"><b>解析：</b>推荐使用 <code class="inl">super().方法名()</code>，这是 Python 标准的扩展式重写写法。B 写法也能调用父类方法但不推荐（多继承场景不灵活），<code class="inl">self.方法名()</code> 会调到子类自己（无限递归）。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">4</span>下面代码的输出是？<br>
+<code class="inl">class Dog:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;def bark(self): print('汪')</code><br>
+<code class="inl">class XTQ(Dog):</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;def bark(self):</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super().bark()</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print('嗷')</code><br>
+<code class="inl">XTQ().bark()</code></div>
+  <div class="opt" data-v="A">A. 汪 嗷（两行）</div>
+  <div class="opt" data-v="B">B. 嗷</div>
+  <div class="opt" data-v="C">C. 汪</div>
+  <div class="opt" data-v="D">D. 嗷 汪</div>
+  <div class="qz-ex"><b>解析：</b>这是<b>扩展式重写</b>：先 <code class="inl">super().bark()</code> 输出"汪"，再 <code class="inl">print('嗷')</code> 输出"嗷"。顺序很重要！</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">5</span>多态的核心特点是？</div>
+  <div class="opt" data-v="A">A. 一个类可以创建多个对象</div>
+  <div class="opt" data-v="B">B. 不同子类对象调用相同方法产生不同结果</div>
+  <div class="opt" data-v="C">C. 一个对象可以有多个方法</div>
+  <div class="opt" data-v="D">D. 一个变量可以指向多种类型</div>
+  <div class="qz-ex"><b>解析：</b>多态 = 不同的子类对象调用相同的方法名，但执行结果不同（因为各自重写了方法）。这是面向对象的核心特性，依赖继承和方法重写。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">6</span>下列哪个属性是私有属性？</div>
+  <div class="opt" data-v="A">A. <code class="inl">self.name</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">self._age</code>（单下划线）</div>
+  <div class="opt" data-v="C">C. <code class="inl">self.__age</code>（双下划线）</div>
+  <div class="opt" data-v="D">D. <code class="inl">self.__age__</code>（双下划线两端）</div>
+  <div class="qz-ex"><b>解析：</b>私有属性必须以<b>双下划线开头</b>且<b>不能以双下划线结尾</b>。<code class="inl">__age__</code> 是魔法方法格式。<code class="inl">_age</code>（单下划线）是"约定为内部使用"，但语法上还是公有的。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">7</span>下面代码的输出是？<br>
+<code class="inl">class P:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self):</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__x = 10</code><br>
+<code class="inl">p = P()</code><br>
+<code class="inl">print(p.__x)</code></div>
+  <div class="opt" data-v="A">A. 报错 AttributeError</div>
+  <div class="opt" data-v="B">B. 10</div>
+  <div class="opt" data-v="C">C. None</div>
+  <div class="opt" data-v="D">D. __x</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">__x</code> 是私有属性，类外不能用 <code class="inl">p.__x</code> 直接访问（实际它被改名成 <code class="inl">_P__x</code>）。会报 <code class="inl">AttributeError: 'P' object has no attribute '__x'</code>。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">8</span>类属性 <code class="inl">count = 0</code> 应该定义在？</div>
+  <div class="opt" data-v="A">A. <code class="inl">__init__</code> 方法内</div>
+  <div class="opt" data-v="B">B. 类内、方法外</div>
+  <div class="opt" data-v="C">C. 类外</div>
+  <div class="opt" data-v="D">D. 任意方法内</div>
+  <div class="qz-ex"><b>解析：</b>类属性定义在<b>类的内部、方法的外部</b>（class 缩进内、def 缩进外）。定义在 __init__ 等方法内的是实例属性。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">9</span>下面哪种是修改类属性 <code class="inl">count</code> 的正确方式？</div>
+  <div class="opt" data-v="A">A. <code class="inl">self.count = 5</code>（实例方法内）</div>
+  <div class="opt" data-v="B">B. <code class="inl">obj.count = 5</code>（类外）</div>
+  <div class="opt" data-v="C">C. <code class="inl">self.count += 1</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">类名.count = 5</code></div>
+  <div class="qz-ex"><b>解析：</b>修改类属性必须用 <code class="inl">类名.属性 = 值</code>。A、B、C 实际是给实例添加同名的<b>实例属性</b>，并不会修改类属性。这是非常常见的陷阱！</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">10</span>类方法需要哪个装饰器？方法第一个参数叫什么？</div>
+  <div class="opt" data-v="A">A. <code class="inl">@classmethod</code>，参数 <code class="inl">cls</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">@staticmethod</code>，参数 <code class="inl">cls</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">@classmethod</code>，参数 <code class="inl">self</code></div>
+  <div class="opt" data-v="D">D. 不需要装饰器，参数 <code class="inl">cls</code></div>
+  <div class="qz-ex"><b>解析：</b>类方法用 <code class="inl">@classmethod</code> 装饰，第一个参数约定为 <code class="inl">cls</code>，表示类对象本身。<code class="inl">cls</code> 和 <code class="inl">self</code> 都是 Python 自动传递的，不用手动传。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">11</span>下列哪种情况应该使用静态方法？</div>
+  <div class="opt" data-v="A">A. 需要访问 self.name</div>
+  <div class="opt" data-v="B">B. 需要修改类属性</div>
+  <div class="opt" data-v="C">C. 既不需要实例属性也不需要类属性</div>
+  <div class="opt" data-v="D">D. 需要返回一个对象</div>
+  <div class="qz-ex"><b>解析：</b>静态方法 <code class="inl">@staticmethod</code> 适用于方法体内既不需要 self（实例属性）也不需要 cls（类属性）的情况，本质是个工具函数，放在类里只为组织代码。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">12</span>用 <code class="inl">'w'</code> 模式打开一个已存在的文件会发生什么？</div>
+  <div class="opt" data-v="A">A. 报错</div>
+  <div class="opt" data-v="B">B. 原文件内容立即被清空</div>
+  <div class="opt" data-v="C">C. 在原内容后追加</div>
+  <div class="opt" data-v="D">D. 必须执行 write 后才会清空</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">'w'</code> 模式打开文件时<b>立即清空</b>原内容，<b>不需要等到 write()</b> 调用。这是非常容易踩的坑！如果要保留原内容，请用 <code class="inl">'a'</code>（追加）。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">13</span>下面代码 <code class="inl">open('a.txt')</code> 等价于哪个？</div>
+  <div class="opt" data-v="A">A. <code class="inl">open('a.txt', 'r')</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">open('a.txt', 'w')</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">open('a.txt', 'a')</code></div>
+  <div class="opt" data-v="D">D. 报错，必须指定模式</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">open()</code> 的 mode 参数<b>默认值是 <code class="inl">'r'</code></b>（只读）。所以 <code class="inl">open('a.txt')</code> 等价于 <code class="inl">open('a.txt', 'r')</code>。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">14</span>使用 with 语句操作文件的优点是？</div>
+  <div class="opt" data-v="A">A. 写入速度更快</div>
+  <div class="opt" data-v="B">B. 支持中文编码</div>
+  <div class="opt" data-v="C">C. 自动关闭文件，即使发生异常也能保证</div>
+  <div class="opt" data-v="D">D. 可以省略 encoding 参数</div>
+  <div class="qz-ex"><b>解析：</b>with 语句的核心优点是<b>自动资源管理</b>：出了 with 缩进，文件自动关闭。即使代码块中发生异常，也能保证文件被正确关闭，避免资源泄露。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">15</span>读取 <code class="inl">a.txt</code>（内容：<code class="inl">1,2,3</code>），下列哪段代码可以求和得到 6？</div>
+  <div class="opt" data-v="A">A. <code class="inl">sum(open('a.txt').read())</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">open('a.txt').read().sum()</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">sum(open('a.txt').read().split(','))</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">sum(int(x) for x in open('a.txt').read().split(','))</code></div>
+  <div class="qz-ex"><b>解析：</b>read() 返回字符串 <code class="inl">'1,2,3'</code>，需要 split 切分成 <code class="inl">['1','2','3']</code>，再把每个元素转 int 才能求和。A 会把每个字符（包括逗号）当成元素；B 字符串没有 sum 方法；C 字符串不能直接 sum；只有 D 正确：把切分后的每个字符串转为 int 再求和。</div>
+</div>
+
+<button class="qbtn" onclick="sub()">提交答卷</button>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+
+</div><!-- /panel 4 -->
+
+</div><!-- /wrap -->
+
+<script>
+// ============ Navigation ============
+const pans = document.querySelectorAll('.pan');
+const tabs = document.querySelectorAll('.t');
+const dots = document.getElementById('dots');
+
+for(let i=0; i<pans.length; i++){
+  const d = document.createElement('span');
+  d.className = 'dot' + (i===0?' a':'');
+  d.onclick = ()=> go(i);
+  dots.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=> t.classList.toggle('a', k===i));
+  pans.forEach((p,k)=> p.classList.toggle('a', k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=> d.classList.toggle('a', k===i));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+tabs.forEach((t,i)=>{
+  t.onclick = ()=> go(i);
+});
+
+// ============ Practice: toggle answer ============
+function tr(el){
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent = ans.classList.contains('s') ? '隐藏答案 ›' : '查看答案 ›';
+}
+
+// ============ Interview accordion ============
+function tq(hdr){
+  const iq = hdr.parentElement;
+  iq.classList.toggle('o');
+}
+
+// ============ Practice progress ============
+const cbs = document.querySelectorAll('.ci');
+function upc(){
+  const done = document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent = done;
+  cbs.forEach(cb=>{
+    cb.closest('.pt').classList.toggle('done', cb.checked);
+  });
+  if(done === 10){
+    document.querySelectorAll('.dot')[2].classList.add('d');
+  } else {
+    document.querySelectorAll('.dot')[2].classList.remove('d');
+  }
+}
+cbs.forEach(cb=> cb.onchange = upc);
+upc();
+
+function mc(){
+  cbs.forEach(cb=> cb.checked = true);
+  upc();
+}
+
+// ============ Quiz ============
+document.querySelectorAll('.qz').forEach(qz=>{
+  qz.querySelectorAll('.opt').forEach(opt=>{
+    opt.onclick = ()=>{
+      if(qz.classList.contains('locked')) return;
+      qz.querySelectorAll('.opt').forEach(o=> o.classList.remove('sel'));
+      opt.classList.add('sel');
+    };
+  });
+});
+
+function sub(){
+  const qzs = document.querySelectorAll('.qz');
+  let score = 0;
+  qzs.forEach(qz=>{
+    qz.classList.add('locked');
+    const ans = qz.dataset.a;
+    const sel = qz.querySelector('.opt.sel');
+    qz.querySelectorAll('.opt').forEach(opt=>{
+      opt.classList.remove('sel');
+      if(opt.dataset.v === ans){
+        opt.classList.add('ok');
+      }
+      if(sel && opt === sel && sel.dataset.v !== ans){
+        opt.classList.add('no');
+      }
+    });
+    if(sel && sel.dataset.v === ans){
+      score++;
+    }
+    qz.querySelector('.qz-ex').classList.add('s');
+  });
+  
+  document.getElementById('sc-num').textContent = score;
+  let msg = '';
+  if(score === 15) msg = '满分！继承、多态和文件操作都掌握得非常扎实！🎉';
+  else if(score >= 12) msg = '很棒！面向对象的进阶概念已经掌握了！💪';
+  else if(score >= 9) msg = '还不错！请复习一下错题的解析～📖';
+  else if(score >= 6) msg = '继续努力！建议回到知识讲解重新学习。📚';
+  else msg = '别灰心！继承和多态需要多练习，再来一次吧。💡';
+  document.getElementById('sc-msg').textContent = msg;
+  
+  const qr = document.getElementById('qr');
+  qr.classList.add('s');
+  qr.scrollIntoView({behavior:'smooth', block:'start'});
+  
+  document.querySelectorAll('.dot')[4].classList.add('d');
+  
+  try{
+    window.parent.postMessage({
+      type:'qa_quiz_result',
+      score: score,
+      total: 15,
+      day: 's4d7'
+    }, '*');
+  } catch(e){}
+}
+</script>
+</body>
+</html>

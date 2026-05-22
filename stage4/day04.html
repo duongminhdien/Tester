@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 4 · Python基础 Day 04 – 函数 / 模块 / 包</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#059669;--day-d:#047857;--day-bg:rgba(5,150,105,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--code-bg:#1e2030;--code-ink:#a6accd;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+html,body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(5,150,105,.25)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(5,150,105,.3)}
+
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{margin-bottom:10px;color:var(--ink2);line-height:1.75}
+.sec ul,.sec ol{padding-left:18px;color:var(--ink2);margin-bottom:10px}
+.sec li{margin-bottom:5px;line-height:1.7}
+
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.8}
+.term .k{color:#c792ea}
+.term .s{color:#ffcb6b}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .n{color:#f78c6c}
+.term .g{color:#676e95;font-style:italic}
+.term .w{color:#fff;font-weight:600}
+.term .p{color:#82aaff}
+.term .r{color:#f07178}
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:380px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:13px;color:var(--ink2);line-height:1.65}
+
+/* Syntax box */
+.syn{background:linear-gradient(135deg,var(--day-bg),rgba(5,150,105,.03));border:1.5px dashed var(--day);border-radius:10px;padding:14px;margin:12px 0}
+.syn-title{font-size:11px;font-weight:700;color:var(--day-d);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+
+/* Flow arrow */
+.flow-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.fb{padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;font-family:'Space Mono',monospace;text-align:center;border:2px solid}
+.fb-def{background:var(--day-bg);color:var(--day-d);border-color:var(--day)}
+.fb-call{background:#dbeafe;color:#1d4ed8;border-color:#3b82f6}
+.fb-ret{background:#fef3c7;color:#92400e;border-color:#d97706}
+.arr{color:var(--muted);font-size:18px;font-weight:700}
+
+/* Vis */
+.vis-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.vis-card h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day)}
+
+/* Practice */
+.prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.prog-bar{flex:1;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--day),var(--day-d));border-radius:99px;transition:width .4s}
+.prog-txt{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--day-d);min-width:40px;text-align:right}
+.mc-btn{padding:7px 14px;background:var(--day-bg);color:var(--day-d);border:1.5px solid var(--day);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;white-space:nowrap}
+.mc-btn:hover{background:var(--day);color:#fff}
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border);margin-top:6px}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;padding:10px 12px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:6px;line-height:1.8;overflow-x:auto}
+.pt-ans.s{display:block}
+.pt-tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;background:var(--day-bg);color:var(--day-d);margin-left:6px;vertical-align:middle}
+
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:block;width:100%;padding:13px;background:var(--day);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin:20px 0 10px;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:var(--day-d)}
+#qres{display:none;background:var(--card);border:2px solid var(--day);border-radius:14px;padding:22px;text-align:center;margin-top:16px}
+#qres.s{display:block}
+#qscore{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--day);display:block;margin-bottom:6px}
+#qmsg{font-size:14px;color:var(--ink2)}
+
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* keyword tag */
+.kw{display:inline-block;background:var(--day);color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin:1px}
+.kw-b{background:var(--blue)}
+.kw-a{background:var(--amber);color:#fff}
+
+/* file tree */
+.ftree{background:#1e2030;color:#a6accd;font-family:'Space Mono',monospace;font-size:12.5px;padding:14px 16px;border-radius:8px;margin:10px 0;line-height:2}
+.ftree .fd{color:#82aaff}
+.ftree .fm{color:#c3e88d}
+.ftree .fi{color:#676e95;font-style:italic}
+
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .pnav button{font-size:12px;padding:9px 12px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .flow-h{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · PYTHON基础 DAY 04</div>
+  <h1>函数 / 模块 / 包</h1>
+  <p>掌握 Python 函数的定义与调用、参数与返回值、嵌套调用；理解 in 操作符与集合去重；学会用模块和包组织代码；结合 TPShop 登录功能综合实战。</p>
+  <div class="hd-stats">
+    <div><b>5</b>大知识块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- Section 1: in 操作符 & 集合 -->
+  <div class="sec">
+    <h2><span class="ico">1</span>in 操作符 & 集合 set</h2>
+
+    <h3>in 操作符</h3>
+    <p><code class="inl">in</code> 是 Python 关键字，用于判断容器中是否包含某个数据，返回 <code class="inl">True</code> 或 <code class="inl">False</code>。对字典使用时，判断的是 <b>键</b> 是否存在。</p>
+    <div class="term">
+<span class="g"># 语法：数据 in 容器</span>
+<span class="p">print</span>(<span class="s">'a'</span> <span class="k">in</span> <span class="s">'abcd'</span>)         <span class="g"># True</span>
+<span class="p">print</span>(<span class="n">3</span>  <span class="k">in</span> [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>])        <span class="g"># True</span>
+<span class="p">print</span>(<span class="s">'x'</span> <span class="k">in</span> [<span class="s">'a'</span>, <span class="s">'b'</span>])       <span class="g"># False</span>
+<span class="p">print</span>(<span class="s">'name'</span> <span class="k">in</span> {<span class="s">'name'</span>: <span class="s">'小明'</span>}) <span class="g"># True（字典判断键）</span>
+
+<span class="g"># not in：判断不包含</span>
+<span class="p">print</span>(<span class="s">'z'</span> <span class="k">not in</span> <span class="s">'abcd'</span>)      <span class="g"># True</span>
+    </div>
+
+    <h3>集合 set（了解）</h3>
+    <p>集合用 <code class="inl">{数据, 数据, ...}</code> 表示，<b>数据不能重复</b>。最常见用途：对列表进行 <b>去重</b>。</p>
+    <div class="term">
+my_list <span class="o">=</span> [<span class="n">1</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">2</span>, <span class="n">5</span>, <span class="n">2</span>, <span class="n">4</span>, <span class="n">13</span>]
+
+<span class="g"># 方式一：list → set → list（去重，但顺序不保证）</span>
+list1 <span class="o">=</span> <span class="p">list</span>(<span class="p">set</span>(my_list))
+<span class="p">print</span>(list1)   <span class="g"># [1, 2, 4, 5, 13]（顺序不固定）</span>
+
+<span class="g"># 方式二：手动去重（保持原顺序）</span>
+new_list <span class="o">=</span> []
+<span class="k">for</span> i <span class="k">in</span> my_list<span class="o">:</span>
+    <span class="k">if</span> i <span class="k">not in</span> new_list<span class="o">:</span>   <span class="g"># 不存在才添加</span>
+        new_list.<span class="p">append</span>(i)
+<span class="p">print</span>(new_list)  <span class="g"># [1, 2, 5, 4, 13]（保持原顺序）</span>
+    </div>
+  </div>
+
+  <!-- Section 2: 函数定义与调用 -->
+  <div class="sec">
+    <h2><span class="ico">2</span>函数的定义与调用</h2>
+    <p>函数将多行代码封装起来并命名，在需要时通过名字调用。好处：<b>减少代码冗余，提高编程效率</b>。函数必须 <b>先定义，后调用</b>。</p>
+
+    <div class="syn">
+      <div class="syn-title">基本语法</div>
+      <div class="term">
+<span class="g"># 定义函数</span>
+<span class="k">def</span> <span class="p">函数名</span>()<span class="o">:</span>
+    <span class="s">"""文档注释（可选，说明函数作用）"""</span>
+    函数中的代码
+    函数中的代码
+
+<span class="g"># 调用函数</span>
+函数名()
+      </div>
+    </div>
+
+    <div class="box info">
+      <b>📌 语法要点：</b><br>
+      1. <code class="inl">def</code> 是关键字（define），函数名满足标识符规则（见名知意）<br>
+      2. <code class="inl">def</code> 这行末尾需要 <b>冒号</b>，函数体需要 <b>缩进</b><br>
+      3. 函数定义 <b>不执行</b> 函数中的代码，只有调用才执行<br>
+      4. PEP 8 规范：函数定义前后各留 <b>两个空行</b>
+    </div>
+
+    <div class="term">
+<span class="g"># 定义打招呼函数</span>
+<span class="k">def</span> <span class="p">say_hello</span>()<span class="o">:</span>
+    <span class="s">"""打印三行问候"""</span>
+    <span class="p">print</span>(<span class="s">'hello 1'</span>)
+    <span class="p">print</span>(<span class="s">'hello 2'</span>)
+    <span class="p">print</span>(<span class="s">'hello 3'</span>)
+
+
+<span class="g"># 调用两次 → 代码只写一次</span>
+<span class="p">say_hello</span>()
+<span class="p">say_hello</span>()
+    </div>
+
+    <h3>定义函数的小技巧</h3>
+    <div class="g3">
+      <div class="card"><h4><span class="num">1</span>先写代码</h4><p>不用函数，把多行代码直接写完，测试通过。</p></div>
+      <div class="card"><h4><span class="num">2</span>加 def 起名</h4><p>在多行代码上方写 <code class="inl">def 函数名():</code>。</p></div>
+      <div class="card"><h4><span class="num">3</span>Tab 缩进</h4><p>用 Tab 键将多行代码缩进到函数体中。</p></div>
+    </div>
+  </div>
+
+  <!-- Section 3: 参数与返回值 -->
+  <div class="sec">
+    <h2><span class="ico">3</span>参数 & 返回值</h2>
+
+    <h3>参数（形参 & 实参）</h3>
+    <p>参数让函数更通用——函数中的数据值不是固定的，而是调用时传入的。</p>
+    <div class="tw">
+      <table>
+        <tr><th>概念</th><th>说明</th><th>位置</th></tr>
+        <tr><td><b>形参</b>（形式参数）</td><td>函数定义时括号中的变量</td><td><code class="inl">def add(a, b)</code> 中的 a, b</td></tr>
+        <tr><td><b>实参</b>（实际参数）</td><td>调用时传入的具体数据值</td><td><code class="inl">add(10, 20)</code> 中的 10, 20</td></tr>
+      </table>
+    </div>
+    <div class="term">
+<span class="k">def</span> <span class="p">add_2_num</span>(a, b)<span class="o">:</span>   <span class="g"># a, b 是形参</span>
+    <span class="k">return</span> a <span class="o">+</span> b
+
+result <span class="o">=</span> <span class="p">add_2_num</span>(<span class="n">10</span>, <span class="n">20</span>)  <span class="g"># 10, 20 是实参</span>
+<span class="p">print</span>(result)   <span class="g"># 30</span>
+
+<span class="k">def</span> <span class="p">add_3_num</span>(a, b, c)<span class="o">:</span>
+    <span class="k">return</span> a <span class="o">+</span> b <span class="o">+</span> c
+
+<span class="p">print</span>(<span class="p">add_3_num</span>(<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>))   <span class="g"># 6</span>
+    </div>
+    <div class="box warn"><b>⚠️ 注意：</b>有几个形参，调用时就必须传几个实参，数量不匹配会报 TypeError。</div>
+
+    <h3>返回值 return</h3>
+    <div class="term">
+<span class="g"># return 的两个作用：</span>
+<span class="g"># 1. 将数据值返回到调用的地方</span>
+<span class="g"># 2. 立即结束函数的执行（return 后的代码不会执行）</span>
+
+<span class="k">def</span> <span class="p">get_max</span>(a, b)<span class="o">:</span>
+    <span class="s">"""返回两个数中的较大值"""</span>
+    <span class="k">if</span> a <span class="o">></span> b<span class="o">:</span>
+        <span class="k">return</span> a    <span class="g"># 遇到 return，函数结束</span>
+    <span class="k">else</span><span class="o">:</span>
+        <span class="k">return</span> b
+    <span class="p">print</span>(<span class="s">'我永远不会执行'</span>)  <span class="g"># ❌ return 后不执行</span>
+
+num <span class="o">=</span> <span class="p">get_max</span>(<span class="n">10</span>, <span class="n">20</span>)
+<span class="p">print</span>(num)   <span class="g"># 20</span>
+
+<span class="g"># 没有 return 的函数，返回值是 None</span>
+<span class="k">def</span> <span class="p">no_return</span>()<span class="o">:</span>
+    <span class="p">print</span>(<span class="s">'我没有return'</span>)
+
+result <span class="o">=</span> <span class="p">no_return</span>()
+<span class="p">print</span>(result)   <span class="g"># None</span>
+    </div>
+
+    <h3>函数嵌套调用</h3>
+    <p>在一个函数中调用另一个函数。执行顺序：<b>代码从上到下执行，调用时进入被调函数，执行完后回到调用处继续向下执行</b>。</p>
+    <div class="term">
+<span class="k">def</span> <span class="p">input_username</span>()<span class="o">:</span>
+    <span class="k">return</span> <span class="p">input</span>(<span class="s">'请输入用户名:'</span>)
+
+<span class="k">def</span> <span class="p">input_password</span>()<span class="o">:</span>
+    <span class="k">return</span> <span class="p">input</span>(<span class="s">'请输入密码:'</span>)
+
+<span class="k">def</span> <span class="p">login</span>()<span class="o">:</span>
+    <span class="s">"""登录函数 — 嵌套调用"""</span>
+    <span class="k">if</span> <span class="p">input_username</span>() <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> <span class="p">input_password</span>() <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'登录成功'</span>)
+    <span class="k">else</span><span class="o">:</span>
+        <span class="p">print</span>(<span class="s">'用户名或密码错误'</span>)
+
+<span class="p">login</span>()
+    </div>
+  </div>
+
+  <!-- Section 4: 模块 -->
+  <div class="sec">
+    <h2><span class="ico">4</span>模块（Module）</h2>
+    <p>Python 中每个代码文件都是一个 <b>模块</b>。模块中别人写好的变量、函数、类，可以导入后直接使用。自己写的模块文件名要满足标识符规则。</p>
+
+    <h3>两种导入方式</h3>
+    <div class="g2">
+      <div>
+        <p style="font-weight:700;color:var(--ink);margin-bottom:6px">方式一：<span class="kw">import 模块名</span></p>
+        <div class="term" style="font-size:12px">
+<span class="k">import</span> random
+
+<span class="g"># 使用：模块名.功能名</span>
+num <span class="o">=</span> random<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">10</span>)
+<span class="p">print</span>(num)
+
+<span class="g"># 用 as 起别名</span>
+<span class="k">import</span> random <span class="k">as</span> r
+num <span class="o">=</span> r<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">10</span>)
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">多用于导入系统模块</p>
+      </div>
+      <div>
+        <p style="font-weight:700;color:var(--ink);margin-bottom:6px">方式二：<span class="kw">from 模块名 import 功能名</span></p>
+        <div class="term" style="font-size:12px">
+<span class="k">from</span> random <span class="k">import</span> randint
+
+<span class="g"># 直接使用功能名，不用加模块名</span>
+num <span class="o">=</span> <span class="p">randint</span>(<span class="n">1</span>, <span class="n">10</span>)
+<span class="p">print</span>(num)
+
+<span class="g"># 导入自定义模块</span>
+<span class="k">from</span> tools <span class="k">import</span> add_2_num
+<span class="p">print</span>(<span class="p">add_2_num</span>(<span class="n">10</span>, <span class="n">20</span>))
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:6px">多用于导入自定义或第三方模块</p>
+      </div>
+    </div>
+
+    <h3>__name__ 变量</h3>
+    <p>导入模块时会执行模块中的代码。用 <code class="inl">__name__</code> 可以避免测试代码被意外执行。</p>
+    <div class="term">
+<span class="g"># 直接运行时：__name__ == '__main__'</span>
+<span class="g"># 被导入时：  __name__ == '模块名'（文件名）</span>
+
+<span class="g"># tools.py 中的写法：</span>
+<span class="k">def</span> <span class="p">add_2_num</span>(a, b)<span class="o">:</span>
+    <span class="k">return</span> a <span class="o">+</span> b
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span><span class="o">:</span>
+    <span class="g"># 这里的代码只有直接运行时才执行，导入时不执行</span>
+    <span class="p">print</span>(<span class="p">add_2_num</span>(<span class="n">10</span>, <span class="n">20</span>))
+    </div>
+
+    <div class="box info"><b>📌 导入顺序：</b>① 先在当前目录查找 → ② 再查找 Python 系统目录 → ③ 找不到则报错。<br><b>注意：</b>自定义文件名不要与系统模块同名（如不要命名为 random.py）。</div>
+  </div>
+
+  <!-- Section 5: 包 -->
+  <div class="sec">
+    <h2><span class="ico">5</span>包（Package）</h2>
+    <p>包是将多个模块放在一个目录中集中管理，并在目录中创建 <code class="inl">__init__.py</code> 文件（可以为空）。</p>
+
+    <div class="g2">
+      <div>
+        <h3>包的结构</h3>
+        <div class="ftree">
+<span class="fd">my_project/</span>
+├── <span class="fd">service/</span>            <span class="fi"># 包（有__init__.py）</span>
+│   ├── <span class="fm">__init__.py</span>
+│   └── <span class="fm">login_service.py</span>
+├── <span class="fd">script/</span>             <span class="fi"># 包</span>
+│   ├── <span class="fm">__init__.py</span>
+│   └── <span class="fm">test_login.py</span>
+└── <span class="fm">tools.py</span>            <span class="fi"># 普通模块</span>
+        </div>
+      </div>
+      <div>
+        <h3>三种导入方式</h3>
+        <div class="term" style="font-size:12px">
+<span class="g"># 方式一</span>
+<span class="k">import</span> service.login_service
+service.login_service.<span class="p">login</span>()
+
+<span class="g"># 方式二</span>
+<span class="k">from</span> service <span class="k">import</span> login_service
+login_service.<span class="p">login</span>()
+
+<span class="g"># 方式三（推荐，快捷键 Alt+回车）</span>
+<span class="k">from</span> service.login_service <span class="k">import</span> login
+<span class="p">login</span>()   <span class="g"># 直接使用函数名</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>综合案例 — TPShop 登录功能模块化</h3>
+    <div class="term">
+<span class="g"># ===== login_service.py（开发功能）=====</span>
+<span class="k">def</span> <span class="p">login</span>(username, password, verify_code)<span class="o">:</span>
+    <span class="s">"""模拟登录验证，返回验证结果字符串"""</span>
+    <span class="k">if</span> verify_code <span class="o">!=</span> <span class="s">'8888'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="s">'验证码错误'</span>
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="s">'登录成功'</span>
+    <span class="k">return</span> <span class="s">'用户名或密码错误'</span>
+
+
+<span class="g"># ===== test_login.py（测试代码）=====</span>
+<span class="k">from</span> service.login_service <span class="k">import</span> login
+
+test_cases <span class="o">=</span> [
+    (<span class="s">'admin'</span>,  <span class="s">'123456'</span>, <span class="s">'8888'</span>, <span class="s">'登录成功'</span>),
+    (<span class="s">'admin'</span>,  <span class="s">'wrong'</span>,  <span class="s">'8888'</span>, <span class="s">'用户名或密码错误'</span>),
+    (<span class="s">'admin'</span>,  <span class="s">'123456'</span>, <span class="s">'0000'</span>, <span class="s">'验证码错误'</span>),
+]
+
+<span class="k">for</span> u, p, c, expect <span class="k">in</span> test_cases<span class="o">:</span>
+    result <span class="o">=</span> <span class="p">login</span>(u, p, c)
+    status <span class="o">=</span> <span class="s">'✅'</span> <span class="k">if</span> result <span class="o">==</span> expect <span class="k">else</span> <span class="s">'❌'</span>
+    <span class="p">print</span>(<span class="s">f'{status} 期望:{expect}  实际:{result}'</span>)
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <!-- 函数完整生命周期 -->
+  <div class="vis-card">
+    <h2>🔄 函数执行流程：定义 → 调用 → 返回</h2>
+    <div class="flow-h">
+      <div class="fb fb-def">① def 定义<br><span style="font-size:11px;font-weight:400">只登记，不执行</span></div>
+      <div class="arr">→</div>
+      <div class="fb fb-call">② 调用函数名()<br><span style="font-size:11px;font-weight:400">进入函数体执行</span></div>
+      <div class="arr">→</div>
+      <div class="fb fb-ret">③ return 值<br><span style="font-size:11px;font-weight:400">结果返回调用处</span></div>
+      <div class="arr">→</div>
+      <div class="fb" style="background:#f1f5f9;color:var(--ink2);border-color:var(--border)">④ 继续向下执行<br><span style="font-size:11px;font-weight:400">调用处后续代码</span></div>
+    </div>
+    <div class="term" style="margin-top:12px">
+<span class="k">def</span> <span class="p">get_max</span>(a, b)<span class="o">:</span>   <span class="g"># ① 定义（不执行）</span>
+    <span class="k">if</span> a <span class="o">></span> b<span class="o">:</span> <span class="k">return</span> a
+    <span class="k">else</span><span class="o">:</span> <span class="k">return</span> b
+
+<span class="n">5</span>               <span class="g"># 先执行这行</span>
+num <span class="o">=</span> <span class="p">get_max</span>(<span class="n">10</span>, <span class="n">20</span>)  <span class="g"># ② 调用 → 进入函数 → return 20</span>
+<span class="p">print</span>(num)      <span class="g"># ④ 打印 20，继续向下</span>
+<span class="n">6</span>               <span class="g"># 继续执行</span>
+    </div>
+  </div>
+
+  <!-- 嵌套调用执行顺序 -->
+  <div class="vis-card">
+    <h2>🔀 嵌套调用执行顺序</h2>
+    <div class="term">
+<span class="k">def</span> <span class="p">test01</span>()<span class="o">:</span>
+    <span class="p">print</span>(<span class="n">1</span>)       <span class="g"># ③</span>
+    <span class="p">print</span>(<span class="s">'func01'</span>) <span class="g"># ④</span>
+    <span class="p">print</span>(<span class="n">2</span>)       <span class="g"># ⑤</span>
+
+<span class="k">def</span> <span class="p">test02</span>()<span class="o">:</span>
+    <span class="p">print</span>(<span class="n">3</span>)       <span class="g"># ②</span>
+    <span class="p">print</span>(<span class="s">'func2'</span>) <span class="g"># ③ (进test01前)</span>
+    <span class="p">test01</span>()       <span class="g"># → 进入 test01</span>
+    <span class="p">print</span>(<span class="n">4</span>)       <span class="g"># ⑥（test01执行完回来）</span>
+
+<span class="p">print</span>(<span class="n">5</span>)         <span class="g"># ① 最先执行</span>
+<span class="p">test02</span>()         <span class="g"># → 进入 test02</span>
+<span class="p">print</span>(<span class="n">6</span>)         <span class="g"># ⑦ 最后执行</span>
+<span class="g"># 输出顺序：5  3  func2  1  func01  2  4  6</span>
+    </div>
+  </div>
+
+  <!-- import 两种方式对比 -->
+  <div class="vis-card">
+    <h2>📦 两种导入方式对比</h2>
+    <div class="tw">
+      <table>
+        <tr><th>方式</th><th>语法</th><th>使用时</th><th>适用场景</th></tr>
+        <tr><td>方式一</td><td><code class="inl">import 模块名</code></td><td><code class="inl">模块名.功能()</code></td><td>系统内置模块（random, os…）</td></tr>
+        <tr><td>方式二</td><td><code class="inl">from 模块 import 功能</code></td><td><code class="inl">功能()</code> 直接用</td><td>自定义模块 / 第三方库</td></tr>
+        <tr><td>方式三（包）</td><td><code class="inl">from 包.模块 import 功能</code></td><td><code class="inl">功能()</code> 直接用</td><td>包内模块的具体功能</td></tr>
+      </table>
+    </div>
+    <div class="box tip"><b>💡 __name__ 保护：</b>在模块中把测试代码放在 <code class="inl">if __name__ == '__main__':</code> 中，导入时不会被意外执行。</div>
+  </div>
+
+  <!-- in 操作符 vs 去重方法 -->
+  <div class="vis-card">
+    <h2>🔍 列表去重：set 转换 vs 手动 in 判断</h2>
+    <div class="g2">
+      <div style="background:#f0fdf4;border:1.5px solid var(--green);border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:13px">✅ set 转换（简单快速）</div>
+        <div class="term" style="font-size:12px">
+lst <span class="o">=</span> [<span class="n">1</span>,<span class="n">2</span>,<span class="n">1</span>,<span class="n">3</span>,<span class="n">2</span>]
+result <span class="o">=</span> <span class="p">list</span>(<span class="p">set</span>(lst))
+<span class="p">print</span>(result)   <span class="g"># [1,2,3]</span>
+<span class="g"># ⚠️ 顺序不保证</span>
+        </div>
+      </div>
+      <div style="background:#eff6ff;border:1.5px solid #3b82f6;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#1d4ed8;margin-bottom:8px;font-size:13px">✅ in 手动去重（保持顺序）</div>
+        <div class="term" style="font-size:12px">
+lst <span class="o">=</span> [<span class="n">1</span>,<span class="n">2</span>,<span class="n">1</span>,<span class="n">3</span>,<span class="n">2</span>]
+new <span class="o">=</span> []
+<span class="k">for</span> i <span class="k">in</span> lst<span class="o">:</span>
+    <span class="k">if</span> i <span class="k">not in</span> new<span class="o">:</span>
+        new.<span class="p">append</span>(i)
+<span class="g"># [1,2,3] 顺序保持</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 实战练习 ===== -->
+<div class="pan">
+
+  <div class="prog-wrap">
+    <span style="font-size:13px;font-weight:600;color:var(--ink2)">完成进度</span>
+    <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+    <span class="prog-txt"><span id="pc">0</span>/10</span>
+    <button class="mc-btn" onclick="mc()">全部完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p1">
+    <div class="pt-body">
+      <div class="pt-t">1. 定义 tools.py 模块：add_2_num(a,b) 返回两数之和，add_3_num(a,b,c) 返回三数之和；另建文件调用并打印 <span class="pt-tag">函数+模块</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="g"># ===== tools.py =====</span>
+<span class="k">def</span> <span class="p">add_2_num</span>(a, b)<span class="o">:</span>
+    <span class="s">"""对两个数进行加法运算"""</span>
+    <span class="k">return</span> a <span class="o">+</span> b
+
+
+<span class="k">def</span> <span class="p">add_3_num</span>(a, b, c)<span class="o">:</span>
+    <span class="s">"""对三个数进行加法运算"""</span>
+    <span class="k">return</span> a <span class="o">+</span> b <span class="o">+</span> c
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span><span class="o">:</span>
+    <span class="p">print</span>(<span class="p">add_2_num</span>(<span class="n">1</span>, <span class="n">2</span>))  <span class="g"># 3</span>
+
+
+<span class="g"># ===== main.py（调用文件）=====</span>
+<span class="k">from</span> tools <span class="k">import</span> add_2_num, add_3_num
+
+<span class="p">print</span>(<span class="p">add_2_num</span>(<span class="n">10</span>, <span class="n">20</span>))      <span class="g"># 30</span>
+<span class="p">print</span>(<span class="p">add_3_num</span>(<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>))  <span class="g"># 60</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p2">
+    <div class="pt-body">
+      <div class="pt-t">2. 输入姓名/年龄/住址存入字典，封装 print_user_info() 函数遍历打印所有键值 <span class="pt-tag">函数+dict</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">def</span> <span class="p">print_user_info</span>(user_dict)<span class="o">:</span>
+    <span class="s">"""打印用户信息字典"""</span>
+    <span class="k">for</span> k, v <span class="k">in</span> user_dict.<span class="p">items</span>()<span class="o">:</span>
+        <span class="p">print</span>(<span class="s">f'{k}: {v}'</span>)
+
+
+<span class="g"># 收集用户信息</span>
+user <span class="o">=</span> {
+    <span class="s">'name'</span>:    <span class="p">input</span>(<span class="s">'请输入姓名:'</span>),
+    <span class="s">'age'</span>:     <span class="p">input</span>(<span class="s">'请输入年龄:'</span>),
+    <span class="s">'address'</span>: <span class="p">input</span>(<span class="s">'请输入住址:'</span>),
+}
+
+<span class="p">print_user_info</span>(user)
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p3">
+    <div class="pt-body">
+      <div class="pt-t">3. 定义 make_data() 随机生成10个数字的列表，定义 my_max() 返回列表中最大值 <span class="pt-tag">函数+random</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">import</span> random
+
+
+<span class="k">def</span> <span class="p">make_data</span>()<span class="o">:</span>
+    <span class="s">"""随机生成10个数字的列表"""</span>
+    data <span class="o">=</span> []
+    <span class="k">for</span> _ <span class="k">in</span> <span class="p">range</span>(<span class="n">10</span>)<span class="o">:</span>
+        data.<span class="p">append</span>(random<span class="o">.</span><span class="p">randint</span>(<span class="n">1</span>, <span class="n">100</span>))
+    <span class="k">return</span> data
+
+
+<span class="k">def</span> <span class="p">my_max</span>(num_list)<span class="o">:</span>
+    <span class="s">"""返回列表中最大的数字"""</span>
+    max_num <span class="o">=</span> num_list[<span class="n">0</span>]
+    <span class="k">for</span> n <span class="k">in</span> num_list<span class="o">:</span>
+        <span class="k">if</span> n <span class="o">></span> max_num<span class="o">:</span>
+            max_num <span class="o">=</span> n
+    <span class="k">return</span> max_num
+
+
+data <span class="o">=</span> <span class="p">make_data</span>()
+<span class="p">print</span>(<span class="s">'数据:'</span>, data)
+<span class="p">print</span>(<span class="s">'最大值:'</span>, <span class="p">my_max</span>(data))
+<span class="p">print</span>(<span class="s">'验证:'</span>, <span class="p">max</span>(data))   <span class="g"># 用内置函数验证</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p4">
+    <div class="pt-body">
+      <div class="pt-t">4. 定义 sum_test(n) 函数，计算 1+2+3+…+n 的值并打印 <span class="pt-tag">函数+循环</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">def</span> <span class="p">sum_test</span>(n)<span class="o">:</span>
+    <span class="s">"""计算 1 到 n 的累加和"""</span>
+    total <span class="o">=</span> <span class="n">0</span>
+    <span class="k">for</span> i <span class="k">in</span> <span class="p">range</span>(<span class="n">1</span>, n <span class="o">+</span> <span class="n">1</span>)<span class="o">:</span>
+        total <span class="o">+=</span> i
+    <span class="p">print</span>(<span class="s">f'1+2+...+{n} = {total}'</span>)
+
+
+<span class="p">sum_test</span>(<span class="n">10</span>)   <span class="g"># 55</span>
+<span class="p">sum_test</span>(<span class="n">100</span>)  <span class="g"># 5050</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p5">
+    <div class="pt-body">
+      <div class="pt-t">5. 定义 func() 处理列表：ID奇数→money+20，ID偶数→money+10，打印最终结果 <span class="pt-tag">函数+list+dict</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+my_list <span class="o">=</span> [
+    {<span class="s">'id'</span>: <span class="n">1</span>, <span class="s">'money'</span>: <span class="n">10</span>},
+    {<span class="s">'id'</span>: <span class="n">2</span>, <span class="s">'money'</span>: <span class="n">20</span>},
+    {<span class="s">'id'</span>: <span class="n">3</span>, <span class="s">'money'</span>: <span class="n">30</span>},
+    {<span class="s">'id'</span>: <span class="n">4</span>, <span class="s">'money'</span>: <span class="n">40</span>},
+]
+
+
+<span class="k">def</span> <span class="p">func</span>(data_list)<span class="o">:</span>
+    <span class="s">"""ID奇数money+20，ID偶数money+10"""</span>
+    <span class="k">for</span> item <span class="k">in</span> data_list<span class="o">:</span>
+        <span class="k">if</span> item[<span class="s">'id'</span>] <span class="o">%</span> <span class="n">2</span> <span class="o">!=</span> <span class="n">0</span><span class="o">:</span>   <span class="g"># 奇数</span>
+            item[<span class="s">'money'</span>] <span class="o">+=</span> <span class="n">20</span>
+        <span class="k">else</span><span class="o">:</span>                     <span class="g"># 偶数</span>
+            item[<span class="s">'money'</span>] <span class="o">+=</span> <span class="n">10</span>
+    <span class="p">print</span>(data_list)
+
+
+<span class="p">func</span>(my_list)
+<span class="g"># id:1→30  id:2→30  id:3→50  id:4→50</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p6">
+    <div class="pt-body">
+      <div class="pt-t">6. 用 in / not in 判断：检查列表中是否包含某个值；检查字典中是否存在某个键 <span class="pt-tag">in操作符</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="g"># in 判断列表</span>
+fruits <span class="o">=</span> [<span class="s">'apple'</span>, <span class="s">'banana'</span>, <span class="s">'cherry'</span>]
+<span class="p">print</span>(<span class="s">'apple'</span>  <span class="k">in</span>     fruits)  <span class="g"># True</span>
+<span class="p">print</span>(<span class="s">'grape'</span>  <span class="k">not in</span> fruits)  <span class="g"># True</span>
+
+<span class="g"># in 判断字典（判断键）</span>
+user <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'admin'</span>, <span class="s">'age'</span>: <span class="n">18</span>}
+<span class="p">print</span>(<span class="s">'name'</span> <span class="k">in</span> user)       <span class="g"># True</span>
+<span class="p">print</span>(<span class="s">'email'</span> <span class="k">in</span> user)      <span class="g"># False</span>
+
+<span class="g"># in 判断字符串</span>
+<span class="p">print</span>(<span class="s">'hello'</span> <span class="k">in</span> <span class="s">'hello world'</span>)  <span class="g"># True</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p7">
+    <div class="pt-body">
+      <div class="pt-t">7. 列表去重：用 set 方式和 not in 手动方式分别对 [1,2,1,3,2,4,3] 去重并打印 <span class="pt-tag">set+in</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+lst <span class="o">=</span> [<span class="n">1</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">2</span>, <span class="n">4</span>, <span class="n">3</span>]
+
+<span class="g"># 方式一：set 转换（快速，不保证顺序）</span>
+result1 <span class="o">=</span> <span class="p">list</span>(<span class="p">set</span>(lst))
+<span class="p">print</span>(<span class="s">'set去重:'</span>, result1)
+
+<span class="g"># 方式二：not in 手动（保持顺序）</span>
+result2 <span class="o">=</span> []
+<span class="k">for</span> i <span class="k">in</span> lst<span class="o">:</span>
+    <span class="k">if</span> i <span class="k">not in</span> result2<span class="o">:</span>
+        result2.<span class="p">append</span>(i)
+<span class="p">print</span>(<span class="s">'手动去重:'</span>, result2)  <span class="g"># [1,2,3,4] 顺序保持</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p8">
+    <div class="pt-body">
+      <div class="pt-t">8. 嵌套调用：定义 get_max(a,b) 返回较大值，再定义 compare_3(a,b,c) 调用 get_max 返回三数中最大值 <span class="pt-tag">嵌套调用</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">def</span> <span class="p">get_max</span>(a, b)<span class="o">:</span>
+    <span class="s">"""返回两数中较大值"""</span>
+    <span class="k">return</span> a <span class="k">if</span> a <span class="o">></span> b <span class="k">else</span> b
+
+
+<span class="k">def</span> <span class="p">compare_3</span>(a, b, c)<span class="o">:</span>
+    <span class="s">"""返回三数中最大值（嵌套调用 get_max）"""</span>
+    max_ab <span class="o">=</span> <span class="p">get_max</span>(a, b)    <span class="g"># 先比较前两个</span>
+    <span class="k">return</span> <span class="p">get_max</span>(max_ab, c)  <span class="g"># 再与第三个比较</span>
+
+
+<span class="p">print</span>(<span class="p">compare_3</span>(<span class="n">10</span>, <span class="n">30</span>, <span class="n">20</span>))  <span class="g"># 30</span>
+<span class="p">print</span>(<span class="p">compare_3</span>(<span class="n">5</span>,  <span class="n">2</span>,  <span class="n">8</span>))   <span class="g"># 8</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p9">
+    <div class="pt-body">
+      <div class="pt-t">9. 使用 __name__ 保护：在 tools.py 中写函数，把测试代码放在 if __name__=='__main__' 中 <span class="pt-tag">__name__</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="g"># ===== tools.py =====</span>
+<span class="k">def</span> <span class="p">greet</span>(name)<span class="o">:</span>
+    <span class="s">"""打招呼"""</span>
+    <span class="k">return</span> <span class="s">f'你好，{name}！'</span>
+
+
+<span class="k">def</span> <span class="p">farewell</span>(name)<span class="o">:</span>
+    <span class="s">"""告别"""</span>
+    <span class="k">return</span> <span class="s">f'再见，{name}！'</span>
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span><span class="o">:</span>
+    <span class="g"># 直接运行时执行，被导入时不执行</span>
+    <span class="p">print</span>(<span class="p">greet</span>(<span class="s">'小明'</span>))
+    <span class="p">print</span>(<span class="p">farewell</span>(<span class="s">'小明'</span>))
+
+
+<span class="g"># ===== main.py =====</span>
+<span class="k">from</span> tools <span class="k">import</span> greet
+<span class="p">print</span>(<span class="p">greet</span>(<span class="s">'老师'</span>))  <span class="g"># 不会触发 if __name__ 中的代码</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci" id="p10">
+    <div class="pt-body">
+      <div class="pt-t">10. TPShop 综合：定义 login(username,password,verify_code) 函数，至少3种场景测试并打印✅/❌ <span class="pt-tag">函数综合</span></div>
+      <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+      <div class="pt-ans">
+<span class="k">def</span> <span class="p">login</span>(username, password, verify_code)<span class="o">:</span>
+    <span class="s">"""模拟TPShop登录验证"""</span>
+    <span class="k">if</span> verify_code <span class="o">!=</span> <span class="s">'8888'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="s">'验证码错误'</span>
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="s">'登录成功'</span>
+    <span class="k">return</span> <span class="s">'用户名或密码错误'</span>
+
+
+test_cases <span class="o">=</span> [
+    (<span class="s">'admin'</span>, <span class="s">'123456'</span>, <span class="s">'8888'</span>, <span class="s">'登录成功'</span>),
+    (<span class="s">'admin'</span>, <span class="s">'wrong'</span>,  <span class="s">'8888'</span>, <span class="s">'用户名或密码错误'</span>),
+    (<span class="s">'admin'</span>, <span class="s">'123456'</span>, <span class="s">'0000'</span>, <span class="s">'验证码错误'</span>),
+]
+
+<span class="k">for</span> u, p, c, expect <span class="k">in</span> test_cases<span class="o">:</span>
+    result <span class="o">=</span> <span class="p">login</span>(u, p, c)
+    ok <span class="o">=</span> <span class="s">'✅'</span> <span class="k">if</span> result <span class="o">==</span> expect <span class="k">else</span> <span class="s">'❌'</span>
+    <span class="p">print</span>(<span class="s">f'{ok} 期望:{expect}  实际:{result}'</span>)
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 面试精讲 ===== -->
+<div class="pan">
+
+  <div class="sec" style="padding:16px">
+    <h2><span class="ico">💬</span>面试精讲 · 12题</h2>
+    <p style="color:var(--muted);font-size:13px">点击展开 — 绿色基础 / 黄色进阶 / 红色陷阱</p>
+  </div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q1</div><div class="iq-q">为什么要使用函数？函数的好处是什么？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>① 减少代码冗余：</b>重复的逻辑只需写一次，多次调用即可，不用复制粘贴。</p>
+    <p><b>② 提高编程效率：</b>改动逻辑只需修改函数内部，不需要到处找代码修改。</p>
+    <p><b>③ 提高可读性：</b>函数名本身就是注释，代码更易理解（见名知意）。</p>
+    <p><b>④ 便于测试：</b>可以单独测试每个函数的功能，定位问题更快。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q2</div><div class="iq-q">形参和实参的区别是什么？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>形参（形式参数）：</b>函数 <b>定义</b> 时括号中的变量名，只是占位符，没有具体值。</p>
+    <p><b>实参（实际参数）：</b>函数 <b>调用</b> 时传入的具体数据值，会赋给形参使用。</p>
+    <p>调用时实参值按位置依次赋给对应的形参，形参数量和实参数量必须一致（否则 TypeError）。</p>
+    <div class="term" style="font-size:12px">
+<span class="k">def</span> <span class="p">add</span>(a, b)<span class="o">:</span>    <span class="g"># a, b → 形参</span>
+    <span class="k">return</span> a <span class="o">+</span> b
+<span class="p">add</span>(<span class="n">10</span>, <span class="n">20</span>)       <span class="g"># 10, 20 → 实参</span>
+    </div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q3</div><div class="iq-q">return 关键字有几个作用？没有 return 的函数返回什么？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>return 有两个作用：</b><br>
+    ① 将数据值 <b>返回</b> 到调用的地方，供外部使用<br>
+    ② <b>立即结束</b> 函数的执行，return 后面的代码不会执行</p>
+    <p>没有 return 或 return 后不跟值，函数返回 <b>None</b>（类似 append()、sort()）。</p>
+    <div class="box danger"><b>⚠️ 常见错误：</b>函数有计算结果但忘记 return，在外部接收时得到 None。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q4</div><div class="iq-q">函数的嵌套调用是什么？执行顺序是怎样的？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p>嵌套调用：在一个函数内部调用另一个函数。</p>
+    <p><b>执行顺序（四条规则）：</b><br>
+    ① 代码从上到下顺序执行<br>
+    ② 函数定义不执行函数体中的代码<br>
+    ③ 函数调用会进入被调函数执行<br>
+    ④ 被调函数执行完，回到调用处继续向下执行</p>
+    <div class="box info"><b>实际应用：</b>将复杂逻辑拆分成多个小函数，每个函数只做一件事，再通过嵌套组合。如登录：input_username() → input_password() → login()。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q5</div><div class="iq-q">in 操作符对不同容器的判断规则是什么？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <div class="tw"><table>
+      <tr><th>容器</th><th>in 判断的是</th><th>示例</th></tr>
+      <tr><td>字符串</td><td>是否包含该子串</td><td><code class="inl">'he' in 'hello'</code> → True</td></tr>
+      <tr><td>列表/元组</td><td>是否包含该元素</td><td><code class="inl">3 in [1,2,3]</code> → True</td></tr>
+      <tr><td>字典</td><td>是否包含该 <b>键</b></td><td><code class="inl">'name' in {'name':'x'}</code> → True</td></tr>
+      <tr><td>集合</td><td>是否包含该元素</td><td><code class="inl">2 in {1,2,3}</code> → True</td></tr>
+    </table></div>
+    <div class="box warn"><b>⚠️ 字典中 in 判断的是键，不是值！</b>判断值是否存在用 <code class="inl">value in dict.values()</code>。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q6</div><div class="iq-q">集合 set 和列表 list 有什么区别？什么时候用集合？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <div class="tw"><table>
+      <tr><th></th><th>list 列表</th><th>set 集合</th></tr>
+      <tr><td>重复数据</td><td>允许</td><td>不允许（自动去重）</td></tr>
+      <tr><td>有序</td><td>✅ 有序</td><td>❌ 无序</td></tr>
+      <tr><td>下标访问</td><td>✅ 支持</td><td>❌ 不支持</td></tr>
+    </table></div>
+    <p>集合常用于：列表去重、集合运算（交集/并集/差集）。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q7</div><div class="iq-q">import 模块名 和 from 模块名 import 功能名 有什么区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>import 模块名：</b>导入整个模块，使用时需要写 <code class="inl">模块名.功能名()</code>，命名空间清晰，不容易冲突。</p>
+    <p><b>from 模块名 import 功能名：</b>只导入指定功能，使用时直接写 <code class="inl">功能名()</code>，更简洁；但如果两个模块有同名函数，会产生覆盖冲突。</p>
+    <div class="box tip"><b>💡 实践建议：</b>导入系统模块（random/os/sys）用方式一；导入自定义模块或第三方库用方式二，更简洁且可用 Alt+Enter 快捷导入。</div>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q8</div><div class="iq-q">__name__ 变量的作用是什么？什么时候等于 '__main__'？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p>每个 Python 文件都有内置变量 <code class="inl">__name__</code>，其值由 Python 解释器自动维护：</p>
+    <p>① <b>直接运行</b>该文件时：<code class="inl">__name__ == '__main__'</code><br>
+    ② <b>被其他文件导入</b>时：<code class="inl">__name__ == '文件名（模块名）'</code></p>
+    <p>利用 <code class="inl">if __name__ == '__main__':</code> 可以将测试代码保护起来，只在直接运行时执行，被导入时自动跳过，避免影响导入方。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q9</div><div class="iq-q">什么是模块？什么是包？两者有什么区别？</div><div class="iq-lv lv-b">基础</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>模块（Module）：</b>一个 .py 代码文件就是一个模块，文件名即模块名。</p>
+    <p><b>包（Package）：</b>将多个模块放在同一个目录中，并在该目录创建 <code class="inl">__init__.py</code> 文件，这个目录就是一个包。</p>
+    <p>关系：包 > 模块。包是模块的容器，用于组织大型项目的代码结构。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q10</div><div class="iq-q">函数的文档注释（docstring）怎么写？有什么用？</div><div class="iq-lv lv-m">进阶</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p>文档注释写在 <code class="inl">def</code> 的下方第一行，用 <b>三对双引号</b> <code class="inl">"""..."""</code> 包裹：</p>
+    <div class="term" style="font-size:12px">
+<span class="k">def</span> <span class="p">add</span>(a, b)<span class="o">:</span>
+    <span class="s">"""
+    对两个数进行加法运算
+    :param a: 第一个数
+    :param b: 第二个数
+    :return: 两数之和
+    """</span>
+    <span class="k">return</span> a <span class="o">+</span> b
+    </div>
+    <p>查看方式：① Ctrl+Q 弹出提示 ② Ctrl+B 跳转到定义 ③ 按住Ctrl点击函数名</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q11</div><div class="iq-q">以下代码有什么问题？函数结果为什么是 None？</div><div class="iq-lv lv-h">陷阱题</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <div class="term" style="font-size:12px">
+<span class="k">def</span> <span class="p">add</span>(a, b)<span class="o">:</span>
+    result <span class="o">=</span> a <span class="o">+</span> b
+    <span class="g"># ❌ 忘记写 return</span>
+
+num <span class="o">=</span> <span class="p">add</span>(<span class="n">10</span>, <span class="n">20</span>)
+<span class="p">print</span>(num)   <span class="g"># None ← 不是 30！</span>
+    </div>
+    <p><b>问题：</b>函数计算了结果但没有 <code class="inl">return</code>，默认返回 None。外部接收到的是 None 而不是 30。</p>
+    <p><b>修复：</b>在 <code class="inl">result = a + b</code> 后加上 <code class="inl">return result</code>，或直接 <code class="inl">return a + b</code>。</p>
+  </div></div>
+
+  <div class="iq"><div class="iq-hdr" onclick="tq(this)"><div class="iq-num">Q12</div><div class="iq-q">为什么自定义文件名不能和系统模块同名？模块的导入顺序是什么？</div><div class="iq-lv lv-h">陷阱题</div><div class="iq-tg">+</div></div>
+  <div class="iq-body">
+    <p><b>导入顺序：</b>① 当前目录 → ② Python 系统目录 → ③ 报错</p>
+    <p>如果自定义文件命名为 <code class="inl">random.py</code>，当代码 <code class="inl">import random</code> 时，会先找到当前目录的 random.py，导入的是自己写的文件，导致系统的 random 模块无法使用。</p>
+    <div class="box danger"><b>⚠️ 常见坑：</b>文件命名为 random.py, os.py, math.py 等系统模块名，会导致同名覆盖。建议用业务相关名字（如 tools.py, utils.py）。</div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 实战练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+
+  <div class="sec" style="padding:16px;margin-bottom:12px">
+    <h2><span class="ico">✅</span>测验 · 15题</h2>
+    <p style="color:var(--muted);font-size:13px">选择后提交查看解析</p>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>以下关于函数定义的描述，错误的是？</div>
+    <div class="opt" onclick="sel(this,0,1)">A. def 后面需要冒号</div>
+    <div class="opt" onclick="sel(this,0,2)">B. 函数体需要缩进</div>
+    <div class="opt" onclick="sel(this,0,3)">C. 函数定义后立即执行函数体中的代码</div>
+    <div class="opt" onclick="sel(this,0,4)">D. 函数名需满足标识符规则</div>
+    <div class="qz-ex"><b>解析：</b>C 错误。函数定义 <b>不执行</b> 函数体，只是"登记"。只有调用函数时才执行函数体中的代码。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>以下代码执行后，result 的值是什么？<br><code style="font-family:monospace;font-size:12px">def calc(a, b): total = a + b<br>result = calc(5, 3)<br>print(result)</code></div>
+    <div class="opt" onclick="sel(this,1,1)">A. 8</div><div class="opt" onclick="sel(this,1,2)">B. None</div>
+    <div class="opt" onclick="sel(this,1,3)">C. 0</div><div class="opt" onclick="sel(this,1,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>函数内计算了 total 但没有 return，函数默认返回 None。这是最常见的函数错误之一。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>return 关键字在函数中的作用是？（多选请选最完整的）</div>
+    <div class="opt" onclick="sel(this,2,1)">A. 只是返回数据值</div>
+    <div class="opt" onclick="sel(this,2,2)">B. 只是结束函数执行</div>
+    <div class="opt" onclick="sel(this,2,3)">C. 返回数据值，并立即结束函数执行</div>
+    <div class="opt" onclick="sel(this,2,4)">D. 打印数据到控制台</div>
+    <div class="qz-ex"><b>解析：</b>return 有两个作用：① 将值返回到调用处 ② 立即结束函数执行（return 后面的代码不会执行）。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span><code class="inl">'name' in {'name': '小明', 'age': 18}</code> 的结果是？</div>
+    <div class="opt" onclick="sel(this,3,1)">A. False（判断的是值）</div>
+    <div class="opt" onclick="sel(this,3,2)">B. True（判断的是键）</div>
+    <div class="opt" onclick="sel(this,3,3)">C. '小明'</div><div class="opt" onclick="sel(this,3,4)">D. 报错</div>
+    <div class="qz-ex"><b>解析：</b>字典的 in 判断的是 <b>键</b> 是否存在。'name' 是字典的键，所以返回 True。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span>以下哪种方式能正确对列表去重并保持原顺序？</div>
+    <div class="opt" onclick="sel(this,4,1)">A. <code class="inl">list(set(my_list))</code></div>
+    <div class="opt" onclick="sel(this,4,2)">B. 用 not in 手动判断再 append</div>
+    <div class="opt" onclick="sel(this,4,3)">C. my_list.sort()</div>
+    <div class="opt" onclick="sel(this,4,4)">D. my_list.reverse()</div>
+    <div class="qz-ex"><b>解析：</b>set 去重不保证顺序；手动用 not in 逐一判断再 append 到新列表，可以保持原始顺序。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>以下关于 import 和 from...import 的描述，正确的是？</div>
+    <div class="opt" onclick="sel(this,5,1)">A. import 导入后直接用功能名调用</div>
+    <div class="opt" onclick="sel(this,5,2)">B. from...import 导入后需要用 模块名.功能名 调用</div>
+    <div class="opt" onclick="sel(this,5,3)">C. import 导入后需要用 模块名.功能名 调用</div>
+    <div class="opt" onclick="sel(this,5,4)">D. 两种方式完全相同</div>
+    <div class="qz-ex"><b>解析：</b>import 模块名 → 使用 <code class="inl">模块名.功能()</code>；from 模块 import 功能 → 直接用 <code class="inl">功能()</code>，不需要模块名前缀。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>在模块文件中，直接运行时 __name__ 的值是？</div>
+    <div class="opt" onclick="sel(this,6,1)">A. 模块名（文件名）</div>
+    <div class="opt" onclick="sel(this,6,2)">B. '__main__'</div>
+    <div class="opt" onclick="sel(this,6,3)">C. None</div><div class="opt" onclick="sel(this,6,4)">D. True</div>
+    <div class="qz-ex"><b>解析：</b>直接运行该文件时 <code class="inl">__name__ == '__main__'</code>；被其他文件导入时 <code class="inl">__name__ == '文件名'</code>。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>创建一个 Python 包需要什么条件？</div>
+    <div class="opt" onclick="sel(this,7,1)">A. 只需要创建一个目录</div>
+    <div class="opt" onclick="sel(this,7,2)">B. 创建目录 + 在目录中创建 __init__.py 文件</div>
+    <div class="opt" onclick="sel(this,7,3)">C. 创建目录 + 写 import 语句</div>
+    <div class="opt" onclick="sel(this,7,4)">D. 在 PyCharm 中新建 Python File</div>
+    <div class="qz-ex"><b>解析：</b>包 = 目录 + <code class="inl">__init__.py</code> 文件（内容可以为空）。有了 __init__.py，Python 才会将该目录识别为包。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>函数可以在调用之前定义吗？以下哪种顺序会报错？</div>
+    <div class="opt" onclick="sel(this,8,1)">A. 先定义函数，再调用 → 正常</div>
+    <div class="opt" onclick="sel(this,8,2)">B. 先调用函数，再定义 → 报错</div>
+    <div class="opt" onclick="sel(this,8,3)">C. 以上两种都正常</div>
+    <div class="opt" onclick="sel(this,8,4)">D. 以上两种都报错</div>
+    <div class="qz-ex"><b>解析：</b>Python 代码从上到下执行，调用时函数必须已经被定义（即 def 语句已执行）。先调用后定义会报 NameError。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>以下哪个函数文档注释的写法是正确的？</div>
+    <div class="opt" onclick="sel(this,9,1)">A. <code class="inl"># 函数说明（写在def上方）</code></div>
+    <div class="opt" onclick="sel(this,9,2)">B. <code class="inl">"""函数说明"""（写在def下方第一行）</code></div>
+    <div class="opt" onclick="sel(this,9,3)">C. <code class="inl">// 函数说明</code></div>
+    <div class="opt" onclick="sel(this,9,4)">D. <code class="inl">/* 函数说明 */</code></div>
+    <div class="qz-ex"><b>解析：</b>文档注释（docstring）用三对双引号 <code class="inl">"""..."""</code>，写在 def 下方第一行（函数体开头）。# 是普通注释，// 和 /* */ 是其他语言的注释。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>以下代码的输出顺序是什么？<br><code style="font-family:monospace;font-size:12px">def f1(): print('A')<br>def f2(): f1(); print('B')<br>print('C'); f2(); print('D')</code></div>
+    <div class="opt" onclick="sel(this,10,1)">A. A B C D</div><div class="opt" onclick="sel(this,10,2)">B. C A B D</div>
+    <div class="opt" onclick="sel(this,10,3)">C. C B A D</div><div class="opt" onclick="sel(this,10,4)">D. A C B D</div>
+    <div class="qz-ex"><b>解析：</b>① print('C') → ② 调用 f2 → ③ f2 中调用 f1 → ④ f1 打印 A → ⑤ 回到 f2 打印 B → ⑥ 回到主程序打印 D。输出：C A B D。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span>以下哪种情况不会发生模块名冲突？</div>
+    <div class="opt" onclick="sel(this,11,1)">A. 自定义文件命名为 random.py，然后 import random</div>
+    <div class="opt" onclick="sel(this,11,2)">B. 自定义文件命名为 my_tools.py，然后 import random</div>
+    <div class="opt" onclick="sel(this,11,3)">C. 自定义文件命名为 os.py，然后 import os</div>
+    <div class="opt" onclick="sel(this,11,4)">D. 自定义文件命名为 math.py，然后 import math</div>
+    <div class="qz-ex"><b>解析：</b>B 中自定义文件 my_tools.py 与系统模块 random 不同名，不会冲突。A/C/D 都将自定义文件命名为与系统模块同名，会导致导入错误。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>下面代码定义了一个求最大值的函数，哪行有问题？<br><code style="font-family:monospace;font-size:12px">def get_max(a, b):<br>&nbsp;&nbsp;&nbsp;&nbsp;if a > b: return a<br>&nbsp;&nbsp;&nbsp;&nbsp;else: return b<br>&nbsp;&nbsp;&nbsp;&nbsp;print('done')</code></div>
+    <div class="opt" onclick="sel(this,12,1)">A. 第1行：def 语法错误</div>
+    <div class="opt" onclick="sel(this,12,2)">B. 第4行：print 永远不会执行</div>
+    <div class="opt" onclick="sel(this,12,3)">C. 第2行：return 不能在 if 中使用</div>
+    <div class="opt" onclick="sel(this,12,4)">D. 没有问题</div>
+    <div class="qz-ex"><b>解析：</b>第4行 <code class="inl">print('done')</code> 在 if-else 中所有分支都有 return 后，永远不会执行（dead code）。代码语法上没错，但逻辑上这行是多余的。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>以下哪种包的导入方式可以直接使用函数名，不需要加前缀？</div>
+    <div class="opt" onclick="sel(this,13,1)">A. <code class="inl">import service.login_service</code></div>
+    <div class="opt" onclick="sel(this,13,2)">B. <code class="inl">from service import login_service</code></div>
+    <div class="opt" onclick="sel(this,13,3)">C. <code class="inl">from service.login_service import login</code></div>
+    <div class="opt" onclick="sel(this,13,4)">D. 以上三种都需要前缀</div>
+    <div class="qz-ex"><b>解析：</b>C 直接导入具体的函数 login，调用时可以直接 <code class="inl">login()</code> 无需任何前缀。A 需要 <code class="inl">service.login_service.login()</code>，B 需要 <code class="inl">login_service.login()</code>。</div>
+  </div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>测试工程师如何利用函数思想编写测试代码？以下哪种做法最佳？</div>
+    <div class="opt" onclick="sel(this,14,1)">A. 把所有测试代码写在一个大文件中，不用函数</div>
+    <div class="opt" onclick="sel(this,14,2)">B. 把每个测试场景封装成函数，再逐一调用测试</div>
+    <div class="opt" onclick="sel(this,14,3)">C. 只测试正确场景，不测试错误场景</div>
+    <div class="opt" onclick="sel(this,14,4)">D. 测试代码和功能代码写在同一个函数中</div>
+    <div class="qz-ex"><b>解析：</b>最佳实践：将功能开发代码放在 service 包，测试代码放在 script 包，每个测试场景封装成独立函数，通过参数传入不同数据，便于管理和复用。</div>
+  </div>
+
+  <button class="qbtn" onclick="sub()">提交测验</button>
+  <div id="qres">
+    <span id="qscore">0/15</span>
+    <div id="qmsg"></div>
+    <button onclick="rst()" style="margin-top:14px;padding:9px 22px;background:var(--day);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">重新作答</button>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 面试精讲</button>
+    <button class="pri" disabled>已是最后一节 ✓</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i);});
+
+function tr(el){
+  const ans=el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent=ans.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pf').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>{cb.closest('.pt').classList.toggle('done',cb.checked);});
+  if(done===10) document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc();}
+function tq(hdr){hdr.parentElement.classList.toggle('o');}
+
+const ans=[3,2,3,2,2,3,2,2,2,2,2,2,2,3,2];
+const sel_state={};
+function sel(el,q,opt){
+  document.querySelectorAll(`.qz:nth-child(${q+1}) .opt`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  sel_state[q]=opt;
+}
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach((qz,i)=>{
+    const opts=qz.querySelectorAll('.opt');
+    const ex=qz.querySelector('.qz-ex');
+    opts.forEach((o,j)=>{
+      o.classList.remove('ok','no');
+      if(j+1===ans[i]) o.classList.add('ok');
+      else if(sel_state[i]===j+1) o.classList.add('no');
+    });
+    if(sel_state[i]===ans[i]) score++;
+    ex.classList.add('s');
+  });
+  const pct=Math.round(score/15*100);
+  document.getElementById('qscore').textContent=score+'/15';
+  let msg='';
+  if(pct>=90) msg='🏆 优秀！函数、模块、包掌握扎实！';
+  else if(pct>=75) msg='✅ 良好！重点复习 return 和 __name__ 的细节。';
+  else if(pct>=60) msg='📚 一般，建议动手写几个函数加深理解。';
+  else msg='💪 需要加油！重新学习函数的定义、参数、返回值。';
+  document.getElementById('qmsg').textContent=msg;
+  document.getElementById('qres').classList.add('s');
+  if(score>=12) document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s4d4'},'*');
+  document.getElementById('qres').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  Object.keys(sel_state).forEach(k=>delete sel_state[k]);
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

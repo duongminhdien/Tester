@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 06 · 面向对象编程入门</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --day:#6366f1;
+  --day-d:#4f46e5;
+  --day-bg:rgba(99,102,241,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6
+}
+body{
+  font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.7;
+  font-size:14px;
+  -webkit-font-smoothing:antialiased
+}
+.wrap{max-width:960px;margin:0 auto;padding:20px 20px 50px}
+
+/* Header */
+.hd{
+  background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);
+  color:#fff;
+  padding:28px 28px 24px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 8px 24px rgba(99,102,241,.25)
+}
+.hd-tag{
+  display:inline-block;
+  background:rgba(255,255,255,.18);
+  padding:4px 10px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.5px;
+  font-family:'Space Mono',monospace;
+  margin-bottom:10px
+}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{
+  display:flex;
+  gap:18px;
+  margin-top:16px;
+  flex-wrap:wrap
+}
+.hd-stats>div{
+  font-size:12px;
+  opacity:.92
+}
+.hd-stats b{
+  font-family:'Space Mono',monospace;
+  font-size:18px;
+  font-weight:700;
+  margin-right:4px
+}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  background:#cbd5e1;
+  cursor:pointer;
+  transition:all .2s
+}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:6px;
+  display:flex;
+  gap:4px;
+  margin-bottom:18px;
+  overflow-x:auto
+}
+.ts{display:flex;gap:4px;width:100%}
+.t{
+  flex:1;
+  padding:10px 12px;
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:8px;
+  white-space:nowrap;
+  font-family:inherit;
+  transition:all .2s
+}
+.t:hover{color:var(--day-d);background:var(--day-bg)}
+.t.a{
+  background:var(--day);
+  color:#fff;
+  box-shadow:0 2px 8px rgba(99,102,241,.3)
+}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+
+/* Sections */
+.sec{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px;
+  margin-bottom:18px
+}
+.sec h2{
+  font-size:18px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:14px;
+  padding-bottom:10px;
+  border-bottom:2px solid var(--day);
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.sec h2 .ico{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;height:32px;
+  background:var(--day-bg);
+  color:var(--day-d);
+  border-radius:8px;
+  font-size:16px;
+  font-weight:700;
+  font-family:'Space Mono',monospace
+}
+.sec h3{
+  font-size:15px;
+  font-weight:700;
+  color:var(--ink);
+  margin:18px 0 10px;
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+.sec h3::before{
+  content:'';
+  width:4px;height:16px;
+  background:var(--day);
+  border-radius:2px;
+  display:inline-block
+}
+.sec p{margin:8px 0;color:var(--ink2);font-size:13.5px}
+.sec ul,.sec ol{margin:8px 0 8px 20px;color:var(--ink2);font-size:13.5px}
+.sec li{margin:4px 0}
+
+/* Code blocks */
+.term{
+  background:var(--code-bg);
+  color:var(--code-ink);
+  font-family:'Space Mono',monospace;
+  font-size:13px;
+  padding:14px 16px;
+  border-radius:8px;
+  margin:10px 0;
+  overflow-x:auto;
+  line-height:1.7;
+  white-space:pre
+}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .r{color:#f07178}
+.term .w{color:#fff;font-weight:600}
+.term .n{color:#f78c6c}
+.term .b{color:#89ddff}
+
+code.inl{
+  font-family:'Space Mono',monospace;
+  background:#f1f5f9;
+  color:var(--day-d);
+  padding:1px 6px;
+  border-radius:4px;
+  font-size:12.5px;
+  font-weight:600
+}
+
+/* Info boxes */
+.box{
+  padding:12px 14px;
+  border-radius:8px;
+  margin:10px 0;
+  font-size:13px;
+  line-height:1.7;
+  border-left:4px solid
+}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box b{display:inline-block;margin-bottom:2px}
+
+/* Tables */
+.tw{
+  overflow-x:auto;
+  margin:12px 0;
+  border-radius:8px;
+  border:1px solid var(--border)
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  background:#fff;
+  min-width:480px
+}
+th{
+  background:#f1f5f9;
+  font-weight:700;
+  color:var(--ink);
+  font-size:12.5px;
+  padding:9px 12px;
+  text-align:left
+}
+td{
+  padding:9px 12px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+  color:var(--ink2)
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grid layouts */
+.g2{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:12px;
+  margin:12px 0
+}
+.g3{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+  margin:12px 0
+}
+.card{
+  background:#fafbfc;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+  transition:all .2s
+}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  border-color:var(--day)
+}
+.card h4{
+  font-size:14px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+.card .num{
+  display:inline-block;
+  width:22px;height:22px;
+  line-height:22px;
+  text-align:center;
+  background:var(--day);
+  color:#fff;
+  border-radius:50%;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  font-weight:700
+}
+.card p{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+/* Interview Q&A */
+.iq{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:10px;
+  overflow:hidden;
+  transition:all .2s
+}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{
+  padding:14px 16px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  user-select:none
+}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{
+  font-family:'Space Mono',monospace;
+  font-weight:700;
+  color:var(--day-d);
+  font-size:13px;
+  min-width:34px
+}
+.iq-q{
+  flex:1;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--ink);
+  line-height:1.5
+}
+.iq-lv{
+  font-size:10px;
+  padding:2px 7px;
+  border-radius:10px;
+  font-weight:700;
+  white-space:nowrap
+}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{
+  font-family:'Space Mono',monospace;
+  color:var(--muted);
+  transition:transform .2s;
+  font-size:18px
+}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{
+  display:none;
+  padding:0 16px 16px;
+  border-top:1px dashed var(--border);
+  font-size:13px;
+  line-height:1.75;
+  color:var(--ink2)
+}
+.iq-body p{margin:10px 0}
+.iq-body ul{margin:8px 0 8px 18px}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 16px;
+  margin-bottom:10px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  transition:all .2s
+}
+.pt:hover{
+  border-color:var(--day);
+  box-shadow:0 2px 8px rgba(0,0,0,.04)
+}
+.pt.done{
+  background:#f0fdf4;
+  border-color:var(--green)
+}
+.ci{
+  margin-top:3px;
+  width:18px;height:18px;
+  cursor:pointer;
+  accent-color:var(--day);
+  flex-shrink:0
+}
+.pt-body{flex:1;min-width:0}
+.pt-t{
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:6px;
+  line-height:1.5
+}
+.pt.done .pt-t{
+  text-decoration:line-through;
+  color:var(--muted)
+}
+.pt-rev{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  background:#f8fafc;
+  color:var(--muted);
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  display:inline-block;
+  border:1px dashed var(--border);
+  user-select:none
+}
+.pt-rev:hover{
+  color:var(--day-d);
+  border-color:var(--day)
+}
+.pt-ans{
+  display:none;
+  margin-top:10px;
+  padding:12px 14px;
+  background:var(--code-bg);
+  color:var(--code-ink);
+  font-family:'Space Mono',monospace;
+  font-size:12.5px;
+  border-radius:8px;
+  line-height:1.8;
+  overflow-x:auto;
+  white-space:pre
+}
+.pt-ans.s{display:block}
+.pt-ans .k{color:#c792ea}
+.pt-ans .s{color:#c3e88d}
+.pt-ans .n{color:#f78c6c}
+.pt-ans .g{color:#676e95;font-style:italic}
+.pt-ans .b{color:#89ddff}
+.pt-ans .w{color:#fff;font-weight:600}
+.pt-ans .o{color:#f78c6c}
+
+.prog{
+  background:var(--day-bg);
+  padding:12px 16px;
+  border-radius:10px;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:13px;
+  color:var(--day-d);
+  font-weight:600;
+  flex-wrap:wrap
+}
+.prog .mc-btn{
+  background:var(--day);
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:inherit
+}
+.prog .mc-btn:hover{background:var(--day-d)}
+.prog #pc{font-family:'Space Mono',monospace;font-size:15px}
+
+/* Quiz */
+.qz{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  margin-bottom:14px
+}
+.qz-q{
+  font-size:14px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:12px;
+  line-height:1.6
+}
+.qz-q .qn{
+  display:inline-block;
+  width:26px;height:26px;
+  line-height:26px;
+  text-align:center;
+  background:var(--day);
+  color:#fff;
+  border-radius:50%;
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  font-weight:700;
+  margin-right:8px
+}
+.opt{
+  display:block;
+  padding:10px 14px;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  margin-bottom:8px;
+  cursor:pointer;
+  font-size:13.5px;
+  color:var(--ink2);
+  transition:all .15s;
+  line-height:1.5
+}
+.opt:hover{
+  border-color:var(--day);
+  background:var(--day-bg)
+}
+.opt.sel{
+  border-color:var(--day);
+  background:var(--day-bg);
+  color:var(--day-d);
+  font-weight:600
+}
+.opt.ok{
+  border-color:var(--green);
+  background:#f0fdf4;
+  color:#15803d;
+  font-weight:600
+}
+.opt.no{
+  border-color:var(--red);
+  background:#fef2f2;
+  color:#991b1b;
+  font-weight:600
+}
+.qz-ex{
+  display:none;
+  margin-top:10px;
+  padding:10px 12px;
+  background:#fffbeb;
+  border-left:3px solid var(--amber);
+  border-radius:6px;
+  font-size:12.5px;
+  color:#78350f;
+  line-height:1.6
+}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+
+.qbtn{
+  display:block;
+  margin:20px auto;
+  background:var(--day);
+  color:#fff;
+  border:none;
+  padding:12px 28px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:inherit;
+  box-shadow:0 4px 12px rgba(99,102,241,.3);
+  transition:all .2s
+}
+.qbtn:hover{
+  background:var(--day-d);
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(99,102,241,.4)
+}
+.qbtn:disabled{opacity:.5;cursor:not-allowed}
+#qr{
+  display:none;
+  background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);
+  color:#fff;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:18px;
+  text-align:center
+}
+#qr.s{display:block}
+#qr h3{font-size:18px;margin-bottom:8px}
+#qr .sc{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;margin:8px 0}
+
+/* Page nav */
+.pnav{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:18px;
+  flex-wrap:wrap
+}
+.pnav button{
+  flex:1;
+  min-width:120px;
+  background:#fff;
+  border:1.5px solid var(--border);
+  color:var(--ink2);
+  padding:11px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  transition:all .2s
+}
+.pnav button:hover{
+  border-color:var(--day);
+  color:var(--day-d)
+}
+.pnav button.pri{
+  background:var(--day);
+  color:#fff;
+  border-color:var(--day)
+}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.pnav button:disabled:hover{border-color:var(--border);color:var(--ink2)}
+
+/* Visualizations */
+.viz{
+  background:#fafbfc;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  margin:12px 0
+}
+.viz-ttl{
+  font-size:13px;
+  font-weight:700;
+  color:var(--day-d);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+
+/* Class diagram */
+.cls{
+  background:#fff;
+  border:2px solid var(--day);
+  border-radius:8px;
+  padding:0;
+  font-family:'Space Mono',monospace;
+  font-size:12.5px;
+  overflow:hidden;
+  max-width:280px;
+  margin:0 auto
+}
+.cls-hdr{
+  background:var(--day);
+  color:#fff;
+  padding:8px 12px;
+  font-weight:700;
+  text-align:center;
+  font-size:14px
+}
+.cls-sec{
+  padding:8px 12px;
+  border-bottom:1px solid var(--border);
+  color:var(--ink2)
+}
+.cls-sec:last-child{border-bottom:none}
+.cls-lbl{
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-bottom:4px;
+  font-weight:700
+}
+.cls-it{padding:2px 0;line-height:1.6}
+
+/* Object visualization */
+.obj-vis{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  margin:14px 0
+}
+.obj-card{
+  background:#fff;
+  border:2px solid var(--day);
+  border-radius:10px;
+  padding:0;
+  overflow:hidden
+}
+.obj-card-h{
+  background:linear-gradient(135deg,var(--day),var(--day-d));
+  color:#fff;
+  padding:10px 14px;
+  font-weight:700;
+  font-size:13px;
+  text-align:center;
+  font-family:'Space Mono',monospace
+}
+.obj-card-b{
+  padding:12px 14px;
+  font-size:12.5px;
+  color:var(--ink2);
+  font-family:'Space Mono',monospace;
+  line-height:1.8
+}
+.obj-card-b .ky{color:var(--day-d);font-weight:700}
+
+/* Flow steps */
+.flow{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:10px;
+  margin:14px 0
+}
+.flow-s{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px;
+  text-align:center;
+  position:relative
+}
+.flow-s .fn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;height:28px;
+  background:var(--day);
+  color:#fff;
+  border-radius:50%;
+  font-family:'Space Mono',monospace;
+  font-weight:700;
+  font-size:13px;
+  margin-bottom:8px
+}
+.flow-s .ft{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.flow-s .fd{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* Memory visualization */
+.mem{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;
+  margin:14px 0;
+  font-family:'Space Mono',monospace;
+  font-size:12.5px
+}
+.mem-row{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:14px;
+  padding:8px 0;
+  border-bottom:1px dashed var(--border);
+  align-items:center
+}
+.mem-row:last-child{border-bottom:none}
+.mem-var{color:var(--day-d);font-weight:700}
+.mem-arr{color:var(--muted)}
+.mem-obj{
+  background:var(--day-bg);
+  padding:6px 10px;
+  border-radius:6px;
+  color:var(--ink2);
+  border-left:3px solid var(--day)
+}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .qbtn{padding:11px 18px;font-size:13px}
+  .pnav button{font-size:12px;padding:9px 12px;min-width:100px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .obj-vis{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .pt-ans{font-size:11.5px;padding:10px}
+  .mem-row{grid-template-columns:90px 1fr;gap:10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · TESTER DAY 06</div>
+  <h1>面向对象编程 · 类与对象</h1>
+  <p>从面向过程到面向对象 · 类的三要素 · self 参数 · 魔法方法 · 封装思想</p>
+  <div class="hd-stats">
+    <div><b>3</b>核心要素</div>
+    <div><b>2</b>魔法方法</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- TABS -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 0: 知识讲解 ============ -->
+<div class="pan a" id="p0">
+
+<div class="sec">
+  <h2><span class="ico">1</span>面向对象概述</h2>
+  <p>面向对象编程（<code class="inl">OOP</code>，Object Oriented Programming）是一种<b>编程思想</b>，它指导我们如何组织代码。Python 是一门完全的面向对象语言。</p>
+
+  <h3>面向过程 vs 面向对象</h3>
+  <div class="tw">
+  <table>
+    <tr><th>对比项</th><th>面向过程</th><th>面向对象</th></tr>
+    <tr><td>关注点</td><td>实现的<b>细节</b>（怎么做）</td><td>问题的<b>结果</b>（谁来做）</td></tr>
+    <tr><td>核心</td><td>函数</td><td>类和对象</td></tr>
+    <tr><td>适用场景</td><td>小型项目</td><td>中大型项目</td></tr>
+    <tr><td>代码组织</td><td>按步骤、流程</td><td>按角色、职责</td></tr>
+    <tr><td>复用性</td><td>较弱</td><td>较强</td></tr>
+  </table>
+  </div>
+
+  <div class="box info">
+    <b>💡 通俗理解</b><br>
+    • <b>面向过程</b>：把大象装冰箱要 3 步——打开冰箱、装大象、关上冰箱。我亲自一步步做。<br>
+    • <b>面向对象</b>：找一个"搬运工"对象，让他来装大象。我只关心找谁做，不关心具体怎么做。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>类与对象</h2>
+
+  <h3>什么是类（Class）</h3>
+  <ul>
+    <li><b>类</b>是对具有<b>相同特征或行为</b>的事物的统称</li>
+    <li>类是<b>抽象的</b>，不能直接使用</li>
+    <li>类指代<b>多个事物</b>（一类事物）</li>
+    <li>在 Python 中使用关键字 <code class="inl">class</code> 定义</li>
+  </ul>
+
+  <h3>什么是对象（Object）</h3>
+  <ul>
+    <li><b>对象</b>是由类创建出来的<b>具体存在</b>的事物</li>
+    <li>对象是<b>具体的</b>，可以直接使用</li>
+    <li>对象指代<b>一个具体事物</b></li>
+    <li>在代码中通过类来<b>创建（实例化）</b>对象</li>
+  </ul>
+
+  <div class="box tip">
+    <b>🎯 类 vs 对象 举例</b><br>
+    • 苹果 → 类，红苹果 → 类，小明手里那个红苹果 → 对象<br>
+    • 狗 → 类，大黄狗 → 类，李四家那条大黄狗 → 对象<br>
+    • 类是"模板"，对象是用模板"造出来的"具体实例
+  </div>
+
+  <h3>类的三要素</h3>
+  <div class="g3">
+    <div class="card">
+      <h4><span class="num">1</span>类名</h4>
+      <p>给一类事物起的名字。遵循<b>大驼峰命名法</b>（所有单词首字母大写），如 <code class="inl">Person</code>、<code class="inl">LoginPage</code>、<code class="inl">HouseItem</code></p>
+    </div>
+    <div class="card">
+      <h4><span class="num">2</span>属性</h4>
+      <p>事物的<b>特征</b>（是什么）。例如人的姓名、年龄、身高，狗的颜色、名字</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">3</span>方法</h4>
+      <p>事物的<b>行为</b>（能做什么）。例如人能跑能吃，狗能叫能摇尾巴</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>定义类的语法</h2>
+
+  <h3>基本语法</h3>
+<div class="term"><span class="k">class</span> <span class="p">类名</span>:
+    <span class="g"># 在 class 的缩进中定义类的属性和方法</span>
+    <span class="k">def</span> <span class="p">方法名</span>(<span class="o">self</span>):  <span class="g"># 方法的本质就是函数</span>
+        <span class="k">pass</span></div>
+
+  <div class="box warn">
+    <b>⚠️ 注意事项</b><br>
+    • 类名遵循<b>大驼峰命名法</b>：<code class="inl">MyClass</code>，<b>不是</b> <code class="inl">my_class</code><br>
+    • 类中定义的函数叫做<b>方法</b>（method），第一个参数必须是 <code class="inl">self</code><br>
+    • 类的代码块要正确缩进（4 个空格）
+  </div>
+
+  <h3>完整示例：定义猫类</h3>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="c">"""吃鱼的方法"""</span>
+        <span class="p">print</span>(<span class="s">'小猫爱吃鱼...'</span>)
+
+    <span class="k">def</span> <span class="p">drink</span>(<span class="o">self</span>):
+        <span class="c">"""喝水的方法"""</span>
+        <span class="p">print</span>(<span class="s">'小猫要喝水'</span>)</div>
+
+  <h3>创建对象（实例化）</h3>
+<div class="term"><span class="g"># 语法：变量 = 类名()</span>
+tom <span class="o">=</span> <span class="p">Cat</span>()
+
+<span class="g"># 通过对象调用类中的方法</span>
+tom.<span class="p">eat</span>()    <span class="g"># 输出：小猫爱吃鱼...</span>
+tom.<span class="p">drink</span>()  <span class="g"># 输出：小猫要喝水</span></div>
+
+  <div class="box info">
+    <b>💡 本质理解</b><br>
+    <code class="inl">tom = Cat()</code> 中：<br>
+    • <code class="inl">Cat()</code> 创建一个对象<br>
+    • 变量 <code class="inl">tom</code> 中保存的是对象的<b>引用地址</b>（内存地址）<br>
+    • 同一个类可以创建出无数个对象，每个对象的内存地址不同
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>self 参数详解</h2>
+
+  <p>从函数语法上看，<code class="inl">self</code> 是个普通的形参，名字可以是任意变量名，但<b>习惯上叫 self</b>。</p>
+
+  <h3>self 的特殊之处</h3>
+  <ul>
+    <li>调用方法时<b>不需要手动传递</b> self 参数</li>
+    <li>Python 解释器会<b>自动</b>把调用这个方法的对象作为参数传给 self</li>
+    <li>因此 <code class="inl">self</code> 就是<b>调用该方法的对象本身</b></li>
+  </ul>
+
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):  <span class="g"># self 是调用这个方法的对象</span>
+        <span class="p">print</span>(<span class="s">f'self: </span><span class="b">{</span><span class="p">id</span>(<span class="o">self</span>)<span class="b">}</span><span class="s">'</span>)
+        <span class="p">print</span>(<span class="s">'小猫爱吃鱼...'</span>)
+
+tom <span class="o">=</span> <span class="p">Cat</span>()
+<span class="p">print</span>(<span class="s">f"tom: </span><span class="b">{</span><span class="p">id</span>(tom)<span class="b">}</span><span class="s">"</span>)
+tom.<span class="p">eat</span>()   <span class="g"># tom 调用，self 就是 tom（地址相同）</span>
+
+blue <span class="o">=</span> <span class="p">Cat</span>()
+<span class="p">print</span>(<span class="s">f"blue: </span><span class="b">{</span><span class="p">id</span>(blue)<span class="b">}</span><span class="s">"</span>)
+blue.<span class="p">eat</span>()  <span class="g"># blue 调用，self 就是 blue</span></div>
+
+  <div class="box tip">
+    <b>🎯 一句话记住 self</b><br>
+    <b>self 就是当前调用方法的那个对象自己。</b>谁调方法，self 就是谁。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>属性的操作</h2>
+
+  <p>属性表示事物的<b>特征</b>。我们可以给对象添加属性，也可以获取对象的属性值。</p>
+
+  <h3>在类外操作属性</h3>
+<div class="term"><span class="g"># 添加 / 修改属性</span>
+对象.属性名 <span class="o">=</span> 属性值
+
+<span class="g"># 获取属性值</span>
+<span class="p">print</span>(对象.属性名)</div>
+
+  <h3>在方法内操作属性（通过 self）</h3>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="g"># self 是对象，通过 self 访问/修改属性</span>
+        <span class="p">print</span>(<span class="s">f'小猫</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s">爱吃鱼...'</span>)
+
+tom <span class="o">=</span> <span class="p">Cat</span>()
+tom.name <span class="o">=</span> <span class="s">'汤姆'</span>   <span class="g"># 给对象添加 name 属性</span>
+tom.<span class="p">eat</span>()             <span class="g"># 输出：小猫汤姆爱吃鱼...</span></div>
+
+  <div class="box danger">
+    <b>❌ 这种方式不好</b><br>
+    在类外手动添加属性 <code class="inl">tom.name = '汤姆'</code> 不规范：<br>
+    • 容易忘记添加，导致方法访问属性时报错 <code class="inl">AttributeError</code><br>
+    • 每个对象都要单独写一遍，代码冗余<br>
+    • <b>更好的方式是用 __init__ 方法初始化属性 ↓</b>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>魔法方法 __init__</h2>
+
+  <p>Python 中有一类方法，<b>以两个下划线开头和结尾</b>（如 <code class="inl">__init__</code>、<code class="inl">__str__</code>），在满足某个条件时<b>自动调用</b>，称为<b>魔法方法</b>（Magic Method）。</p>
+
+  <h3>学习魔法方法的 3 个要点</h3>
+  <div class="g3">
+    <div class="card">
+      <h4><span class="num">1</span>调用时机</h4>
+      <p>什么情况下会被自动调用</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">2</span>应用场景</h4>
+      <p>这个方法用来做什么</p>
+    </div>
+    <div class="card">
+      <h4><span class="num">3</span>注意事项</h4>
+      <p>使用时容易踩的坑</p>
+    </div>
+  </div>
+
+  <h3>__init__ 方法</h3>
+  <div class="tw">
+  <table>
+    <tr><th>要点</th><th>说明</th></tr>
+    <tr><td>调用时机</td><td>在<b>创建对象之后</b>自动调用</td></tr>
+    <tr><td>应用场景</td><td><b>初始化对象</b>，给对象添加属性</td></tr>
+    <tr><td>注意事项</td><td>方法名不要写错；可变属性可通过参数传入</td></tr>
+  </table>
+  </div>
+
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name):
+        <span class="g"># 创建对象后自动调用，给对象添加 name 属性</span>
+        <span class="o">self</span>.name <span class="o">=</span> name
+
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">f"小猫 </span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 爱吃鱼"</span>)
+
+<span class="g"># 创建对象时必须传入 name 参数</span>
+blue <span class="o">=</span> <span class="p">Cat</span>(<span class="s">'蓝猫'</span>)
+blue.<span class="p">eat</span>()    <span class="g"># 小猫 蓝猫 爱吃鱼</span>
+
+black <span class="o">=</span> <span class="p">Cat</span>(<span class="s">'黑猫'</span>)
+black.<span class="p">eat</span>()   <span class="g"># 小猫 黑猫 爱吃鱼</span></div>
+
+  <div class="box warn">
+    <b>⚠️ 哪些情况会自动调用 __init__？</b><br>
+    • <code class="inl">Cat()</code> — <b>会</b>（创建对象）<br>
+    • <code class="inl">tom = Cat()</code> — <b>会</b>（创建对象）<br>
+    • <code class="inl">Cat</code> — <b>不会</b>（只是引用类）<br>
+    • <code class="inl">tom = Cat</code> — <b>不会</b>（只是把类赋给变量，tom 也变成类）<br>
+    • <code class="inl">b = blue</code> — <b>不会</b>（只是引用传递）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>魔法方法 __str__</h2>
+
+  <div class="tw">
+  <table>
+    <tr><th>要点</th><th>说明</th></tr>
+    <tr><td>调用时机</td><td>使用 <code class="inl">print(对象)</code> 打印对象时自动调用</td></tr>
+    <tr><td>应用场景</td><td>定制 <code class="inl">print(对象)</code> 时输出的内容（通常输出属性信息）</td></tr>
+    <tr><td>注意事项</td><td>必须 <code class="inl">return</code> 一个<b>字符串</b></td></tr>
+  </table>
+  </div>
+
+  <h3>对比：有无 __str__</h3>
+  <div class="g2">
+    <div class="card">
+      <h4>❌ 没有定义 __str__</h4>
+<div class="term"><span class="p">print</span>(tom)
+<span class="g"># 输出对象的内存地址：</span>
+<span class="g"># &lt;__main__.Cat object at 0x...&gt;</span></div>
+    </div>
+    <div class="card">
+      <h4>✅ 定义了 __str__</h4>
+<div class="term"><span class="p">print</span>(tom)
+<span class="g"># 输出 __str__ 的返回值：</span>
+<span class="g"># 姓名: 汤姆, 年龄: 3</span></div>
+    </div>
+  </div>
+
+  <h3>完整示例</h3>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name, age):
+        <span class="o">self</span>.name <span class="o">=</span> name
+        <span class="o">self</span>.age <span class="o">=</span> age
+
+    <span class="k">def</span> <span class="p">__str__</span>(<span class="o">self</span>):
+        <span class="g"># 注意：用 return 而不是 print</span>
+        <span class="k">return</span> <span class="s">f"姓名: </span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s">, 年龄: </span><span class="b">{</span><span class="o">self</span>.age<span class="b">}</span><span class="s">"</span>
+
+tom <span class="o">=</span> <span class="p">Cat</span>(<span class="s">'汤姆'</span>, <span class="n">3</span>)
+<span class="p">print</span>(tom)   <span class="g"># 姓名: 汤姆, 年龄: 3</span></div>
+
+  <div class="box danger">
+    <b>❌ 常见错误</b><br>
+    在 <code class="inl">__str__</code> 中用 <code class="inl">print</code> 而非 <code class="inl">return</code>：<br>
+    <code class="inl">def __str__(self): print(f"姓名: {self.name}")</code> ← <b>错误</b><br>
+    这样会返回 <code class="inl">None</code>，导致 <code class="inl">TypeError: __str__ returned non-string</code>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>封装思想</h2>
+
+  <div class="box info">
+    <b>📦 什么是封装</b><br>
+    <b>封装</b>就是根据需求，把相关的<b>属性</b>和<b>方法</b>定义到同一个类中。这是面向对象的核心思想之一。
+  </div>
+
+  <h3>封装的步骤（完整流程）</h3>
+  <ol>
+    <li><b>设计类</b>：分析需求，找出类的三要素（类名、属性、方法）</li>
+    <li><b>定义类</b>：用 <code class="inl">class</code> 关键字写出类的代码</li>
+    <li><b>创建对象</b>：使用 <code class="inl">类名()</code> 实例化</li>
+    <li><b>调用方法</b>：通过对象访问类中的属性和方法</li>
+  </ol>
+
+  <h3>类名提取技巧：名词提炼法</h3>
+  <div class="box tip">
+    <b>📝 方法</b><br>
+    分析整个业务流程，找出所有<b>名词</b>，通常这些名词就是类名。<br>
+    例如："进入登录页面，输入用户名、密码、验证码后点击登录按钮"<br>
+    → 名词：<b>登录页面</b>、用户名、密码、验证码、登录按钮<br>
+    → 类名：<code class="inl">LoginPage</code>（用户名等通常作为属性）
+  </div>
+
+  <h3>完整案例：小明爱跑步</h3>
+  <p><b>需求：</b>小明体重 75.0 公斤，跑步会减肥 0.5 公斤，吃东西体重增加 1 公斤。</p>
+
+<div class="term"><span class="k">class</span> <span class="p">Person</span>:
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name, weight):
+        <span class="o">self</span>.name <span class="o">=</span> name
+        <span class="o">self</span>.weight <span class="o">=</span> weight
+
+    <span class="k">def</span> <span class="p">__str__</span>(<span class="o">self</span>):
+        <span class="k">return</span> <span class="s">f"</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 目前体重 </span><span class="b">{</span><span class="o">self</span>.weight<span class="b">}</span><span class="s"> kg"</span>
+
+    <span class="k">def</span> <span class="p">run</span>(<span class="o">self</span>):
+        <span class="c">"""跑步：体重减少 0.5kg"""</span>
+        <span class="o">self</span>.weight <span class="o">-=</span> <span class="n">0.5</span>
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 跑步了，体重 -0.5 kg'</span>)
+
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="c">"""吃东西：体重增加 1kg"""</span>
+        <span class="o">self</span>.weight <span class="o">+=</span> <span class="n">1</span>
+        <span class="p">print</span>(<span class="s">f'</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s"> 大餐一顿，体重 +1 kg'</span>)
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    xming <span class="o">=</span> <span class="p">Person</span>(<span class="s">'小明'</span>, <span class="n">75.0</span>)
+    <span class="p">print</span>(xming)
+    xming.<span class="p">run</span>()
+    xming.<span class="p">eat</span>()
+    <span class="p">print</span>(xming)</div>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+
+</div><!-- /panel 0 -->
+
+<!-- ============ PANEL 1: 图解演示 ============ -->
+<div class="pan" id="p1">
+
+<div class="sec">
+  <h2><span class="ico">1</span>类与对象的关系</h2>
+  <p>类是<b>模板（蓝图）</b>，对象是根据模板<b>造出来的具体实例</b>。一个类可以创建很多对象。</p>
+
+  <div class="viz">
+    <div class="viz-ttl">📐 类（模板）→ 多个对象（实例）</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:16px">
+      <div style="text-align:center">
+        <div class="cls">
+          <div class="cls-hdr">Cat（猫类）</div>
+          <div class="cls-sec">
+            <div class="cls-lbl">属性</div>
+            <div class="cls-it">+ name</div>
+            <div class="cls-it">+ age</div>
+          </div>
+          <div class="cls-sec">
+            <div class="cls-lbl">方法</div>
+            <div class="cls-it">+ eat()</div>
+            <div class="cls-it">+ drink()</div>
+          </div>
+        </div>
+        <div style="font-size:24px;color:var(--day);margin:8px 0">↓ 实例化</div>
+      </div>
+      <div class="obj-vis">
+        <div class="obj-card">
+          <div class="obj-card-h">tom 对象</div>
+          <div class="obj-card-b">
+            <div><span class="ky">name</span> = '汤姆'</div>
+            <div><span class="ky">age</span> = 3</div>
+            <div>id: 0x7f8a...</div>
+          </div>
+        </div>
+        <div class="obj-card">
+          <div class="obj-card-h">blue 对象</div>
+          <div class="obj-card-b">
+            <div><span class="ky">name</span> = '蓝猫'</div>
+            <div><span class="ky">age</span> = 2</div>
+            <div>id: 0x7f8b...</div>
+          </div>
+        </div>
+        <div class="obj-card">
+          <div class="obj-card-h">black 对象</div>
+          <div class="obj-card-b">
+            <div><span class="ky">name</span> = '黑猫'</div>
+            <div><span class="ky">age</span> = 5</div>
+            <div>id: 0x7f8c...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>🎯 核心要点</b><br>
+    • 类只定义一次，对象可以创建无数个<br>
+    • 每个对象都有自己<b>独立的属性值</b><br>
+    • 所有对象<b>共享同一套方法</b>（方法定义在类中）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>面向对象编程 4 步流程</h2>
+
+  <div class="flow">
+    <div class="flow-s">
+      <div class="fn">1</div>
+      <div class="ft">设计类</div>
+      <div class="fd">分析需求，找出类的三要素（类名、属性、方法）</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">2</div>
+      <div class="ft">定义类</div>
+      <div class="fd">用 class 关键字写出类的代码（属性 + 方法）</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">3</div>
+      <div class="ft">创建对象</div>
+      <div class="fd">使用 类名() 实例化对象，会自动调用 __init__</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">4</div>
+      <div class="ft">调用方法</div>
+      <div class="fd">通过 对象.方法名() 触发对象的行为</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>self 的本质（图解）</h2>
+  <p>当你写 <code class="inl">tom.eat()</code> 时，Python 会自动把 <code class="inl">tom</code> 作为第一个参数传给 <code class="inl">eat</code> 方法。即 <code class="inl">tom.eat()</code> 实际等价于 <code class="inl">Cat.eat(tom)</code>。</p>
+
+  <div class="viz">
+    <div class="viz-ttl">🔄 谁调用方法，self 就是谁</div>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">eat</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="p">id</span>(<span class="o">self</span>))
+
+tom <span class="o">=</span> <span class="p">Cat</span>()
+blue <span class="o">=</span> <span class="p">Cat</span>()
+
+tom.<span class="p">eat</span>()    <span class="g"># ➜ self = tom    → 打印 tom 的 id</span>
+blue.<span class="p">eat</span>()   <span class="g"># ➜ self = blue   → 打印 blue 的 id</span></div>
+  </div>
+
+  <div class="mem">
+    <div class="mem-row">
+      <div class="mem-var">tom</div>
+      <div class="mem-arr">→</div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-var">tom.eat()</div>
+      <div><span class="mem-obj">self 指向 tom（自动传递）</span></div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-var">blue.eat()</div>
+      <div><span class="mem-obj">self 指向 blue（自动传递）</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>__init__ 调用时机</h2>
+  <p>每次执行 <code class="inl">类名()</code> 创建对象时，Python 解释器会<b>自动调用 __init__</b> 方法，用来初始化对象的属性。</p>
+
+  <div class="viz">
+    <div class="viz-ttl">⏱️ 创建对象 = 申请内存 + 自动调用 __init__</div>
+    <div class="flow">
+      <div class="flow-s">
+        <div class="fn">①</div>
+        <div class="ft">tom = Cat('汤姆')</div>
+        <div class="fd">代码执行到这里</div>
+      </div>
+      <div class="flow-s">
+        <div class="fn">②</div>
+        <div class="ft">申请内存</div>
+        <div class="fd">Python 分配一块新的内存空间</div>
+      </div>
+      <div class="flow-s">
+        <div class="fn">③</div>
+        <div class="ft">自动调用 __init__</div>
+        <div class="fd">传入 '汤姆'，给对象设置 name 属性</div>
+      </div>
+      <div class="flow-s">
+        <div class="fn">④</div>
+        <div class="ft">返回对象引用</div>
+        <div class="fd">把对象的内存地址赋给变量 tom</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>__str__ 调用时机</h2>
+  <p>每次执行 <code class="inl">print(对象)</code> 时，Python 会<b>自动调用 __str__</b> 方法，并打印它返回的字符串。</p>
+
+  <div class="g2">
+    <div class="card">
+      <h4>❌ 没定义 __str__</h4>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">pass</span>
+
+tom <span class="o">=</span> <span class="p">Cat</span>()
+<span class="p">print</span>(tom)
+<span class="g"># &lt;__main__.Cat object</span>
+<span class="g">#  at 0x7f8a3c1d2e80&gt;</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">默认打印对象的内存地址，对用户无意义</p>
+    </div>
+    <div class="card">
+      <h4>✅ 定义了 __str__</h4>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, n):
+        <span class="o">self</span>.name <span class="o">=</span> n
+    <span class="k">def</span> <span class="p">__str__</span>(<span class="o">self</span>):
+        <span class="k">return</span> <span class="s">f"猫</span><span class="b">{</span><span class="o">self</span>.name<span class="b">}</span><span class="s">"</span>
+
+tom <span class="o">=</span> <span class="p">Cat</span>(<span class="s">'汤姆'</span>)
+<span class="p">print</span>(tom)  <span class="g"># 猫汤姆</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">打印 __str__ 的返回值，更友好</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>对象之间的引用</h2>
+  <p>对象不仅可以有数字、字符串属性，<b>属性值还可以是另一个对象</b>。这是后续学习"对象关联"的基础。</p>
+
+  <div class="viz">
+    <div class="viz-ttl">🏠 House 对象引用 HouseItem 对象</div>
+<div class="term"><span class="g"># 创建家具对象</span>
+bed <span class="o">=</span> <span class="p">HouseItem</span>(<span class="s">'席梦思'</span>, <span class="n">4</span>)
+chest <span class="o">=</span> <span class="p">HouseItem</span>(<span class="s">'衣柜'</span>, <span class="n">2</span>)
+
+<span class="g"># 创建房子对象</span>
+house <span class="o">=</span> <span class="p">House</span>(<span class="s">'三室一厅'</span>, <span class="n">100</span>)
+
+<span class="g"># 把家具放进房子（家具对象作为参数传入）</span>
+house.<span class="p">add_item</span>(bed)     <span class="g"># item = bed</span>
+house.<span class="p">add_item</span>(chest)   <span class="g"># item = chest</span></div>
+
+    <div class="obj-vis" style="margin-top:14px">
+      <div class="obj-card">
+        <div class="obj-card-h">bed 对象</div>
+        <div class="obj-card-b">
+          <div><span class="ky">name</span> = '席梦思'</div>
+          <div><span class="ky">area</span> = 4</div>
+        </div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-card-h">chest 对象</div>
+        <div class="obj-card-b">
+          <div><span class="ky">name</span> = '衣柜'</div>
+          <div><span class="ky">area</span> = 2</div>
+        </div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-card-h">house 对象</div>
+        <div class="obj-card-b">
+          <div><span class="ky">h_type</span> = '三室一厅'</div>
+          <div><span class="ky">total_area</span> = 100</div>
+          <div><span class="ky">free_area</span> = 94</div>
+          <div><span class="ky">item_list</span> = ['席梦思', '衣柜']</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box info">
+    <b>💡 add_item 方法的两个参数</b><br>
+    • <code class="inl">self</code> — 房子对象本身（自动传递）<br>
+    • <code class="inl">item</code> — 家具对象（手动传递）<br>
+    在方法内通过 <code class="inl">self.free_area</code> 访问房子属性，通过 <code class="inl">item.area</code> 访问家具属性
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>命名规范对照</h2>
+  <div class="tw">
+  <table>
+    <tr><th>对象</th><th>命名风格</th><th>正确示例</th><th>错误示例</th></tr>
+    <tr><td>类名</td><td>大驼峰 PascalCase</td><td><code class="inl">Person</code>、<code class="inl">LoginPage</code>、<code class="inl">HouseItem</code></td><td><code class="inl">person</code>、<code class="inl">login_page</code></td></tr>
+    <tr><td>方法名</td><td>小写下划线 snake_case</td><td><code class="inl">add_item</code>、<code class="inl">play_movie</code></td><td><code class="inl">AddItem</code>、<code class="inl">playMovie</code></td></tr>
+    <tr><td>属性名</td><td>小写下划线 snake_case</td><td><code class="inl">user_name</code>、<code class="inl">free_area</code></td><td><code class="inl">UserName</code>、<code class="inl">FreeArea</code></td></tr>
+    <tr><td>魔法方法</td><td>双下划线包围</td><td><code class="inl">__init__</code>、<code class="inl">__str__</code></td><td><code class="inl">_init_</code>、<code class="inl">init</code></td></tr>
+    <tr><td>对象（变量）</td><td>小写下划线 snake_case</td><td><code class="inl">tom</code>、<code class="inl">blue_cat</code></td><td><code class="inl">Tom</code>、<code class="inl">BlueCat</code></td></tr>
+  </table>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+
+</div><!-- /panel 1 -->
+
+<!-- ============ PANEL 2: 实战练习 ============ -->
+<div class="pan" id="p2">
+
+<div class="prog">
+  <div>📊 完成进度：<span id="pc">0</span> / 10</div>
+  <button class="mc-btn" onclick="mc()">全部勾选</button>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">1</span>实战练习（10 题）</h2>
+  <p>勾选复选框记录完成进度，点击"查看答案"展开参考代码。</p>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p1">
+  <div class="pt-body">
+    <div class="pt-t">1. 定义一个 <code class="inl">Cat</code> 类，包含 <code class="inl">eat</code> 和 <code class="inl">drink</code> 两个方法，分别打印"小猫爱吃鱼"和"小猫要喝水"。创建对象 <code class="inl">tom</code> 并调用这两个方法。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Cat</span>:
+    <span class="k">def</span> <span class="b">eat</span>(self):
+        <span class="b">print</span>(<span class="s">'小猫爱吃鱼...'</span>)
+
+    <span class="k">def</span> <span class="b">drink</span>(self):
+        <span class="b">print</span>(<span class="s">'小猫要喝水'</span>)
+
+tom <span class="o">=</span> <span class="b">Cat</span>()
+tom.<span class="b">eat</span>()
+tom.<span class="b">drink</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p2">
+  <div class="pt-body">
+    <div class="pt-t">2. 在 <code class="inl">Cat</code> 类中添加 <code class="inl">__init__</code> 方法，初始化 <code class="inl">name</code> 和 <code class="inl">age</code> 属性。修改 <code class="inl">eat</code> 方法，输出"小猫 xx, xx 岁 爱吃鱼"。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Cat</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, age):
+        self.name <span class="o">=</span> name
+        self.age <span class="o">=</span> age
+
+    <span class="k">def</span> <span class="b">eat</span>(self):
+        <span class="b">print</span>(<span class="s">f'小猫 {self.name}, {self.age} 岁 爱吃鱼'</span>)
+
+tom <span class="o">=</span> <span class="b">Cat</span>(<span class="s">'汤姆'</span>, <span class="n">3</span>)
+tom.<span class="b">eat</span>()  <span class="g"># 小猫 汤姆, 3 岁 爱吃鱼</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p3">
+  <div class="pt-body">
+    <div class="pt-t">3. 为 <code class="inl">Cat</code> 类添加 <code class="inl">__str__</code> 方法，使 <code class="inl">print(tom)</code> 输出 "姓名: 汤姆, 年龄: 3"。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Cat</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, age):
+        self.name <span class="o">=</span> name
+        self.age <span class="o">=</span> age
+
+    <span class="k">def</span> <span class="b">__str__</span>(self):
+        <span class="k">return</span> <span class="s">f'姓名: {self.name}, 年龄: {self.age}'</span>
+
+tom <span class="o">=</span> <span class="b">Cat</span>(<span class="s">'汤姆'</span>, <span class="n">3</span>)
+<span class="b">print</span>(tom)  <span class="g"># 姓名: 汤姆, 年龄: 3</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p4">
+  <div class="pt-body">
+    <div class="pt-t">4. 【作业题 1】定义 <code class="inl">Student</code> 类：属性有 <code class="inl">name</code>、<code class="inl">age</code>；方法有 <code class="inl">eat</code>（输出"xx 要吃饭"）、<code class="inl">sleep</code>（输出"xx 要睡觉"）、<code class="inl">year</code>（年龄 +1）、<code class="inl">__str__</code>（输出"姓名: xxx, 年龄: xx 岁"）。创建小明（18 岁）、小红（17 岁），分别调用方法。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Student</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, age):
+        self.name <span class="o">=</span> name
+        self.age <span class="o">=</span> age
+
+    <span class="k">def</span> <span class="b">__str__</span>(self):
+        <span class="k">return</span> <span class="s">f'姓名: {self.name}, 年龄: {self.age} 岁'</span>
+
+    <span class="k">def</span> <span class="b">eat</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 要吃饭'</span>)
+
+    <span class="k">def</span> <span class="b">sleep</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 要睡觉'</span>)
+
+    <span class="k">def</span> <span class="b">year</span>(self):
+        self.age <span class="o">+=</span> <span class="n">1</span>
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    xm <span class="o">=</span> <span class="b">Student</span>(<span class="s">'小明'</span>, <span class="n">18</span>)
+    xh <span class="o">=</span> <span class="b">Student</span>(<span class="s">'小红'</span>, <span class="n">17</span>)
+
+    xm.<span class="b">eat</span>()
+    xm.<span class="b">sleep</span>()
+    xm.<span class="b">year</span>()
+    <span class="b">print</span>(xm)  <span class="g"># 姓名: 小明, 年龄: 19 岁</span>
+
+    xh.<span class="b">eat</span>()
+    xh.<span class="b">sleep</span>()
+    xh.<span class="b">year</span>()
+    <span class="b">print</span>(xh)  <span class="g"># 姓名: 小红, 年龄: 18 岁</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p5">
+  <div class="pt-body">
+    <div class="pt-t">5. 【作业题 2】定义 <code class="inl">Fruit</code> 水果类：属性 <code class="inl">name</code>、<code class="inl">color</code>、<code class="inl">price</code>；方法 <code class="inl">show</code> 输出"水果名称：苹果，颜色：红色，价格：3.5"。创建 <code class="inl">apple</code> 和 <code class="inl">peach</code> 两个对象。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Fruit</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, color, price):
+        self.name <span class="o">=</span> name
+        self.color <span class="o">=</span> color
+        self.price <span class="o">=</span> price
+
+    <span class="k">def</span> <span class="b">show</span>(self):
+        <span class="b">print</span>(<span class="s">f'水果名称：{self.name}，颜色：{self.color}，价格：{self.price}'</span>)
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    apple <span class="o">=</span> <span class="b">Fruit</span>(<span class="s">'苹果'</span>, <span class="s">'红色'</span>, <span class="n">3.5</span>)
+    peach <span class="o">=</span> <span class="b">Fruit</span>(<span class="s">'peach'</span>, <span class="s">'粉色'</span>, <span class="n">5.0</span>)
+
+    apple.<span class="b">show</span>()  <span class="g"># 水果名称：苹果，颜色：红色，价格：3.5</span>
+    peach.<span class="b">show</span>()  <span class="g"># 水果名称：peach，颜色：粉色，价格：5.0</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p6">
+  <div class="pt-body">
+    <div class="pt-t">6. 【作业题 3】定义 <code class="inl">Computer</code> 电脑类：属性 <code class="inl">brand</code>（品牌）、<code class="inl">price</code>；方法 <code class="inl">play_movie(movie)</code> 输出"xx 播放电影 oo"（xx 为品牌，oo 为电影名）。创建小米电脑播放"葫芦娃"、苹果电脑播放"变形金刚"。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Computer</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, brand, price):
+        self.brand <span class="o">=</span> brand
+        self.price <span class="o">=</span> price
+
+    <span class="k">def</span> <span class="b">play_movie</span>(self, movie):
+        <span class="b">print</span>(<span class="s">f'{self.brand} 播放电影 {movie}'</span>)
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    mi <span class="o">=</span> <span class="b">Computer</span>(<span class="s">'小米'</span>, <span class="n">4999</span>)
+    mac <span class="o">=</span> <span class="b">Computer</span>(<span class="s">'苹果'</span>, <span class="n">12999</span>)
+
+    mi.<span class="b">play_movie</span>(<span class="s">'葫芦娃'</span>)        <span class="g"># 小米 播放电影 葫芦娃</span>
+    mac.<span class="b">play_movie</span>(<span class="s">'变形金刚'</span>)     <span class="g"># 苹果 播放电影 变形金刚</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p7">
+  <div class="pt-body">
+    <div class="pt-t">7. 定义 <code class="inl">Person</code> 类，包含 <code class="inl">name</code>、<code class="inl">weight</code> 属性。方法 <code class="inl">run</code> 让体重 -0.5，方法 <code class="inl">eat</code> 让体重 +1。创建小明（75kg），调用一次 run 和两次 eat，最后 print 显示体重。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Person</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, weight):
+        self.name <span class="o">=</span> name
+        self.weight <span class="o">=</span> weight
+
+    <span class="k">def</span> <span class="b">__str__</span>(self):
+        <span class="k">return</span> <span class="s">f'{self.name} 目前体重 {self.weight} kg'</span>
+
+    <span class="k">def</span> <span class="b">run</span>(self):
+        self.weight <span class="o">-=</span> <span class="n">0.5</span>
+
+    <span class="k">def</span> <span class="b">eat</span>(self):
+        self.weight <span class="o">+=</span> <span class="n">1</span>
+
+xm <span class="o">=</span> <span class="b">Person</span>(<span class="s">'小明'</span>, <span class="n">75</span>)
+xm.<span class="b">run</span>()
+xm.<span class="b">eat</span>()
+xm.<span class="b">eat</span>()
+<span class="b">print</span>(xm)   <span class="g"># 小明 目前体重 76.5 kg</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p8">
+  <div class="pt-body">
+    <div class="pt-t">8. 定义 <code class="inl">LoginPage</code> 登录页面类：属性 <code class="inl">username</code>、<code class="inl">password</code>、<code class="inl">verify_code</code>；方法 <code class="inl">login</code> 依次输出"1. 输入用户名"、"2. 输入密码"、"3. 输入验证码"、"4. 点击登录"。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">LoginPage</span>:
+    <span class="c">"""登录页面"""</span>
+    <span class="k">def</span> <span class="b">__init__</span>(self, username, password, code):
+        self.username <span class="o">=</span> username
+        self.password <span class="o">=</span> password
+        self.verify_code <span class="o">=</span> code
+
+    <span class="k">def</span> <span class="b">login</span>(self):
+        <span class="b">print</span>(<span class="s">f'1. 输入用户名: {self.username}'</span>)
+        <span class="b">print</span>(<span class="s">f'2. 输入密码: {self.password}'</span>)
+        <span class="b">print</span>(<span class="s">f'3. 输入验证码: {self.verify_code}'</span>)
+        <span class="b">print</span>(<span class="s">f'4. 点击登录'</span>)
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    admin <span class="o">=</span> <span class="b">LoginPage</span>(<span class="s">'admin'</span>, <span class="s">'123456'</span>, <span class="s">'8888'</span>)
+    admin.<span class="b">login</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p9">
+  <div class="pt-body">
+    <div class="pt-t">9. 定义 <code class="inl">Dog</code> 狗类，属性 <code class="inl">name</code>、<code class="inl">color</code>。方法 <code class="inl">bark</code>（叫）和 <code class="inl">shake</code>（摇尾巴）。在 <code class="inl">bark</code> 方法中接收参数 <code class="inl">visitor</code>，如果是 "家人" 就调用 <code class="inl">shake</code>，否则汪汪叫。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">Dog</span>:
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, color):
+        self.name <span class="o">=</span> name
+        self.color <span class="o">=</span> color
+
+    <span class="k">def</span> <span class="b">shake</span>(self):
+        <span class="b">print</span>(<span class="s">f'{self.name} 摇尾巴'</span>)
+
+    <span class="k">def</span> <span class="b">bark</span>(self, visitor):
+        <span class="k">if</span> visitor <span class="o">==</span> <span class="s">'家人'</span>:
+            self.<span class="b">shake</span>()       <span class="g"># 在方法内通过 self 调用其他方法</span>
+        <span class="k">else</span>:
+            <span class="b">print</span>(<span class="s">f'{self.name} 汪汪叫'</span>)
+
+da_huang <span class="o">=</span> <span class="b">Dog</span>(<span class="s">'大黄'</span>, <span class="s">'黄色'</span>)
+da_huang.<span class="b">bark</span>(<span class="s">'生人'</span>)   <span class="g"># 大黄 汪汪叫</span>
+da_huang.<span class="b">bark</span>(<span class="s">'家人'</span>)   <span class="g"># 大黄 摇尾巴</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p10">
+  <div class="pt-body">
+    <div class="pt-t">10. 【作业题 4 · 摆放家具】定义 <code class="inl">House</code>（房子，属性：户型/总面积/剩余面积/家具列表）和 <code class="inl">HouseItem</code>（家具，属性：名字/占地面积）两个类。<code class="inl">add_item</code> 方法判断剩余面积是否足够，足够则添加并扣减面积，不够则提示换大房子。创建席梦思(4)、衣柜(2)、餐桌(1.5) 放入"三室一厅"(100㎡)。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">class</span> <span class="b">HouseItem</span>:
+    <span class="c">"""家具类"""</span>
+    <span class="k">def</span> <span class="b">__init__</span>(self, name, area):
+        self.name <span class="o">=</span> name
+        self.area <span class="o">=</span> area
+
+    <span class="k">def</span> <span class="b">__str__</span>(self):
+        <span class="k">return</span> <span class="s">f'{self.name} 占地面积 {self.area} 平米'</span>
+
+
+<span class="k">class</span> <span class="b">House</span>:
+    <span class="c">"""房子类"""</span>
+    <span class="k">def</span> <span class="b">__init__</span>(self, h_type, area):
+        self.h_type <span class="o">=</span> h_type
+        self.total_area <span class="o">=</span> area
+        self.free_area <span class="o">=</span> area    <span class="g"># 剩余面积=总面积</span>
+        self.item_list <span class="o">=</span> []      <span class="g"># 刚开始没有家具</span>
+
+    <span class="k">def</span> <span class="b">__str__</span>(self):
+        <span class="k">return</span> (<span class="s">f'户型:{self.h_type}、总面积:{self.total_area}平米、'</span>
+                <span class="s">f'剩余面积:{self.free_area}平米、家具列表:{self.item_list}'</span>)
+
+    <span class="k">def</span> <span class="b">add_item</span>(self, item):
+        <span class="c">"""添加家具，item 是家具对象"""</span>
+        <span class="k">if</span> self.free_area <span class="o">&gt;</span> item.area:
+            <span class="b">print</span>(<span class="s">f'添加家具: {item.name}'</span>)
+            self.item_list.<span class="b">append</span>(item.name)
+            self.free_area <span class="o">-=</span> item.area
+        <span class="k">else</span>:
+            <span class="b">print</span>(<span class="s">f'房子剩余面积不足，换个大房子吧.....'</span>)
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    bed <span class="o">=</span> <span class="b">HouseItem</span>(<span class="s">'席梦思'</span>, <span class="n">4</span>)
+    chest <span class="o">=</span> <span class="b">HouseItem</span>(<span class="s">'衣柜'</span>, <span class="n">2</span>)
+    table <span class="o">=</span> <span class="b">HouseItem</span>(<span class="s">'餐桌'</span>, <span class="n">1.5</span>)
+
+    house <span class="o">=</span> <span class="b">House</span>(<span class="s">'三室一厅'</span>, <span class="n">100</span>)
+    <span class="b">print</span>(house)
+
+    house.<span class="b">add_item</span>(bed)
+    house.<span class="b">add_item</span>(chest)
+    house.<span class="b">add_item</span>(table)
+    <span class="b">print</span>(house)
+    <span class="g"># 户型:三室一厅、总面积:100、剩余面积:92.5、家具列表:['席梦思','衣柜','餐桌']</span></div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+
+</div><!-- /panel 2 -->
+
+<!-- ============ PANEL 3: 面试精讲 ============ -->
+<div class="pan" id="p3">
+
+<div class="sec">
+  <h2><span class="ico">1</span>面试高频题（12 题）</h2>
+  <p>点击题目展开详细解析。难度标签：<span class="iq-lv lv-b">基础</span> <span class="iq-lv lv-m">进阶</span> <span class="iq-lv lv-h">陷阱/场景</span></p>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">什么是面向对象？它和面向过程有什么区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>面向对象（OOP）</b>是一种编程思想，把现实世界的事物抽象成<b>类</b>，并通过<b>对象</b>来组织代码。Python 中的核心是"类"和"对象"。</p>
+    <p><b>主要区别：</b></p>
+    <ul>
+      <li><b>面向过程</b>：关注"怎么做"，按步骤组织代码，核心是<b>函数</b>。适合小型项目（如脚本工具）。</li>
+      <li><b>面向对象</b>：关注"谁来做"，按角色/职责组织代码，核心是<b>类与对象</b>。适合中大型项目（如自动化测试框架）。</li>
+    </ul>
+    <p><b>测试场景举例：</b>编写 UI 自动化时，面向对象就是把每个页面抽象为一个类（LoginPage、HomePage），把页面操作封装为方法 — 这就是 Page Object Model（POM）模式的基础。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">类的三要素是什么？请举例说明。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>类的三要素是：<b>类名、属性、方法</b>。</p>
+    <ul>
+      <li><b>类名</b>：一类事物的统称，遵循<b>大驼峰命名法</b>（首字母大写）。</li>
+      <li><b>属性</b>：事物的<b>特征</b>，即"是什么"。</li>
+      <li><b>方法</b>：事物的<b>行为</b>，即"能做什么"。</li>
+    </ul>
+    <p><b>例子：</b>设计一个登录页面类</p>
+    <ul>
+      <li>类名：<code class="inl">LoginPage</code></li>
+      <li>属性：<code class="inl">username</code>、<code class="inl">password</code>、<code class="inl">verify_code</code></li>
+      <li>方法：<code class="inl">login()</code></li>
+    </ul>
+    <p>类名的提取技巧：<b>名词提炼法</b>，从业务描述中找名词，通常就是类名。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">类和对象有什么区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比项</th><th>类（Class）</th><th>对象（Object）</th></tr>
+      <tr><td>本质</td><td>抽象的模板</td><td>具体的实例</td></tr>
+      <tr><td>数量</td><td>定义一次</td><td>可创建多个</td></tr>
+      <tr><td>使用方式</td><td>不能直接使用</td><td>可直接使用</td></tr>
+      <tr><td>关键字</td><td><code class="inl">class</code> 定义</td><td><code class="inl">类名()</code> 创建</td></tr>
+      <tr><td>例子</td><td>"狗"</td><td>"李四家的大黄"</td></tr>
+    </table>
+    </div>
+    <p>简单记：<b>类是"图纸"，对象是按图纸"造出来的实物"。</b></p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">谈谈你对 self 的理解。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>self 的本质：</b>self 是类的方法中的第一个参数，它代表<b>调用该方法的对象本身</b>。</p>
+    <p><b>关键要点：</b></p>
+    <ul>
+      <li>从语法上看，self 只是一个普通的形参，名字可以改成任意合法变量名，但<b>约定俗成用 self</b>。</li>
+      <li>调用方法时<b>不需要手动传递</b> self，Python 解释器会<b>自动把调用对象</b>作为第一个参数传入。</li>
+      <li>因此 <code class="inl">tom.eat()</code> 等价于 <code class="inl">Cat.eat(tom)</code>，self 就是 tom。</li>
+      <li>在方法内通过 <code class="inl">self.属性名</code> 访问/修改属性，通过 <code class="inl">self.方法名()</code> 调用其他方法。</li>
+    </ul>
+    <p><b>一句话：谁调方法，self 就是谁。</b></p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">__init__ 方法的作用是什么？什么时候被调用？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>__init__</b> 是一个魔法方法（特殊方法），也叫<b>初始化方法</b>或<b>构造方法</b>。</p>
+    <p><b>调用时机：</b>在<b>创建对象之后自动调用</b>，每次 <code class="inl">类名()</code> 都会触发一次。</p>
+    <p><b>主要作用：</b>初始化对象，<b>给对象添加属性</b>。把变化的属性作为参数传入，避免在类外手动添加。</p>
+    <p><b>使用示例：</b></p>
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">__init__</span>(<span class="o">self</span>, name, age):
+        <span class="o">self</span>.name <span class="o">=</span> name
+        <span class="o">self</span>.age <span class="o">=</span> age
+
+tom <span class="o">=</span> <span class="p">Cat</span>(<span class="s">'汤姆'</span>, <span class="n">3</span>)   <span class="g"># 自动调用 __init__</span></div>
+    <p><b>注意：</b>方法名必须是<b>左右各两个下划线</b>（不是 <code class="inl">_init_</code>）。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">__str__ 方法的作用是什么？必须返回什么？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>__str__</b> 是一个魔法方法。</p>
+    <p><b>调用时机：</b>当使用 <code class="inl">print(对象)</code> 打印对象时<b>自动调用</b>。</p>
+    <p><b>主要作用：</b>定制打印对象时的输出内容，通常用来展示对象的属性信息。</p>
+    <p><b>注意事项：</b></p>
+    <ul>
+      <li>必须 <code class="inl">return</code> 一个<b>字符串</b>，不能用 <code class="inl">print</code>。</li>
+      <li>如果不定义 __str__，<code class="inl">print(对象)</code> 默认输出对象的内存地址，对用户不友好。</li>
+      <li>返回非字符串会报错：<code class="inl">TypeError: __str__ returned non-string</code>。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">什么是魔法方法？常见的有哪些？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>魔法方法（Magic Methods）</b>是 Python 中一类<b>以双下划线开头和结尾</b>的特殊方法，在<b>满足特定条件时被自动调用</b>，无需手动调用。</p>
+    <p><b>学习魔法方法 3 要点：</b></p>
+    <ol>
+      <li>调用时机（什么情况下自动调用）</li>
+      <li>应用场景（用来做什么）</li>
+      <li>注意事项（容易踩的坑）</li>
+    </ol>
+    <p><b>常见魔法方法：</b></p>
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>方法</th><th>调用时机</th><th>作用</th></tr>
+      <tr><td><code class="inl">__init__</code></td><td>创建对象后</td><td>初始化属性</td></tr>
+      <tr><td><code class="inl">__str__</code></td><td>print(对象)</td><td>定制打印输出</td></tr>
+      <tr><td><code class="inl">__del__</code></td><td>对象被销毁前</td><td>清理资源</td></tr>
+      <tr><td><code class="inl">__len__</code></td><td>len(对象)</td><td>返回长度</td></tr>
+      <tr><td><code class="inl">__eq__</code></td><td>对象 == 对象</td><td>定制相等比较</td></tr>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">封装是什么？为什么要封装？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>封装（Encapsulation）</b>是面向对象的三大特性之一（封装/继承/多态）。</p>
+    <p><b>定义：</b>根据需求，把相关的<b>属性</b>和<b>方法</b>定义到同一个类中。把数据和处理数据的逻辑"打包"起来。</p>
+    <p><b>封装的好处：</b></p>
+    <ul>
+      <li><b>代码组织清晰</b>：相关功能集中在一处，便于维护。</li>
+      <li><b>提高复用性</b>：定义一次类，可创建多个对象。</li>
+      <li><b>隐藏实现细节</b>：使用者只需调用方法，不必关心内部实现。</li>
+      <li><b>降低耦合</b>：修改类内部逻辑不影响外部调用。</li>
+    </ul>
+    <p><b>测试场景：</b>POM 模式就是把每个页面封装为一个类，元素定位是属性，操作是方法。当 UI 改动时只需修改对应页面类。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">类的命名规范是什么？属性和方法呢？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <ul>
+      <li><b>类名</b>：<b>大驼峰命名法</b>（PascalCase），所有单词首字母大写。例如：<code class="inl">Person</code>、<code class="inl">LoginPage</code>、<code class="inl">HouseItem</code>。</li>
+      <li><b>属性 / 方法 / 变量名</b>：<b>小写下划线</b>（snake_case），单词间用 _ 分隔。例如：<code class="inl">user_name</code>、<code class="inl">add_item</code>、<code class="inl">free_area</code>。</li>
+      <li><b>魔法方法</b>：左右各<b>两个下划线</b>。例如：<code class="inl">__init__</code>、<code class="inl">__str__</code>。</li>
+      <li><b>私有属性/方法</b>（约定）：单下划线开头表示"内部使用"，如 <code class="inl">_internal</code>；双下划线开头会触发名称改写，如 <code class="inl">__secret</code>。</li>
+    </ul>
+    <p>遵循这些规范的代码可读性更好，也符合 PEP 8 风格指南。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">下面代码会输出什么？为什么？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term"><span class="k">class</span> <span class="p">Cat</span>:
+    <span class="k">def</span> <span class="p">__str__</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">"被打印了"</span>)
+
+tom <span class="o">=</span> <span class="p">Cat</span>()
+<span class="p">print</span>(tom)</div>
+    <p><b>答案：</b>会报错 <code class="inl">TypeError: __str__ returned non-string (type NoneType)</code>。</p>
+    <p><b>原因：</b><code class="inl">__str__</code> 方法必须 <b>return 一个字符串</b>，而这里用的是 <code class="inl">print</code> — print 函数本身返回 <code class="inl">None</code>。Python 在调用 <code class="inl">print(tom)</code> 时会自动调用 <code class="inl">__str__</code>，但发现返回值不是字符串就抛出 TypeError。</p>
+    <p><b>正确写法：</b></p>
+<div class="term">    <span class="k">def</span> <span class="p">__str__</span>(<span class="o">self</span>):
+        <span class="k">return</span> <span class="s">"被打印了"</span>   <span class="g"># 用 return，不是 print</span></div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">下面这段代码哪些会调用 __init__？为什么？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term">a <span class="o">=</span> <span class="p">Cat</span>           <span class="g"># 1</span>
+b <span class="o">=</span> <span class="p">Cat</span>()         <span class="g"># 2</span>
+c <span class="o">=</span> b             <span class="g"># 3</span>
+d <span class="o">=</span> a()            <span class="g"># 4</span></div>
+    <p><b>答案：</b>只有 ② 和 ④ 会调用 __init__。</p>
+    <ul>
+      <li><b>① a = Cat</b> — 不会。这是把<b>类本身</b>（不是对象）赋给 a，a 现在也是这个类。</li>
+      <li><b>② b = Cat()</b> — 会。<code class="inl">Cat()</code> 是创建对象，自动调用 __init__。</li>
+      <li><b>③ c = b</b> — 不会。只是<b>引用传递</b>，c 和 b 指向同一个对象。</li>
+      <li><b>④ d = a()</b> — 会。因为 a 已经是 Cat 类，<code class="inl">a()</code> 等价于 <code class="inl">Cat()</code>，是创建对象。</li>
+    </ul>
+    <p><b>记忆要点：</b>只有<b>类名后加括号 ()</b> 才是创建对象，才会触发 __init__。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">在自动化测试中，面向对象有什么实际应用？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>面向对象在测试领域应用非常广泛，是测试框架设计的核心思想：</p>
+    <ol>
+      <li><b>Page Object Model（POM）</b>：每个页面抽象为一个类，元素是属性，操作是方法。例如 <code class="inl">LoginPage</code>、<code class="inl">CartPage</code>。</li>
+      <li><b>测试数据封装</b>：把测试用户、商品等抽象为类，便于复用和参数化。</li>
+      <li><b>接口测试封装</b>：每个 API 抽象为一个方法或类，封装请求构造、断言逻辑。</li>
+      <li><b>基类设计</b>：定义 <code class="inl">BasePage</code>、<code class="inl">BaseTestCase</code> 等基类，子类继承复用通用方法（继承是后续课程内容）。</li>
+      <li><b>测试报告对象</b>：把测试结果封装为对象，便于序列化和展示。</li>
+    </ol>
+    <p>掌握面向对象是从"会写脚本"进阶到"会做框架"的关键能力。</p>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+
+</div><!-- /panel 3 -->
+
+<!-- ============ PANEL 4: 测验 ============ -->
+<div class="pan" id="p4">
+
+<div class="sec">
+  <h2><span class="ico">1</span>知识测验（15 题）</h2>
+  <p>选择每题答案后，点击底部"提交答卷"查看成绩和解析。</p>
+</div>
+
+<div id="qr">
+  <h3>🎉 完成！</h3>
+  <div class="sc"><span id="sc-num">0</span> / 15</div>
+  <div id="sc-msg" style="font-size:13px;opacity:.92"></div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">1</span>在 Python 中，定义类使用的关键字是？</div>
+  <div class="opt" data-v="A">A. def</div>
+  <div class="opt" data-v="B">B. function</div>
+  <div class="opt" data-v="C">C. class</div>
+  <div class="opt" data-v="D">D. object</div>
+  <div class="qz-ex"><b>解析：</b>Python 中使用 <code class="inl">class</code> 关键字定义类，<code class="inl">def</code> 用于定义函数（方法）。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">2</span>类的三要素不包括以下哪一项？</div>
+  <div class="opt" data-v="A">A. 类名</div>
+  <div class="opt" data-v="B">B. 文档字符串</div>
+  <div class="opt" data-v="C">C. 属性</div>
+  <div class="opt" data-v="D">D. 方法</div>
+  <div class="qz-ex"><b>解析：</b>类的三要素是<b>类名、属性、方法</b>。文档字符串虽然推荐写，但不是三要素之一。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">3</span>下列类名命名最规范的是？</div>
+  <div class="opt" data-v="A">A. LoginPage</div>
+  <div class="opt" data-v="B">B. login_page</div>
+  <div class="opt" data-v="C">C. loginpage</div>
+  <div class="opt" data-v="D">D. LOGIN_PAGE</div>
+  <div class="qz-ex"><b>解析：</b>Python 类名遵循<b>大驼峰命名法（PascalCase）</b>，每个单词首字母大写。<code class="inl">login_page</code> 是属性/变量的命名风格。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">4</span>关于 self 参数，下列说法错误的是？</div>
+  <div class="opt" data-v="A">A. self 代表调用方法的对象本身</div>
+  <div class="opt" data-v="B">B. 方法定义时必须把 self 作为第一个参数</div>
+  <div class="opt" data-v="C">C. 调用方法时不需要手动传 self</div>
+  <div class="opt" data-v="D">D. self 这个名字不能修改</div>
+  <div class="qz-ex"><b>解析：</b>self 只是一个普通形参，名字可以改成任意合法变量名，但<b>约定俗成</b>用 self，改名不报错但极不推荐。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">5</span><code class="inl">__init__</code> 方法在什么时候被自动调用？</div>
+  <div class="opt" data-v="A">A. 定义类时</div>
+  <div class="opt" data-v="B">B. 创建对象时</div>
+  <div class="opt" data-v="C">C. 打印对象时</div>
+  <div class="opt" data-v="D">D. 调用方法时</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">__init__</code> 在<b>创建对象后</b>自动调用，每次 <code class="inl">类名()</code> 都会触发，用于初始化属性。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">6</span><code class="inl">__str__</code> 方法在什么时候被自动调用？</div>
+  <div class="opt" data-v="A">A. 创建对象时</div>
+  <div class="opt" data-v="B">B. 访问属性时</div>
+  <div class="opt" data-v="C">C. 使用 print(对象) 打印对象时</div>
+  <div class="opt" data-v="D">D. 调用方法时</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">__str__</code> 在 <code class="inl">print(对象)</code> 打印对象时自动调用，并使用它的返回值作为输出内容。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">7</span><code class="inl">__str__</code> 方法必须返回什么类型的值？</div>
+  <div class="opt" data-v="A">A. 字符串（str）</div>
+  <div class="opt" data-v="B">B. 整数（int）</div>
+  <div class="opt" data-v="C">C. None</div>
+  <div class="opt" data-v="D">D. 任意类型都可以</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">__str__</code> 必须 <code class="inl">return</code> 一个<b>字符串</b>，否则会抛出 <code class="inl">TypeError: __str__ returned non-string</code>。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">8</span>以下哪段代码会自动调用 <code class="inl">__init__</code> 方法？</div>
+  <div class="opt" data-v="A">A. <code class="inl">a = Cat</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">a = Cat()</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">b = a</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">Cat</code></div>
+  <div class="qz-ex"><b>解析：</b>只有<b>类名后加括号</b> <code class="inl">Cat()</code> 才是创建对象，触发 __init__。其他选项只是引用赋值。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">9</span>在类的方法内，访问对象自身的属性应该用？</div>
+  <div class="opt" data-v="A">A. <code class="inl">属性名</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">this.属性名</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">self.属性名</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">类名.属性名</code></div>
+  <div class="qz-ex"><b>解析：</b>在类内通过 <code class="inl">self.属性名</code> 访问当前对象的属性。Python 中没有 <code class="inl">this</code>（那是 Java/C++ 的写法）。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">10</span>下面代码的输出是什么？<br>
+<code class="inl">class A:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self, x):</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.x = x</code><br>
+<code class="inl">a = A(10)</code><br>
+<code class="inl">b = A(20)</code><br>
+<code class="inl">print(a.x + b.x)</code></div>
+  <div class="opt" data-v="A">A. 10</div>
+  <div class="opt" data-v="B">B. 20</div>
+  <div class="opt" data-v="C">C. AB</div>
+  <div class="opt" data-v="D">D. 30</div>
+  <div class="qz-ex"><b>解析：</b>a 和 b 是两个独立的对象，<code class="inl">a.x = 10</code>，<code class="inl">b.x = 20</code>，相加 = 30。每个对象有自己独立的属性值。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">11</span>下面关于"封装"的描述，正确的是？</div>
+  <div class="opt" data-v="A">A. 把相关的属性和方法定义到同一个类中</div>
+  <div class="opt" data-v="B">B. 把类打包成模块导出</div>
+  <div class="opt" data-v="C">C. 把所有变量都设为全局变量</div>
+  <div class="opt" data-v="D">D. 把代码写在一个函数里</div>
+  <div class="qz-ex"><b>解析：</b>封装是面向对象的核心思想之一，指根据需求把相关的属性和方法<b>定义到同一个类中</b>，便于组织和复用代码。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">12</span>下面代码运行结果是？<br>
+<code class="inl">class Cat:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;pass</code><br>
+<code class="inl">tom = Cat()</code><br>
+<code class="inl">print(tom)</code></div>
+  <div class="opt" data-v="A">A. tom</div>
+  <div class="opt" data-v="B">B. 类似 &lt;__main__.Cat object at 0x...&gt; 的内存地址</div>
+  <div class="opt" data-v="C">C. None</div>
+  <div class="opt" data-v="D">D. 报错</div>
+  <div class="qz-ex"><b>解析：</b>没有定义 <code class="inl">__str__</code> 时，<code class="inl">print(对象)</code> 默认输出对象的<b>内存地址</b>，格式类似 <code class="inl">&lt;__main__.Cat object at 0x7f8a...&gt;</code>。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">13</span>关于魔法方法，下列说法正确的是？</div>
+  <div class="opt" data-v="A">A. 必须手动调用才会执行</div>
+  <div class="opt" data-v="B">B. 方法名前后各一个下划线</div>
+  <div class="opt" data-v="C">C. 只能在子类中使用</div>
+  <div class="opt" data-v="D">D. 满足特定条件时由 Python 自动调用</div>
+  <div class="qz-ex"><b>解析：</b>魔法方法是以<b>双下划线</b>开头和结尾的特殊方法，在满足特定条件（如创建对象、打印对象等）时由 Python 解释器<b>自动调用</b>。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">14</span>在 add_item 方法中 <code class="inl">def add_item(self, item)</code>，self 和 item 分别指什么？</div>
+  <div class="opt" data-v="A">A. 都是房子对象</div>
+  <div class="opt" data-v="B">B. 都是家具对象</div>
+  <div class="opt" data-v="C">C. self 是房子对象，item 是家具对象</div>
+  <div class="opt" data-v="D">D. self 是家具对象，item 是房子对象</div>
+  <div class="qz-ex"><b>解析：</b>调用 <code class="inl">house.add_item(bed)</code> 时，self 自动绑定为 house（调用者），item 是手动传入的参数 bed（家具对象）。所以方法内可用 <code class="inl">self.free_area</code> 访问房子属性，<code class="inl">item.area</code> 访问家具属性。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">15</span>在自动化测试 POM（Page Object Model）模式中，下面哪种设计最符合面向对象思想？</div>
+  <div class="opt" data-v="A">A. 每个页面写成一个类，元素是属性、操作是方法</div>
+  <div class="opt" data-v="B">B. 把所有元素和操作写在一个全局函数里</div>
+  <div class="opt" data-v="C">C. 每个测试用例独立，不复用任何代码</div>
+  <div class="opt" data-v="D">D. 用字典存储所有页面元素</div>
+  <div class="qz-ex"><b>解析：</b>POM 模式正是面向对象在测试中的经典应用：每个页面抽象为一个类（如 LoginPage），元素定位器作为属性，操作（login、click_submit 等）作为方法。当 UI 改变时只需修改对应页面类。</div>
+</div>
+
+<button class="qbtn" onclick="sub()">提交答卷</button>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+
+</div><!-- /panel 4 -->
+
+</div><!-- /wrap -->
+
+<script>
+// ============ Navigation ============
+const pans = document.querySelectorAll('.pan');
+const tabs = document.querySelectorAll('.t');
+const dots = document.getElementById('dots');
+
+for(let i=0; i<pans.length; i++){
+  const d = document.createElement('span');
+  d.className = 'dot' + (i===0?' a':'');
+  d.onclick = ()=> go(i);
+  dots.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=> t.classList.toggle('a', k===i));
+  pans.forEach((p,k)=> p.classList.toggle('a', k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=> d.classList.toggle('a', k===i));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+tabs.forEach((t,i)=>{
+  t.onclick = ()=> go(i);
+});
+
+// ============ Practice: toggle answer ============
+function tr(el){
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent = ans.classList.contains('s') ? '隐藏答案 ›' : '查看答案 ›';
+}
+
+// ============ Interview accordion ============
+function tq(hdr){
+  const iq = hdr.parentElement;
+  iq.classList.toggle('o');
+}
+
+// ============ Practice progress ============
+const cbs = document.querySelectorAll('.ci');
+function upc(){
+  const done = document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent = done;
+  cbs.forEach(cb=>{
+    cb.closest('.pt').classList.toggle('done', cb.checked);
+  });
+  if(done === 10){
+    document.querySelectorAll('.dot')[2].classList.add('d');
+  } else {
+    document.querySelectorAll('.dot')[2].classList.remove('d');
+  }
+}
+cbs.forEach(cb=> cb.onchange = upc);
+upc();
+
+function mc(){
+  cbs.forEach(cb=> cb.checked = true);
+  upc();
+}
+
+// ============ Quiz system ============
+document.querySelectorAll('.qz').forEach(qz=>{
+  qz.querySelectorAll('.opt').forEach(opt=>{
+    opt.onclick = ()=>{
+      if(qz.classList.contains('locked')) return;
+      qz.querySelectorAll('.opt').forEach(o=> o.classList.remove('sel'));
+      opt.classList.add('sel');
+    };
+  });
+});
+
+function sub(){
+  const qzs = document.querySelectorAll('.qz');
+  let score = 0;
+  qzs.forEach(qz=>{
+    qz.classList.add('locked');
+    const ans = qz.dataset.a;
+    const sel = qz.querySelector('.opt.sel');
+    qz.querySelectorAll('.opt').forEach(opt=>{
+      opt.classList.remove('sel');
+      if(opt.dataset.v === ans){
+        opt.classList.add('ok');
+      }
+      if(sel && opt === sel && sel.dataset.v !== ans){
+        opt.classList.add('no');
+      }
+    });
+    if(sel && sel.dataset.v === ans){
+      score++;
+    }
+    qz.querySelector('.qz-ex').classList.add('s');
+  });
+  
+  document.getElementById('sc-num').textContent = score;
+  let msg = '';
+  if(score === 15) msg = '满分！面向对象概念掌握得非常扎实！🎉';
+  else if(score >= 12) msg = '很棒！基础概念已经掌握，继续加油！💪';
+  else if(score >= 9) msg = '还不错！请复习一下错题的解析～📖';
+  else if(score >= 6) msg = '继续努力！建议回到知识讲解重新学习。📚';
+  else msg = '别灰心！面向对象需要多练习，再来一次吧。💡';
+  document.getElementById('sc-msg').textContent = msg;
+  
+  const qr = document.getElementById('qr');
+  qr.classList.add('s');
+  qr.scrollIntoView({behavior:'smooth', block:'start'});
+  
+  // Mark quiz dot as done
+  document.querySelectorAll('.dot')[4].classList.add('d');
+  
+  // postMessage to parent
+  try{
+    window.parent.postMessage({
+      type:'qa_quiz_result',
+      score: score,
+      total: 15,
+      day: 's4d6'
+    }, '*');
+  } catch(e){}
+}
+</script>
+</body>
+</html>

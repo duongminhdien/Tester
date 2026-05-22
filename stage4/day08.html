@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 08 · JSON 文件操作与异常处理</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --day:#d97706;
+  --day-d:#b45309;
+  --day-bg:rgba(217,119,6,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6
+}
+body{
+  font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.7;
+  font-size:14px;
+  -webkit-font-smoothing:antialiased
+}
+.wrap{max-width:960px;margin:0 auto;padding:20px 20px 50px}
+
+/* Header */
+.hd{
+  background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);
+  color:#fff;
+  padding:28px 28px 24px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 8px 24px rgba(217,119,6,.25)
+}
+.hd-tag{
+  display:inline-block;
+  background:rgba(255,255,255,.18);
+  padding:4px 10px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.5px;
+  font-family:'Space Mono',monospace;
+  margin-bottom:10px
+}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+.hd-stats>div{font-size:12px;opacity:.92}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;margin-right:4px}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t:hover{color:var(--day-d);background:var(--day-bg)}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(217,119,6,.3)}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sections */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{margin:8px 0;color:var(--ink2);font-size:13.5px}
+.sec ul,.sec ol{margin:8px 0 8px 20px;color:var(--ink2);font-size:13.5px}
+.sec li{margin:4px 0}
+
+/* Code */
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .r{color:#f07178}
+.term .w{color:#fff;font-weight:600}
+.term .n{color:#f78c6c}
+.term .b{color:#89ddff}
+
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box b{display:inline-block;margin-bottom:2px}
+
+/* Tables */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq-body p{margin:10px 0}
+.iq-body ul,.iq-body ol{margin:8px 0 8px 18px}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1;min-width:0}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border);user-select:none}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:10px;padding:12px 14px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:8px;line-height:1.8;overflow-x:auto;white-space:pre}
+.pt-ans.s{display:block}
+.pt-ans .k{color:#c792ea}
+.pt-ans .s{color:#c3e88d}
+.pt-ans .n{color:#f78c6c}
+.pt-ans .g{color:#676e95;font-style:italic}
+.pt-ans .b{color:#89ddff}
+.pt-ans .w{color:#fff;font-weight:600}
+.pt-ans .o{color:#f78c6c}
+.pt-ans .c{color:#ffcb6b}
+
+.prog{background:var(--day-bg);padding:12px 16px;border-radius:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--day-d);font-weight:600;flex-wrap:wrap}
+.prog .mc-btn{background:var(--day);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.prog .mc-btn:hover{background:var(--day-d)}
+.prog #pc{font-family:'Space Mono',monospace;font-size:15px}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+
+.qbtn{display:block;margin:20px auto;background:var(--day);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(217,119,6,.3);transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px);box-shadow:0 6px 16px rgba(217,119,6,.4)}
+.qbtn:disabled{opacity:.5;cursor:not-allowed}
+#qr{display:none;background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:20px;border-radius:12px;margin-bottom:18px;text-align:center}
+#qr.s{display:block}
+#qr h3{font-size:18px;margin-bottom:8px}
+#qr .sc{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;margin:8px 0}
+
+/* Pnav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.pnav button:disabled:hover{border-color:var(--border);color:var(--ink2)}
+
+/* Visualizations */
+.viz{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:18px;margin:12px 0}
+.viz-ttl{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* Type mapping */
+.tm{display:grid;grid-template-columns:1fr auto 1fr;gap:8px 16px;font-family:'Space Mono',monospace;font-size:13px;align-items:center;background:#fff;border-radius:8px;padding:14px;border:1px solid var(--border)}
+.tm-l{background:#dbeafe;color:#1e40af;padding:6px 12px;border-radius:6px;text-align:center;font-weight:700}
+.tm-r{background:#fef3c7;color:#92400e;padding:6px 12px;border-radius:6px;text-align:center;font-weight:700}
+.tm-arr{color:var(--day);font-weight:700;text-align:center;font-size:16px}
+
+/* Try/Except flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.flow-s{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;position:relative}
+.flow-s .fn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;margin-bottom:8px}
+.flow-s .ft{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.flow-s .fd{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* Exception sample */
+.exc{background:#1e2030;border-radius:8px;padding:14px 16px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;color:#a6accd}
+.exc .et{color:#f07178;font-weight:700}
+.exc .ed{color:#ffcb6b}
+.exc .ef{color:#676e95}
+
+/* Try structure box */
+.try-box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:0;margin:14px 0;overflow:hidden;font-family:'Space Mono',monospace;font-size:13px}
+.try-box>div{padding:10px 16px;border-bottom:1px dashed var(--border)}
+.try-box>div:last-child{border-bottom:none}
+.try-tk{font-weight:700;color:var(--day-d)}
+.try-d{color:var(--muted);font-size:12px;font-family:inherit;margin-top:4px;line-height:1.6}
+.try-box .tr-r{background:#fef2f2;border-left:4px solid var(--red)}
+.try-box .tr-y{background:#fffbeb;border-left:4px solid var(--amber)}
+.try-box .tr-g{background:#f0fdf4;border-left:4px solid var(--green)}
+.try-box .tr-b{background:#eff6ff;border-left:4px solid var(--blue)}
+
+/* JSON tree visualizer */
+.jtree{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.8}
+.jtree .jk{color:#82aaff;font-weight:700}
+.jtree .js{color:#c3e88d}
+.jtree .jn{color:#f78c6c}
+.jtree .jb{color:#c792ea}
+.jtree .jnull{color:#676e95;font-style:italic}
+.jtree .jbr{color:#fff;background:var(--day);padding:0 6px;border-radius:3px;font-weight:700}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .qbtn{padding:11px 18px;font-size:13px}
+  .pnav button{font-size:12px;padding:9px 12px;min-width:100px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .pt-ans{font-size:11.5px;padding:10px}
+  .tm{grid-template-columns:1fr;gap:6px}
+  .tm-arr{transform:rotate(90deg)}
+  .flow{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · TESTER DAY 08</div>
+  <h1>JSON 文件操作与异常处理</h1>
+  <p>按行读取 · JSON 数据交换格式 · try/except 异常捕获 · 自动化测试数据准备</p>
+  <div class="hd-stats">
+    <div><b>2</b>种读法</div>
+    <div><b>6</b>JSON类型</div>
+    <div><b>5</b>异常块</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- TABS -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 0: 知识讲解 ============ -->
+<div class="pan a" id="p0">
+
+<div class="sec">
+  <h2><span class="ico">1</span>按行读取 readline()</h2>
+
+  <p>上节学习了 <code class="inl">read()</code> 一次读取全部内容。当文件很大时，更常用<b>按行读取</b>。</p>
+
+  <h3>readline() 基本用法</h3>
+<div class="term">文件对象.<span class="p">readline</span>()
+<span class="g"># 一次读取一行的内容，返回读取到的字符串</span>
+<span class="g"># 如果读到文件末尾，返回空字符串 ''</span></div>
+
+<div class="term"><span class="k">with</span> <span class="p">open</span>(<span class="s">'a.txt'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    buf <span class="o">=</span> f.<span class="p">readline</span>()       <span class="g"># 读第一行</span>
+    <span class="p">print</span>(buf)               <span class="g"># aaaaaa</span>
+    buf1 <span class="o">=</span> f.<span class="p">readline</span>()      <span class="g"># 读第二行</span>
+    <span class="p">print</span>(buf1)              <span class="g"># bbbbbb</span></div>
+
+  <div class="box info">
+    <b>💡 read() 和 readline() 共同点</b><br>
+    两者都在读到文件末尾时返回<b>空字符串 ''</b>，可以用来判断文件是否读完。
+  </div>
+
+  <h3>读取大文件的正确姿势</h3>
+  <p>大文件不要用 <code class="inl">read()</code>（会一次性加载到内存），用循环 readline()：</p>
+
+<div class="term"><span class="k">with</span> <span class="p">open</span>(<span class="s">'a.txt'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    <span class="k">while</span> <span class="p">True</span>:
+        buf <span class="o">=</span> f.<span class="p">readline</span>()
+        <span class="k">if</span> buf:                <span class="g"># 非空字符串为 True</span>
+            <span class="p">print</span>(buf, end<span class="o">=</span><span class="s">''</span>)
+        <span class="k">else</span>:                  <span class="g"># 空字符串 '' 为 False，文件读完</span>
+            <span class="k">break</span></div>
+
+  <h3>文本方式 vs 二进制方式</h3>
+  <div class="tw">
+  <table>
+    <tr><th>方式</th><th>模式</th><th>适用文件</th><th>encoding 参数</th></tr>
+    <tr><td>文本</td><td><code class="inl">r / w / a</code></td><td>只能打开文本文件，会自动编码转换</td><td>需要传 <code class="inl">encoding='utf-8'</code></td></tr>
+    <tr><td>二进制</td><td><code class="inl">rb / wb / ab</code></td><td>可打开文本和二进制文件</td><td><b>不能</b>传 encoding 参数</td></tr>
+  </table>
+  </div>
+
+  <div class="box warn">
+    <b>⚠️ 重要规则</b><br>
+    • 二进制文件（mp3、mp4、png、jpg）<b>只能用二进制模式</b>打开（rb/wb/ab）<br>
+    • 二进制模式打开时，<b>不能</b>传 <code class="inl">encoding</code> 参数，否则报错<br>
+    • 读取/写入的也是字节类型 <code class="inl">bytes</code>，不是字符串
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>JSON 文件介绍</h2>
+
+  <p><b>JSON</b>（JavaScript Object Notation）是一种基于<b>文本</b>、<b>独立于语言</b>的<b>轻量级数据交换格式</b>。</p>
+
+  <div class="g2">
+    <div class="card">
+      <h4>🌐 独立于语言</h4>
+      <p>不是某种语言特有的，Python、Java、C++、JavaScript 等都能使用</p>
+    </div>
+    <div class="card">
+      <h4>📦 轻量级</h4>
+      <p>相同数据量，JSON 文件占用空间相对较小</p>
+    </div>
+    <div class="card">
+      <h4>📄 基于文本</h4>
+      <p>本质是文本文件，可用记事本打开，但不能包含图片、视频</p>
+    </div>
+    <div class="card">
+      <h4>🔄 数据交换格式</h4>
+      <p>前后端、不同系统之间交换数据的通用格式</p>
+    </div>
+  </div>
+
+  <div class="box info">
+    <b>📋 在测试中的应用</b><br>
+    • <b>测试数据</b>：把测试用例数据存为 JSON，方便参数化和数据驱动测试<br>
+    • <b>接口测试</b>：RESTful API 的请求体和响应体大多是 JSON 格式<br>
+    • <b>配置文件</b>：项目配置、环境变量等常用 JSON 保存<br>
+    • 文件后缀名：<code class="inl">.json</code>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>JSON 语法规则</h2>
+
+  <h3>JSON 数据类型与 Python 对照</h3>
+  <div class="tm">
+    <div class="tm-l">JSON</div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r">Python</div>
+
+    <div class="tm-l">对象 <code class="inl">{}</code></div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r">字典 <code class="inl">dict</code></div>
+
+    <div class="tm-l">数组 <code class="inl">[]</code></div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r">列表 <code class="inl">list</code></div>
+
+    <div class="tm-l">字符串（必须双引号）</div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r"><code class="inl">str</code></div>
+
+    <div class="tm-l">数字</div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r"><code class="inl">int</code> / <code class="inl">float</code></div>
+
+    <div class="tm-l"><code class="inl">true</code> / <code class="inl">false</code></div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r"><code class="inl">True</code> / <code class="inl">False</code></div>
+
+    <div class="tm-l"><code class="inl">null</code></div>
+    <div class="tm-arr">⟷</div>
+    <div class="tm-r"><code class="inl">None</code></div>
+  </div>
+
+  <h3>JSON 语法规则</h3>
+  <ol>
+    <li>JSON 文件最外层<b>是一个对象 <code class="inl">{}</code> 或一个数组 <code class="inl">[]</code></b>，可以相互嵌套</li>
+    <li>对象由<b>键值对</b>组成，<b>键必须是字符串</b>（双引号包裹）</li>
+    <li>数据之间用<b>逗号</b>分隔，<b>最后一个数据后不能加逗号</b></li>
+    <li>字符串必须用<b>双引号</b> <code class="inl">""</code>（不是单引号！）</li>
+    <li>文件后缀名是 <code class="inl">.json</code></li>
+  </ol>
+
+  <h3>JSON 文件示例</h3>
+<div class="term"><span class="b">{</span>
+    <span class="p">"name"</span><span class="o">:</span> <span class="s">"小明"</span><span class="o">,</span>
+    <span class="p">"age"</span><span class="o">:</span> <span class="n">18</span><span class="o">,</span>
+    <span class="p">"isMan"</span><span class="o">:</span> <span class="k">true</span><span class="o">,</span>
+    <span class="p">"school"</span><span class="o">:</span> <span class="k">null</span><span class="o">,</span>
+    <span class="p">"like"</span><span class="o">:</span> <span class="b">[</span><span class="s">"听歌"</span><span class="o">,</span> <span class="s">"吃饭"</span><span class="o">,</span> <span class="s">"打豆豆"</span><span class="b">]</span><span class="o">,</span>
+    <span class="p">"address"</span><span class="o">:</span> <span class="b">{</span>
+        <span class="p">"country"</span><span class="o">:</span> <span class="s">"China"</span><span class="o">,</span>
+        <span class="p">"city"</span><span class="o">:</span> <span class="s">"广州"</span>
+    <span class="b">}</span>
+<span class="b">}</span></div>
+
+  <div class="box danger">
+    <b>❌ 常见 JSON 语法错误</b><br>
+    • 字符串用单引号 <code class="inl">'name'</code> → 必须用双引号 <code class="inl">"name"</code><br>
+    • 最后一个键值对后多加了逗号 <code class="inl">"age": 18,}</code> → 不能加<br>
+    • 键没用引号包裹 <code class="inl">{name: "小明"}</code> → 键必须是字符串<br>
+    • 使用 Python 的 <code class="inl">True/False/None</code> → 应该是 <code class="inl">true/false/null</code>（小写）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>读取 JSON 文件</h2>
+
+  <p>虽然可以用 <code class="inl">read()</code> 直接读 JSON 文件（本质就是文本文件），但读出来是字符串，取数据非常麻烦。Python 提供专门的 <code class="inl">json</code> 模块。</p>
+
+  <h3>使用步骤</h3>
+  <ol>
+    <li>导包：<code class="inl">import json</code></li>
+    <li>用 <code class="inl">open</code> 打开文件得到文件对象</li>
+    <li>用 <code class="inl">json.load(文件对象)</code> 直接转成 Python 的字典或列表</li>
+  </ol>
+
+<div class="term"><span class="k">import</span> json
+
+<span class="k">with</span> <span class="p">open</span>(<span class="s">'info.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    buf <span class="o">=</span> json.<span class="p">load</span>(f)        <span class="g"># 直接得到字典或列表</span>
+    <span class="p">print</span>(<span class="p">type</span>(buf))         <span class="g"># &lt;class 'dict'&gt;</span>
+    <span class="p">print</span>(buf.<span class="p">get</span>(<span class="s">'name'</span>))   <span class="g"># 小明</span>
+    <span class="g"># 嵌套对象访问：链式调用</span>
+    <span class="p">print</span>(buf.<span class="p">get</span>(<span class="s">'address'</span>).<span class="p">get</span>(<span class="s">'city'</span>))   <span class="g"># 广州</span></div>
+
+  <h3>读取数组形式的 JSON</h3>
+  <p>如果 JSON 最外层是数组 <code class="inl">[]</code>，<code class="inl">json.load</code> 返回的是<b>列表</b>，列表的每个元素是字典：</p>
+
+<div class="term"><span class="k">import</span> json
+
+<span class="k">with</span> <span class="p">open</span>(<span class="s">'info2.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data_list <span class="o">=</span> json.<span class="p">load</span>(f)    <span class="g"># 列表</span>
+    <span class="k">for</span> data <span class="k">in</span> data_list:
+        <span class="g"># 三目运算符：True 值 if 条件 else False 值</span>
+        sex <span class="o">=</span> <span class="s">"男"</span> <span class="k">if</span> data.<span class="p">get</span>(<span class="s">'isMan'</span>) <span class="k">else</span> <span class="s">"女"</span>
+        <span class="p">print</span>(<span class="s">f"姓名: </span><span class="b">{</span>data.<span class="p">get</span>(<span class="s">'name'</span>)<span class="b">}</span><span class="s">, "</span>
+              <span class="s">f"年龄: </span><span class="b">{</span>data.<span class="p">get</span>(<span class="s">'age'</span>)<span class="b">}</span><span class="s">, "</span>
+              <span class="s">f"性别: </span><span class="b">{</span>sex<span class="b">}</span><span class="s">, "</span>
+              <span class="s">f"城市: </span><span class="b">{</span>data.<span class="p">get</span>(<span class="s">'address'</span>).<span class="p">get</span>(<span class="s">'city'</span>)<span class="b">}</span><span class="s">"</span>)</div>
+
+  <div class="box tip">
+    <b>💡 三目运算符（条件表达式）</b><br>
+    <code class="inl">值1 if 条件 else 值2</code> — 条件为 True 取值1，否则取值2。<br>
+    比 if/else 更简洁，适合简单的二选一场景。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>写入 JSON 文件</h2>
+
+  <p>把 Python 中的字典或列表写成 JSON 文件，使用 <code class="inl">json.dump()</code>。</p>
+
+<div class="term"><span class="k">import</span> json
+
+info <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'小明'</span>, <span class="s">'age'</span>: <span class="n">18</span>}
+
+<span class="k">with</span> <span class="p">open</span>(<span class="s">'info.json'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    <span class="g"># 基础写法：中文会被转成 \uXXXX 形式</span>
+    <span class="g"># json.dump(info, f)</span>
+
+    <span class="g"># 推荐写法：直接显示中文 + 缩进美化</span>
+    json.<span class="p">dump</span>(info, f, ensure_ascii<span class="o">=</span><span class="p">False</span>, indent<span class="o">=</span><span class="n">2</span>)</div>
+
+  <div class="box info">
+    <b>📝 两个关键参数</b><br>
+    • <code class="inl">ensure_ascii=False</code> — 直接显示中文字符（默认 True 会转成 <code class="inl">\u5c0f</code> 这种 unicode 编码）<br>
+    • <code class="inl">indent=2</code> — 用 2 个空格缩进，文件更美观便于阅读
+  </div>
+
+  <h3>json 模块 4 个核心方法对比</h3>
+  <div class="tw">
+  <table>
+    <tr><th>方法</th><th>方向</th><th>说明</th></tr>
+    <tr><td><code class="inl">json.load(f)</code></td><td>JSON 文件 → Python</td><td>读取并解析 JSON 文件</td></tr>
+    <tr><td><code class="inl">json.dump(obj, f)</code></td><td>Python → JSON 文件</td><td>写入 Python 数据到文件</td></tr>
+    <tr><td><code class="inl">json.loads(s)</code></td><td>JSON 字符串 → Python</td><td>解析 JSON 字符串（s = string）</td></tr>
+    <tr><td><code class="inl">json.dumps(obj)</code></td><td>Python → JSON 字符串</td><td>把 Python 数据转成字符串</td></tr>
+  </table>
+  </div>
+
+  <div class="box tip">
+    <b>🎯 记忆技巧：带 s 操作字符串</b><br>
+    • <code class="inl">load</code> / <code class="inl">dump</code> 操作<b>文件对象</b><br>
+    • <code class="inl">loads</code> / <code class="inl">dumps</code>（多个 s）操作<b>字符串</b>（接口测试中经常用，因为响应是字符串）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>异常基本介绍</h2>
+
+  <p><b>异常</b>是程序运行时遇到错误的统称。Python 解释器遇到错误会<b>停止程序执行</b>并提示错误信息，这个动作叫做"<b>抛出异常</b>"（raise）。</p>
+
+  <h3>异常信息的格式</h3>
+<div class="exc"><span class="et">FileNotFoundError</span>: <span class="ed">[Errno 2] No such file or directory: 'aaaa.txt'</span>
+
+<span class="et">ZeroDivisionError</span>: <span class="ed">division by zero</span>
+
+<span class="et">ValueError</span>: <span class="ed">invalid literal for int() with base 10: '78.1'</span></div>
+
+  <p>异常信息由两部分组成：<b>异常类型</b>（如 ValueError）<b>+ 错误描述</b>（具体原因）。</p>
+
+  <h3>常见异常类型</h3>
+  <div class="tw">
+  <table>
+    <tr><th>异常类型</th><th>触发场景</th></tr>
+    <tr><td><code class="inl">FileNotFoundError</code></td><td>打开不存在的文件</td></tr>
+    <tr><td><code class="inl">ZeroDivisionError</code></td><td>除数为 0</td></tr>
+    <tr><td><code class="inl">ValueError</code></td><td>类型转换失败（如 <code class="inl">int('abc')</code>）</td></tr>
+    <tr><td><code class="inl">TypeError</code></td><td>类型不匹配（如 字符串 + 数字）</td></tr>
+    <tr><td><code class="inl">NameError</code></td><td>使用了未定义的变量</td></tr>
+    <tr><td><code class="inl">KeyError</code></td><td>字典中不存在的 key</td></tr>
+    <tr><td><code class="inl">IndexError</code></td><td>列表索引超出范围</td></tr>
+    <tr><td><code class="inl">AttributeError</code></td><td>对象没有这个属性/方法</td></tr>
+  </table>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>异常捕获 try...except</h2>
+
+  <p>默认遇到异常程序会终止。如果希望程序<b>遇到异常不终止</b>而是继续执行，需要使用<b>异常捕获</b>。</p>
+
+  <h3>基本语法</h3>
+<div class="term"><span class="k">try</span>:
+    可能发生异常的代码
+<span class="k">except</span>:                  <span class="g"># 可以捕获任意类型的异常</span>
+    发生异常执行的代码</div>
+
+  <h3>示例：输入数字</h3>
+<div class="term">num <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入数字:'</span>)
+
+<span class="k">try</span>:
+    num <span class="o">=</span> <span class="p">int</span>(num)
+    <span class="p">print</span>(num)
+<span class="k">except</span>:
+    <span class="p">print</span>(<span class="s">'请输入正确的数字'</span>)</div>
+
+  <h3>捕获指定类型的异常</h3>
+  <p>不同异常类型可以有不同的处理逻辑：</p>
+
+<div class="term"><span class="k">try</span>:
+    num <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入一个整数数字:'</span>))
+    num1 <span class="o">=</span> <span class="n">8</span> <span class="o">/</span> num
+    <span class="p">print</span>(num1)
+<span class="k">except</span> <span class="p">ValueError</span>:                     <span class="g"># 类型转换错误</span>
+    <span class="p">print</span>(<span class="s">'输入的内容非数字'</span>)
+<span class="k">except</span> <span class="p">ZeroDivisionError</span>:              <span class="g"># 除零错误</span>
+    <span class="p">print</span>(<span class="s">'不能输入数字 0'</span>)</div>
+
+  <h3>捕获未知类型的异常（最常用）</h3>
+  <p>实际开发中，未必能预料所有异常类型，使用 <code class="inl">Exception</code> 作为兜底：</p>
+
+<div class="term"><span class="k">try</span>:
+    num <span class="o">=</span> <span class="p">int</span>(<span class="p">input</span>(<span class="s">'请输入数字:'</span>))
+    num1 <span class="o">=</span> <span class="n">8</span> <span class="o">/</span> num
+    <span class="p">print</span>(num1)
+<span class="k">except</span> <span class="p">Exception</span> <span class="k">as</span> e:    <span class="g"># Exception 是大部分异常的父类</span>
+    <span class="p">print</span>(<span class="s">f'发生了异常: </span><span class="b">{</span>e<span class="b">}</span><span class="s">'</span>)   <span class="g"># e 是异常对象，print 会显示异常信息</span></div>
+
+  <div class="box info">
+    <b>💡 as 关键字</b><br>
+    <code class="inl">except Exception as e</code> 把异常对象赋给变量 <code class="inl">e</code>，可以通过 <code class="inl">print(e)</code> 或 <code class="inl">str(e)</code> 获取异常的描述信息。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>异常捕获完整结构</h2>
+
+  <p>完整的异常捕获结构包含 5 个部分：</p>
+
+  <div class="try-box">
+    <div class="tr-r"><span class="try-tk">try:</span>
+      <div class="try-d">可能发生异常的代码</div>
+    </div>
+    <div class="tr-y"><span class="try-tk">except 异常类型:</span>
+      <div class="try-d">发生了指定类型的异常时执行的代码（可写多个）</div>
+    </div>
+    <div class="tr-y"><span class="try-tk">except Exception as e:</span>
+      <div class="try-d">发生了其他类型异常时执行的代码（兜底）</div>
+    </div>
+    <div class="tr-g"><span class="try-tk">else:</span>
+      <div class="try-d">没有发生异常时执行的代码</div>
+    </div>
+    <div class="tr-b"><span class="try-tk">finally:</span>
+      <div class="try-d">不管有没有发生异常，都会执行的代码（清理资源用）</div>
+    </div>
+  </div>
+
+  <h3>完整示例：判断奇偶数</h3>
+<div class="term"><span class="g"># 1. 获取用户输入</span>
+num <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入数字:'</span>)
+
+<span class="k">try</span>:
+    <span class="g"># 2. 类型转换（可能发生异常）</span>
+    num <span class="o">=</span> <span class="p">int</span>(num)
+<span class="k">except</span> <span class="p">Exception</span> <span class="k">as</span> e:
+    <span class="g"># 3. 转换失败，提示输入错误</span>
+    <span class="p">print</span>(<span class="s">'输入错误'</span>, e)
+<span class="k">else</span>:
+    <span class="g"># 4. 转换成功（没异常），判断奇偶</span>
+    <span class="k">if</span> num <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">0</span>:
+        <span class="p">print</span>(<span class="s">'偶数'</span>)
+    <span class="k">else</span>:
+        <span class="p">print</span>(<span class="s">'奇数'</span>)
+<span class="k">finally</span>:
+    <span class="g"># 5. 不管什么情况都会执行</span>
+    <span class="p">print</span>(<span class="s">'程序运行结束'</span>)</div>
+
+  <h3>对比方案：用字符串方法判断</h3>
+<div class="term">num <span class="o">=</span> <span class="p">input</span>(<span class="s">'请输入数字:'</span>)
+
+<span class="k">if</span> num.<span class="p">isdigit</span>():             <span class="g"># 判断字符串是否为纯数字</span>
+    num <span class="o">=</span> <span class="p">int</span>(num)
+    <span class="k">if</span> num <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">0</span>:
+        <span class="p">print</span>(<span class="s">'偶数'</span>)
+    <span class="k">else</span>:
+        <span class="p">print</span>(<span class="s">'奇数'</span>)
+<span class="k">else</span>:
+    <span class="p">print</span>(<span class="s">'输入错误'</span>)
+
+<span class="p">print</span>(<span class="s">'程序运行结束'</span>)</div>
+
+  <div class="box tip">
+    <b>💡 字符串.isdigit()</b><br>
+    判断字符串是否为<b>纯数字</b>，是返回 True，否则 False。<br>
+    注意：<code class="inl">'12.5'.isdigit()</code> 返回 <b>False</b>（因为小数点不是数字字符）。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">9</span>异常传递与抛出异常</h2>
+
+  <h3>异常传递</h3>
+  <p>这是 Python <b>自动实现</b>的机制，不需要写代码。</p>
+  <p>在<b>函数嵌套调用</b>过程中，如果发生了异常但没有被捕获，异常会<b>传递到上层调用的地方</b>，直到被捕获为止；如果一直没被捕获，程序就会终止并报错。</p>
+
+<div class="term"><span class="k">def</span> <span class="p">a</span>():
+    <span class="p">print</span>(<span class="n">1</span> <span class="o">/</span> <span class="n">0</span>)   <span class="g"># 这里异常，没捕获，传递给 b</span>
+
+<span class="k">def</span> <span class="p">b</span>():
+    <span class="p">a</span>()             <span class="g"># 异常继续传递给 c</span>
+
+<span class="k">def</span> <span class="p">c</span>():
+    <span class="k">try</span>:
+        <span class="p">b</span>()
+    <span class="k">except</span> <span class="p">Exception</span> <span class="k">as</span> e:
+        <span class="p">print</span>(<span class="s">f'最终在 c 中捕获: </span><span class="b">{</span>e<span class="b">}</span><span class="s">'</span>)
+
+<span class="p">c</span>()   <span class="g"># 最终在 c 中捕获: division by zero</span></div>
+
+  <h3>抛出异常 raise</h3>
+  <p>程序执行中之所以会发生异常，是因为代码遇到了 <code class="inl">raise</code> 关键字。</p>
+  <p><b>raise 的作用：</b>主动抛出一个异常，让程序终止执行。</p>
+
+  <div class="box info">
+    <b>📌 应用场景</b><br>
+    自己写代码模块给别人使用时，可以在<b>不满足条件</b>的情况下，用 <code class="inl">raise</code> 抛出异常，强制使用者按照规定使用：
+  </div>
+
+<div class="term"><span class="k">def</span> <span class="p">set_age</span>(age):
+    <span class="k">if</span> age <span class="o">&lt;</span> <span class="n">0</span> <span class="k">or</span> age <span class="o">&gt;</span> <span class="n">120</span>:
+        <span class="k">raise</span> <span class="p">ValueError</span>(<span class="s">f'年龄非法: </span><span class="b">{</span>age<span class="b">}</span><span class="s">'</span>)
+    <span class="p">print</span>(<span class="s">f'设置年龄为 </span><span class="b">{</span>age<span class="b">}</span><span class="s">'</span>)
+
+<span class="p">set_age</span>(<span class="n">200</span>)   <span class="g"># ValueError: 年龄非法: 200</span></div>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+
+</div><!-- /panel 0 -->
+
+<!-- ============ PANEL 1: 图解演示 ============ -->
+<div class="pan" id="p1">
+
+<div class="sec">
+  <h2><span class="ico">1</span>read() vs readline() 对比</h2>
+
+  <div class="g2">
+    <div class="card">
+      <h4>📄 read() 一次性读</h4>
+<div class="term">f.<span class="p">read</span>()
+<span class="g"># 返回：整个文件的字符串</span>
+<span class="g"># 'aaa\nbbb\nccc'</span>
+
+<span class="g"># 缺点：</span>
+<span class="g"># 大文件占用内存大</span></div>
+    </div>
+    <div class="card">
+      <h4>📑 readline() 按行读</h4>
+<div class="term">f.<span class="p">readline</span>()    <span class="g"># 'aaa\n'</span>
+f.<span class="p">readline</span>()    <span class="g"># 'bbb\n'</span>
+f.<span class="p">readline</span>()    <span class="g"># 'ccc'</span>
+f.<span class="p">readline</span>()    <span class="g"># '' 末尾</span>
+
+<span class="g"># 优点：内存占用小</span>
+<span class="g"># 适合大文件遍历</span></div>
+    </div>
+  </div>
+
+  <div class="box ok">
+    <b>✅ 共同点</b><br>
+    两个方法都在<b>读到文件末尾时返回空字符串 <code class="inl">''</code></b>，可作为循环退出条件。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>JSON 与 Python 类型对照</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">🔄 类型转换映射</div>
+    <div class="jtree">
+{
+  <span class="jk">"name"</span>: <span class="js">"小明"</span>,           <span class="jnull">→ str</span>
+  <span class="jk">"age"</span>: <span class="jn">18</span>,                  <span class="jnull">→ int</span>
+  <span class="jk">"height"</span>: <span class="jn">1.75</span>,            <span class="jnull">→ float</span>
+  <span class="jk">"isMan"</span>: <span class="jb">true</span>,             <span class="jnull">→ True (大写)</span>
+  <span class="jk">"school"</span>: <span class="jnull">null</span>,            <span class="jnull">→ None</span>
+  <span class="jk">"like"</span>: [<span class="js">"歌"</span>, <span class="js">"饭"</span>],         <span class="jnull">→ list</span>
+  <span class="jk">"address"</span>: {              <span class="jnull">→ dict</span>
+    <span class="jk">"city"</span>: <span class="js">"广州"</span>
+  }
+}
+    </div>
+  </div>
+
+  <div class="box danger">
+    <b>❌ 必须记住的差异</b><br>
+    • JSON 字符串只能用<b>双引号</b>，Python 单双引号都行<br>
+    • JSON 布尔值 <code class="inl">true</code>/<code class="inl">false</code> <b>全小写</b>，Python 是 <code class="inl">True</code>/<code class="inl">False</code><br>
+    • JSON 空值是 <code class="inl">null</code>，Python 是 <code class="inl">None</code><br>
+    • JSON 最后一个元素后<b>不能加逗号</b>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>json 模块 4 个方法</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">📦 文件版 (load/dump) vs 字符串版 (loads/dumps)</div>
+    <div class="tw" style="margin-top:8px">
+    <table>
+      <tr><th>方法</th><th>方向</th><th>第二个对象</th><th>使用场景</th></tr>
+      <tr><td><code class="inl">json.load(f)</code></td><td>读</td><td>文件对象</td><td>读取本地 .json 文件</td></tr>
+      <tr><td><code class="inl">json.dump(data, f)</code></td><td>写</td><td>文件对象</td><td>把数据写入 .json 文件</td></tr>
+      <tr><td><code class="inl">json.loads(s)</code></td><td>读</td><td>字符串</td><td><b>接口测试</b>解析响应内容</td></tr>
+      <tr><td><code class="inl">json.dumps(data)</code></td><td>写</td><td>字符串</td><td>构造请求体的 JSON 字符串</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>🎯 记忆口诀</b><br>
+    带 <code class="inl">s</code> 操作字符串（<code class="inl">s</code> = string），不带 <code class="inl">s</code> 操作文件。<br>
+    <code class="inl">load</code>/<code class="inl">loads</code> 读入 → 得到 Python 对象；<code class="inl">dump</code>/<code class="inl">dumps</code> 写出 → 转成 JSON。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>读取 JSON 的实际流程</h2>
+
+  <div class="flow">
+    <div class="flow-s">
+      <div class="fn">1</div>
+      <div class="ft">import json</div>
+      <div class="fd">导入 json 模块</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">2</div>
+      <div class="ft">open 文件</div>
+      <div class="fd">with open(...) 打开 .json 文件</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">3</div>
+      <div class="ft">json.load(f)</div>
+      <div class="fd">直接得到字典或列表</div>
+    </div>
+    <div class="flow-s">
+      <div class="fn">4</div>
+      <div class="ft">取数据</div>
+      <div class="fd">用 dict.get() 或 list[i] 访问</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>异常的产生与捕获</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">⚡ 没有 try 时的程序流</div>
+    <div class="flow">
+      <div class="flow-s" style="border-color:var(--green)">
+        <div class="fn" style="background:var(--green)">①</div>
+        <div class="ft">正常代码</div>
+        <div class="fd">前面的代码继续执行</div>
+      </div>
+      <div class="flow-s" style="border-color:var(--red);background:#fef2f2">
+        <div class="fn" style="background:var(--red)">②</div>
+        <div class="ft">遇到异常</div>
+        <div class="fd">int('abc') → ValueError</div>
+      </div>
+      <div class="flow-s" style="border-color:var(--red)">
+        <div class="fn" style="background:var(--red)">③</div>
+        <div class="ft">程序终止</div>
+        <div class="fd">❌ 后面的代码不再执行</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz">
+    <div class="viz-ttl">🛡️ 用 try/except 捕获后</div>
+    <div class="flow">
+      <div class="flow-s" style="border-color:var(--green)">
+        <div class="fn" style="background:var(--green)">①</div>
+        <div class="ft">try 块代码</div>
+        <div class="fd">执行可能异常的代码</div>
+      </div>
+      <div class="flow-s" style="border-color:var(--red);background:#fef2f2">
+        <div class="fn" style="background:var(--red)">②</div>
+        <div class="ft">遇到异常</div>
+        <div class="fd">立即跳到 except</div>
+      </div>
+      <div class="flow-s" style="border-color:var(--amber)">
+        <div class="fn" style="background:var(--amber)">③</div>
+        <div class="ft">except 处理</div>
+        <div class="fd">执行异常处理逻辑</div>
+      </div>
+      <div class="flow-s" style="border-color:var(--green)">
+        <div class="fn" style="background:var(--green)">④</div>
+        <div class="ft">继续执行</div>
+        <div class="fd">✅ 后面的代码照常运行</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>异常捕获完整结构图</h2>
+
+  <p>5 个关键字 + 它们的执行时机：</p>
+
+  <div class="try-box">
+    <div class="tr-r">
+      <span class="try-tk">try:</span>
+      <div class="try-d">放可能发生异常的代码（必选）</div>
+    </div>
+    <div class="tr-y">
+      <span class="try-tk">except 异常类型A:</span>
+      <div class="try-d">指定类型 A 的异常发生时执行</div>
+    </div>
+    <div class="tr-y">
+      <span class="try-tk">except Exception as e:</span>
+      <div class="try-d">兜底捕获其他类型异常，<code style="background:#fff;padding:0 4px;border-radius:3px">e</code> 是异常对象</div>
+    </div>
+    <div class="tr-g">
+      <span class="try-tk">else:</span>
+      <div class="try-d">没有任何异常发生时才执行</div>
+    </div>
+    <div class="tr-b">
+      <span class="try-tk">finally:</span>
+      <div class="try-d">无论是否发生异常，都会执行（常用于释放资源、关闭文件）</div>
+    </div>
+  </div>
+
+  <div class="box info">
+    <b>🎯 执行顺序总结</b><br>
+    • 无异常：<code class="inl">try → else → finally</code><br>
+    • 有异常被捕获：<code class="inl">try → except → finally</code><br>
+    • 有异常未捕获：<code class="inl">try → finally → 抛出异常</code><br>
+    • <b>finally 一定会执行</b>，这是它的核心特性
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>异常传递演示</h2>
+
+  <p>函数嵌套时，未捕获的异常会<b>沿调用链向上传递</b>，直到被捕获或最终报错。</p>
+
+  <div class="viz">
+    <div class="viz-ttl">🔗 异常沿调用链传递</div>
+<div class="term"><span class="k">def</span> <span class="p">a</span>():
+    <span class="p">print</span>(<span class="n">1</span> <span class="o">/</span> <span class="n">0</span>)        <span class="g">┐ ① 发生 ZeroDivisionError</span>
+
+<span class="k">def</span> <span class="p">b</span>():
+    <span class="p">a</span>()                  <span class="g">┤ ② 传递到 b（b 没处理）</span>
+
+<span class="k">def</span> <span class="p">c</span>():
+    <span class="k">try</span>:
+        <span class="p">b</span>()              <span class="g">┤ ③ 传递到 c</span>
+    <span class="k">except</span> <span class="p">Exception</span> <span class="k">as</span> e:
+        <span class="p">print</span>(e)         <span class="g">┘ ④ c 中捕获，停止传递</span>
+
+<span class="p">c</span>()</div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>测试中的 JSON 数据驱动</h2>
+
+  <p>JSON 在自动化测试中最常见的应用：<b>测试数据外置</b>，方便维护和参数化。</p>
+
+  <div class="viz">
+    <div class="viz-ttl">📋 测试数据 JSON 结构示例（登录功能）</div>
+    <div class="jtree">[
+  {
+    <span class="jk">"desc"</span>: <span class="js">"正确的用户名和密码"</span>,
+    <span class="jk">"username"</span>: <span class="js">"admin"</span>,
+    <span class="jk">"password"</span>: <span class="js">"123456"</span>,
+    <span class="jk">"code"</span>: <span class="js">"8888"</span>,
+    <span class="jk">"expect"</span>: <span class="js">"登录成功"</span>
+  },
+  {
+    <span class="jk">"desc"</span>: <span class="js">"错误的密码"</span>,
+    <span class="jk">"username"</span>: <span class="js">"admin"</span>,
+    <span class="jk">"password"</span>: <span class="js">"wrong"</span>,
+    <span class="jk">"code"</span>: <span class="js">"8888"</span>,
+    <span class="jk">"expect"</span>: <span class="js">"登录失败"</span>
+  }
+]</div>
+  </div>
+
+<div class="term"><span class="k">def</span> <span class="p">build_data</span>():
+    <span class="c">"""读取 JSON 测试数据，返回元组列表（参数化格式）"""</span>
+    <span class="k">with</span> <span class="p">open</span>(<span class="s">'test_data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="p">load</span>(f)
+
+    result <span class="o">=</span> []
+    <span class="k">for</span> data <span class="k">in</span> data_list:
+        result.<span class="p">append</span>((
+            data.<span class="p">get</span>(<span class="s">'username'</span>),
+            data.<span class="p">get</span>(<span class="s">'password'</span>),
+            data.<span class="p">get</span>(<span class="s">'code'</span>),
+            data.<span class="p">get</span>(<span class="s">'expect'</span>),
+        ))
+    <span class="k">return</span> result
+<span class="g"># [('admin','123456','8888','登录成功'), ...]</span></div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+
+</div><!-- /panel 1 -->
+
+<!-- ============ PANEL 2: 实战练习 ============ -->
+<div class="pan" id="p2">
+
+<div class="prog">
+  <div>📊 完成进度：<span id="pc">0</span> / 10</div>
+  <button class="mc-btn" onclick="mc()">全部勾选</button>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">1</span>实战练习（10 题）</h2>
+  <p>包含本日全部作业题，勾选复选框记录进度，点击"查看答案"展开参考代码。</p>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p1">
+  <div class="pt-body">
+    <div class="pt-t">1. 使用 <code class="inl">readline()</code> 循环读取文件 <code class="inl">a.txt</code> 的每一行并打印（不输出空行），用空字符串判断退出循环。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">with</span> <span class="b">open</span>(<span class="s">'a.txt'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    <span class="k">while</span> <span class="b">True</span>:
+        buf <span class="o">=</span> f.<span class="b">readline</span>()
+        <span class="k">if</span> buf:                <span class="g"># 非空字符串</span>
+            <span class="b">print</span>(buf, end<span class="o">=</span><span class="s">''</span>)
+        <span class="k">else</span>:                  <span class="g"># 空字符串 = 文件末尾</span>
+            <span class="k">break</span>
+
+<span class="g"># 更简洁的写法（推荐）：直接 for 循环</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'a.txt'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    <span class="k">for</span> line <span class="k">in</span> f:
+        <span class="b">print</span>(line, end<span class="o">=</span><span class="s">''</span>)</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p2">
+  <div class="pt-body">
+    <div class="pt-t">2. 【作业题 1】把字典 <code class="inl">{'name': 'isaac', 'age': 18, 'like': ['学习', '游戏']}</code> 保存到 <code class="inl">test.json</code> 文件中。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> json
+
+my_dict <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'isaac'</span>, <span class="s">'age'</span>: <span class="n">18</span>, <span class="s">'like'</span>: [<span class="s">'学习'</span>, <span class="s">'游戏'</span>]}
+
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'test.json'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    json.<span class="b">dump</span>(my_dict, f, ensure_ascii<span class="o">=</span><span class="b">False</span>, indent<span class="o">=</span><span class="n">2</span>)
+
+<span class="g"># test.json 内容：</span>
+<span class="g"># {</span>
+<span class="g">#   "name": "isaac",</span>
+<span class="g">#   "age": 18,</span>
+<span class="g">#   "like": ["学习", "游戏"]</span>
+<span class="g"># }</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p3">
+  <div class="pt-body">
+    <div class="pt-t">3. 【作业题 2】把"小明：18 岁，男，爱好：听歌、游戏、购物、吃饭、睡觉、打豆豆，住址：中国北京"信息存入 <code class="inl">info.json</code>，然后读取并获取姓名和爱好。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># info.json 文件内容（手动创建或用 json.dump 写入）：</span>
+<span class="g"># {</span>
+<span class="g">#   "name": "小明",</span>
+<span class="g">#   "age": 18,</span>
+<span class="g">#   "isMan": true,</span>
+<span class="g">#   "like": ["听歌", "游戏", "购物", "吃饭", "睡觉", "打豆豆"],</span>
+<span class="g">#   "address": {"country": "中国", "city": "北京"}</span>
+<span class="g"># }</span>
+
+<span class="k">import</span> json
+
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'info.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> json.<span class="b">load</span>(f)
+    <span class="b">print</span>(<span class="s">f'姓名: {data.get("name")}'</span>)
+    <span class="b">print</span>(<span class="s">f'爱好: {data.get("like")}'</span>)
+<span class="g"># 姓名: 小明</span>
+<span class="g"># 爱好: ['听歌', '游戏', '购物', '吃饭', '睡觉', '打豆豆']</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p4">
+  <div class="pt-body">
+    <div class="pt-t">4. 【作业题 3】用随机数产生 10 个 1-50 之间的数字，保存到 <code class="inl">data.json</code>。然后读取并按降序排序，把最大的 5 个数字存入 <code class="inl">data1.json</code>。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> random
+<span class="k">import</span> json
+
+<span class="g"># 1. 生成 10 个随机数并存入 data.json</span>
+nums <span class="o">=</span> [random.<span class="b">randint</span>(<span class="n">1</span>, <span class="n">50</span>) <span class="k">for</span> _ <span class="k">in</span> <span class="b">range</span>(<span class="n">10</span>)]
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'data.json'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    json.<span class="b">dump</span>(nums, f)
+
+<span class="g"># 2. 读取并降序排序</span>
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> json.<span class="b">load</span>(f)
+
+data.<span class="b">sort</span>(reverse<span class="o">=</span><span class="b">True</span>)         <span class="g"># 降序</span>
+
+<span class="g"># 3. 取最大的 5 个存入 data1.json</span>
+top5 <span class="o">=</span> data[:<span class="n">5</span>]
+<span class="k">with</span> <span class="b">open</span>(<span class="s">'data1.json'</span>, <span class="s">'w'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    json.<span class="b">dump</span>(top5, f)
+
+<span class="b">print</span>(<span class="s">f'原始数据: {data}'</span>)
+<span class="b">print</span>(<span class="s">f'最大5个: {top5}'</span>)</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p5">
+  <div class="pt-body">
+    <div class="pt-t">5. 【作业题 4-方案 1】用<b>异常捕获</b>实现：获取用户输入，判断是否整数。不是整数提示错误；是整数则判断奇偶。最后无论如何输出"程序运行结束"。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">num <span class="o">=</span> <span class="b">input</span>(<span class="s">'请输入数字:'</span>)
+
+<span class="k">try</span>:
+    num <span class="o">=</span> <span class="b">int</span>(num)
+<span class="k">except</span> <span class="b">Exception</span> <span class="k">as</span> e:
+    <span class="b">print</span>(<span class="s">'输入错误'</span>, e)
+<span class="k">else</span>:
+    <span class="k">if</span> num <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">0</span>:
+        <span class="b">print</span>(<span class="s">'偶数'</span>)
+    <span class="k">else</span>:
+        <span class="b">print</span>(<span class="s">'奇数'</span>)
+<span class="k">finally</span>:
+    <span class="b">print</span>(<span class="s">'程序运行结束'</span>)</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p6">
+  <div class="pt-body">
+    <div class="pt-t">6. 【作业题 4-方案 2】用 <code class="inl">isdigit()</code> 字符串方法实现同样的需求（不用异常捕获）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans">num <span class="o">=</span> <span class="b">input</span>(<span class="s">'请输入数字:'</span>)
+
+<span class="k">if</span> num.<span class="b">isdigit</span>():        <span class="g"># 判断是否为纯数字</span>
+    num <span class="o">=</span> <span class="b">int</span>(num)
+    <span class="k">if</span> num <span class="o">%</span> <span class="n">2</span> <span class="o">==</span> <span class="n">0</span>:
+        <span class="b">print</span>(<span class="s">'偶数'</span>)
+    <span class="k">else</span>:
+        <span class="b">print</span>(<span class="s">'奇数'</span>)
+<span class="k">else</span>:
+    <span class="b">print</span>(<span class="s">'输入错误'</span>)
+
+<span class="b">print</span>(<span class="s">'程序运行结束'</span>)
+
+<span class="g"># 注意：isdigit() 只能判断纯整数</span>
+<span class="g"># '12.5'.isdigit() 返回 False</span>
+<span class="g"># '-3'.isdigit() 返回 False（负号不是数字）</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p7">
+  <div class="pt-body">
+    <div class="pt-t">7. 【作业题 5】定义登录测试数据 JSON 文件，包含 4 组数据（正确登录、不存在用户名、错误密码、错误验证码）。每组包含 desc、username、password、code、expect 字段。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># login_data.json 文件内容：</span>
+[
+  {
+    <span class="s">"desc"</span>: <span class="s">"正确的用户名和密码"</span>,
+    <span class="s">"username"</span>: <span class="s">"admin"</span>,
+    <span class="s">"password"</span>: <span class="s">"123456"</span>,
+    <span class="s">"code"</span>: <span class="s">"8888"</span>,
+    <span class="s">"expect"</span>: <span class="s">"登录成功"</span>
+  },
+  {
+    <span class="s">"desc"</span>: <span class="s">"不存在的用户名"</span>,
+    <span class="s">"username"</span>: <span class="s">"root"</span>,
+    <span class="s">"password"</span>: <span class="s">"123456"</span>,
+    <span class="s">"code"</span>: <span class="s">"8888"</span>,
+    <span class="s">"expect"</span>: <span class="s">"登录失败"</span>
+  },
+  {
+    <span class="s">"desc"</span>: <span class="s">"错误的密码"</span>,
+    <span class="s">"username"</span>: <span class="s">"admin"</span>,
+    <span class="s">"password"</span>: <span class="s">"123123"</span>,
+    <span class="s">"code"</span>: <span class="s">"8888"</span>,
+    <span class="s">"expect"</span>: <span class="s">"登录失败"</span>
+  },
+  {
+    <span class="s">"desc"</span>: <span class="s">"错误的验证码"</span>,
+    <span class="s">"username"</span>: <span class="s">"admin"</span>,
+    <span class="s">"password"</span>: <span class="s">"123456"</span>,
+    <span class="s">"code"</span>: <span class="s">"9999"</span>,
+    <span class="s">"expect"</span>: <span class="s">"登录失败"</span>
+  }
+]</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p8">
+  <div class="pt-body">
+    <div class="pt-t">8. 【作业题 5】定义 <code class="inl">build_data()</code> 函数，读取上一题的 JSON 文件，把每组数据组装成元组 <code class="inl">(username, password, code, expect)</code>，最后返回元组列表（参数化数据格式）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> json
+
+
+<span class="k">def</span> <span class="b">build_data</span>():
+    <span class="c">"""读取 JSON 测试数据，组装成参数化格式"""</span>
+    <span class="k">with</span> <span class="b">open</span>(<span class="s">'login_data.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+        data_list <span class="o">=</span> json.<span class="b">load</span>(f)
+
+    result <span class="o">=</span> []
+    <span class="k">for</span> data <span class="k">in</span> data_list:
+        result.<span class="b">append</span>((
+            data.<span class="b">get</span>(<span class="s">'username'</span>),
+            data.<span class="b">get</span>(<span class="s">'password'</span>),
+            data.<span class="b">get</span>(<span class="s">'code'</span>),
+            data.<span class="b">get</span>(<span class="s">'expect'</span>),
+        ))
+    <span class="k">return</span> result
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">print</span>(<span class="b">build_data</span>())
+<span class="g"># [('admin','123456','8888','登录成功'),</span>
+<span class="g">#  ('root','123456','8888','登录失败'),</span>
+<span class="g">#  ('admin','123123','8888','登录失败'),</span>
+<span class="g">#  ('admin','123456','9999','登录失败')]</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p9">
+  <div class="pt-body">
+    <div class="pt-t">9. 用<b>具体异常类型</b>分别处理两种错误：用户输入非数字（ValueError）和输入 0 导致除零（ZeroDivisionError）。计算 <code class="inl">8 / 用户输入的数字</code>。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">try</span>:
+    num <span class="o">=</span> <span class="b">int</span>(<span class="b">input</span>(<span class="s">'请输入一个整数: '</span>))
+    result <span class="o">=</span> <span class="n">8</span> <span class="o">/</span> num
+    <span class="b">print</span>(<span class="s">f'结果: {result}'</span>)
+<span class="k">except</span> <span class="b">ValueError</span>:
+    <span class="b">print</span>(<span class="s">'输入的内容非数字，请重新输入'</span>)
+<span class="k">except</span> <span class="b">ZeroDivisionError</span>:
+    <span class="b">print</span>(<span class="s">'除数不能为 0'</span>)
+<span class="k">except</span> <span class="b">Exception</span> <span class="k">as</span> e:
+    <span class="b">print</span>(<span class="s">f'发生其他异常: {e}'</span>)</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p10">
+  <div class="pt-body">
+    <div class="pt-t">10. 演示<b>异常传递</b>：定义函数 <code class="inl">a</code>（内部执行 1/0）、<code class="inl">b</code>（调用 a）、<code class="inl">c</code>（调用 b，并用 try/except 捕获）。验证异常如何沿调用链传递并最终被 c 捕获。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">def</span> <span class="b">a</span>():
+    <span class="b">print</span>(<span class="s">'a 函数开始'</span>)
+    <span class="b">print</span>(<span class="n">1</span> <span class="o">/</span> <span class="n">0</span>)                <span class="g"># ① 这里发生异常</span>
+    <span class="b">print</span>(<span class="s">'a 函数结束'</span>)         <span class="g"># 不会执行</span>
+
+
+<span class="k">def</span> <span class="b">b</span>():
+    <span class="b">print</span>(<span class="s">'b 函数开始'</span>)
+    <span class="b">a</span>()                       <span class="g"># ② 异常从 a 传递到 b</span>
+    <span class="b">print</span>(<span class="s">'b 函数结束'</span>)         <span class="g"># 不会执行</span>
+
+
+<span class="k">def</span> <span class="b">c</span>():
+    <span class="b">print</span>(<span class="s">'c 函数开始'</span>)
+    <span class="k">try</span>:
+        <span class="b">b</span>()                   <span class="g"># ③ 异常传递到这里被捕获</span>
+    <span class="k">except</span> <span class="b">Exception</span> <span class="k">as</span> e:
+        <span class="b">print</span>(<span class="s">f'c 中捕获异常: {e}'</span>)
+    <span class="b">print</span>(<span class="s">'c 函数继续执行'</span>)    <span class="g"># ✅ 会执行</span>
+
+
+<span class="b">c</span>()
+<span class="g"># c 函数开始</span>
+<span class="g"># b 函数开始</span>
+<span class="g"># a 函数开始</span>
+<span class="g"># c 中捕获异常: division by zero</span>
+<span class="g"># c 函数继续执行</span></div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+
+</div><!-- /panel 2 -->
+
+<!-- ============ PANEL 3: 面试精讲 ============ -->
+<div class="pan" id="p3">
+
+<div class="sec">
+  <h2><span class="ico">1</span>面试高频题（12 题）</h2>
+  <p>点击题目展开详细解析。难度标签：<span class="iq-lv lv-b">基础</span> <span class="iq-lv lv-m">进阶</span> <span class="iq-lv lv-h">陷阱/场景</span></p>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">read()、readline() 和遍历文件对象的区别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>三种读法对比：</b></p>
+    <ul>
+      <li><code class="inl">read()</code>：一次读取全部内容，返回<b>字符串</b>。适合小文件，大文件会占用大量内存。</li>
+      <li><code class="inl">readline()</code>：一次读取<b>一行</b>，返回字符串。文件末尾返回 <code class="inl">''</code>。适合按行处理。</li>
+      <li><code class="inl">for line in f:</code>：直接遍历文件对象，最简洁，按行处理大文件的<b>推荐方式</b>。</li>
+    </ul>
+    <p><b>判断文件读完：</b> read 和 readline 都通过返回的<b>空字符串 <code class="inl">''</code></b> 来判断是否到末尾。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">什么是 JSON？它有什么特点？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>JSON</b>（JavaScript Object Notation）是一种<b>基于文本</b>、<b>独立于语言</b>的<b>轻量级数据交换格式</b>。</p>
+    <p><b>特点：</b></p>
+    <ul>
+      <li><b>基于文本</b>：本质是文本文件，可用记事本打开</li>
+      <li><b>独立于语言</b>：所有编程语言都能读写，不是某语言专有</li>
+      <li><b>轻量级</b>：相比 XML 等格式，文件更小</li>
+      <li><b>易读易写</b>：人类和机器都容易理解</li>
+    </ul>
+    <p><b>在测试中的应用：</b>存储测试数据、配置文件、API 请求/响应体。文件后缀名 <code class="inl">.json</code>。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">如何读取 JSON 文件？写出完整代码。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>3 步：</b></p>
+    <ol>
+      <li><code class="inl">import json</code> 导入模块</li>
+      <li>用 <code class="inl">open</code> 打开 .json 文件</li>
+      <li>用 <code class="inl">json.load(文件对象)</code> 解析，得到 Python 的字典或列表</li>
+    </ol>
+<div class="term"><span class="k">import</span> json
+
+<span class="k">with</span> <span class="p">open</span>(<span class="s">'info.json'</span>, encoding<span class="o">=</span><span class="s">'utf-8'</span>) <span class="k">as</span> f:
+    data <span class="o">=</span> json.<span class="p">load</span>(f)
+    <span class="p">print</span>(data.<span class="p">get</span>(<span class="s">'name'</span>))</div>
+    <p><b>注意：</b>JSON 最外层是 <code class="inl">{}</code> → 得到字典；最外层是 <code class="inl">[]</code> → 得到列表。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">json 模块的 load/loads/dump/dumps 4 个方法有什么区别？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>方法</th><th>输入</th><th>输出</th><th>场景</th></tr>
+      <tr><td><code class="inl">json.load(f)</code></td><td>文件对象</td><td>Python 对象</td><td>读 .json 文件</td></tr>
+      <tr><td><code class="inl">json.dump(obj, f)</code></td><td>Python 对象</td><td>写入文件</td><td>把数据写到 .json</td></tr>
+      <tr><td><code class="inl">json.loads(s)</code></td><td>JSON 字符串</td><td>Python 对象</td><td><b>接口测试</b>解析响应</td></tr>
+      <tr><td><code class="inl">json.dumps(obj)</code></td><td>Python 对象</td><td>JSON 字符串</td><td>构造请求体</td></tr>
+    </table>
+    </div>
+    <p><b>记忆诀窍：</b>带 <code class="inl">s</code> 操作<b>字符串</b>（s=string），不带 s 操作<b>文件</b>。</p>
+    <p><b>接口测试常用 loads：</b><code class="inl">response.text</code> 是字符串，用 <code class="inl">json.loads(response.text)</code> 转成字典才能取字段。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">写入 JSON 时，中文显示成 \uXXXX 怎么办？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>原因：</b><code class="inl">json.dump</code> 默认 <code class="inl">ensure_ascii=True</code>，把非 ASCII 字符（包括中文）转成 unicode 转义序列。</p>
+    <p><b>解决：</b>显式设置 <code class="inl">ensure_ascii=False</code></p>
+<div class="term"><span class="k">import</span> json
+
+data <span class="o">=</span> {<span class="s">'name'</span>: <span class="s">'小明'</span>}
+
+<span class="g"># ❌ 默认：会写成 {"name": "\u5c0f\u660e"}</span>
+json.<span class="p">dump</span>(data, f)
+
+<span class="g"># ✅ 正确：直接显示中文 + 缩进美化</span>
+json.<span class="p">dump</span>(data, f, ensure_ascii<span class="o">=</span><span class="p">False</span>, indent<span class="o">=</span><span class="n">2</span>)</div>
+    <p>同时打开文件时也要加 <code class="inl">encoding='utf-8'</code>，否则可能仍有乱码。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">JSON 和 Python 字典看着一样，有什么区别？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>它们不一样！</b>JSON 是数据交换格式（字符串），Python 字典是数据结构（对象）。具体差异：</p>
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比项</th><th>JSON</th><th>Python 字典</th></tr>
+      <tr><td>字符串引号</td><td><b>只能双引号</b> <code class="inl">"name"</code></td><td>单/双引号都可以</td></tr>
+      <tr><td>布尔值</td><td><code class="inl">true</code> / <code class="inl">false</code>（小写）</td><td><code class="inl">True</code> / <code class="inl">False</code></td></tr>
+      <tr><td>空值</td><td><code class="inl">null</code></td><td><code class="inl">None</code></td></tr>
+      <tr><td>末尾逗号</td><td><b>不允许</b></td><td>允许</td></tr>
+      <tr><td>键类型</td><td><b>必须是字符串</b></td><td>可以是任何不可变类型</td></tr>
+      <tr><td>本质</td><td>文本（字符串）</td><td>内存对象</td></tr>
+    </table>
+    </div>
+    <p>所以不能直接用 <code class="inl">eval()</code> 解析 JSON，要用 <code class="inl">json.loads()</code>。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">什么是异常？为什么要捕获异常？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>异常</b>是程序运行时遇到错误的统称。Python 解释器遇到错误会<b>停止程序执行</b>并提示错误信息（异常类型 + 错误描述）。</p>
+    <p><b>为什么捕获异常：</b></p>
+    <ul>
+      <li><b>提升程序健壮性</b>：用户输入不可控，文件可能不存在，网络可能中断…让程序优雅应对</li>
+      <li><b>友好的错误提示</b>：不直接给用户看一堆错误堆栈，而是给出可理解的提示</li>
+      <li><b>资源清理</b>：发生异常时仍能关闭文件、释放连接（用 finally）</li>
+      <li><b>程序不终止</b>：异常处理后可以继续执行后续代码</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">异常捕获的完整结构是怎样的？写出来。</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term"><span class="k">try</span>:
+    可能发生异常的代码
+<span class="k">except</span> 异常类型:
+    发生指定类型异常时执行
+<span class="k">except</span> <span class="p">Exception</span> <span class="k">as</span> e:
+    发生其他类型异常时执行（兜底）
+<span class="k">else</span>:
+    没有发生异常时执行
+<span class="k">finally</span>:
+    不管有没有发生异常都会执行</div>
+    <p><b>关键点：</b></p>
+    <ul>
+      <li><code class="inl">try</code> 必选，其他都是可选</li>
+      <li><code class="inl">except</code> 可以写多个，按顺序匹配</li>
+      <li><code class="inl">Exception</code> 是大部分异常的父类，放最后做兜底</li>
+      <li><code class="inl">finally</code> <b>一定会执行</b>，常用于关闭文件、释放资源</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">except、else、finally 的执行时机分别是什么？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <ul>
+      <li><b>except</b>：try 中<b>发生异常</b>，且异常类型匹配时执行</li>
+      <li><b>else</b>：try 中<b>没有发生任何异常</b>时执行（注意不是 except 的备选）</li>
+      <li><b>finally</b>：<b>无论是否发生异常，最终一定执行</b></li>
+    </ul>
+    <p><b>三种执行路径：</b></p>
+    <ol>
+      <li>无异常：<code class="inl">try → else → finally</code></li>
+      <li>异常被捕获：<code class="inl">try（中途） → except → finally</code></li>
+      <li>异常未捕获：<code class="inl">try（中途） → finally → 抛出异常</code></li>
+    </ol>
+    <p><b>常见应用：</b>finally 用于<b>资源清理</b>（关文件、关数据库连接），保证一定执行。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">下面代码会输出什么？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term"><span class="k">try</span>:
+    <span class="p">print</span>(<span class="s">'A'</span>)
+    <span class="p">print</span>(<span class="n">1</span> <span class="o">/</span> <span class="n">0</span>)
+    <span class="p">print</span>(<span class="s">'B'</span>)
+<span class="k">except</span> <span class="p">ValueError</span>:        <span class="g"># 注意类型</span>
+    <span class="p">print</span>(<span class="s">'C'</span>)
+<span class="k">except</span> <span class="p">Exception</span>:
+    <span class="p">print</span>(<span class="s">'D'</span>)
+<span class="k">else</span>:
+    <span class="p">print</span>(<span class="s">'E'</span>)
+<span class="k">finally</span>:
+    <span class="p">print</span>(<span class="s">'F'</span>)</div>
+    <p><b>答案：</b><code class="inl">A D F</code></p>
+    <p><b>解析：</b></p>
+    <ul>
+      <li>打印 <code class="inl">A</code> → 然后 <code class="inl">1/0</code> 抛出 <code class="inl">ZeroDivisionError</code></li>
+      <li><code class="inl">B</code> 不会执行（异常中断）</li>
+      <li>第一个 except 是 <code class="inl">ValueError</code>，<b>不匹配</b></li>
+      <li>第二个 except <code class="inl">Exception</code> 是兜底，匹配 → 打印 <code class="inl">D</code></li>
+      <li><code class="inl">else</code> 仅在<b>无异常</b>时执行，<b>不会执行 E</b></li>
+      <li><code class="inl">finally</code> 必执行 → 打印 <code class="inl">F</code></li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">什么是异常传递？什么是抛出异常（raise）？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>异常传递</b>：Python 自动实现的机制，在<b>函数嵌套调用</b>中，未被捕获的异常会沿调用链<b>向上传递</b>，直到被捕获或最终终止程序。</p>
+    <p><b>raise 抛出异常</b>：主动让代码报错。两个用途：</p>
+    <ol>
+      <li><b>验证输入</b>：参数不合法时抛出异常，强制使用者按规定使用
+<div class="term"><span class="k">def</span> <span class="p">set_age</span>(age):
+    <span class="k">if</span> age <span class="o">&lt;</span> <span class="n">0</span> <span class="k">or</span> age <span class="o">&gt;</span> <span class="n">120</span>:
+        <span class="k">raise</span> <span class="p">ValueError</span>(<span class="s">'年龄不合法'</span>)</div>
+      </li>
+      <li><b>重新抛出</b>：捕获后处理一下，再抛给上层
+<div class="term"><span class="k">try</span>:
+    do_something()
+<span class="k">except</span> <span class="p">Exception</span> <span class="k">as</span> e:
+    log_error(e)    <span class="g"># 记录日志</span>
+    <span class="k">raise</span>           <span class="g"># 重新抛出</span></div>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">JSON 和异常处理在自动化测试中如何应用？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>JSON 的应用：</b></p>
+    <ul>
+      <li><b>测试数据驱动</b>：把测试用例的输入/期望结果存为 JSON，配合 pytest 参数化（<code class="inl">@pytest.mark.parametrize</code>）</li>
+      <li><b>接口测试</b>：requests 库的响应 <code class="inl">response.json()</code> 直接得到字典；构造请求体用 <code class="inl">json=payload</code> 参数</li>
+      <li><b>配置管理</b>：把数据库连接、URL、账号信息存在 <code class="inl">config.json</code></li>
+      <li><b>测试报告</b>：allure 等报告工具底层用 JSON 存储测试结果</li>
+    </ul>
+    <p><b>异常处理的应用：</b></p>
+    <ul>
+      <li><b>断言失败处理</b>：try 包裹断言，捕获后记录详细日志</li>
+      <li><b>元素查找超时</b>：Selenium 的 <code class="inl">NoSuchElementException</code> 捕获后重试或截图</li>
+      <li><b>测试稳定性</b>：网络异常、文件不存在等情况优雅处理，避免一个用例失败影响整个测试套件</li>
+      <li><b>清理资源</b>：用 <code class="inl">finally</code> 保证测试结束后关闭浏览器、断开数据库连接</li>
+    </ul>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+
+</div><!-- /panel 3 -->
+
+<!-- ============ PANEL 4: 测验 ============ -->
+<div class="pan" id="p4">
+
+<div class="sec">
+  <h2><span class="ico">1</span>知识测验（15 题）</h2>
+  <p>选择每题答案后，点击底部"提交答卷"查看成绩和解析。</p>
+</div>
+
+<div id="qr">
+  <h3>🎉 完成！</h3>
+  <div class="sc"><span id="sc-num">0</span> / 15</div>
+  <div id="sc-msg" style="font-size:13px;opacity:.92"></div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">1</span><code class="inl">readline()</code> 读到文件末尾时返回什么？</div>
+  <div class="opt" data-v="A">A. None</div>
+  <div class="opt" data-v="B">B. -1</div>
+  <div class="opt" data-v="C">C. 空字符串 ''</div>
+  <div class="opt" data-v="D">D. 抛出 StopIteration 异常</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">read()</code> 和 <code class="inl">readline()</code> 都在文件末尾返回<b>空字符串 <code class="inl">''</code></b>，可作为循环退出的判断条件。<code class="inl">while True: buf = f.readline(); if not buf: break</code> 是常见用法。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">2</span>下列关于 JSON 的说法<b>错误</b>的是？</div>
+  <div class="opt" data-v="A">A. JSON 本质上是文本文件</div>
+  <div class="opt" data-v="B">B. JSON 是 Python 特有的数据格式</div>
+  <div class="opt" data-v="C">C. JSON 字符串必须用双引号</div>
+  <div class="opt" data-v="D">D. JSON 文件后缀名是 .json</div>
+  <div class="qz-ex"><b>解析：</b>JSON 是<b>独立于语言</b>的数据交换格式，Python、Java、JavaScript、C++ 等都能使用，不是 Python 特有的。其他选项都正确。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">3</span>JSON 中的对象 <code class="inl">{}</code> 对应 Python 中的什么？</div>
+  <div class="opt" data-v="A">A. 字典 dict</div>
+  <div class="opt" data-v="B">B. 列表 list</div>
+  <div class="opt" data-v="C">C. 元组 tuple</div>
+  <div class="opt" data-v="D">D. 集合 set</div>
+  <div class="qz-ex"><b>解析：</b>JSON 的对象 <code class="inl">{}</code> ↔ Python 字典 <code class="inl">dict</code>。JSON 数组 <code class="inl">[]</code> ↔ Python 列表 <code class="inl">list</code>。这是 JSON ↔ Python 的核心映射。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">4</span>下列哪段 JSON 语法<b>正确</b>？</div>
+  <div class="opt" data-v="A">A. <code class="inl">{'name': '小明', 'age': 18}</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">{"name": "小明", "age": 18,}</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">{name: "小明", age: 18}</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">{"name": "小明", "age": 18}</code></div>
+  <div class="qz-ex"><b>解析：</b>JSON 规则：(1) 字符串必须用<b>双引号</b>（排除 A）；(2) 最后一个元素后<b>不能有逗号</b>（排除 B）；(3) 键必须是字符串，要用引号包裹（排除 C）。只有 D 完全正确。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">5</span>读取 JSON 文件应该使用哪个方法？</div>
+  <div class="opt" data-v="A">A. <code class="inl">json.loads(f)</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">json.dump(f)</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">json.load(f)</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">f.json()</code></div>
+  <div class="qz-ex"><b>解析：</b>读 .json 文件用 <code class="inl">json.load(文件对象)</code>。带 <code class="inl">s</code> 的 <code class="inl">loads</code> 是解析<b>字符串</b>。<code class="inl">dump</code> 是写文件不是读。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">6</span>下面代码 <code class="inl">json.load(f)</code> 中的 f 应该是什么？</div>
+  <div class="opt" data-v="A">A. JSON 字符串</div>
+  <div class="opt" data-v="B">B. 文件对象（open 返回的对象）</div>
+  <div class="opt" data-v="C">C. 文件路径字符串</div>
+  <div class="opt" data-v="D">D. 字典</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">json.load()</code> 的参数是<b>文件对象</b>，要先用 <code class="inl">open()</code> 得到文件对象，再传给 load。直接传文件路径会报错。如果手上是字符串就用 <code class="inl">json.loads()</code>。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">7</span>写入 JSON 文件时想让中文不被转义，应该加什么参数？</div>
+  <div class="opt" data-v="A">A. <code class="inl">ensure_ascii=False</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">chinese=True</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">encoding='utf-8'</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">unicode=False</code></div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">json.dump(data, f, ensure_ascii=False, indent=2)</code> 是标准写法。默认 <code class="inl">ensure_ascii=True</code> 会把中文转成 <code class="inl">\uXXXX</code> 形式。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">8</span>异常的基本捕获语法是？</div>
+  <div class="opt" data-v="A">A. <code class="inl">if/else</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">catch/throw</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">do/end</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">try/except</code></div>
+  <div class="qz-ex"><b>解析：</b>Python 用 <code class="inl">try/except</code> 捕获异常（Java 用 try/catch，注意区分）。完整语法还包括 else、finally 和可选的 raise。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">9</span>下面哪个异常类型可以捕获<b>大部分异常</b>？</div>
+  <div class="opt" data-v="A">A. <code class="inl">Error</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">BaseException</code> ← 不推荐</div>
+  <div class="opt" data-v="C">C. <code class="inl">Exception</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">AllError</code></div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">Exception</code> 是<b>大部分常见异常的父类</b>，用 <code class="inl">except Exception as e:</code> 做兜底捕获。<code class="inl">BaseException</code> 太宽，会捕获 KeyboardInterrupt、SystemExit 等系统级异常，不推荐使用。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">10</span><code class="inl">finally</code> 块在什么时候执行？</div>
+  <div class="opt" data-v="A">A. 无论是否发生异常都会执行</div>
+  <div class="opt" data-v="B">B. 只有发生异常时执行</div>
+  <div class="opt" data-v="C">C. 只有没发生异常时执行</div>
+  <div class="opt" data-v="D">D. 程序结束时执行</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">finally</code> 的核心特性是<b>必定执行</b>，无论 try 块中是否发生异常、异常是否被捕获。常用于资源清理（关闭文件、断开连接）。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">11</span><code class="inl">else</code> 块在 try 结构中什么时候执行？</div>
+  <div class="opt" data-v="A">A. 总是执行</div>
+  <div class="opt" data-v="B">B. 当 try 块中没有发生任何异常时执行</div>
+  <div class="opt" data-v="C">C. 当 except 没匹配上时执行</div>
+  <div class="opt" data-v="D">D. 当 finally 执行后执行</div>
+  <div class="qz-ex"><b>解析：</b>try/except 中的 <code class="inl">else</code> 在<b>没有发生任何异常</b>时执行（不是 except 的"否则"分支）。和 if/else 中的 else 含义不同。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">12</span>下面代码会输出什么？<br>
+<code class="inl">try:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;print('A')</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;int('abc')</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;print('B')</code><br>
+<code class="inl">except Exception:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;print('C')</code><br>
+<code class="inl">finally:</code><br>
+<code class="inl">&nbsp;&nbsp;&nbsp;&nbsp;print('D')</code></div>
+  <div class="opt" data-v="A">A. A B C D</div>
+  <div class="opt" data-v="B">B. A B D</div>
+  <div class="opt" data-v="C">C. A C</div>
+  <div class="opt" data-v="D">D. A C D</div>
+  <div class="qz-ex"><b>解析：</b>① 打印 A → ② <code class="inl">int('abc')</code> 抛 ValueError，中断 try → ③ B <b>不执行</b> → ④ Exception 匹配，打印 C → ⑤ finally 必执行，打印 D。结果：<b>A C D</b>。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">13</span>关键字 <code class="inl">raise</code> 的作用是什么？</div>
+  <div class="opt" data-v="A">A. 主动抛出一个异常</div>
+  <div class="opt" data-v="B">B. 捕获异常</div>
+  <div class="opt" data-v="C">C. 抑制异常</div>
+  <div class="opt" data-v="D">D. 重启程序</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">raise</code> 用于<b>主动抛出异常</b>，常见用法是参数校验失败时主动报错，或捕获后重新抛出。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">14</span>下列哪个字符串调用 <code class="inl">.isdigit()</code> 返回 <code class="inl">True</code>？</div>
+  <div class="opt" data-v="A">A. <code class="inl">'12.5'</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">'-3'</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">'123'</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">'1 2 3'</code></div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">isdigit()</code> 只判断<b>纯数字字符</b>。'12.5' 有小数点（False），'-3' 有负号（False），'1 2 3' 有空格（False）。只有 '123' 全部是数字字符。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">15</span>在接口测试中，把响应字符串 <code class="inl">response.text</code> 转成 Python 字典应该用？</div>
+  <div class="opt" data-v="A">A. <code class="inl">json.load(response.text)</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">json.loads(response.text)</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">dict(response.text)</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">eval(response.text)</code></div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">response.text</code> 是<b>字符串</b>，要用带 s 的 <code class="inl">json.loads()</code> 解析。<code class="inl">load</code> 是给文件对象用的。<code class="inl">eval</code> 不安全且不能解析 JSON 中的 true/null。其实 requests 库还提供了快捷方法 <code class="inl">response.json()</code> 直接返回字典。</div>
+</div>
+
+<button class="qbtn" onclick="sub()">提交答卷</button>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+
+</div><!-- /panel 4 -->
+
+</div><!-- /wrap -->
+
+<script>
+// ============ Navigation ============
+const pans = document.querySelectorAll('.pan');
+const tabs = document.querySelectorAll('.t');
+const dots = document.getElementById('dots');
+
+for(let i=0; i<pans.length; i++){
+  const d = document.createElement('span');
+  d.className = 'dot' + (i===0?' a':'');
+  d.onclick = ()=> go(i);
+  dots.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=> t.classList.toggle('a', k===i));
+  pans.forEach((p,k)=> p.classList.toggle('a', k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=> d.classList.toggle('a', k===i));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+tabs.forEach((t,i)=>{
+  t.onclick = ()=> go(i);
+});
+
+// ============ Practice toggle ============
+function tr(el){
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent = ans.classList.contains('s') ? '隐藏答案 ›' : '查看答案 ›';
+}
+
+// ============ Interview accordion ============
+function tq(hdr){
+  const iq = hdr.parentElement;
+  iq.classList.toggle('o');
+}
+
+// ============ Practice progress ============
+const cbs = document.querySelectorAll('.ci');
+function upc(){
+  const done = document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent = done;
+  cbs.forEach(cb=>{
+    cb.closest('.pt').classList.toggle('done', cb.checked);
+  });
+  if(done === 10){
+    document.querySelectorAll('.dot')[2].classList.add('d');
+  } else {
+    document.querySelectorAll('.dot')[2].classList.remove('d');
+  }
+}
+cbs.forEach(cb=> cb.onchange = upc);
+upc();
+
+function mc(){
+  cbs.forEach(cb=> cb.checked = true);
+  upc();
+}
+
+// ============ Quiz ============
+document.querySelectorAll('.qz').forEach(qz=>{
+  qz.querySelectorAll('.opt').forEach(opt=>{
+    opt.onclick = ()=>{
+      if(qz.classList.contains('locked')) return;
+      qz.querySelectorAll('.opt').forEach(o=> o.classList.remove('sel'));
+      opt.classList.add('sel');
+    };
+  });
+});
+
+function sub(){
+  const qzs = document.querySelectorAll('.qz');
+  let score = 0;
+  qzs.forEach(qz=>{
+    qz.classList.add('locked');
+    const ans = qz.dataset.a;
+    const sel = qz.querySelector('.opt.sel');
+    qz.querySelectorAll('.opt').forEach(opt=>{
+      opt.classList.remove('sel');
+      if(opt.dataset.v === ans){
+        opt.classList.add('ok');
+      }
+      if(sel && opt === sel && sel.dataset.v !== ans){
+        opt.classList.add('no');
+      }
+    });
+    if(sel && sel.dataset.v === ans){
+      score++;
+    }
+    qz.querySelector('.qz-ex').classList.add('s');
+  });
+  
+  document.getElementById('sc-num').textContent = score;
+  let msg = '';
+  if(score === 15) msg = '满分！JSON 操作和异常处理都掌握得非常扎实！🎉';
+  else if(score >= 12) msg = '很棒！基础概念已经掌握，继续加油！💪';
+  else if(score >= 9) msg = '还不错！请复习一下错题的解析～📖';
+  else if(score >= 6) msg = '继续努力！建议回到知识讲解重新学习。📚';
+  else msg = '别灰心！JSON 和异常处理需要多练习，再来一次吧。💡';
+  document.getElementById('sc-msg').textContent = msg;
+  
+  const qr = document.getElementById('qr');
+  qr.classList.add('s');
+  qr.scrollIntoView({behavior:'smooth', block:'start'});
+  
+  document.querySelectorAll('.dot')[4].classList.add('d');
+  
+  try{
+    window.parent.postMessage({
+      type:'qa_quiz_result',
+      score: score,
+      total: 15,
+      day: 's4d8'
+    }, '*');
+  } catch(e){}
+}
+</script>
+</body>
+</html>

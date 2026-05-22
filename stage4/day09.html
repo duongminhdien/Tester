@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day 09 · unittest 自动化测试框架</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --day:#0891b2;
+  --day-d:#0e7490;
+  --day-bg:rgba(8,145,178,.08);
+  --bg:#f8fafc;
+  --card:#fff;
+  --ink:#0f172a;
+  --ink2:#334155;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --code-bg:#1e2030;
+  --code-ink:#a6accd;
+  --green:#16a34a;
+  --red:#dc2626;
+  --amber:#d97706;
+  --blue:#3b82f6
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:14px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:20px 20px 50px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(8,145,178,.25)}
+.hd-tag{display:inline-block;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.5px;font-family:'Space Mono',monospace;margin-bottom:10px}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.92;line-height:1.6}
+.hd-stats{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+.hd-stats>div{font-size:12px;opacity:.92}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;margin-right:4px}
+
+/* Dots */
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+
+/* Tabs */
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t:hover{color:var(--day-d);background:var(--day-bg)}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(8,145,178,.3)}
+
+/* Panels */
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sections */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{margin:8px 0;color:var(--ink2);font-size:13.5px}
+.sec ul,.sec ol{margin:8px 0 8px 20px;color:var(--ink2);font-size:13.5px}
+.sec li{margin:4px 0}
+
+/* Code */
+.term{background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:13px;padding:14px 16px;border-radius:8px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.term .p{color:#82aaff}
+.term .c{color:#c3e88d}
+.term .o{color:#f78c6c}
+.term .s{color:#ffcb6b}
+.term .k{color:#c792ea}
+.term .g{color:#676e95;font-style:italic}
+.term .n{color:#f78c6c}
+.term .b{color:#89ddff}
+.term .r{color:#f07178}
+
+code.inl{font-family:'Space Mono',monospace;background:#f1f5f9;color:var(--day-d);padding:1px 6px;border-radius:4px;font-size:12.5px;font-weight:600}
+
+/* Boxes */
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.ok{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.box b{display:inline-block;margin-bottom:2px}
+
+/* Tables */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;min-width:480px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12.5px;padding:9px 12px;text-align:left}
+td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.card p{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+/* Interview */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-lv{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap}
+.lv-b{background:#dcfce7;color:#15803d}
+.lv-m{background:#fef3c7;color:#92400e}
+.lv-h{background:#fee2e2;color:#991b1b}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq-body p{margin:10px 0}
+.iq-body ul,.iq-body ol{margin:8px 0 8px 18px}
+.iq.o .iq-body{display:block}
+
+/* Practice */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1;min-width:0}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.5}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border);user-select:none}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:10px;padding:12px 14px;background:var(--code-bg);color:var(--code-ink);font-family:'Space Mono',monospace;font-size:12.5px;border-radius:8px;line-height:1.8;overflow-x:auto;white-space:pre}
+.pt-ans.s{display:block}
+.pt-ans .k{color:#c792ea}.pt-ans .s{color:#c3e88d}.pt-ans .n{color:#f78c6c}
+.pt-ans .g{color:#676e95;font-style:italic}.pt-ans .b{color:#89ddff}
+.pt-ans .w{color:#fff;font-weight:600}.pt-ans .o{color:#f78c6c}.pt-ans .c{color:#ffcb6b}
+
+.prog{background:var(--day-bg);padding:12px 16px;border-radius:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--day-d);font-weight:600;flex-wrap:wrap}
+.prog .mc-btn{background:var(--day);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.prog .mc-btn:hover{background:var(--day-d)}
+.prog #pc{font-family:'Space Mono',monospace;font-size:15px}
+
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13.5px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qz-ex b{color:var(--amber)}
+
+.qbtn{display:block;margin:20px auto;background:var(--day);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(8,145,178,.3);transition:all .2s}
+.qbtn:hover{background:var(--day-d);transform:translateY(-1px);box-shadow:0 6px 16px rgba(8,145,178,.4)}
+#qr{display:none;background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:20px;border-radius:12px;margin-bottom:18px;text-align:center}
+#qr.s{display:block}
+#qr h3{font-size:18px;margin-bottom:8px}
+#qr .sc{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;margin:8px 0}
+
+/* Pnav */
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button.pri:hover{background:var(--day-d)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+.pnav button:disabled:hover{border-color:var(--border);color:var(--ink2)}
+
+/* Visualizations */
+.viz{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:18px;margin:12px 0}
+.viz-ttl{font-size:13px;font-weight:700;color:var(--day-d);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* unittest arch diagram */
+.arch{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.arch-box{border:2px solid;border-radius:10px;padding:12px 10px;text-align:center;font-size:13px}
+.arch-box h5{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;margin-bottom:6px}
+.arch-box p{font-size:11.5px;color:var(--muted);line-height:1.5}
+.arch-box.tc{border-color:var(--day);background:var(--day-bg);color:var(--day-d)}
+.arch-box.tc h5{color:var(--day-d)}
+.arch-box.ts{border-color:#7c3aed;background:#f5f3ff;color:#4c1d95}
+.arch-box.ts h5{color:#7c3aed}
+.arch-box.tr{border-color:#16a34a;background:#f0fdf4;color:#15803d}
+.arch-box.tr h5{color:#16a34a}
+.arch-box.tl{border-color:#d97706;background:#fffbeb;color:#92400e}
+.arch-box.tl h5{color:#d97706}
+.arch-box.fi{border-color:#dc2626;background:#fef2f2;color:#991b1b}
+.arch-box.fi h5{color:#dc2626}
+
+/* Fixture timeline */
+.ftl{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.ftl-row{display:flex;gap:6px;align-items:stretch;font-family:'Space Mono',monospace;font-size:12px;flex-wrap:wrap}
+.ftl-cell{padding:8px 12px;border-radius:6px;font-weight:600;white-space:nowrap;text-align:center}
+.fc-pre{background:#dbeafe;color:#1e40af}
+.fc-test{background:var(--day-bg);color:var(--day-d)}
+.fc-post{background:#fce7f3;color:#9d174d}
+.fc-sep{background:#f1f5f9;color:var(--muted);border:1px dashed var(--border);font-weight:400}
+.fc-cls-pre{background:#fef3c7;color:#92400e}
+.fc-cls-post{background:#fde8d8;color:#7c2d12}
+
+/* Result indicator */
+.res{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px}
+.res.pass{background:#dcfce7;color:#15803d}
+.res.fail{background:#fee2e2;color:#991b1b}
+.res.error{background:#fef3c7;color:#92400e}
+
+/* Flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.flow-s{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.flow-s .fn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;margin-bottom:8px}
+.flow-s .ft{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.flow-s .fd{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* Mobile */
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:18px}
+  .hd p{font-size:12px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .sec h3{font-size:14px}
+  .t{font-size:11px;padding:8px 6px}
+  .dn{padding:4px}
+  .term{font-size:11.5px;padding:10px 12px}
+  .qbtn{padding:11px 18px;font-size:13px}
+  .pnav button{font-size:12px;padding:9px 12px;min-width:100px}
+  .iq-hdr{padding:12px 12px}
+  .iq-q{font-size:12.5px}
+  table{font-size:12px}
+  th,td{padding:7px 9px}
+  .g2,.g3{grid-template-columns:1fr}
+  .pt-ans{font-size:11.5px;padding:10px}
+  .arch{grid-template-columns:1fr 1fr}
+  .ftl-row{flex-direction:column;gap:4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · TESTER DAY 09</div>
+  <h1>unittest 自动化测试框架</h1>
+  <p>TestCase · TestSuite · TestRunner · TestLoader · Fixture · 断言与测试报告</p>
+  <div class="hd-stats">
+    <div><b>5</b>核心组件</div>
+    <div><b>3</b>级 Fixture</div>
+    <div><b>10</b>实战练习</div>
+    <div><b>12</b>面试题</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- TABS -->
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 实战练习</button>
+    <button class="t" data-p="3">💬 面试精讲</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ============ PANEL 0: 知识讲解 ============ -->
+<div class="pan a" id="p0">
+
+<div class="sec">
+  <h2><span class="ico">1</span>框架与 unittest 介绍</h2>
+
+  <p><b>框架（Framework）</b>是为了解决<b>一类问题</b>的功能集合，提供了通用的解决方案。</p>
+
+  <p><b>unittest</b> 是 Python 自带的<b>单元测试框架</b>，测试人员用它作为<b>自动化测试的执行框架</b>，用来管理和执行测试用例。</p>
+
+  <div class="g3">
+    <div class="card">
+      <h4>✅ 自带无需安装</h4>
+      <p>Python 标准库的一部分，<code class="inl">import unittest</code> 即可使用，无需 pip 安装</p>
+    </div>
+    <div class="card">
+      <h4>🔧 组织多个用例</h4>
+      <p>能将多个测试用例文件组装在一起统一执行</p>
+    </div>
+    <div class="card">
+      <h4>🎯 丰富的断言</h4>
+      <p>提供 <code class="inl">assertEqual</code>、<code class="inl">assertTrue</code> 等断言方法，自动判断结果</p>
+    </div>
+    <div class="card">
+      <h4>📊 生成测试报告</h4>
+      <p>配合第三方库生成 HTML 格式的可读测试报告</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>unittest 五大核心组件</h2>
+
+  <div class="tw">
+  <table>
+    <tr><th>组件</th><th>英文</th><th>作用</th></tr>
+    <tr><td><b>测试用例</b></td><td>TestCase</td><td>书写真正的用例代码（脚本）的地方</td></tr>
+    <tr><td><b>测试套件</b></td><td>TestSuite</td><td>将多个 TestCase 组装（打包）到一起</td></tr>
+    <tr><td><b>测试执行</b></td><td>TestRunner</td><td>执行 TestSuite，输出结果</td></tr>
+    <tr><td><b>测试加载</b></td><td>TestLoader</td><td>TestSuite 的补充，更方便地批量加载 TestCase</td></tr>
+    <tr><td><b>测试夹具</b></td><td>Fixture</td><td>书写前置（setUp）和后置（tearDown）代码的结构</td></tr>
+  </table>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>TestCase 测试用例</h2>
+
+  <p>TestCase 是<b>书写真正用例代码的地方</b>，一个 TestCase 对应一个测试类，类中每个方法是一个测试用例。</p>
+
+  <h3>使用步骤（4 步）</h3>
+  <ol>
+    <li><b>导包</b>：<code class="inl">import unittest</code></li>
+    <li><b>定义测试类</b>：继承 <code class="inl">unittest.TestCase</code>，类名习惯以 <code class="inl">Test</code> 开头</li>
+    <li><b>书写测试方法</b>：方法名<b>必须以 test 开头</b>，方法体就是真正的用例代码</li>
+    <li><b>执行</b>：右键运行 / 主程序 <code class="inl">unittest.main()</code></li>
+  </ol>
+
+<div class="term"><span class="k">import</span> unittest
+
+<span class="k">class</span> <span class="p">TestDemo</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="k">def</span> <span class="p">test_method1</span>(<span class="o">self</span>):       <span class="g"># 必须 test 开头</span>
+        <span class="p">print</span>(<span class="s">'测试方法一'</span>)
+
+    <span class="k">def</span> <span class="p">test_method2</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'测试方法二'</span>)
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    unittest.<span class="p">main</span>()</div>
+
+  <h3>注意事项</h3>
+  <div class="box warn">
+    <b>⚠️ 常见错误</b><br>
+    • 代码文件名满足<b>标识符规则</b>（字母/数字/下划线，不能数字开头）<br>
+    • 代码文件名<b>不要使用中文</b>（会导致 IDE 无法识别为测试文件）<br>
+    • 测试方法名<b>必须以 test 开头</b>，否则不会被执行<br>
+    • 测试类必须继承 <code class="inl">unittest.TestCase</code>
+  </div>
+
+  <h3>执行方式</h3>
+  <ul>
+    <li>在<b>类名后</b>右键运行：执行类中的所有测试方法</li>
+    <li>在<b>方法名后</b>右键运行：只执行当前方法</li>
+    <li>主程序使用 <code class="inl">unittest.main()</code>：执行该文件中所有测试方法</li>
+  </ul>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>TestSuite 和 TestRunner</h2>
+
+  <p><b>TestSuite（测试套件）</b>：将多个用例文件组装在一起。<br>
+  <b>TestRunner（测试执行）</b>：执行 TestSuite，输出结果。</p>
+
+  <h3>完整步骤</h3>
+  <ol>
+    <li>导包 <code class="inl">import unittest</code></li>
+    <li>实例化套件对象 <code class="inl">suite = unittest.TestSuite()</code></li>
+    <li>添加用例方法</li>
+    <li>实例化执行对象 <code class="inl">runner = unittest.TextTestRunner()</code></li>
+    <li>执行 <code class="inl">runner.run(suite)</code></li>
+  </ol>
+
+  <h3>添加用例的两种方式</h3>
+
+<div class="term"><span class="k">import</span> unittest
+<span class="k">from</span> case1 <span class="k">import</span> <span class="p">TestDemo1</span>
+<span class="k">from</span> case2 <span class="k">import</span> <span class="p">TestDemo2</span>
+
+suite <span class="o">=</span> unittest.<span class="p">TestSuite</span>()
+
+<span class="g"># 方式一：逐个添加（精确控制顺序）</span>
+suite.<span class="p">addTest</span>(<span class="p">TestDemo1</span>(<span class="s">'test_method1'</span>))
+suite.<span class="p">addTest</span>(<span class="p">TestDemo1</span>(<span class="s">'test_method2'</span>))
+suite.<span class="p">addTest</span>(<span class="p">TestDemo2</span>(<span class="s">'test_method1'</span>))
+
+<span class="g"># 方式二：addTest + makeSuite 添加整个类（推荐）</span>
+suite.<span class="p">addTest</span>(unittest.<span class="p">makeSuite</span>(<span class="p">TestDemo1</span>))
+suite.<span class="p">addTest</span>(unittest.<span class="p">makeSuite</span>(<span class="p">TestDemo2</span>))
+
+runner <span class="o">=</span> unittest.<span class="p">TextTestRunner</span>()
+runner.<span class="p">run</span>(suite)</div>
+
+  <div class="box info">
+    <b>📋 执行结果的符号含义</b><br>
+    • <code class="inl">.</code> — 用例通过（pass）<br>
+    • <code class="inl">F</code> — 用例不通过（Fail，断言失败）<br>
+    • <code class="inl">E</code> — 用例代码错误（Error，代码本身有 bug）
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>TestLoader 测试加载</h2>
+
+  <p>TestLoader 是 TestSuite 的<b>增强版</b>，适合有大量用例文件时<b>批量加载</b>。</p>
+
+  <h3>使用步骤</h3>
+  <ol>
+    <li>导包 <code class="inl">import unittest</code></li>
+    <li>实例化加载对象并加载用例 → 得到套件对象</li>
+    <li>实例化执行对象并执行</li>
+  </ol>
+
+<div class="term"><span class="k">import</span> unittest
+
+<span class="g"># 加载当前目录下所有以 test_ 开头的 .py 文件</span>
+suite <span class="o">=</span> unittest.<span class="p">TestLoader</span>().<span class="p">discover</span>(<span class="s">'.'</span>, <span class="s">'test_*.py'</span>)
+
+<span class="g"># 执行</span>
+unittest.<span class="p">TextTestRunner</span>().<span class="p">run</span>(suite)</div>
+
+  <div class="box tip">
+    <b>💡 discover() 两个参数</b><br>
+    • 第一个参数：<b>用例所在的目录</b>（<code class="inl">'.'</code> 表示当前目录）<br>
+    • 第二个参数：<b>文件名匹配规则</b>（支持通配符，如 <code class="inl">'test_*.py'</code>）<br>
+    将来的项目结构：用例统一放在 <code class="inl">case/</code> 目录，命名为 <code class="inl">test_项目_模块_功能.py</code>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>Fixture 测试夹具</h2>
+
+  <p>Fixture 是一种<b>代码结构</b>，让某些代码在<b>用例执行前后自动运行</b>，用于环境准备和资源清理。</p>
+
+  <div class="box info">
+    <b>📌 以登录测试为例，执行顺序：</b><br>
+    ① 打开浏览器（一次）→ ② 打开网页点击登录 → ③ 输入数据1点击登录 → ④ 关闭页面 →<br>
+    ② 打开网页 → ③ 输入数据2 → ④ 关闭页面 → ⑤ 关闭浏览器（一次）
+  </div>
+
+  <h3>方法级别 Fixture（最常用）</h3>
+  <p>在<b>每个测试方法</b>执行前后自动调用：</p>
+
+<div class="term"><span class="k">class</span> <span class="p">TestLogin</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="k">def</span> <span class="p">setUp</span>(<span class="o">self</span>):          <span class="g"># 方法前置：每个用例执行前自动调用</span>
+        <span class="p">print</span>(<span class="s">'2. 打开网页，点击登录'</span>)
+
+    <span class="k">def</span> <span class="p">tearDown</span>(<span class="o">self</span>):       <span class="g"># 方法后置：每个用例执行后自动调用</span>
+        <span class="p">print</span>(<span class="s">'4. 关闭页面'</span>)
+
+    <span class="k">def</span> <span class="p">test_1</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'3. 输入用户名密码1，点击登录'</span>)
+
+    <span class="k">def</span> <span class="p">test_2</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'3. 输入用户名密码2，点击登录'</span>)</div>
+
+  <h3>类级别 Fixture</h3>
+  <p>在<b>整个测试类</b>的所有方法执行前后只调用一次，必须写成<b>类方法</b>：</p>
+
+<div class="term">    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="p">setUpClass</span>(<span class="p">cls</span>):      <span class="g"># 类前置：整个类执行前只调用一次</span>
+        <span class="p">print</span>(<span class="s">'1. 打开浏览器'</span>)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="p">tearDownClass</span>(<span class="p">cls</span>):   <span class="g"># 类后置：整个类执行后只调用一次</span>
+        <span class="p">print</span>(<span class="s">'5. 关闭浏览器'</span>)</div>
+
+  <h3>模块级别 Fixture（了解）</h3>
+  <p>在整个<b>代码文件</b>执行前后各调用一次，定义在类外部：</p>
+
+<div class="term"><span class="k">def</span> <span class="p">setUpModule</span>():          <span class="g"># 模块前置（在类外部定义）</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="p">tearDownModule</span>():       <span class="g"># 模块后置</span>
+    <span class="k">pass</span></div>
+
+  <h3>三级 Fixture 执行顺序</h3>
+  <div class="box ok">
+    <b>✅ 完整执行顺序：</b><br>
+    <code class="inl">setUpModule → setUpClass → setUp → test_1 → tearDown → setUp → test_2 → tearDown → tearDownClass → tearDownModule</code>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">7</span>断言（Assert）</h2>
+
+  <p>断言让程序<b>自动判断预期结果和实际结果是否相符</b>，无需人工比对。断言失败时，测试方法标记为 <span class="res fail">F</span>。</p>
+
+  <h3>常用断言方法</h3>
+  <div class="tw">
+  <table>
+    <tr><th>断言方法</th><th>说明</th><th>等价于</th></tr>
+    <tr><td><code class="inl">assertEqual(a, b)</code></td><td>断言 a == b</td><td>最常用，验证返回值</td></tr>
+    <tr><td><code class="inl">assertNotEqual(a, b)</code></td><td>断言 a != b</td><td>验证不相等</td></tr>
+    <tr><td><code class="inl">assertTrue(x)</code></td><td>断言 x 为 True</td><td><code class="inl">bool(x) is True</code></td></tr>
+    <tr><td><code class="inl">assertFalse(x)</code></td><td>断言 x 为 False</td><td><code class="inl">bool(x) is False</code></td></tr>
+    <tr><td><code class="inl">assertIn(a, b)</code></td><td>断言 a in b</td><td>验证包含关系</td></tr>
+    <tr><td><code class="inl">assertNotIn(a, b)</code></td><td>断言 a not in b</td><td>验证不包含</td></tr>
+  </table>
+  </div>
+
+  <h3>使用示例</h3>
+<div class="term"><span class="k">import</span> unittest
+
+
+<span class="k">def</span> <span class="p">add</span>(a, b):
+    <span class="k">return</span> a <span class="o">+</span> b
+
+
+<span class="k">class</span> <span class="p">TestAdd</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="k">def</span> <span class="p">test_1_1_2</span>(<span class="o">self</span>):
+        <span class="c">"""1 + 1 = 2"""</span>
+        result <span class="o">=</span> <span class="p">add</span>(<span class="n">1</span>, <span class="n">1</span>)
+        self.<span class="p">assertEqual</span>(<span class="n">2</span>, result)     <span class="g"># 期望, 实际</span>
+
+    <span class="k">def</span> <span class="p">test_1_2_3</span>(<span class="o">self</span>):
+        <span class="c">"""1 + 2 = 3"""</span>
+        self.<span class="p">assertEqual</span>(<span class="n">3</span>, <span class="p">add</span>(<span class="n">1</span>, <span class="n">2</span>))</div>
+
+  <div class="box tip">
+    <b>💡 assertEqual 参数顺序约定</b><br>
+    <code class="inl">assertEqual(期望值, 实际值)</code> — 第一个参数是<b>期望结果</b>，第二个是<b>实际调用结果</b>。顺序不影响断言是否通过，但影响失败时的错误信息可读性。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">8</span>登录功能测试完整案例</h2>
+
+  <p>使用 unittest 框架对 <code class="inl">login()</code> 函数进行完整的测试：</p>
+
+<div class="term"><span class="k">import</span> unittest
+
+
+<span class="g"># 被测函数（开发提供，不要修改）</span>
+<span class="k">def</span> <span class="p">login</span>(username, password):
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span>:
+        <span class="k">return</span> <span class="s">'登录成功'</span>
+    <span class="k">else</span>:
+        <span class="k">return</span> <span class="s">'登录失败'</span>
+
+
+<span class="k">class</span> <span class="p">TestLogin</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="k">def</span> <span class="p">test_correct</span>(<span class="o">self</span>):
+        <span class="c">"""正确的用户名和密码"""</span>
+        self.<span class="p">assertEqual</span>(<span class="s">'登录成功'</span>, <span class="p">login</span>(<span class="s">'admin'</span>, <span class="s">'123456'</span>))
+
+    <span class="k">def</span> <span class="p">test_wrong_user</span>(<span class="o">self</span>):
+        <span class="c">"""错误的用户名"""</span>
+        self.<span class="p">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="p">login</span>(<span class="s">'root'</span>, <span class="s">'123456'</span>))
+
+    <span class="k">def</span> <span class="p">test_wrong_pwd</span>(<span class="o">self</span>):
+        <span class="c">"""错误的密码"""</span>
+        self.<span class="p">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="p">login</span>(<span class="s">'admin'</span>, <span class="s">'123123'</span>))
+
+    <span class="k">def</span> <span class="p">test_wrong_both</span>(<span class="o">self</span>):
+        <span class="c">"""错误的用户名和密码"""</span>
+        self.<span class="p">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="p">login</span>(<span class="s">'aaa'</span>, <span class="s">'123123'</span>))
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    unittest.<span class="p">main</span>()</div>
+</div>
+
+<div class="pnav">
+  <button disabled>← 上一节</button>
+  <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+</div>
+
+</div><!-- /panel 0 -->
+
+<!-- ============ PANEL 1: 图解演示 ============ -->
+<div class="pan" id="p1">
+
+<div class="sec">
+  <h2><span class="ico">1</span>unittest 五大组件关系图</h2>
+
+  <div class="arch">
+    <div class="arch-box tc">
+      <h5>TestCase</h5>
+      <p>测试用例<br>书写用例代码<br>继承 TestCase</p>
+    </div>
+    <div class="arch-box ts">
+      <h5>TestSuite</h5>
+      <p>测试套件<br>组装/打包<br>多个 TestCase</p>
+    </div>
+    <div class="arch-box tr">
+      <h5>TestRunner</h5>
+      <p>测试执行<br>运行 Suite<br>输出结果</p>
+    </div>
+    <div class="arch-box tl">
+      <h5>TestLoader</h5>
+      <p>测试加载<br>批量加载<br>discover()</p>
+    </div>
+    <div class="arch-box fi">
+      <h5>Fixture</h5>
+      <p>测试夹具<br>setUp / tearDown<br>前置后置</p>
+    </div>
+  </div>
+
+  <div class="viz">
+    <div class="viz-ttl">🔄 工作流程</div>
+    <div class="flow">
+      <div class="flow-s">
+        <div class="fn">1</div>
+        <div class="ft">写 TestCase</div>
+        <div class="fd">每个 .py 文件是一个 TestCase 类，测试方法以 test 开头</div>
+      </div>
+      <div class="flow-s">
+        <div class="fn">2</div>
+        <div class="ft">TestSuite 组装</div>
+        <div class="fd">addTest 或 discover 把多个 TestCase 打包</div>
+      </div>
+      <div class="flow-s">
+        <div class="fn">3</div>
+        <div class="ft">TestRunner 执行</div>
+        <div class="fd">runner.run(suite) 运行并输出 . / F / E</div>
+      </div>
+      <div class="flow-s">
+        <div class="fn">4</div>
+        <div class="ft">查看结果</div>
+        <div class="fd">控制台或 HTML 报告查看通过/失败详情</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">2</span>TestCase 最小结构</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">📄 一个最简单的 TestCase 文件</div>
+<div class="term"><span class="g"># case1.py</span>
+<span class="k">import</span> unittest                      <span class="g"># ① 导包</span>
+
+<span class="k">class</span> <span class="p">TestDemo1</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):  <span class="g"># ② 继承 TestCase</span>
+
+    <span class="k">def</span> <span class="p">test_method1</span>(<span class="o">self</span>):           <span class="g"># ③ 方法名必须 test 开头</span>
+        <span class="p">print</span>(<span class="s">'测试方法1'</span>)
+
+    <span class="k">def</span> <span class="p">test_method2</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'测试方法2'</span>)
+
+    <span class="k">def</span> <span class="p">helper</span>(<span class="o">self</span>):                 <span class="g"># ❌ 不以 test 开头，不会被执行</span>
+        <span class="k">pass</span>
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:           <span class="g"># ④ 执行</span>
+    unittest.<span class="p">main</span>()</div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">3</span>执行结果符号解读</h2>
+
+  <div class="viz">
+    <div class="viz-ttl">📊 控制台输出样例</div>
+<div class="term"><span class="g"># 运行 4 个用例后的控制台输出：</span>
+....
+----------------------------------------------------------------------
+Ran <span class="n">4</span> tests <span class="k">in</span> <span class="n">0.001</span>s
+
+OK                              <span class="g"># 全部通过</span>
+
+<span class="g"># 有失败时：</span>
+..F.
+<span class="r">FAIL: test_method3 (TestDemo)</span>
+----------------------------------------------------------------------
+AssertionError: <span class="s">'登录成功'</span> !<span class="o">=</span> <span class="s">'登录失败'</span></div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <h4><span class="res pass">. 通过</span></h4>
+      <p>用例执行通过，断言结果符合预期</p>
+    </div>
+    <div class="card">
+      <h4><span class="res fail">F 失败</span></h4>
+      <p>Fail，断言失败，预期与实际不符（测试发现了 bug）</p>
+    </div>
+    <div class="card">
+      <h4><span class="res error">E 错误</span></h4>
+      <p>Error，用例代码本身有错误（如 语法错误、变量未定义）</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">4</span>TestSuite vs TestLoader 对比</h2>
+
+  <div class="g2">
+    <div class="card">
+      <h4>🧩 TestSuite</h4>
+<div class="term" style="font-size:12px">suite <span class="o">=</span> unittest.<span class="p">TestSuite</span>()
+
+<span class="g"># 方式1：逐个添加方法</span>
+suite.<span class="p">addTest</span>(<span class="p">TestA</span>(<span class="s">'test_1'</span>))
+suite.<span class="p">addTest</span>(<span class="p">TestA</span>(<span class="s">'test_2'</span>))
+
+<span class="g"># 方式2：添加整个类</span>
+suite.<span class="p">addTest</span>(
+    unittest.<span class="p">makeSuite</span>(<span class="p">TestA</span>))</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">精确控制，适合少量文件</p>
+    </div>
+    <div class="card">
+      <h4>⚡ TestLoader</h4>
+<div class="term" style="font-size:12px">suite <span class="o">=</span> (unittest
+    .<span class="p">TestLoader</span>()
+    .<span class="p">discover</span>(
+        <span class="s">'case/'</span>,      <span class="g"># 目录</span>
+        <span class="s">'test_*.py'</span>  <span class="g"># 匹配</span>
+    ))
+
+unittest.<span class="p">TextTestRunner</span>().<span class="p">run</span>(suite)</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">批量加载，适合多文件</p>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">5</span>三级 Fixture 执行时序</h2>
+
+  <p>以 3 个测试方法为例，三种 Fixture 的执行顺序：</p>
+
+  <div class="ftl">
+    <div class="ftl-row">
+      <div class="ftl-cell fc-cls-pre">setUpModule</div>
+    </div>
+    <div class="ftl-row">
+      <div class="ftl-cell fc-sep" style="font-size:11px;padding:4px 8px">整个类开始前：</div>
+      <div class="ftl-cell fc-cls-pre">setUpClass</div>
+    </div>
+
+    <div class="ftl-row" style="margin-top:6px">
+      <div class="ftl-cell fc-sep" style="font-size:11px;padding:4px 8px">用例1：</div>
+      <div class="ftl-cell fc-pre">setUp</div>
+      <div class="ftl-cell fc-test">test_1</div>
+      <div class="ftl-cell fc-post">tearDown</div>
+    </div>
+    <div class="ftl-row">
+      <div class="ftl-cell fc-sep" style="font-size:11px;padding:4px 8px">用例2：</div>
+      <div class="ftl-cell fc-pre">setUp</div>
+      <div class="ftl-cell fc-test">test_2</div>
+      <div class="ftl-cell fc-post">tearDown</div>
+    </div>
+    <div class="ftl-row">
+      <div class="ftl-cell fc-sep" style="font-size:11px;padding:4px 8px">用例3：</div>
+      <div class="ftl-cell fc-pre">setUp</div>
+      <div class="ftl-cell fc-test">test_3</div>
+      <div class="ftl-cell fc-post">tearDown</div>
+    </div>
+
+    <div class="ftl-row" style="margin-top:6px">
+      <div class="ftl-cell fc-sep" style="font-size:11px;padding:4px 8px">整个类结束后：</div>
+      <div class="ftl-cell fc-cls-post">tearDownClass</div>
+    </div>
+    <div class="ftl-row">
+      <div class="ftl-cell fc-cls-post">tearDownModule</div>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>🎯 最常用的组合</b><br>
+    • UI 自动化：<code class="inl">setUpClass</code> 打开浏览器 → <code class="inl">setUp</code> 打开页面 → test → <code class="inl">tearDown</code> 关闭页面 → <code class="inl">tearDownClass</code> 关闭浏览器<br>
+    • 接口测试：<code class="inl">setUp</code> 准备测试数据 → test → <code class="inl">tearDown</code> 清理数据
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">6</span>Fixture 完整代码示例</h2>
+
+<div class="term"><span class="k">import</span> unittest
+
+
+<span class="k">def</span> <span class="p">setUpModule</span>():           <span class="g"># 模块前置（了解）</span>
+    <span class="p">print</span>(<span class="s">'0. 模块开始'</span>)
+
+
+<span class="k">def</span> <span class="p">tearDownModule</span>():        <span class="g"># 模块后置（了解）</span>
+    <span class="p">print</span>(<span class="s">'6. 模块结束'</span>)
+
+
+<span class="k">class</span> <span class="p">TestLogin</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="p">setUpClass</span>(<span class="n">cls</span>):
+        <span class="p">print</span>(<span class="s">'1. 打开浏览器'</span>)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="p">tearDownClass</span>(<span class="n">cls</span>):
+        <span class="p">print</span>(<span class="s">'5. 关闭浏览器'</span>)
+
+    <span class="k">def</span> <span class="p">setUp</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'2. 打开登录页'</span>)
+
+    <span class="k">def</span> <span class="p">tearDown</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'4. 关闭页面'</span>)
+
+    <span class="k">def</span> <span class="p">test_1</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'3. 输入数据1，点击登录'</span>)
+
+    <span class="k">def</span> <span class="p">test_2</span>(<span class="o">self</span>):
+        <span class="p">print</span>(<span class="s">'3. 输入数据2，点击登录'</span>)</div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(0)">← 知识讲解</button>
+  <button class="pri" onclick="go(2)">下一节 实战练习 →</button>
+</div>
+
+</div><!-- /panel 1 -->
+
+<!-- ============ PANEL 2: 实战练习 ============ -->
+<div class="pan" id="p2">
+
+<div class="prog">
+  <div>📊 完成进度：<span id="pc">0</span> / 10</div>
+  <button class="mc-btn" onclick="mc()">全部勾选</button>
+</div>
+
+<div class="sec">
+  <h2><span class="ico">1</span>实战练习（10 题）</h2>
+  <p>包含本日全部作业题，勾选复选框记录进度，点击"查看答案"展开参考代码。</p>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p1">
+  <div class="pt-body">
+    <div class="pt-t">1. 写一个最简单的 TestCase：定义 <code class="inl">TestDemo</code> 类继承 <code class="inl">unittest.TestCase</code>，写两个测试方法各输出一句话，并用 <code class="inl">unittest.main()</code> 执行。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># case1.py</span>
+<span class="k">import</span> unittest
+
+
+<span class="k">class</span> <span class="b">TestDemo1</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">test_method1</span>(self):
+        <span class="b">print</span>(<span class="s">'case1 - 测试方法1'</span>)
+
+    <span class="k">def</span> <span class="b">test_method2</span>(self):
+        <span class="b">print</span>(<span class="s">'case1 - 测试方法2'</span>)
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p2">
+  <div class="pt-body">
+    <div class="pt-t">2. 【作业题 1】定义 <code class="inl">case1.py</code> 和 <code class="inl">case2.py</code>，各含一个测试类（TestDemo1、TestDemo2）和两个测试方法，然后用 <code class="inl">TestSuite + TestRunner</code> 将两个文件组装并运行。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="g"># run_suite.py（套件+执行文件）</span>
+<span class="k">import</span> unittest
+<span class="k">from</span> case1 <span class="k">import</span> <span class="b">TestDemo1</span>
+<span class="k">from</span> case2 <span class="k">import</span> <span class="b">TestDemo2</span>
+
+<span class="g"># 实例化套件</span>
+suite <span class="o">=</span> <span class="b">unittest</span>.<span class="b">TestSuite</span>()
+
+<span class="g"># 添加 case1 和 case2 的所有方法</span>
+suite.<span class="b">addTest</span>(<span class="b">unittest</span>.<span class="b">makeSuite</span>(<span class="b">TestDemo1</span>))
+suite.<span class="b">addTest</span>(<span class="b">unittest</span>.<span class="b">makeSuite</span>(<span class="b">TestDemo2</span>))
+
+<span class="g"># 执行</span>
+runner <span class="o">=</span> <span class="b">unittest</span>.<span class="b">TextTestRunner</span>()
+runner.<span class="b">run</span>(suite)</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p3">
+  <div class="pt-body">
+    <div class="pt-t">3. 演示 <code class="inl">TestSuite</code> 逐个添加方法：把 TestDemo1 的 test_method1 和 TestDemo2 的 test_method2 放入套件，按指定顺序执行。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+<span class="k">from</span> case1 <span class="k">import</span> <span class="b">TestDemo1</span>
+<span class="k">from</span> case2 <span class="k">import</span> <span class="b">TestDemo2</span>
+
+suite <span class="o">=</span> <span class="b">unittest</span>.<span class="b">TestSuite</span>()
+
+<span class="g"># 精确指定方法，控制执行顺序</span>
+suite.<span class="b">addTest</span>(<span class="b">TestDemo1</span>(<span class="s">'test_method1'</span>))  <span class="g"># 类名('方法名') 注意引号</span>
+suite.<span class="b">addTest</span>(<span class="b">TestDemo2</span>(<span class="s">'test_method2'</span>))
+
+runner <span class="o">=</span> <span class="b">unittest</span>.<span class="b">TextTestRunner</span>()
+runner.<span class="b">run</span>(suite)
+
+<span class="g"># 执行顺序：TestDemo1.test_method1 → TestDemo2.test_method2</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p4">
+  <div class="pt-body">
+    <div class="pt-t">4. 用 <code class="inl">TestLoader.discover()</code> 批量加载当前目录下所有以 <code class="inl">test_</code> 开头的 .py 文件并执行（一行搞定）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+<span class="g"># 批量加载 case/ 目录下所有 test_*.py 文件</span>
+suite <span class="o">=</span> <span class="b">unittest</span>.<span class="b">TestLoader</span>().<span class="b">discover</span>(<span class="s">'case/'</span>, <span class="s">'test_*.py'</span>)
+
+<span class="g"># 一行执行</span>
+<span class="b">unittest</span>.<span class="b">TextTestRunner</span>().<span class="b">run</span>(suite)
+
+<span class="g"># 说明：</span>
+<span class="g"># '.' 表示当前目录，'case/' 表示 case 子目录</span>
+<span class="g"># 'test_*.py' → 匹配 test_ 开头的所有 .py 文件</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p5">
+  <div class="pt-body">
+    <div class="pt-t">5. 演示<b>方法级 Fixture</b>：在测试类中定义 <code class="inl">setUp</code> 和 <code class="inl">tearDown</code>，验证它们在每个用例前后都会执行。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">class</span> <span class="b">TestFixtureMethod</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">setUp</span>(self):
+        <span class="b">print</span>(<span class="s">'--- setUp: 每个用例前执行 ---'</span>)
+
+    <span class="k">def</span> <span class="b">tearDown</span>(self):
+        <span class="b">print</span>(<span class="s">'--- tearDown: 每个用例后执行 ---'</span>)
+
+    <span class="k">def</span> <span class="b">test_1</span>(self):
+        <span class="b">print</span>(<span class="s">'测试用例 1'</span>)
+
+    <span class="k">def</span> <span class="b">test_2</span>(self):
+        <span class="b">print</span>(<span class="s">'测试用例 2'</span>)
+
+
+<span class="g"># 执行顺序：</span>
+<span class="g"># setUp → test_1 → tearDown → setUp → test_2 → tearDown</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p6">
+  <div class="pt-body">
+    <div class="pt-t">6. 演示<b>类级 Fixture</b>：在测试类中定义 <code class="inl">setUpClass</code> 和 <code class="inl">tearDownClass</code>（类方法），验证它们只在所有用例执行前后各调用一次。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">class</span> <span class="b">TestFixtureClass</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="b">setUpClass</span>(cls):
+        <span class="b">print</span>(<span class="s">'=== setUpClass: 整个类开始前调用一次 ==='</span>)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="b">tearDownClass</span>(cls):
+        <span class="b">print</span>(<span class="s">'=== tearDownClass: 整个类结束后调用一次 ==='</span>)
+
+    <span class="k">def</span> <span class="b">setUp</span>(self):
+        <span class="b">print</span>(<span class="s">'setUp'</span>)
+
+    <span class="k">def</span> <span class="b">test_1</span>(self):
+        <span class="b">print</span>(<span class="s">'test_1'</span>)
+
+    <span class="k">def</span> <span class="b">test_2</span>(self):
+        <span class="b">print</span>(<span class="s">'test_2'</span>)
+
+
+<span class="g"># 输出顺序：</span>
+<span class="g"># setUpClass → setUp → test_1 → setUp → test_2 → tearDownClass</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p7">
+  <div class="pt-body">
+    <div class="pt-t">7. 定义 <code class="inl">add(a, b)</code> 函数，用 <code class="inl">assertEqual</code> 断言对 4 组数据（1+1=2, 1+2=3, 3+4=7, 4+5=9）进行测试。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">def</span> <span class="b">add</span>(a, b):
+    <span class="k">return</span> a <span class="o">+</span> b
+
+
+<span class="k">class</span> <span class="b">TestAdd</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">test_1_1_2</span>(self):
+        <span class="c">"""1 + 1 = 2"""</span>
+        self.<span class="b">assertEqual</span>(<span class="n">2</span>, <span class="b">add</span>(<span class="n">1</span>, <span class="n">1</span>))
+
+    <span class="k">def</span> <span class="b">test_1_2_3</span>(self):
+        <span class="c">"""1 + 2 = 3"""</span>
+        self.<span class="b">assertEqual</span>(<span class="n">3</span>, <span class="b">add</span>(<span class="n">1</span>, <span class="n">2</span>))
+
+    <span class="k">def</span> <span class="b">test_3_4_7</span>(self):
+        <span class="c">"""3 + 4 = 7"""</span>
+        self.<span class="b">assertEqual</span>(<span class="n">7</span>, <span class="b">add</span>(<span class="n">3</span>, <span class="n">4</span>))
+
+    <span class="k">def</span> <span class="b">test_4_5_9</span>(self):
+        <span class="c">"""4 + 5 = 9"""</span>
+        self.<span class="b">assertEqual</span>(<span class="n">9</span>, <span class="b">add</span>(<span class="n">4</span>, <span class="n">5</span>))
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p8">
+  <div class="pt-body">
+    <div class="pt-t">8. 【作业题 2 · 完整版】对 <code class="inl">login(username, password)</code> 函数编写 4 组测试：正确用户名密码（登录成功）、错误用户名、错误密码、用户名密码均错（后三种均登录失败）。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">def</span> <span class="b">login</span>(username, password):
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span>:
+        <span class="k">return</span> <span class="s">'登录成功'</span>
+    <span class="k">else</span>:
+        <span class="k">return</span> <span class="s">'登录失败'</span>
+
+
+<span class="k">class</span> <span class="b">TestLogin</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">test_correct</span>(self):
+        <span class="c">"""正确的用户名和密码 → 登录成功"""</span>
+        self.<span class="b">assertEqual</span>(<span class="s">'登录成功'</span>, <span class="b">login</span>(<span class="s">'admin'</span>, <span class="s">'123456'</span>))
+
+    <span class="k">def</span> <span class="b">test_wrong_user</span>(self):
+        <span class="c">"""错误的用户名 → 登录失败"""</span>
+        self.<span class="b">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="b">login</span>(<span class="s">'root'</span>, <span class="s">'123456'</span>))
+
+    <span class="k">def</span> <span class="b">test_wrong_pwd</span>(self):
+        <span class="c">"""错误的密码 → 登录失败"""</span>
+        self.<span class="b">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="b">login</span>(<span class="s">'admin'</span>, <span class="s">'123123'</span>))
+
+    <span class="k">def</span> <span class="b">test_wrong_both</span>(self):
+        <span class="c">"""错误的用户名和密码 → 登录失败"""</span>
+        self.<span class="b">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="b">login</span>(<span class="s">'aaa'</span>, <span class="s">'123123'</span>))
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>()</div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p9">
+  <div class="pt-body">
+    <div class="pt-t">9. 演示多种断言方法：在测试方法中使用 <code class="inl">assertEqual</code>、<code class="inl">assertTrue</code>、<code class="inl">assertFalse</code>、<code class="inl">assertIn</code>、<code class="inl">assertIsNone</code> 各一次。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">class</span> <span class="b">TestAssertions</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="k">def</span> <span class="b">test_equal</span>(self):
+        self.<span class="b">assertEqual</span>(<span class="n">4</span>, <span class="n">2</span> <span class="o">+</span> <span class="n">2</span>)          <span class="g"># 期望==实际</span>
+
+    <span class="k">def</span> <span class="b">test_true</span>(self):
+        self.<span class="b">assertTrue</span>(<span class="n">3</span> <span class="o">&gt;</span> <span class="n">2</span>)               <span class="g"># 结果为 True</span>
+
+    <span class="k">def</span> <span class="b">test_false</span>(self):
+        self.<span class="b">assertFalse</span>(<span class="n">3</span> <span class="o">&lt;</span> <span class="n">2</span>)              <span class="g"># 结果为 False</span>
+
+    <span class="k">def</span> <span class="b">test_in</span>(self):
+        self.<span class="b">assertIn</span>(<span class="s">'admin'</span>, [<span class="s">'admin'</span>, <span class="s">'root'</span>])  <span class="g"># 包含</span>
+
+    <span class="k">def</span> <span class="b">test_none</span>(self):
+        result <span class="o">=</span> <span class="b">None</span>
+        self.<span class="b">assertIsNone</span>(result)             <span class="g"># 是 None</span>
+
+    <span class="k">def</span> <span class="b">test_not_equal</span>(self):
+        self.<span class="b">assertNotEqual</span>(<span class="s">'登录成功'</span>, <span class="s">'登录失败'</span>)  <span class="g"># 不相等</span></div>
+  </div>
+</div>
+
+<div class="pt">
+  <input type="checkbox" class="ci" id="p10">
+  <div class="pt-body">
+    <div class="pt-t">10. 综合练习：给登录测试添加 <b>setUpClass</b>（模拟打开浏览器）、<b>setUp</b>（打开登录页）、<b>tearDown</b>（关闭页面）、<b>tearDownClass</b>（关闭浏览器），完整模拟 UI 测试流程。</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+<div class="pt-ans"><span class="k">import</span> unittest
+
+
+<span class="k">def</span> <span class="b">login</span>(username, password):
+    <span class="k">if</span> username <span class="o">==</span> <span class="s">'admin'</span> <span class="k">and</span> password <span class="o">==</span> <span class="s">'123456'</span>:
+        <span class="k">return</span> <span class="s">'登录成功'</span>
+    <span class="k">else</span>:
+        <span class="k">return</span> <span class="s">'登录失败'</span>
+
+
+<span class="k">class</span> <span class="b">TestLoginFull</span>(<span class="b">unittest</span>.<span class="b">TestCase</span>):
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="b">setUpClass</span>(cls):
+        <span class="b">print</span>(<span class="s">'\n1. 打开浏览器'</span>)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="b">tearDownClass</span>(cls):
+        <span class="b">print</span>(<span class="s">'5. 关闭浏览器\n'</span>)
+
+    <span class="k">def</span> <span class="b">setUp</span>(self):
+        <span class="b">print</span>(<span class="s">'2. 打开登录页面'</span>)
+
+    <span class="k">def</span> <span class="b">tearDown</span>(self):
+        <span class="b">print</span>(<span class="s">'4. 关闭页面'</span>)
+
+    <span class="k">def</span> <span class="b">test_correct</span>(self):
+        <span class="b">print</span>(<span class="s">'3. 输入 admin / 123456'</span>)
+        self.<span class="b">assertEqual</span>(<span class="s">'登录成功'</span>, <span class="b">login</span>(<span class="s">'admin'</span>, <span class="s">'123456'</span>))
+
+    <span class="k">def</span> <span class="b">test_wrong_user</span>(self):
+        <span class="b">print</span>(<span class="s">'3. 输入 root / 123456'</span>)
+        self.<span class="b">assertEqual</span>(<span class="s">'登录失败'</span>, <span class="b">login</span>(<span class="s">'root'</span>, <span class="s">'123456'</span>))
+
+
+<span class="k">if</span> __name__ <span class="o">==</span> <span class="s">'__main__'</span>:
+    <span class="b">unittest</span>.<span class="b">main</span>(verbosity<span class="o">=</span><span class="n">2</span>)  <span class="g"># verbosity=2 显示详细输出</span></div>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(1)">← 图解演示</button>
+  <button class="pri" onclick="go(3)">下一节 面试精讲 →</button>
+</div>
+
+</div><!-- /panel 2 -->
+
+<!-- ============ PANEL 3: 面试精讲 ============ -->
+<div class="pan" id="p3">
+
+<div class="sec">
+  <h2><span class="ico">1</span>面试高频题（12 题）</h2>
+  <p>点击题目展开详细解析。难度标签：<span class="iq-lv lv-b">基础</span> <span class="iq-lv lv-m">进阶</span> <span class="iq-lv lv-h">陷阱/场景</span></p>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q1</div>
+    <div class="iq-q">unittest 是什么？为什么测试人员要使用它？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>unittest</b> 是 Python 自带的单元测试框架，测试人员用它作为<b>自动化测试的执行框架</b>，用来管理和执行测试用例。</p>
+    <p><b>为什么使用：</b></p>
+    <ul>
+      <li><b>自带无需安装</b>：Python 标准库，<code class="inl">import unittest</code> 即可</li>
+      <li><b>组织多个用例</b>：能把多个 .py 文件的测试类打包在一起执行</li>
+      <li><b>丰富的断言</b>：assertEqual、assertTrue 等，自动判断结果</li>
+      <li><b>生成测试报告</b>：配合 HTMLTestRunner 生成可读报告</li>
+      <li><b>Fixture 支持</b>：setUp/tearDown 统一处理前后置逻辑</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q2</div>
+    <div class="iq-q">unittest 的五大核心组件是什么？各有什么作用？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>组件</th><th>英文</th><th>作用</th></tr>
+      <tr><td>测试用例</td><td>TestCase</td><td>书写用例代码，继承 <code class="inl">unittest.TestCase</code></td></tr>
+      <tr><td>测试套件</td><td>TestSuite</td><td>组装（打包）多个 TestCase</td></tr>
+      <tr><td>测试执行</td><td>TestRunner</td><td>运行 TestSuite，输出结果</td></tr>
+      <tr><td>测试加载</td><td>TestLoader</td><td>批量加载 TestCase，是 TestSuite 的补充</td></tr>
+      <tr><td>测试夹具</td><td>Fixture</td><td>书写 setUp/tearDown 等前后置代码的结构</td></tr>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q3</div>
+    <div class="iq-q">书写 TestCase 有哪些注意事项？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <ul>
+      <li>测试类必须<b>继承 <code class="inl">unittest.TestCase</code></b></li>
+      <li>测试方法名<b>必须以 test 开头</b>，否则不会被框架识别和执行</li>
+      <li>代码文件名必须满足<b>标识符规则</b>（字母/数字/下划线，不能数字开头）</li>
+      <li>代码文件名<b>不要使用中文</b>（IDE 无法识别）</li>
+      <li>类名习惯以 <code class="inl">Test</code> 开头（如 <code class="inl">TestLogin</code>）</li>
+      <li>每个方法推荐加<b>文档字符串</b>说明用例内容</li>
+    </ul>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q4</div>
+    <div class="iq-q">TestSuite 和 TestLoader 的区别？各适合什么场景？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比</th><th>TestSuite</th><th>TestLoader</th></tr>
+      <tr><td>添加方式</td><td>逐个 addTest</td><td>discover 批量扫描</td></tr>
+      <tr><td>灵活性</td><td>高，可指定顺序和方法</td><td>低，按文件匹配</td></tr>
+      <tr><td>适合场景</td><td>用例少，需精确控制</td><td>用例多，统一管理</td></tr>
+      <tr><td>代码量</td><td>较多</td><td>少，两行</td></tr>
+    </table>
+    </div>
+    <p><b>实际项目中</b>：TestLoader.discover 更常用，配合目录规范（所有用例放 <code class="inl">case/</code> 目录，文件命名 <code class="inl">test_*.py</code>）一行代码批量加载。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q5</div>
+    <div class="iq-q">什么是 Fixture？有哪几个级别？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>Fixture</b> 是一种代码结构，让某些代码在测试用例<b>执行前后自动运行</b>，用于环境准备和清理。</p>
+    <p><b>三个级别：</b></p>
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>级别</th><th>方法</th><th>执行次数</th><th>典型用途</th></tr>
+      <tr><td>方法级</td><td><code class="inl">setUp / tearDown</code></td><td>每个测试方法各一次</td><td>打开/关闭页面</td></tr>
+      <tr><td>类级</td><td><code class="inl">setUpClass / tearDownClass</code></td><td>整个类各一次</td><td>打开/关闭浏览器</td></tr>
+      <tr><td>模块级</td><td><code class="inl">setUpModule / tearDownModule</code></td><td>整个文件各一次</td><td>模块级资源（了解）</td></tr>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q6</div>
+    <div class="iq-q">setUp 和 setUpClass 的区别是什么？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <div class="tw" style="margin:8px 0">
+    <table>
+      <tr><th>对比</th><th>setUp</th><th>setUpClass</th></tr>
+      <tr><td>执行时机</td><td><b>每个</b>测试方法前</td><td>整个类<b>所有方法</b>执行前，仅一次</td></tr>
+      <tr><td>方法类型</td><td>普通实例方法</td><td><b>类方法</b>，必须加 @classmethod</td></tr>
+      <tr><td>参数</td><td><code class="inl">self</code></td><td><code class="inl">cls</code></td></tr>
+      <tr><td>典型用途</td><td>打开网页、准备数据</td><td>打开浏览器、建立数据库连接</td></tr>
+    </table>
+    </div>
+    <p><b>常见错误：</b>给 <code class="inl">setUpClass</code> 忘记加 <code class="inl">@classmethod</code> 装饰器，会导致运行出错。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q7</div>
+    <div class="iq-q">unittest 中的断言是什么？为什么要用断言？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>断言</b>让程序<b>自动判断预期结果和实际结果是否相符</b>，无需人工对比。</p>
+    <p><b>为什么用断言（不用 if 判断）：</b></p>
+    <ul>
+      <li>断言失败时，框架会<b>自动标记</b>该用例为 F（Fail）</li>
+      <li>失败时提供<b>详细的错误信息</b>（期望值 vs 实际值）</li>
+      <li>用 if 判断只是打印，框架无法识别是否"通过"</li>
+      <li>统计通过率需要框架知道每个用例是否 Pass/Fail</li>
+    </ul>
+    <p><b>最常用：</b><code class="inl">assertEqual(期望值, 实际值)</code></p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q8</div>
+    <div class="iq-q">执行结果的 . F E 各代表什么？</div>
+    <div class="iq-lv lv-b">基础</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <ul>
+      <li><span class="res pass">. Pass</span> — 用例执行<b>通过</b>，断言结果符合预期</li>
+      <li><span class="res fail">F Fail</span> — 用例<b>断言失败</b>，实际结果与预期不符。这说明测试发现了 bug！</li>
+      <li><span class="res error">E Error</span> — 用例代码<b>本身有错误</b>，如语法错误、变量未定义。用例代码有问题，不是被测功能的 bug。</li>
+    </ul>
+    <p><b>区分 F 和 E 很重要：</b>F 是被测功能的问题（需要开发修复），E 是测试脚本的问题（需要测试人员修复）。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q9</div>
+    <div class="iq-q">下面代码哪里有问题？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+<div class="term"><span class="k">import</span> unittest
+
+<span class="k">class</span> <span class="p">TestDemo</span>(<span class="p">unittest</span>.<span class="p">TestCase</span>):
+    <span class="k">def</span> <span class="p">check_login</span>(<span class="o">self</span>):           <span class="g"># 问题在这</span>
+        self.<span class="p">assertEqual</span>(<span class="s">'登录成功'</span>, ...)
+
+    <span class="o">@classmethod</span>
+    <span class="k">def</span> <span class="p">setUp</span>(<span class="o">self</span>):                  <span class="g"># 问题在这</span>
+        <span class="k">pass</span></div>
+    <p><b>两个问题：</b></p>
+    <ol>
+      <li><code class="inl">check_login</code> 方法名不以 <code class="inl">test</code> 开头，<b>不会被 unittest 执行</b>。应改为 <code class="inl">test_check_login</code>。</li>
+      <li><code class="inl">setUp</code> 加了 <code class="inl">@classmethod</code> 装饰器，<b>这是错误的</b>。方法级 Fixture 是普通实例方法（用 self），<b>类级 Fixture 才用 @classmethod</b>（setUpClass/tearDownClass）。setUp + @classmethod 会报错。</li>
+    </ol>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q10</div>
+    <div class="iq-q">有 3 个测试方法，setUp 和 tearDown 各执行几次？</div>
+    <div class="iq-lv lv-h">陷阱</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>答案：</b>setUp 执行 <b>3 次</b>，tearDown 执行 <b>3 次</b>。</p>
+    <p>setUp 和 tearDown 在<b>每个测试方法前后各执行一次</b>，3 个方法就各执行 3 次。</p>
+    <p>而 setUpClass 和 tearDownClass 各只执行 <b>1 次</b>（整个类开始/结束时）。</p>
+    <p><b>完整执行顺序：</b></p>
+    <ol>
+      <li>setUpClass</li>
+      <li>setUp → test_1 → tearDown</li>
+      <li>setUp → test_2 → tearDown</li>
+      <li>setUp → test_3 → tearDown</li>
+      <li>tearDownClass</li>
+    </ol>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q11</div>
+    <div class="iq-q">测试方法的执行顺序是什么？</div>
+    <div class="iq-lv lv-m">进阶</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p>unittest 中，测试方法按<b>方法名的 ASCII 顺序</b>（字母顺序）执行，而<b>不是</b>按定义顺序。</p>
+    <p>例如：<code class="inl">test_a</code>、<code class="inl">test_b</code>、<code class="inl">test_c</code> 会按 a→b→c 执行。</p>
+    <p><b>命名建议：</b></p>
+    <ul>
+      <li>给方法加编号前缀：<code class="inl">test_01_login</code>、<code class="inl">test_02_logout</code></li>
+      <li>用语义命名：<code class="inl">test_correct_pwd</code>、<code class="inl">test_wrong_user</code>（可读性好）</li>
+    </ul>
+    <p>如果测试用例之间有<b>严格顺序依赖</b>，建议用 TestSuite 手动控制顺序。</p>
+  </div>
+</div>
+
+<div class="iq">
+  <div class="iq-hdr" onclick="tq(this)">
+    <div class="iq-num">Q12</div>
+    <div class="iq-q">在实际项目中如何组织 unittest 测试？</div>
+    <div class="iq-lv lv-h">场景</div>
+    <div class="iq-tg">+</div>
+  </div>
+  <div class="iq-body">
+    <p><b>推荐目录结构：</b></p>
+<div class="term">project/
+├── case/                  <span class="g"># 所有测试用例</span>
+│   ├── test_login.py      <span class="g"># 命名：test_项目_模块_功能.py</span>
+│   ├── test_register.py
+│   └── test_search.py
+├── data/                  <span class="g"># 测试数据 JSON 文件</span>
+│   └── login_data.json
+├── report/                <span class="g"># 测试报告</span>
+│   └── result.html
+└── run.py                 <span class="g"># 主运行文件</span></div>
+    <p><b>run.py 内容：</b></p>
+<div class="term"><span class="k">import</span> unittest
+
+suite <span class="o">=</span> unittest.<span class="p">TestLoader</span>().<span class="p">discover</span>(<span class="s">'case/'</span>, <span class="s">'test_*.py'</span>)
+unittest.<span class="p">TextTestRunner</span>().<span class="p">run</span>(suite)</div>
+    <p><b>进阶：配合 HTMLTestRunner 生成报告</b>，把 TextTestRunner 替换成 HTMLTestRunner 并指定输出文件路径。</p>
+  </div>
+</div>
+
+<div class="pnav">
+  <button onclick="go(2)">← 实战练习</button>
+  <button class="pri" onclick="go(4)">下一节 测验 →</button>
+</div>
+
+</div><!-- /panel 3 -->
+
+<!-- ============ PANEL 4: 测验 ============ -->
+<div class="pan" id="p4">
+
+<div class="sec">
+  <h2><span class="ico">1</span>知识测验（15 题）</h2>
+  <p>选择每题答案后，点击底部"提交答卷"查看成绩和解析。</p>
+</div>
+
+<div id="qr">
+  <h3>🎉 完成！</h3>
+  <div class="sc"><span id="sc-num">0</span> / 15</div>
+  <div id="sc-msg" style="font-size:13px;opacity:.92"></div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">1</span>unittest 是 Python 的什么库？</div>
+  <div class="opt" data-v="A">A. 第三方库，需要用 pip 安装</div>
+  <div class="opt" data-v="B">B. Python 自带的标准库，无需安装</div>
+  <div class="opt" data-v="C">C. 只能在 Python 3 中使用</div>
+  <div class="opt" data-v="D">D. 需要激活虚拟环境才能使用</div>
+  <div class="qz-ex"><b>解析：</b>unittest 是 Python <b>自带的标准库</b>，直接 <code class="inl">import unittest</code> 即可使用，无需 pip 安装。这是它的一大优势。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">2</span>测试类必须继承哪个类？</div>
+  <div class="opt" data-v="A">A. <code class="inl">unittest.Test</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">unittest.TestMethod</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">unittest.TestCase</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">unittest.TestSuite</code></div>
+  <div class="qz-ex"><b>解析：</b>定义测试类时必须继承 <code class="inl">unittest.TestCase</code>，这样类才会被框架识别为测试类，才能使用断言方法等功能。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">3</span>测试方法名必须满足什么规则？</div>
+  <div class="opt" data-v="A">A. 必须以 test 开头</div>
+  <div class="opt" data-v="B">B. 必须以 Test 开头（大写）</div>
+  <div class="opt" data-v="C">C. 必须以 case 开头</div>
+  <div class="opt" data-v="D">D. 没有规则，任意命名</div>
+  <div class="qz-ex"><b>解析：</b>测试方法名<b>必须以 test 开头</b>（小写 t），框架才会将其识别并执行。不以 test 开头的方法不会被执行（可以用来写辅助方法）。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">4</span>TestSuite 的作用是什么？</div>
+  <div class="opt" data-v="A">A. 执行测试用例</div>
+  <div class="opt" data-v="B">B. 书写测试逻辑</div>
+  <div class="opt" data-v="C">C. 批量扫描测试文件</div>
+  <div class="opt" data-v="D">D. 将多个 TestCase 打包组装到一起</div>
+  <div class="qz-ex"><b>解析：</b>TestSuite（测试套件）的作用是<b>将多个 TestCase 打包组装到一起</b>，然后再由 TestRunner 统一执行。执行是 TestRunner 的工作，扫描是 TestLoader 的工作。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">5</span>向 TestSuite 中添加<b>整个测试类</b>所有方法，应该用？</div>
+  <div class="opt" data-v="A">A. <code class="inl">suite.addTest(TestDemo('test'))</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">suite.addTest(unittest.makeSuite(TestDemo))</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">suite.add(TestDemo)</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">suite.addAll(TestDemo)</code></div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">unittest.makeSuite(类名)</code> 会把该类的所有 test 开头的方法打包成 suite，再传给 <code class="inl">addTest</code>。逐个添加单个方法用 <code class="inl">suite.addTest(TestDemo('test_method1'))</code>。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">6</span>TestLoader.discover() 的两个参数分别是什么？</div>
+  <div class="opt" data-v="A">A. 文件名、类名</div>
+  <div class="opt" data-v="B">B. 类名、方法名</div>
+  <div class="opt" data-v="C">C. 目录路径、文件名匹配规则（如 test_*.py）</div>
+  <div class="opt" data-v="D">D. 模块名、测试方法名前缀</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">discover(目录, 文件名规则)</code>，例如 <code class="inl">discover('case/', 'test_*.py')</code> 表示扫描 case/ 目录下所有 test_ 开头的 .py 文件。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">7</span>Fixture 中，在<b>每个测试方法执行前</b>自动调用的方法是？</div>
+  <div class="opt" data-v="A">A. setUp</div>
+  <div class="opt" data-v="B">B. setUpClass</div>
+  <div class="opt" data-v="C">C. setUpModule</div>
+  <div class="opt" data-v="D">D. setUpMethod</div>
+  <div class="qz-ex"><b>解析：</b><code class="inl">setUp</code> 是<b>方法级别</b>的前置，在<b>每个</b>测试方法执行前自动调用。<code class="inl">setUpClass</code> 是类级别，只调用一次。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">8</span>关于 setUpClass，下列说法<b>正确</b>的是？</div>
+  <div class="opt" data-v="A">A. 是普通实例方法，参数是 self</div>
+  <div class="opt" data-v="B">B. 在每个测试方法执行前都会调用</div>
+  <div class="opt" data-v="C">C. 可以不加 @classmethod 装饰器</div>
+  <div class="opt" data-v="D">D. 是类方法，需要 @classmethod，参数是 cls</div>
+  <div class="qz-ex"><b>解析：</b>setUpClass 和 tearDownClass 必须是<b>类方法</b>，需要 <code class="inl">@classmethod</code> 装饰器，参数是 <code class="inl">cls</code>（不是 self）。缺少 @classmethod 会报错。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">9</span>执行结果中出现 "F" 代表什么？</div>
+  <div class="opt" data-v="A">A. 用例代码有语法错误</div>
+  <div class="opt" data-v="B">B. 用例跳过未执行</div>
+  <div class="opt" data-v="C">C. 用例断言失败，实际与预期不符</div>
+  <div class="opt" data-v="D">D. 文件未找到错误</div>
+  <div class="qz-ex"><b>解析：</b>F = Fail = <b>断言失败</b>，实际结果与预期不符，说明测试发现了被测功能的 bug。E = Error = 用例代码本身有错误（如变量未定义）。. = Pass = 通过。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">10</span><code class="inl">assertEqual</code> 的正确调用方式是？</div>
+  <div class="opt" data-v="A">A. <code class="inl">self.assertEqual(实际值, 期望值)</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">self.assertEqual(期望值, 实际值)</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">assertEqual(期望值, 实际值)</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">unittest.assertEqual(期望值, 实际值)</code></div>
+  <div class="qz-ex"><b>解析：</b>约定 <code class="inl">assertEqual(期望值, 实际值)</code>，第一个是预期结果，第二个是实际调用结果。这样失败时的错误信息可读性更好。必须通过 self 调用（断言方法定义在 TestCase 基类中）。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">11</span>有 3 个测试方法，setUp 总共执行几次？</div>
+  <div class="opt" data-v="A">A. 3 次</div>
+  <div class="opt" data-v="B">B. 1 次</div>
+  <div class="opt" data-v="C">C. 6 次</div>
+  <div class="opt" data-v="D">D. 0 次</div>
+  <div class="qz-ex"><b>解析：</b>setUp 是方法级别的前置，在<b>每个</b>测试方法前执行一次，3 个方法就执行 3 次。而 setUpClass 只执行 1 次。</div>
+</div>
+
+<div class="qz" data-a="D">
+  <div class="qz-q"><span class="qn">12</span>以下哪行代码能正确执行当前文件中所有测试？</div>
+  <div class="opt" data-v="A">A. <code class="inl">unittest.run()</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">run_all()</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">TestCase.runAll()</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">unittest.main()</code></div>
+  <div class="qz-ex"><b>解析：</b>在 <code class="inl">if __name__ == '__main__': unittest.main()</code> 能执行当前文件中所有以 test 开头的方法。这是最简单的执行方式。</div>
+</div>
+
+<div class="qz" data-a="C">
+  <div class="qz-q"><span class="qn">13</span>下面哪种测试方法命名会被 unittest 识别并执行？</div>
+  <div class="opt" data-v="A">A. <code class="inl">def check_login(self)</code></div>
+  <div class="opt" data-v="B">B. <code class="inl">def verify_login(self)</code></div>
+  <div class="opt" data-v="C">C. <code class="inl">def test_login(self)</code></div>
+  <div class="opt" data-v="D">D. <code class="inl">def Test_login(self)</code></div>
+  <div class="qz-ex"><b>解析：</b>只有方法名以<b>小写 test 开头</b>的方法才会被 unittest 识别并执行。Test_login（大写 T）不符合规则，会被忽略。</div>
+</div>
+
+<div class="qz" data-a="A">
+  <div class="qz-q"><span class="qn">14</span>实际项目中，测试用例文件通常如何命名？</div>
+  <div class="opt" data-v="A">A. test_项目_模块_功能.py（如 test_tpshop_login.py）</div>
+  <div class="opt" data-v="B">B. case_模块_功能.py</div>
+  <div class="opt" data-v="C">C. 随意命名，没有规范</div>
+  <div class="opt" data-v="D">D. 必须和测试类同名</div>
+  <div class="qz-ex"><b>解析：</b>推荐命名规范 <code class="inl">test_项目_模块_功能.py</code>，如 <code class="inl">test_tpshop_login.py</code>。以 test_ 开头是为了 TestLoader.discover 能自动识别。结构清晰，便于维护。</div>
+</div>
+
+<div class="qz" data-a="B">
+  <div class="qz-q"><span class="qn">15</span>下列关于 Fixture 执行顺序的描述，正确的是？</div>
+  <div class="opt" data-v="A">A. setUpClass → test_1 → setUp → tearDown → tearDownClass</div>
+  <div class="opt" data-v="B">B. setUpClass → setUp → test_1 → tearDown → setUp → test_2 → tearDown → tearDownClass</div>
+  <div class="opt" data-v="C">C. setUp → setUpClass → test_1 → tearDown → tearDownClass</div>
+  <div class="opt" data-v="D">D. test_1 → setUp → tearDown → test_2 → tearDownClass</div>
+  <div class="qz-ex"><b>解析：</b>完整顺序：setUpClass（一次） → [setUp → 测试方法 → tearDown]（每个方法重复） → tearDownClass（一次）。B 选项正确描述了两个测试方法的完整执行顺序。</div>
+</div>
+
+<button class="qbtn" onclick="sub()">提交答卷</button>
+
+<div class="pnav">
+  <button onclick="go(3)">← 面试精讲</button>
+  <button class="pri" disabled>已是最后一节 ✓</button>
+</div>
+
+</div><!-- /panel 4 -->
+
+</div><!-- /wrap -->
+
+<script>
+const pans = document.querySelectorAll('.pan');
+const tabs = document.querySelectorAll('.t');
+const dots = document.getElementById('dots');
+
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dots.appendChild(d);
+}
+
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i);});
+
+function tr(el){
+  const ans=el.nextElementSibling;
+  ans.classList.toggle('s');
+  el.textContent=ans.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+
+function tq(hdr){hdr.parentElement.classList.toggle('o');}
+
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  document.querySelectorAll('.dot')[2].classList.toggle('d',done===10);
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+
+function mc(){cbs.forEach(cb=>cb.checked=true);upc();}
+
+document.querySelectorAll('.qz').forEach(qz=>{
+  qz.querySelectorAll('.opt').forEach(opt=>{
+    opt.onclick=()=>{
+      if(qz.classList.contains('locked'))return;
+      qz.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+      opt.classList.add('sel');
+    };
+  });
+});
+
+function sub(){
+  const qzs=document.querySelectorAll('.qz');
+  let score=0;
+  qzs.forEach(qz=>{
+    qz.classList.add('locked');
+    const ans=qz.dataset.a;
+    const sel=qz.querySelector('.opt.sel');
+    qz.querySelectorAll('.opt').forEach(opt=>{
+      opt.classList.remove('sel');
+      if(opt.dataset.v===ans)opt.classList.add('ok');
+      if(sel&&opt===sel&&sel.dataset.v!==ans)opt.classList.add('no');
+    });
+    if(sel&&sel.dataset.v===ans)score++;
+    qz.querySelector('.qz-ex').classList.add('s');
+  });
+  document.getElementById('sc-num').textContent=score;
+  const msgs=['别灰心！unittest 基础需要多练习，再来一次吧。💡','继续努力！建议回到知识讲解重新学习。📚','还不错！请复习一下错题的解析～📖','很棒！unittest 框架已经掌握了！💪','满分！unittest 五大组件都掌握得非常扎实！🎉'];
+  document.getElementById('sc-msg').textContent=msgs[Math.min(4,Math.floor(score/3))];
+  const qr=document.getElementById('qr');
+  qr.classList.add('s');
+  qr.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.dot')[4].classList.add('d');
+  try{window.parent.postMessage({type:'qa_quiz_result',score,total:15,day:'s4d9'},'*');}catch(e){}
+}
+</script>
+</body>
+</html>

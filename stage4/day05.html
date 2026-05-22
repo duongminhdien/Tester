@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 4 · Python基础 Day 05 – 变量进阶 & 函数进阶 & 学生管理系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-source-han-sans-sc-vf-ttf@1.0.4/font.css" rel="stylesheet" type="text/css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --day:#0e7490;--day-d:#155e75;--day-bg:rgba(14,116,144,.09);
+  --bg:#f8fafc;--card:#fff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;
+  --border:#e2e8f0;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#3b82f6;
+}
+body{font-family:'Source Han Sans SC','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.75}
+.wrap{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+.hd{background:linear-gradient(135deg,var(--day) 0%,var(--day-d) 100%);color:#fff;padding:28px 28px 24px;border-radius:14px;margin-bottom:20px;box-shadow:0 8px 24px rgba(14,116,144,.22)}
+.hd-tag{font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.85;text-transform:uppercase;margin-bottom:8px;font-family:'Space Mono',monospace}
+.hd h1{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.hd p{font-size:13px;opacity:.88;line-height:1.6;margin-bottom:16px}
+.hd-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hd-stats div{font-size:12px;opacity:.85}
+.hd-stats b{font-family:'Space Mono',monospace;font-size:16px;display:block;font-weight:700}
+#dots{display:flex;gap:8px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .2s}
+.dot.a{background:var(--day);transform:scale(1.4)}
+.dot.d{background:var(--green)}
+.dn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;display:flex;gap:4px;margin-bottom:18px;overflow-x:auto}
+.ts{display:flex;gap:4px;width:100%}
+.t{flex:1;padding:10px 12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;white-space:nowrap;font-family:inherit;transition:all .2s}
+.t.a{background:var(--day);color:#fff;box-shadow:0 2px 8px rgba(14,116,144,.3)}
+.t:hover:not(.a){background:var(--day-bg);color:var(--day-d)}
+.pan{display:none;animation:fade .3s}
+.pan.a{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.sec h2{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--day);display:flex;align-items:center;gap:8px}
+.sec h2 .ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--day-bg);color:var(--day-d);border-radius:8px;font-size:16px;font-weight:700;font-family:'Space Mono',monospace}
+.sec h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';width:4px;height:16px;background:var(--day);border-radius:2px;display:inline-block}
+.sec p{color:var(--ink2);margin-bottom:8px}
+.sec ul,.sec ol{color:var(--ink2);padding-left:20px;margin-bottom:8px}
+.sec li{margin-bottom:5px}
+.box{padding:12px 14px;border-radius:8px;margin:10px 0;font-size:13px;line-height:1.7;border-left:4px solid}
+.box.info{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.box.tip{background:#f0fdf4;border-color:#16a34a;color:#15803d}
+.box.danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.box.warn{background:#fffbeb;border-color:#d97706;color:#92400e}
+.box.cyan{background:#ecfeff;border-color:#0e7490;color:#155e75}
+/* 代码块 */
+.code{background:#1e2030;border-radius:10px;padding:14px 16px;font-family:'Space Mono',monospace;font-size:12.5px;color:#a6accd;overflow-x:auto;margin:10px 0;line-height:1.8}
+.code .kw{color:#89ddff}    /* keyword */
+.code .fn{color:#82aaff}    /* function */
+.code .str{color:#c3e88d}   /* string */
+.code .num{color:#f78c6c}   /* number */
+.code .comm{color:#546e7a;font-style:italic}  /* comment */
+.code .var{color:#ffcb6b}   /* variable */
+.code .op{color:#89ddff}    /* operator */
+.code .out{color:#c792ea}   /* output */
+.code .param{color:#f07178} /* parameter */
+/* 对比表格 */
+.tw{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:400px}
+th{background:#f1f5f9;font-weight:700;color:var(--ink);font-size:12px;padding:8px 10px;text-align:left}
+td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.card{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);border-color:var(--day)}
+.card h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.card p,.card ul{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.card ul{padding-left:14px}
+.card li{margin-bottom:3px}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700}
+.bg-green{background:#dcfce7;color:#15803d}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.bg-cyan{background:#cffafe;color:#155e75}
+.bg-gray{background:#f1f5f9;color:#475569}
+/* 内联代码 */
+code{font-family:'Space Mono',monospace;background:#f1f5f9;color:#0e7490;padding:1px 6px;border-radius:4px;font-size:12.5px}
+/* 练习题 */
+.pt{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.pt:hover{border-color:var(--day)}
+.pt.done{background:#f0fdf4;border-color:var(--green)}
+.ci{margin-top:3px;width:18px;height:18px;cursor:pointer;accent-color:var(--day);flex-shrink:0}
+.pt-body{flex:1}
+.pt-t{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.pt.done .pt-t{text-decoration:line-through;color:var(--muted)}
+.pt-sub{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.pt-rev{font-family:'Space Mono',monospace;font-size:12px;background:#f8fafc;color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-block;border:1px dashed var(--border)}
+.pt-rev:hover{color:var(--day-d);border-color:var(--day)}
+.pt-ans{display:none;margin-top:8px;border-radius:6px;font-size:12.5px;line-height:1.8}
+.pt-ans.s{display:block}
+.prog-bar{background:#e2e8f0;border-radius:999px;height:8px;margin:8px 0 4px}
+.prog-fill{background:var(--day);border-radius:999px;height:8px;transition:width .3s}
+.prog-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+.mc-btn{background:#f1f5f9;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s;margin-bottom:12px}
+.mc-btn:hover{border-color:var(--day);color:var(--day-d)}
+/* Quiz */
+.qz{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.qz-q{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.6}
+.qz-q .qn{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:var(--day);color:#fff;border-radius:50%;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-right:8px}
+.qz .code{margin:8px 0 12px;font-size:12px}
+.opt{display:block;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:13px;color:var(--ink2);transition:all .15s;line-height:1.5}
+.opt:hover{border-color:var(--day);background:var(--day-bg)}
+.opt.sel{border-color:var(--day);background:var(--day-bg);color:var(--day-d);font-weight:600}
+.opt.ok{border-color:var(--green);background:#f0fdf4;color:#15803d;font-weight:600}
+.opt.no{border-color:var(--red);background:#fef2f2;color:#991b1b;font-weight:600}
+.qz-ex{display:none;margin-top:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid var(--amber);border-radius:6px;font-size:12.5px;color:#78350f;line-height:1.6}
+.qz-ex.s{display:block}
+.qbtn{display:inline-block;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.qbtn.sub{background:var(--day);color:#fff}
+.qbtn.rst{background:#f1f5f9;color:var(--ink2)}
+.qres{display:none;background:#f8fafc;border:2px solid var(--day);border-radius:12px;padding:20px;text-align:center;margin-top:16px}
+.qres.s{display:block}
+.qres .score{font-size:42px;font-weight:700;font-family:'Space Mono',monospace;color:var(--day)}
+.pnav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pnav button{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--border);color:var(--ink2);padding:11px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.pnav button:hover{border-color:var(--day);color:var(--day-d)}
+.pnav button.pri{background:var(--day);color:#fff;border-color:var(--day)}
+.pnav button:disabled{opacity:.4;cursor:not-allowed}
+/* Interview Q&A */
+.iq{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.iq:hover{border-color:var(--day)}
+.iq-hdr{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.iq-hdr:hover{background:var(--day-bg)}
+.iq-num{font-family:'Space Mono',monospace;font-weight:700;color:var(--day-d);font-size:13px;min-width:34px}
+.iq-q{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5}
+.iq-tg{font-family:'Space Mono',monospace;color:var(--muted);transition:transform .2s;font-size:18px}
+.iq.o .iq-tg{transform:rotate(45deg)}
+.iq-body{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);font-size:13px;line-height:1.75;color:var(--ink2)}
+.iq.o .iq-body{display:block}
+@media(max-width:640px){
+  .wrap{padding:14px 12px 40px}
+  .hd{padding:20px 18px 16px}
+  .hd h1{font-size:19px}
+  .sec{padding:16px 14px}
+  .sec h2{font-size:16px}
+  .t{font-size:11px;padding:8px 6px}
+  .g2,.g3{grid-template-columns:1fr}
+  .code{font-size:11.5px;padding:10px 12px}
+  table{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hd">
+  <div class="hd-tag">STAGE 4 · PYTHON基础 · DAY 05</div>
+  <h1>变量进阶 &amp; 函数进阶 &amp; 学生管理系统</h1>
+  <p>掌握可变/不可变类型、局部/全局变量、函数返回多值、缺省参数、不定长参数(*args)、匿名函数(lambda)，并完成学生管理系统完整案例。</p>
+  <div class="hd-stats">
+    <div><b>4</b>核心模块</div>
+    <div><b>10</b>代码练习</div>
+    <div><b>1</b>综合案例</div>
+    <div><b>15</b>测验题</div>
+  </div>
+</div>
+
+<div id="dots"></div>
+
+<div class="dn">
+  <div class="ts">
+    <button class="t a" data-p="0">📖 知识讲解</button>
+    <button class="t" data-p="1">🖼️ 图解演示</button>
+    <button class="t" data-p="2">🛠️ 代码练习</button>
+    <button class="t" data-p="3">💡 综合案例</button>
+    <button class="t" data-p="4">✅ 测验</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 0: 知识讲解 ===== -->
+<div class="pan a">
+
+  <!-- 变量进阶 -->
+  <div class="sec">
+    <h2><span class="ico">1</span>变量进阶</h2>
+
+    <h3>引用（了解）</h3>
+    <p>变量和数据在内存中分别开辟空间，<strong>变量中存储的是数据所在内存的地址</strong>，这个地址就叫做<strong>引用</strong>。</p>
+    <ul>
+      <li>赋值运算符 <code>=</code> 会改变变量的引用</li>
+      <li>Python中所有数据的传递，传递的都是引用（地址）</li>
+      <li>使用 <code>id(变量)</code> 可以查看变量的引用（内存地址）</li>
+    </ul>
+    <div class="code">
+<span class="var">a</span> = <span class="num">1</span>          <span class="comm"># 变量 a 指向数据 1 的地址</span>
+<span class="var">b</span> = <span class="var">a</span>          <span class="comm"># 变量 b 保存 a 的引用（同一地址）</span>
+<span class="fn">print</span>(<span class="str">f'a: {</span><span class="var">a</span><span class="str">}, id: {</span><span class="fn">id</span>(<span class="var">a</span>)<span class="str">}'</span>)  <span class="comm"># a: 1, id: 4391875872</span>
+<span class="fn">print</span>(<span class="str">f'b: {</span><span class="var">b</span><span class="str">}, id: {</span><span class="fn">id</span>(<span class="var">b</span>)<span class="str">}'</span>)  <span class="comm"># b: 1, id: 4391875872（同一地址）</span>
+<span class="var">a</span> = <span class="num">2</span>          <span class="comm"># 改变 a 的引用（指向新地址），不影响 b</span>
+<span class="fn">print</span>(<span class="str">f'a: {</span><span class="var">a</span><span class="str">}'</span>)  <span class="comm"># a: 2</span>
+<span class="fn">print</span>(<span class="str">f'b: {</span><span class="var">b</span><span class="str">}'</span>)  <span class="comm"># b: 1（b 未受影响）</span>
+    </div>
+
+    <h3>可变类型与不可变类型（记住）</h3>
+    <div class="box cyan"><b>判断标准：</b>不使用等号（=），能不能修改数据的值？</div>
+
+    <div class="g2">
+      <div class="card" style="border-left:3px solid var(--red)">
+        <h4 style="color:var(--red)">❌ 不可变类型（修改后id变化）</h4>
+        <ul>
+          <li><code>int</code> / <code>float</code> / <code>bool</code>（数字类型）</li>
+          <li><code>str</code>（字符串）</li>
+          <li><code>tuple</code>（元组）</li>
+        </ul>
+        <div class="code" style="font-size:11.5px">
+<span class="var">x</span> = <span class="num">10</span>
+<span class="var">x</span> = <span class="num">20</span>  <span class="comm"># 不是修改，是改变引用</span>
+<span class="var">s</span> = <span class="str">'hello'</span>
+<span class="var">s</span>[<span class="num">0</span>] = <span class="str">'H'</span>  <span class="comm"># ❌ 报错，字符串不可修改</span>
+        </div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green)">
+        <h4 style="color:var(--green)">✅ 可变类型（修改后id不变）</h4>
+        <ul>
+          <li><code>list</code>（列表）</li>
+          <li><code>dict</code>（字典）</li>
+          <li><code>set</code>（集合）</li>
+        </ul>
+        <div class="code" style="font-size:11.5px">
+<span class="var">lst</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+<span class="var">lst</span>.<span class="fn">append</span>(<span class="num">4</span>)  <span class="comm"># ✅ 修改数据，id不变</span>
+<span class="var">d</span> = {<span class="str">'a'</span>: <span class="num">1</span>}
+<span class="var">d</span>.<span class="fn">pop</span>(<span class="str">'a'</span>)     <span class="comm"># ✅ 修改数据，id不变</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="box warn">
+      <b>⚠️ 元组包含列表的特殊情况：</b><br>
+      <code>my_tuple = (1, 2, [10, 20])</code><br>
+      元组本身不可变（存储的是列表的地址），但元组中的<strong>列表是可变的</strong>，可以修改列表内的元素，元组的id不变。
+    </div>
+
+    <h3>局部变量与全局变量（理解掌握）</h3>
+    <div class="tw">
+      <table>
+        <tr><th>类型</th><th>定义位置</th><th>访问范围</th><th>生命周期</th></tr>
+        <tr><td><span class="badge bg-blue">局部变量</span></td><td>函数内部定义</td><td>只能在当前函数内使用</td><td>函数调用时创建，函数结束时销毁</td></tr>
+        <tr><td><span class="badge bg-green">全局变量</span></td><td>函数外部定义</td><td>任意函数内都可以访问（读取）</td><td>程序启动时创建，程序结束时销毁</td></tr>
+      </table>
+    </div>
+
+    <div class="code">
+<span class="var">g_num</span> = <span class="num">10</span>    <span class="comm"># 全局变量</span>
+
+<span class="kw">def</span> <span class="fn">func_1</span>():
+    <span class="fn">print</span>(<span class="var">g_num</span>)  <span class="comm"># ✅ 可以读取全局变量 → 10</span>
+
+<span class="kw">def</span> <span class="fn">func_2</span>():
+    <span class="var">g_num</span> = <span class="num">20</span>    <span class="comm"># ⚠️ 定义的是局部变量，不影响全局</span>
+    <span class="fn">print</span>(<span class="var">g_num</span>)  <span class="comm"># 20（局部变量）</span>
+
+<span class="kw">def</span> <span class="fn">func_3</span>():
+    <span class="kw">global</span> <span class="var">g_num</span>  <span class="comm"># ✅ 声明使用全局变量</span>
+    <span class="var">g_num</span> = <span class="num">30</span>    <span class="comm"># 修改全局变量</span>
+    <span class="fn">print</span>(<span class="var">g_num</span>)  <span class="comm"># 30</span>
+    </div>
+
+    <div class="box info">
+      <b>📌 关键规则：</b><br>
+      1. 函数内部可以<strong>读取</strong>全局变量（无需声明）<br>
+      2. 函数内部想要<strong>修改</strong>全局变量的引用，必须用 <code>global</code> 关键字声明<br>
+      3. 如果函数内有与全局变量同名的局部变量，函数内使用的是<strong>局部变量</strong><br>
+      4. 对可变类型（list/dict）调用方法修改其内容，不需要 <code>global</code>（没有改变引用）
+    </div>
+  </div>
+
+  <!-- 函数进阶 -->
+  <div class="sec">
+    <h2><span class="ico">2</span>函数进阶</h2>
+
+    <h3>函数返回多个数据值</h3>
+    <p>函数返回多个数据时，一般将它们组成<strong>元组</strong>进行返回。</p>
+    <div class="code">
+<span class="kw">def</span> <span class="fn">calc</span>(<span class="param">a</span>, <span class="param">b</span>):
+    <span class="str">"""返回两个数的和及差"""</span>
+    <span class="kw">return</span> <span class="var">a</span> + <span class="var">b</span>, <span class="var">a</span> - <span class="var">b</span>  <span class="comm"># 返回元组 (和, 差)</span>
+
+<span class="var">result</span> = <span class="fn">calc</span>(<span class="num">10</span>, <span class="num">20</span>)
+<span class="fn">print</span>(<span class="var">result</span>)           <span class="comm"># (30, -10)</span>
+
+<span class="var">s</span>, <span class="var">d</span> = <span class="fn">calc</span>(<span class="num">10</span>, <span class="num">20</span>)    <span class="comm"># 元组拆包</span>
+<span class="fn">print</span>(<span class="var">s</span>, <span class="var">d</span>)            <span class="comm"># 30 -10</span>
+    </div>
+
+    <h3>参数传递方式</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>📍 位置传参</h4>
+        <p>按形参定义的顺序传递实参</p>
+        <div class="code" style="font-size:12px">
+<span class="fn">show_info</span>(<span class="str">'小明'</span>, <span class="num">18</span>)
+        </div>
+      </div>
+      <div class="card">
+        <h4>🔑 关键字传参</h4>
+        <p>指定参数名传值，顺序可变</p>
+        <div class="code" style="font-size:12px">
+<span class="fn">show_info</span>(<span class="param">age</span>=<span class="num">18</span>, <span class="param">name</span>=<span class="str">'张三'</span>)
+        </div>
+      </div>
+    </div>
+    <div class="box warn"><b>⚠️ 注意：</b>混合使用时，位置参数必须写在关键字参数前面；同一个形参只能接收一个实参值。</div>
+
+    <h3>缺省参数（默认参数）</h3>
+    <p>定义函数时给形参设置默认值，调用时可以不传该参数，使用默认值；传了则用传入的值。</p>
+    <div class="box warn"><b>⚠️ 规则：</b>缺省参数必须写在普通参数的<strong>后边</strong>！</div>
+    <div class="code">
+<span class="kw">def</span> <span class="fn">show_info</span>(<span class="param">name</span>, <span class="param">age</span>=<span class="num">18</span>, <span class="param">sex</span>=<span class="str">'保密'</span>):
+    <span class="fn">print</span>(<span class="var">name</span>, <span class="var">age</span>, <span class="var">sex</span>)
+
+<span class="fn">show_info</span>(<span class="str">'张三'</span>, <span class="num">18</span>, <span class="str">'男'</span>)   <span class="comm"># 张三 18 男</span>
+<span class="fn">show_info</span>(<span class="str">'李四'</span>)              <span class="comm"># 李四 18 保密（使用默认值）</span>
+<span class="fn">show_info</span>(<span class="str">'王五'</span>, <span class="num">19</span>)          <span class="comm"># 王五 19 保密</span>
+<span class="fn">show_info</span>(<span class="str">'赵六'</span>, <span class="param">sex</span>=<span class="str">'男'</span>)   <span class="comm"># 赵六 18 男（跳过age用默认）</span>
+    </div>
+
+    <h3>不定长参数（多值参数 / *args）</h3>
+    <p>函数定义时不确定参数数量，在形参前加 <code>*</code>，可接收任意多个<strong>位置传参</strong>的数据，类型为<strong>元组</strong>。一般写作 <code>*args</code>。</p>
+    <div class="code">
+<span class="kw">def</span> <span class="fn">func</span>(*<span class="param">args</span>):
+    <span class="fn">print</span>(<span class="var">args</span>)
+
+<span class="fn">func</span>()              <span class="comm"># ()  空元组</span>
+<span class="fn">func</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)        <span class="comm"># (1, 2, 3)</span>
+
+<span class="comm"># 实际应用：任意多个数字求和</span>
+<span class="kw">def</span> <span class="fn">my_sum</span>(*<span class="param">args</span>):  <span class="comm"># args 是元组</span>
+    <span class="var">num</span> = <span class="num">0</span>
+    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="var">args</span>:
+        <span class="var">num</span> += <span class="var">i</span>
+    <span class="kw">return</span> <span class="var">num</span>
+
+<span class="fn">print</span>(<span class="fn">my_sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>))  <span class="comm"># 6</span>
+
+<span class="comm"># 列表/元组拆包传参：在列表前加 * 进行拆包</span>
+<span class="var">my_tuple</span> = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>)
+<span class="fn">print</span>(<span class="fn">my_sum</span>(*<span class="var">my_tuple</span>))  <span class="comm"># 15（拆包后等同于 my_sum(1,2,3,4,5)）</span>
+    </div>
+
+    <h3>匿名函数（lambda）</h3>
+    <p>使用 <code>lambda</code> 关键字定义的简洁函数表达式，只能写<strong>一行代码</strong>，实现简单功能。</p>
+    <div class="code">
+<span class="comm"># 语法：lambda 参数, 参数: 一行代码（返回值）</span>
+
+<span class="comm"># 两数乘积</span>
+<span class="kw">lambda</span> <span class="param">a</span>, <span class="param">b</span>: <span class="var">a</span> * <span class="var">b</span>
+
+<span class="comm"># 取字典中 age 键的值</span>
+<span class="kw">lambda</span> <span class="param">x</span>: <span class="var">x</span>[<span class="str">'age'</span>]
+
+<span class="comm"># 匿名函数的核心应用：作为函数的参数（key参数）</span>
+<span class="var">user_list</span> = [
+    {<span class="str">'name'</span>: <span class="str">'张三'</span>, <span class="str">'age'</span>: <span class="num">22</span>},
+    {<span class="str">'name'</span>: <span class="str">'李四'</span>, <span class="str">'age'</span>: <span class="num">24</span>},
+    {<span class="str">'name'</span>: <span class="str">'王五'</span>, <span class="str">'age'</span>: <span class="num">21</span>}
+]
+<span class="comm"># 按 age 升序排列</span>
+<span class="var">user_list</span>.<span class="fn">sort</span>(<span class="param">key</span>=<span class="kw">lambda</span> <span class="param">x</span>: <span class="var">x</span>[<span class="str">'age'</span>])
+<span class="fn">print</span>(<span class="var">user_list</span>)
+<span class="comm"># [{'name': '王五', 'age': 21}, {'name': '张三', 'age': 22}, {'name': '李四', 'age': 24}]</span>
+    </div>
+
+    <div class="box info">
+      <b>📌 参数顺序规律：</b><br>
+      <code>def 函数名(普通参数, *args, 缺省参数):</code><br>
+      • 普通参数在最前<br>
+      • 不定长参数 <code>*args</code> 在中间<br>
+      • 缺省参数在最后
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button disabled>← 上一节</button>
+    <button class="pri" onclick="go(1)">下一节 图解演示 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 1: 图解演示 ===== -->
+<div class="pan">
+
+  <div class="sec">
+    <h2><span class="ico">🖼️</span>可变 vs 不可变类型 — 内存图解</h2>
+    <div class="tw">
+      <table>
+        <tr><th>类型</th><th>分类</th><th>能否不用=修改</th><th>修改后id</th><th>示例</th></tr>
+        <tr><td>int / float / bool</td><td><span class="badge bg-red">不可变</span></td><td>不能</td><td>改变（新对象）</td><td><code>x = 10; x = 20</code></td></tr>
+        <tr><td>str</td><td><span class="badge bg-red">不可变</span></td><td>不能</td><td>改变</td><td><code>'hello'[0]='H'</code> ❌报错</td></tr>
+        <tr><td>tuple</td><td><span class="badge bg-red">不可变</span></td><td>不能（元组本身）</td><td>改变</td><td><code>t=(1,2); t[0]=3</code> ❌报错</td></tr>
+        <tr><td>list</td><td><span class="badge bg-green">可变</span></td><td>能</td><td>不变（原对象）</td><td><code>lst.append(4)</code> ✅</td></tr>
+        <tr><td>dict</td><td><span class="badge bg-green">可变</span></td><td>能</td><td>不变</td><td><code>d['k'] = 'v'</code> ✅</td></tr>
+        <tr><td>set</td><td><span class="badge bg-green">可变</span></td><td>能</td><td>不变</td><td><code>s.add('x')</code> ✅</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🔑</span>局部变量 vs 全局变量 — 使用场景对比</h2>
+    <div class="tw">
+      <table>
+        <tr><th>场景</th><th>结果</th><th>解释</th></tr>
+        <tr><td><code>g_num = 10</code>（函数外）→ 函数内 <code>print(g_num)</code></td><td>10 ✅</td><td>函数内可以读全局变量</td></tr>
+        <tr><td>函数内 <code>g_num = 20</code></td><td>定义局部变量</td><td>不影响外部的 g_num</td></tr>
+        <tr><td>函数内 <code>global g_num; g_num = 30</code></td><td>全局变量变为30</td><td>global声明后才能修改引用</td></tr>
+        <tr><td>函数内 <code>list1.append(10)</code>（list1是全局可变类型）</td><td>list1被修改</td><td>不改引用，直接修改内容，不需要global</td></tr>
+        <tr><td>函数内 <code>list1 = [1]</code>（无global）</td><td>创建局部变量</td><td>改了引用，必须加global才能影响全局list1</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🧩</span>函数进阶参数类型速查</h2>
+    <div class="tw">
+      <table>
+        <tr><th>参数类型</th><th>语法</th><th>特点</th><th>示例</th></tr>
+        <tr><td>普通参数</td><td><code>def f(a, b):</code></td><td>调用时必须传对应数量的实参</td><td><code>f(1, 2)</code></td></tr>
+        <tr><td>位置传参</td><td>调用时按顺序传</td><td>顺序与形参一致</td><td><code>f(1, 2)</code></td></tr>
+        <tr><td>关键字传参</td><td><code>f(b=2, a=1)</code></td><td>指定参数名，顺序可变</td><td><code>f(age=18, name='张三')</code></td></tr>
+        <tr><td>缺省参数</td><td><code>def f(a, b=10):</code></td><td>不传则用默认值，必须在后边</td><td><code>f(1)</code> → b=10</td></tr>
+        <tr><td>不定长参数</td><td><code>def f(*args):</code></td><td>接收任意多个位置参数，结果是元组</td><td><code>f(1,2,3)</code> → args=(1,2,3)</td></tr>
+        <tr><td>lambda（匿名函数）</td><td><code>lambda x: x*2</code></td><td>简洁，只能一行，用作参数</td><td><code>list.sort(key=lambda x: x['age'])</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="ico">🏫</span>学生管理系统结构图</h2>
+    <div class="tw">
+      <table>
+        <tr><th>功能</th><th>函数名</th><th>核心逻辑</th></tr>
+        <tr><td>显示菜单</td><td><code>show_menu()</code></td><td>打印6个选项（1-6）</td></tr>
+        <tr><td>添加学生</td><td><code>insert_student()</code></td><td>input获取信息 → 检查重名 → 存入字典 → 加入列表</td></tr>
+        <tr><td>删除学生</td><td><code>remove_student()</code></td><td>input名字 → 遍历找到 → list.remove() → for-else处理未找到</td></tr>
+        <tr><td>修改学生</td><td><code>modify_student()</code></td><td>input名字 → 找到后修改字典字段 → for-else处理未找到</td></tr>
+        <tr><td>查询单个</td><td><code>search_student()</code></td><td>input名字 → 找到打印信息 → for-else处理未找到</td></tr>
+        <tr><td>查询所有</td><td><code>show_all_info()</code></td><td>遍历列表打印所有字典信息</td></tr>
+        <tr><td>主程序</td><td><code>main()</code></td><td>while True循环 → 显示菜单 → input选择 → if-elif分派</td></tr>
+      </table>
+    </div>
+    <div class="box tip">
+      <b>💡 for-else 用法：</b>Python 中 <code>for</code> 循环可以接 <code>else</code> 语句。<br>
+      <code>else</code> 块在循环<strong>正常结束（没有被break/return打断）</strong>时执行，常用于"循环结束但未找到目标"的情况。
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(0)">← 知识讲解</button>
+    <button class="pri" onclick="go(2)">下一节 代码练习 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 2: 代码练习 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🛠️</span>代码练习（共10题）</h2>
+    <div style="margin-bottom:12px">
+      <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <span class="prog-label" id="pc">0</span><span class="prog-label">/10 题已完成</span>
+    </div>
+    <button class="mc-btn" onclick="mc()">✓ 全部标记完成</button>
+  </div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">1. 以下代码输出什么？解释原因。</div>
+    <div class="pt-sub"><code>num = 10 → def anum(): num = 20 → print(num)</code></div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="var">num</span> = <span class="num">10</span>
+<span class="kw">def</span> <span class="fn">anum</span>():
+    <span class="var">num</span> = <span class="num">20</span>
+<span class="fn">print</span>(<span class="var">num</span>)  <span class="comm"># 输出: 10</span></div>
+      <strong>原因：</strong>函数 <code>anum</code> 内部的 <code>num = 20</code> 定义的是一个<strong>局部变量</strong>，不影响函数外部的全局变量 <code>num</code>。<br>
+      函数甚至没有被调用，所以 <code>print(num)</code> 输出的仍然是全局变量的值 <strong>10</strong>。<br>
+      如果要修改全局变量，需要在函数内使用 <code>global num</code> 声明。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">2. Python中可变类型数据有哪些？不可变类型数据有哪些？</div>
+    <div class="pt-sub">简答题（记住）</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>可变类型（可以不用=修改数据值）：</strong><br>
+      • <code>list</code>（列表）— <code>lst.append()</code> / <code>lst.pop()</code><br>
+      • <code>dict</code>（字典）— <code>d['key'] = 'value'</code><br>
+      • <code>set</code>（集合）— <code>s.add()</code><br><br>
+      <strong>不可变类型（不允许不用=修改数据值）：</strong><br>
+      • <code>int</code> / <code>float</code> / <code>bool</code>（数字类型）<br>
+      • <code>str</code>（字符串）<br>
+      • <code>tuple</code>（元组）
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">3. 定义一个匿名函数：可以计算两个数字的和</div>
+    <div class="pt-sub">使用 lambda 关键字</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="comm"># 定义匿名函数计算两数之和</span>
+<span class="kw">lambda</span> <span class="param">a</span>, <span class="param">b</span>: <span class="var">a</span> + <span class="var">b</span>
+
+<span class="comm"># 如果需要测试（将匿名函数赋值给变量）：</span>
+<span class="var">add</span> = <span class="kw">lambda</span> <span class="param">a</span>, <span class="param">b</span>: <span class="var">a</span> + <span class="var">b</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">3</span>, <span class="num">5</span>))  <span class="comm"># 8</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">10</span>, <span class="num">20</span>)) <span class="comm"># 30</span>
+
+<span class="comm"># 注意：PEP8规范不建议赋值给变量，匿名函数应作为参数使用</span></div>
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">4. 定义函数 func：接收姓名和性别，性别默认值为 '保密'，打印姓名和性别</div>
+    <div class="pt-sub">使用缺省参数（默认参数）</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="kw">def</span> <span class="fn">func</span>(<span class="param">name</span>, <span class="param">sex</span>=<span class="str">'保密'</span>):
+    <span class="fn">print</span>(<span class="str">f'姓名: {</span><span class="var">name</span><span class="str">}, 性别: {</span><span class="var">sex</span><span class="str">}'</span>)
+
+<span class="comm"># 测试调用</span>
+<span class="fn">func</span>(<span class="str">'张三'</span>)           <span class="comm"># 姓名: 张三, 性别: 保密</span>
+<span class="fn">func</span>(<span class="str">'李四'</span>, <span class="str">'男'</span>)     <span class="comm"># 姓名: 李四, 性别: 男</span>
+<span class="fn">func</span>(<span class="str">'王五'</span>, <span class="param">sex</span>=<span class="str">'女'</span>) <span class="comm"># 姓名: 王五, 性别: 女</span></div>
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">5. 对列表中的字典按年龄排序（升序），年龄相同时按名字排序</div>
+    <div class="pt-sub"><code>list1 = [{'name': 'd', 'age': 19}, {'name': 'b', 'age': 16}, {'name': 'a', 'age': 16}, {'name': 'c', 'age': 20}]</code></div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="var">list1</span> = [
+    {<span class="str">'name'</span>: <span class="str">'d'</span>, <span class="str">'age'</span>: <span class="num">19</span>},
+    {<span class="str">'name'</span>: <span class="str">'b'</span>, <span class="str">'age'</span>: <span class="num">16</span>},
+    {<span class="str">'name'</span>: <span class="str">'a'</span>, <span class="str">'age'</span>: <span class="num">16</span>},
+    {<span class="str">'name'</span>: <span class="str">'c'</span>, <span class="str">'age'</span>: <span class="num">20</span>}
+]
+<span class="comm"># 按 age 升序，age 相同时按 name 升序</span>
+<span class="var">list1</span>.<span class="fn">sort</span>(<span class="param">key</span>=<span class="kw">lambda</span> <span class="param">x</span>: (<span class="var">x</span>[<span class="str">'age'</span>], <span class="var">x</span>[<span class="str">'name'</span>]))
+
+<span class="fn">print</span>(<span class="var">list1</span>)
+<span class="comm"># [{'name': 'a', 'age': 16}, {'name': 'b', 'age': 16}, {'name': 'd', 'age': 19}, {'name': 'c', 'age': 20}]</span></div>
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">6. 以下代码中 list1 最终的值是什么？</div>
+    <div class="pt-sub"><code>list1 = [1, 2] → def func1(): list1.append(10) → func1() → print(list1)</code></div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="var">list1</span> = [<span class="num">1</span>, <span class="num">2</span>]
+<span class="kw">def</span> <span class="fn">func1</span>():
+    <span class="var">list1</span>.<span class="fn">append</span>(<span class="num">10</span>)  <span class="comm"># 用的全局list1，只修改内容，不改引用</span>
+
+<span class="fn">func1</span>()
+<span class="fn">print</span>(<span class="var">list1</span>)  <span class="comm"># 输出: [1, 2, 10] ✅</span></div>
+      <strong>原因：</strong><code>list1.append(10)</code> 调用的是列表的方法，修改的是列表内容（没有使用 <code>=</code>），所以不改变 list1 变量的引用。无需 <code>global</code> 声明就能修改全局列表的内容。
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">7. 定义 my_sum(*args) 函数，实现对任意多个数字求和</div>
+    <div class="pt-sub">使用不定长参数 *args</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="kw">def</span> <span class="fn">my_sum</span>(*<span class="param">args</span>):  <span class="comm"># args 是元组</span>
+    <span class="var">total</span> = <span class="num">0</span>
+    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="var">args</span>:
+        <span class="var">total</span> += <span class="var">i</span>
+    <span class="kw">return</span> <span class="var">total</span>
+
+<span class="fn">print</span>(<span class="fn">my_sum</span>())          <span class="comm"># 0</span>
+<span class="fn">print</span>(<span class="fn">my_sum</span>(<span class="num">1</span>))         <span class="comm"># 1</span>
+<span class="fn">print</span>(<span class="fn">my_sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>))   <span class="comm"># 6</span>
+
+<span class="comm"># 拆包传参</span>
+<span class="var">t</span> = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>)
+<span class="fn">print</span>(<span class="fn">my_sum</span>(*<span class="var">t</span>))       <span class="comm"># 15</span></div>
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">8. 解释 return 关键字的两个作用，并举例说明"return 结束函数"的用法</div>
+    <div class="pt-sub">考察对 return 的深入理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>return 的两个作用：</strong><br>
+      1. <strong>返回数据值</strong>：将函数中的数据传递到函数外部使用<br>
+      2. <strong>结束函数运行</strong>：执行到 return 后，函数立即停止，之后的代码不再执行<br><br>
+      <div class="code"><span class="comm"># return 用于结束函数（search_student中的应用）</span>
+<span class="kw">def</span> <span class="fn">search_student</span>():
+    <span class="var">name</span> = <span class="fn">input</span>(<span class="str">'请输入姓名:'</span>)
+    <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+        <span class="kw">if</span> <span class="var">name</span> == <span class="var">stu</span>.<span class="fn">get</span>(<span class="str">'name'</span>):
+            <span class="fn">print</span>(<span class="str">f'找到了: {</span><span class="var">name</span><span class="str">}'</span>)
+            <span class="kw">return</span>  <span class="comm"># 找到后立即结束函数，不再继续循环</span>
+    <span class="comm"># 写在循环外边（或用for-else）</span>
+    <span class="fn">print</span>(<span class="str">f'名字叫[{</span><span class="var">name</span><span class="str">}]的学生不存在'</span>)</div>
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">9. 解释 for-else 语句的工作原理，并给出使用场景</div>
+    <div class="pt-sub">学生管理系统的核心知识点</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <strong>for-else 原理：</strong><br>
+      • <code>for</code> 循环<strong>正常结束</strong>（未被 <code>break</code> / <code>return</code> 打断）时，执行 <code>else</code> 块<br>
+      • <code>for</code> 循环被 <code>break</code> 或 <code>return</code> 打断时，<strong>跳过</strong> <code>else</code> 块<br><br>
+      <strong>典型使用场景：</strong>在列表中查找某个元素，找到时执行操作，循环结束后未找到时给出提示<br>
+      <div class="code"><span class="kw">def</span> <span class="fn">remove_student</span>():
+    <span class="var">name</span> = <span class="fn">input</span>(<span class="str">'请输入要删除的学生姓名:'</span>)
+    <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+        <span class="kw">if</span> <span class="var">stu</span>[<span class="str">'name'</span>] == <span class="var">name</span>:
+            <span class="var">stu_list</span>.<span class="fn">remove</span>(<span class="var">stu</span>)
+            <span class="kw">break</span>  <span class="comm"># 找到并删除，打断循环，不执行else</span>
+    <span class="kw">else</span>:
+        <span class="comm"># 循环正常结束（没有找到）才执行</span>
+        <span class="fn">print</span>(<span class="str">'该学生不存在，无法删除'</span>)</div>
+    </div>
+  </div></div>
+
+  <div class="pt"><input type="checkbox" class="ci"><div class="pt-body">
+    <div class="pt-t">10. 如果全局变量是可变类型（如列表），在函数内什么情况下需要 global 声明？</div>
+    <div class="pt-sub">综合题：考察可变类型+全局变量的深入理解</div>
+    <span class="pt-rev" onclick="tr(this)">查看答案 ›</span>
+    <div class="pt-ans">
+      <div class="code"><span class="var">list1</span> = [<span class="num">1</span>, <span class="num">2</span>]
+
+<span class="comm"># ✅ 不需要 global：只是修改列表内容（不改变引用）</span>
+<span class="kw">def</span> <span class="fn">func_a</span>():
+    <span class="var">list1</span>.<span class="fn">append</span>(<span class="num">10</span>)  <span class="comm"># 修改内容，list1还是那个list1</span>
+    <span class="var">list1</span>.<span class="fn">pop</span>()       <span class="comm"># 修改内容，不需要global</span>
+
+<span class="comm"># ❌ 需要 global：要让list1指向一个全新的列表（改变引用）</span>
+<span class="kw">def</span> <span class="fn">func_b</span>():
+    <span class="kw">global</span> <span class="var">list1</span>      <span class="comm"># 声明：我要修改全局变量list1的引用</span>
+    <span class="var">list1</span> = [<span class="num">1</span>]      <span class="comm"># 让 list1 指向一个新列表</span>
+
+<span class="comm"># ❌ 不加global时，list1 = [1,1] 定义的是局部变量，不影响全局</span>
+<span class="kw">def</span> <span class="fn">func_c</span>():
+    <span class="var">list1</span> = [<span class="num">1</span>, <span class="num">1</span>]   <span class="comm"># 局部变量，不影响外部的全局list1</span>
+    <span class="var">list1</span>.<span class="fn">append</span>(<span class="num">0</span>)</div>
+      <strong>总结：</strong>只要涉及 <code>=</code>（改变引用），就需要 <code>global</code> 声明；只是调用方法修改内容则不需要。
+    </div>
+  </div></div>
+
+  <div class="pnav">
+    <button onclick="go(1)">← 图解演示</button>
+    <button class="pri" onclick="go(3)">下一节 综合案例 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 3: 综合案例 ===== -->
+<div class="pan">
+  <div class="sec">
+    <h2><span class="ico">🏫</span>综合案例 — 学生管理系统</h2>
+    <div class="box cyan">
+      <b>需求说明：</b>学生信息包含 name（姓名）、age（年龄）、sex（性别）。实现菜单驱动的管理系统，支持：添加/删除/修改/查询单个/查询所有/退出。
+    </div>
+
+    <h3>数据结构设计</h3>
+    <div class="code">
+<span class="comm"># 存储所有学生信息的列表（全局变量）</span>
+<span class="var">stu_list</span> = []
+
+<span class="comm"># 单个学生信息用字典存储</span>
+<span class="comm"># 示例：{'name': '小明', 'age': 18, 'gender': '男'}</span>
+    </div>
+
+    <h3>完整实现代码</h3>
+    <div class="code">
+<span class="comm"># ====== 学生管理系统 完整版 ======</span>
+
+<span class="var">stu_list</span> = []  <span class="comm"># 全局学生列表</span>
+
+<span class="kw">def</span> <span class="fn">show_menu</span>():
+    <span class="str">"""打印功能菜单"""</span>
+    <span class="fn">print</span>(<span class="str">'1. 添加学生'</span>)
+    <span class="fn">print</span>(<span class="str">'2. 删除学生'</span>)
+    <span class="fn">print</span>(<span class="str">'3. 修改学生信息'</span>)
+    <span class="fn">print</span>(<span class="str">'4. 查询单个学生信息'</span>)
+    <span class="fn">print</span>(<span class="str">'5. 查询所有的学生信息'</span>)
+    <span class="fn">print</span>(<span class="str">'6. 退出系统'</span>)
+
+<span class="kw">def</span> <span class="fn">insert_student</span>():
+    <span class="str">"""添加学生（姓名不能重复）"""</span>
+    <span class="var">name</span> = <span class="fn">input</span>(<span class="str">'请输入学生名字:'</span>)
+    <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+        <span class="kw">if</span> <span class="var">stu</span>[<span class="str">'name'</span>] == <span class="var">name</span>:
+            <span class="fn">print</span>(<span class="str">'---------该学生已存在----------'</span>)
+            <span class="kw">return</span>  <span class="comm"># 重名，直接退出</span>
+    <span class="var">age</span> = <span class="fn">input</span>(<span class="str">'请输入学生年龄:'</span>)
+    <span class="var">gender</span> = <span class="fn">input</span>(<span class="str">'请输入学生性别:'</span>)
+    <span class="var">stu_dict</span> = {<span class="str">'name'</span>: <span class="var">name</span>, <span class="str">'age'</span>: <span class="fn">int</span>(<span class="var">age</span>), <span class="str">'gender'</span>: <span class="var">gender</span>}
+    <span class="var">stu_list</span>.<span class="fn">append</span>(<span class="var">stu_dict</span>)
+    <span class="fn">print</span>(<span class="str">'==============学生信息添加成功===================='</span>)
+
+<span class="kw">def</span> <span class="fn">remove_student</span>():
+    <span class="str">"""删除学生"""</span>
+    <span class="var">name</span> = <span class="fn">input</span>(<span class="str">'请输入要删除的学生的名字:'</span>)
+    <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+        <span class="kw">if</span> <span class="var">stu</span>[<span class="str">'name'</span>] == <span class="var">name</span>:
+            <span class="var">stu_list</span>.<span class="fn">remove</span>(<span class="var">stu</span>)
+            <span class="kw">break</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'***该学生不存在，请重新操作***'</span>)
+
+<span class="kw">def</span> <span class="fn">modify_student</span>():
+    <span class="str">"""修改学生信息"""</span>
+    <span class="var">name</span> = <span class="fn">input</span>(<span class="str">'请输入要修改的学生的名字:'</span>)
+    <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+        <span class="kw">if</span> <span class="var">stu</span>[<span class="str">'name'</span>] == <span class="var">name</span>:
+            <span class="var">stu</span>[<span class="str">'age'</span>] = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'请输入新的年龄:'</span>))
+            <span class="kw">break</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'***该学生不存在，请重新操作***'</span>)
+
+<span class="kw">def</span> <span class="fn">search_student</span>():
+    <span class="str">"""查询单个学生"""</span>
+    <span class="var">name</span> = <span class="fn">input</span>(<span class="str">'请输入要查询的学生姓名:'</span>)
+    <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+        <span class="kw">if</span> <span class="var">stu</span>[<span class="str">'name'</span>] == <span class="var">name</span>:
+            <span class="fn">print</span>(<span class="str">f'姓名:{</span><span class="var">stu</span>[<span class="str">"name"</span>]<span class="str">}, 年龄:{</span><span class="var">stu</span>[<span class="str">"age"</span>]<span class="str">}, 性别:{</span><span class="var">stu</span>[<span class="str">"gender"</span>]<span class="str">}'</span>)
+            <span class="kw">break</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">f'名字叫[{</span><span class="var">name</span><span class="str">}]的学生不存在'</span>)
+
+<span class="kw">def</span> <span class="fn">show_all_info</span>():
+    <span class="str">"""查询所有学生"""</span>
+    <span class="kw">if</span> <span class="fn">len</span>(<span class="var">stu_list</span>) > <span class="num">0</span>:
+        <span class="kw">for</span> <span class="var">stu</span> <span class="kw">in</span> <span class="var">stu_list</span>:
+            <span class="fn">print</span>(<span class="str">f'姓名:{</span><span class="var">stu</span>[<span class="str">"name"</span>]<span class="str">}, 年龄:{</span><span class="var">stu</span>[<span class="str">"age"</span>]<span class="str">}, 性别:{</span><span class="var">stu</span>[<span class="str">"gender"</span>]<span class="str">}'</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'暂时没有学生信息'</span>)
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    <span class="str">"""主程序（while循环驱动菜单）"""</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        <span class="fn">show_menu</span>()
+        <span class="var">opt</span> = <span class="fn">input</span>(<span class="str">'请输入用来选择的操作编号:'</span>)
+        <span class="kw">if</span> <span class="var">opt</span> == <span class="str">'1'</span>:
+            <span class="fn">insert_student</span>()
+        <span class="kw">elif</span> <span class="var">opt</span> == <span class="str">'2'</span>:
+            <span class="fn">remove_student</span>()
+        <span class="kw">elif</span> <span class="var">opt</span> == <span class="str">'3'</span>:
+            <span class="fn">modify_student</span>()
+        <span class="kw">elif</span> <span class="var">opt</span> == <span class="str">'4'</span>:
+            <span class="fn">search_student</span>()
+        <span class="kw">elif</span> <span class="var">opt</span> == <span class="str">'5'</span>:
+            <span class="fn">show_all_info</span>()
+        <span class="kw">elif</span> <span class="var">opt</span> == <span class="str">'6'</span>:
+            <span class="fn">print</span>(<span class="str">'感谢使用学生管理系统，拜拜！'</span>)
+            <span class="kw">break</span>
+        <span class="kw">else</span>:
+            <span class="fn">print</span>(<span class="str">'输入有误，请重新输入'</span>)
+            <span class="kw">continue</span>
+        <span class="fn">input</span>(<span class="str">'...... 回车键继续操作.......'</span>)
+
+<span class="kw">if</span> <span class="var">__name__</span> == <span class="str">'__main__'</span>:
+    <span class="fn">main</span>()
+    </div>
+
+    <h3>知识点解析</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>🔑 重名检查逻辑</h4>
+        <p>在 <code>insert_student</code> 中，遍历所有学生检查姓名是否重复，找到重名则直接 <code>return</code> 退出，避免重复添加。</p>
+      </div>
+      <div class="card">
+        <h4>🔄 for-else 查找逻辑</h4>
+        <p>在删除/修改/查询中使用 <code>for-else</code>：找到后 <code>break</code> 退出（跳过else），未找到时 <code>else</code> 执行提示。</p>
+      </div>
+      <div class="card">
+        <h4>🔄 while True 主循环</h4>
+        <p>主程序用 <code>while True</code> 持续运行。选择6时 <code>break</code> 退出循环；输入错误时 <code>continue</code> 直接回到循环头。</p>
+      </div>
+      <div class="card">
+        <h4>🏷️ if __name__ == '__main__'</h4>
+        <p>Python 的标准入口写法。当文件被<strong>直接运行</strong>时 <code>__name__</code> 为 <code>'__main__'</code>，被其他文件导入时不会自动执行 <code>main()</code>。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(2)">← 代码练习</button>
+    <button class="pri" onclick="go(4)">下一节 测验 →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL 4: 测验 ===== -->
+<div class="pan">
+  <div class="sec" style="margin-bottom:14px">
+    <h2><span class="ico">✅</span>测验（共15题）</h2>
+    <p>考察变量进阶、函数进阶、学生管理系统相关知识。</p>
+  </div>
+
+  <div id="quiz-area">
+
+  <div class="qz"><div class="qz-q"><span class="qn">1</span>以下哪些是Python的可变类型？</div>
+  <label class="opt" data-q="1" data-v="A">A. int, str, tuple</label>
+  <label class="opt" data-q="1" data-v="B">B. list, dict, set</label>
+  <label class="opt" data-q="1" data-v="C">C. int, list, str</label>
+  <label class="opt" data-q="1" data-v="D">D. float, bool, dict</label>
+  <div class="qz-ex" data-q="1"><b>✅ 正确答案：B</b> – 可变类型：list/dict/set（可以不用=修改内容）。不可变类型：int/float/bool/str/tuple。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">2</span>以下代码输出什么？<div class="code">num = 10
+def anum():
+    num = 20
+print(num)</div></div>
+  <label class="opt" data-q="2" data-v="A">A. 20</label>
+  <label class="opt" data-q="2" data-v="B">B. 10</label>
+  <label class="opt" data-q="2" data-v="C">C. 报错</label>
+  <label class="opt" data-q="2" data-v="D">D. None</label>
+  <div class="qz-ex" data-q="2"><b>✅ 正确答案：B</b> – 函数 anum 内的 num=20 定义的是局部变量，不影响全局变量 num=10。函数甚至未被调用，print(num) 输出全局变量 10。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">3</span>在函数内部，想要修改全局变量的引用，需要使用什么关键字？</div>
+  <label class="opt" data-q="3" data-v="A">A. local</label>
+  <label class="opt" data-q="3" data-v="B">B. nonlocal</label>
+  <label class="opt" data-q="3" data-v="C">C. global</label>
+  <label class="opt" data-q="3" data-v="D">D. var</label>
+  <div class="qz-ex" data-q="3"><b>✅ 正确答案：C</b> – <code>global</code> 关键字用于声明函数内的变量是全局变量，修改后会影响全局变量的引用。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">4</span>缺省参数（默认参数）必须写在什么位置？</div>
+  <label class="opt" data-q="4" data-v="A">A. 普通参数的前边</label>
+  <label class="opt" data-q="4" data-v="B">B. 普通参数的后边</label>
+  <label class="opt" data-q="4" data-v="C">C. 位置任意</label>
+  <label class="opt" data-q="4" data-v="D">D. 只能有一个缺省参数</label>
+  <div class="qz-ex" data-q="4"><b>✅ 正确答案：B</b> – 缺省参数必须写在普通参数后边。<code>def f(a, b=10)</code> ✅；<code>def f(a=10, b)</code> ❌ 报错。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">5</span><code>*args</code> 不定长参数接收到的数据类型是？</div>
+  <label class="opt" data-q="5" data-v="A">A. 列表</label>
+  <label class="opt" data-q="5" data-v="B">B. 字典</label>
+  <label class="opt" data-q="5" data-v="C">C. 元组</label>
+  <label class="opt" data-q="5" data-v="D">D. 集合</label>
+  <div class="qz-ex" data-q="5"><b>✅ 正确答案：C</b> – <code>*args</code> 接收任意多个位置传参，结果是元组 (tuple)。<code>def f(*args): print(type(args))</code> → <code>&lt;class 'tuple'&gt;</code>。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">6</span>匿名函数 lambda 的主要应用场景是？</div>
+  <label class="opt" data-q="6" data-v="A">A. 定义复杂的多行函数</label>
+  <label class="opt" data-q="6" data-v="B">B. 作为函数的参数（如 sort 的 key 参数）使用的简洁函数</label>
+  <label class="opt" data-q="6" data-v="C">C. 替代所有普通函数</label>
+  <label class="opt" data-q="6" data-v="D">D. 定义类的方法</label>
+  <div class="qz-ex" data-q="6"><b>✅ 正确答案：B</b> – lambda 只能写一行，主要用作函数的参数，例如 <code>list.sort(key=lambda x: x['age'])</code>。复杂逻辑应用普通函数定义。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">7</span>以下代码中 list1 最终值是什么？<div class="code">list1 = [1, 2]
+def func1():
+    list1.append(10)
+func1()
+print(list1)</div></div>
+  <label class="opt" data-q="7" data-v="A">A. [1, 2]（不受影响）</label>
+  <label class="opt" data-q="7" data-v="B">B. [1, 2, 10]</label>
+  <label class="opt" data-q="7" data-v="C">C. 报错</label>
+  <label class="opt" data-q="7" data-v="D">D. [10]</label>
+  <div class="qz-ex" data-q="7"><b>✅ 正确答案：B</b> – list1 是全局可变类型，函数内调用 .append() 修改的是列表内容，不改变引用，不需要 global 声明，所以全局 list1 被成功修改为 [1, 2, 10]。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">8</span>for-else 语句中，else 块在什么情况下执行？</div>
+  <label class="opt" data-q="8" data-v="A">A. 循环每次迭代后都执行</label>
+  <label class="opt" data-q="8" data-v="B">B. 循环被 break 打断时执行</label>
+  <label class="opt" data-q="8" data-v="C">C. 循环正常结束（未被 break/return 打断）时执行</label>
+  <label class="opt" data-q="8" data-v="D">D. 循环条件为 False 时执行</label>
+  <div class="qz-ex" data-q="8"><b>✅ 正确答案：C</b> – for-else：循环正常完成（每个元素都遍历完，未被 break/return 中断）时执行 else 块。常用于"遍历完未找到目标"的处理。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">9</span>函数返回多个值时，Python 实际上返回的是什么类型？</div>
+  <label class="opt" data-q="9" data-v="A">A. 列表</label>
+  <label class="opt" data-q="9" data-v="B">B. 字典</label>
+  <label class="opt" data-q="9" data-v="C">C. 元组</label>
+  <label class="opt" data-q="9" data-v="D">D. 集合</label>
+  <div class="qz-ex" data-q="9"><b>✅ 正确答案：C</b> – <code>return a+b, a-b</code> 实际返回的是元组 <code>(a+b, a-b)</code>。可以用元组拆包接收：<code>s, d = calc(10, 20)</code>。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">10</span>以下哪种写法是错误的（定义缺省参数）？</div>
+  <label class="opt" data-q="10" data-v="A">A. <code>def f(name, age=18):</code></label>
+  <label class="opt" data-q="10" data-v="B">B. <code>def f(name, age=18, sex='保密'):</code></label>
+  <label class="opt" data-q="10" data-v="C">C. <code>def f(name=18, age):</code></label>
+  <label class="opt" data-q="10" data-v="D">D. <code>def f(a, b, c=10):</code></label>
+  <div class="qz-ex" data-q="10"><b>✅ 正确答案：C</b> – 缺省参数必须在普通参数之后。C 选项 <code>def f(name=18, age):</code> 中缺省参数在前，普通参数在后，这是错误写法，Python 会报 SyntaxError。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">11</span>学生管理系统中，添加学生时如何防止重名？</div>
+  <label class="opt" data-q="11" data-v="A">A. 不需要处理，允许重名</label>
+  <label class="opt" data-q="11" data-v="B">B. 遍历 stu_list，找到同名学生则打印提示并 return 退出函数</label>
+  <label class="opt" data-q="11" data-v="C">C. 在添加前清空所有学生</label>
+  <label class="opt" data-q="11" data-v="D">D. 使用 try-except 捕获异常</label>
+  <div class="qz-ex" data-q="11"><b>✅ 正确答案：B</b> – 在 insert_student 中，用 for 循环遍历 stu_list，如果找到同名的学生字典，打印提示并 return 退出，不执行后续的 input 和 append 操作。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">12</span><code>id(变量)</code> 函数的作用是？</div>
+  <label class="opt" data-q="12" data-v="A">A. 返回变量的类型</label>
+  <label class="opt" data-q="12" data-v="B">B. 返回变量的引用（内存地址）</label>
+  <label class="opt" data-q="12" data-v="C">C. 返回变量的名字</label>
+  <label class="opt" data-q="12" data-v="D">D. 返回变量的长度</label>
+  <div class="qz-ex" data-q="12"><b>✅ 正确答案：B</b> – <code>id(x)</code> 返回对象的内存地址（引用）。可变类型修改内容后 id 不变；不可变类型"修改"后 id 改变（实际创建了新对象）。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">13</span>学生管理系统中，主程序使用 while True 循环，退出系统时应该用什么语句？</div>
+  <label class="opt" data-q="13" data-v="A">A. continue</label>
+  <label class="opt" data-q="13" data-v="B">B. return</label>
+  <label class="opt" data-q="13" data-v="C">C. break</label>
+  <label class="opt" data-q="13" data-v="D">D. exit()</label>
+  <div class="qz-ex" data-q="13"><b>✅ 正确答案：C</b> – 选择"6. 退出系统"时，用 break 跳出 while True 循环，程序自然结束。continue 是跳到循环开头；return 用于退出函数。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">14</span>元组中包含可变类型（如列表），能修改其中列表的内容吗？</div>
+  <label class="opt" data-q="14" data-v="A">A. 不能，元组是不可变类型，所有元素都不能修改</label>
+  <label class="opt" data-q="14" data-v="B">B. 能，元组存储的是列表的地址，列表本身是可变的，可以修改列表的内容</label>
+  <label class="opt" data-q="14" data-v="C">C. 需要先转换成列表再修改</label>
+  <label class="opt" data-q="14" data-v="D">D. 只能删除元素，不能修改</label>
+  <div class="qz-ex" data-q="14"><b>✅ 正确答案：B</b> – 元组不可变指的是元组存储的引用（地址）不能修改。但如果元组中存的是列表的地址，列表的内容是可以修改的，因为修改列表内容不改变列表的地址。例：<code>t=(1,[10,20]); t[1].append(30)</code> ✅。</div></div>
+
+  <div class="qz"><div class="qz-q"><span class="qn">15</span>拆包传参：已有元组 <code>t = (1, 2, 3)</code>，如何将其拆包传给 <code>my_sum(*args)</code>？</div>
+  <label class="opt" data-q="15" data-v="A">A. <code>my_sum(t)</code></label>
+  <label class="opt" data-q="15" data-v="B">B. <code>my_sum(*t)</code></label>
+  <label class="opt" data-q="15" data-v="C">C. <code>my_sum(**t)</code></label>
+  <label class="opt" data-q="15" data-v="D">D. <code>my_sum(list(t))</code></label>
+  <div class="qz-ex" data-q="15"><b>✅ 正确答案：B</b> – 在列表或元组前加 <code>*</code> 进行拆包：<code>my_sum(*t)</code> 等同于 <code>my_sum(1, 2, 3)</code>。直接 <code>my_sum(t)</code> 会将整个元组作为一个参数传入 args[0]。</div></div>
+
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <button class="qbtn sub" onclick="sub()">📊 提交答案</button>
+    <button class="qbtn rst" onclick="rst()">🔄 重新作答</button>
+  </div>
+  <div class="qres" id="qres">
+    <div class="score" id="qscore">0/15</div>
+    <p id="qmsg">计算中...</p>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)">查看各题下方解析</div>
+  </div>
+
+  <div class="pnav">
+    <button onclick="go(3)">← 综合案例</button>
+    <button class="pri" disabled>Python Day 05 完结 🎉</button>
+  </div>
+</div>
+
+</div>
+<script>
+const ANSWERS={1:'B',2:'B',3:'C',4:'B',5:'C',6:'B',7:'B',8:'C',9:'C',10:'C',11:'B',12:'B',13:'C',14:'B',15:'B'};
+const pans=document.querySelectorAll('.pan');
+const tabs=document.querySelectorAll('.t');
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<pans.length;i++){
+  const d=document.createElement('span');
+  d.className='dot'+(i===0?' a':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+function go(i){
+  tabs.forEach((t,k)=>t.classList.toggle('a',k===i));
+  pans.forEach((p,k)=>p.classList.toggle('a',k===i));
+  document.querySelectorAll('.dot').forEach((d,k)=>d.classList.toggle('a',k===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach((t,i)=>{t.onclick=()=>go(i)});
+function tr(el){
+  const a=el.nextElementSibling;
+  a.classList.toggle('s');
+  el.textContent=a.classList.contains('s')?'隐藏答案 ›':'查看答案 ›';
+}
+function tq(hdr){hdr.parentElement.classList.toggle('o')}
+const cbs=document.querySelectorAll('.ci');
+function upc(){
+  const done=document.querySelectorAll('.ci:checked').length;
+  document.getElementById('pc').textContent=done;
+  document.getElementById('pfill').style.width=(done/10*100)+'%';
+  cbs.forEach(cb=>cb.closest('.pt').classList.toggle('done',cb.checked));
+  if(done===10)document.querySelectorAll('.dot')[2].classList.add('d');
+}
+cbs.forEach(cb=>cb.onchange=upc);
+upc();
+function mc(){cbs.forEach(cb=>cb.checked=true);upc()}
+let sel={};
+document.querySelectorAll('.opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    const q=this.dataset.q;
+    document.querySelectorAll('.opt[data-q="'+q+'"]').forEach(o=>o.classList.remove('sel'));
+    this.classList.add('sel');
+    sel[q]=this.dataset.v;
+  });
+});
+function sub(){
+  let score=0;
+  document.querySelectorAll('.qz').forEach(qz=>{
+    const opts=qz.querySelectorAll('.opt');
+    const q=opts[0].dataset.q;
+    const correct=ANSWERS[q];
+    opts.forEach(o=>{
+      o.classList.remove('ok','no');
+      if(o.dataset.v===correct)o.classList.add('ok');
+      else if(o.classList.contains('sel'))o.classList.add('no');
+    });
+    const ex=qz.querySelector('.qz-ex');
+    if(ex)ex.classList.add('s');
+    if(sel[q]===correct)score++;
+  });
+  const res=document.getElementById('qres');
+  res.classList.add('s');
+  document.getElementById('qscore').textContent=score+'/15';
+  const pct=Math.round(score/15*100);
+  let msg='';
+  if(pct>=90)msg='🏆 优秀！Python函数进阶知识掌握扎实！';
+  else if(pct>=75)msg='✅ 良好！建议复习错题后继续学习。';
+  else if(pct>=50)msg='📚 还需努力，请重新阅读知识讲解和代码练习。';
+  else msg='💪 需要加油！请从头认真学习本章内容。';
+  document.getElementById('qmsg').textContent=msg;
+  if(score>=12)document.querySelectorAll('.dot')[4].classList.add('d');
+  window.parent.postMessage({type:'qa_quiz_result',score:score,total:15,day:'s4py05'},'*');
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function rst(){
+  sel={};
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','ok','no'));
+  document.querySelectorAll('.qz-ex').forEach(e=>e.classList.remove('s'));
+  document.getElementById('qres').classList.remove('s');
+  document.getElementById('qscore').textContent='0/15';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
